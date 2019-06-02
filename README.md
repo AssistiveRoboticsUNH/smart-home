@@ -8,4 +8,4 @@ elderly occupant and the safety of the home.
 
 # USAGE:
 Simulatioer:
-ros aunch pioneer_shr pioneer_gazebo.launch
+ros lunch pioneer_shr pioneer_gazebo.launch
