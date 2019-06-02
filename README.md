@@ -9,3 +9,5 @@ elderly occupant and the safety of the home.
 # USAGE:
 Simulatioer:
 ros lunch pioneer_shr pioneer_gazebo.launch
+
+Real Robot:
