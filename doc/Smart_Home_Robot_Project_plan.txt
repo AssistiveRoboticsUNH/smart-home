@@ -1,0 +1,34 @@
+﻿Plan for the Smart Home Project (robot part):
+
+
+Skills:
+1.mapping & Localization
+2.Autonomous Navigation (by the end of week 2)
+3.Database monitoring                    
+4.Scanning the room, eg, take pictures (by the end of week 4) 
+5.Face recognition in the picture 
+6.Play audio, play video
+7.Call 911, skype to care-giver (by the end of week 6) 
+
+
+Behavior:
+
+
+Protol 1:
+Monitoring medication ( DB monitoring)
+Find the AWD (move + scan + face recognition)
+Remind AWD to apply medicate (play audio)
+Keep monitoring (DB monitoring)
+If fail, call caregiver(skype)  (by the end of week 8) 
+
+
+Protol 2:
+Monitoring motion sensor 2 (DB monitoring)
+Drive to the door (move)
+Warn the AwD (play audio)
+Monitoring door sensor (DB monitoring)
+Warn the AwD (play video)
+Notify caregiver (skype)
+Monitoring motion sensor 1 (DB monitoring)
+If not activated, Call 911, else, notify caregiver alarm goes off and all clear.
+(by the end of week 10)
