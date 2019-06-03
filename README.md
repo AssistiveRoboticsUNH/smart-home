@@ -7,7 +7,12 @@ with the occupant of the smart home as well as all IoT devices to ensure health 
 elderly occupant and the safety of the home. 
 
 # USAGE:
-Simulator:
-ros lunch pioneer_shr pioneer_gazebo.launch
+Start Simulator:
+roscore && roslaunch pioneer_shr pioneer_gazebo.launch
+
+Mapping in gazebo:
+roslaunch pioneer_shr pioneer_gazebo_mapping.launch
+
+Autonomous navigation in gazebo:
 
 Real Robot:
