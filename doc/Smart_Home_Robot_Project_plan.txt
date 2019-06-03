@@ -2,18 +2,25 @@
 
 
 Skills:
+=====================================
 1.mapping & Localization
 2.Autonomous Navigation (by the end of week 2)
-3.Database monitoring                    
-4.Scanning the room, eg, take pictures (by the end of week 4) 
-5.Face recognition in the picture 
-6.Play audio, play video
-7.Call 911, skype to care-giver (by the end of week 6) 
+
+
+3.Database monitoring     
+4.Play audio, play video  (by the end of week 4) 
+      Union test: 
+            Trigger movement by sensor data, with pre-defined goal         
+            Trigger play audio by arriving the goal
+
+
+5.Scanning the room, eg, take pictures 
+6.Face recognition in the picture 
+7.Call 911, skype to care-giver (by the end of week 6)
 
 
 Behavior:
-
-
+====================================
 Protol 1:
 Monitoring medication ( DB monitoring)
 Find the AWD (move + scan + face recognition)
