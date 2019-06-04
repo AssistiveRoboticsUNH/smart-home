@@ -7,12 +7,15 @@ elderly occupant and the safety of the home.
 
 # Install:
 **ROS Kinetic**
+
 sudo apt-get install ros-kinetic-desktop-full
 
 **Gmapping package**
+
 sudo apt-get install ros-kinetic-slam-gmapping
 
 **navigation package (move_base, amcl)**
+
 sudo apt-get install ros-kinetic-navigation
 
 # USAGE:
