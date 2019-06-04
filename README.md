@@ -15,9 +15,13 @@ sudo apt-get install ros-kinetic-slam-gmapping
 **Navigation package (move_base, amcl)**  
 sudo apt-get install ros-kinetic-navigation
 
-**Teleop pakage**  
+**Teleop package**  
 sudo apt-get install ros-kinetic-teleop-twist-joy  
-sudo apt-get install ros-kinetic-teleop-twist-keyboard  
+sudo apt-get install ros-kinetic-teleop-twist-keyboard 
+
+
+**Aria package(for rosaria)**  
+sudo apt install libaria-dev
 
 # Usage:
 

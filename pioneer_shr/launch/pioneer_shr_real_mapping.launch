@@ -1,6 +1,6 @@
 <launch> 
 	<!-- rosaria node -->
-	<!--<include file="$(find pioneer_hallway)/launch/rosaria_pioneer_hallway.launch"/>-->
+	<include file="$(find pioneer_shr)/launch/rosaria_pioneer_shr.launch"/>
 	
 	<!-- start nodes for pioneer sensors -->
 	<include file="$(find pioneer_shr)/launch/pioneer_shr_sensors.launch"/>
