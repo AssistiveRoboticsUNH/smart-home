@@ -1,0 +1,13 @@
+<launch> 
+	<!-- rosaria node -->
+	<include file="$(find pioneer_shr)/launch/rosaria_pioneer_shr.launch"/>
+	
+	<!-- start nodes for pioneer sensors -->
+	<include file="$(find pioneer_shr)/launch/pioneer_shr_sensors.launch"/>
+	
+	<!-- controller node -->
+	<include file="$(find pioneer_test)/launch/pioneer_controller.launch"/>
+	
+	<!-- start rviz -->
+	<include file="$(find pioneer_shr)/launch/rviz_pioneer_shr.launch"/>
+</launch>
