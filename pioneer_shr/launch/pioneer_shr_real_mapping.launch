@@ -23,5 +23,5 @@
 	</node>
 	
 	<!-- start rviz -->
-	<include file="$(find pioneer_hallway)/launch/rviz_pioneer_hallway.launch"/>
+	<include file="$(find pioneer_shr)/launch/rviz_pioneer_shr.launch"/>
 </launch>
