@@ -14,7 +14,7 @@ sudo apt-get install ros-kinetic-desktop-full
 
 sudo apt-get install ros-kinetic-slam-gmapping
 
-**navigation package (move_base, amcl)**
+**Navigation package (move_base, amcl)**
 
 sudo apt-get install ros-kinetic-navigation
 
