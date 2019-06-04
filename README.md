@@ -5,6 +5,16 @@ elderly people with dementia. The SAR will execute a range of autonomous behavio
 with the occupant of the smart home as well as all IoT devices to ensure health and well-being of the
 elderly occupant and the safety of the home. 
 
+# Install:
+**ROS Kinetic**
+sudo apt-get install ros-kinetic-desktop-full
+
+**Gmapping package**
+sudo apt-get install ros-kinetic-slam-gmapping
+
+**navigation package (move_base, amcl)**
+sudo apt-get install ros-kinetic-navigation
+
 # USAGE:
 ## Start Simulator:
 roscore && roslaunch pioneer_shr pioneer_gazebo.launch
