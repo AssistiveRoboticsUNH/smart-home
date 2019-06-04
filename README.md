@@ -15,7 +15,12 @@ sudo apt-get install ros-kinetic-slam-gmapping
 **Navigation package (move_base, amcl)**  
 sudo apt-get install ros-kinetic-navigation
 
+**Teleop pakage**  
+sudo apt-get install ros-kinetic-teleop-twist-joy  
+sudo apt-get install ros-kinetic-teleop-twist-keyboard  
+
 # Usage:
+
 ## Simulator:
 **Bring up simulator:**  
 roscore && roslaunch pioneer_shr pioneer_gazebo.launch
