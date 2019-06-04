@@ -13,5 +13,6 @@ roscore && roslaunch pioneer_shr pioneer_gazebo.launch
 roslaunch pioneer_shr pioneer_gazebo_mapping.launch
 
 ## Autonomous navigation in gazebo:
+roslaunch pioneer_shr auto_navigation_gazebo.launch
 
 ## Real Robot:
