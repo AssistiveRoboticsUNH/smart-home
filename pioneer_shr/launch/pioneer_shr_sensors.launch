@@ -1,0 +1,7 @@
+<launch>
+	<!-- Robot sensor transforms -->
+	<node pkg="pioneer_test" type="pioneer3dx_odometry_publisher" name="pioneer3dx_odometry_publisher"/>
+ 
+	<!-- Frame transforms -->
+	<node pkg="pioneer_test" type="laser_tf_broadcaster" name="laser_tf_broadcaster"/>
+</launch>
