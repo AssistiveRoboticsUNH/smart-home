@@ -23,6 +23,10 @@ elderly occupant and the safety of the home.
 **Aria package(for rosaria)**  
 `sudo apt install libaria-dev`
 
+# Other pre-configuration:
+**Grant usb port read permission**
+`sudo adduser $USER dialout`
+
 # Usage:
 
 ## Simulator:
