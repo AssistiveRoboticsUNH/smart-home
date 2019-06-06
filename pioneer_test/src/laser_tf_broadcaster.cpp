@@ -16,9 +16,9 @@ int main(int argc, char** argv){
     transform.setOrigin( tf::Vector3(0.0, 0.0, 0.0) );
     transformSonar.setOrigin( tf::Vector3(0.0, 0.0, 0.0) );
     tf::Quaternion q;
-    q.setEuler(0.0, 0.0, pi);    
+    q.setEuler(0.0, 0.0, 0.0);    
     transform.setRotation( q );
-    q.setEuler(0.0, 0.0, 0.0);
+    q.setEuler(0.0, 0.0, pi);
     transformSonar.setRotation( q );
     br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "base_link", "laser"));
     br.sendTransform(tf::StampedTransform(transformSonar, ros::Time::now(), "base_link", "sonar"));
