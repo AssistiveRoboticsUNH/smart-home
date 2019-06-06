@@ -19,7 +19,7 @@
 	<arg name="temporalUpdate" value="1" />
 	<node pkg="gmapping" type="slam_gmapping" name="gmapping" args="$(arg map_update_interval) $(arg maxUrange) $(arg linearUpdate) $(arg angularUpdate) $(arg temporalUpdate)">
 		<!-- <remap from="scan" to="RosAria/lms5XX_1_laserscan"/>-->
-		<remap from="scan" to="base_scan"/>
+		<!-- <remap from="scan" to="base_scan"/>-->
 	</node>
 	
 	<!-- start rviz -->
