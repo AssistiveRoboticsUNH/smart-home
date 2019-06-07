@@ -24,8 +24,8 @@ elderly occupant and the safety of the home.
 `sudo apt install libaria-dev`
 
 # Other pre-configuration:
-**Grant usb port read permission**
-`sudo adduser $USER dialout`
+**Grant usb port read permission**  
+`sudo usermod -a -G dialout $USER`
 
 **Set up for remote control**
 Add this to .bashr or .zshrc  
