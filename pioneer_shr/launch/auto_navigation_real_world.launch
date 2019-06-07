@@ -1,0 +1,17 @@
+<launch> 
+	
+	<!-- map server -->
+	<arg name="map_file" default="$(find pioneer_shr)/maps/Hewitt139.yaml"/>
+	<node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)" />
+
+	<!-- <include file="$(find pioneer_shr)/launch/amcl_pioneer_shr.launch"/> -->
+
+	<!-- rosaria node -->
+	<include file="$(find pioneer_shr)/launch/rosaria_pioneer_shr.launch"/>
+
+	<!-- move_base node -->
+	<include file="$(find pioneer_shr)/launch/move_base_gazebo.launch"/>
+
+	<!-- start rviz -->
+	<include file="$(find pioneer_shr)/launch/rviz_pioneer_shr.launch"/>
+</launch>
