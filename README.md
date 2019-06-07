@@ -28,7 +28,8 @@ elderly occupant and the safety of the home.
 `sudo usermod -a -G dialout $USER`
 
 **Set up for remote control**  
-Add this to .bashr or .zshrc  
+
+Add this to .bashr or .zshrc:  
 * on board labtop
 ```bash
 # need to add this to onboard labtop that runs roscore
