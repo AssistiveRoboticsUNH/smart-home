@@ -27,7 +27,7 @@ elderly occupant and the safety of the home.
 **Grant usb port read permission**  
 `sudo usermod -a -G dialout $USER`
 
-**Set up for remote control**
+**Set up for remote control**  
 Add this to .bashr or .zshrc  
 * on board labtop
 ```bash
