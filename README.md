@@ -63,4 +63,28 @@ export ROS_HOSTNAME=10.21.98,194
 **Autonomous navigation in gazebo:**  
 `roslaunch pioneer_shr auto_navigation_gazebo.launch`
 
-## Real Robot:
+## Real Robot mapping:
+**ssh into onboard labtop**
+
+**Bring up pioneer from onboard labtop:**  
+`roscore && roslaunch pioneer_shr real_mapping.launch`
+
+**Start teleop keyboard from onboard labtop:**
+`roslaunch pioneer_shr keyboard_ctrl.launch`
+
+**Visualize from remote PC:**  
+`roslaunch pioneer_shr remote_vis.launch`
+
+## Real Robot autonavigation:
+**ssh into onboard labtop**
+
+**Bring up pioneer from onboard labtop:**  
+`roscore && roslaunch pioneer_shr auto_navigation_real_world.launch`
+
+**Start teleop keyboard from onboard labtop:**
+`roslaunch pioneer_shr keyboard_ctrl.launch`
+
+**Visualize from remote PC:**  
+`roslaunch pioneer_shr remote_vis.launch`
+
+
