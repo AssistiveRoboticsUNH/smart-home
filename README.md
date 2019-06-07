@@ -27,6 +27,29 @@ elderly occupant and the safety of the home.
 **Grant usb port read permission**
 `sudo adduser $USER dialout`
 
+**Set up for remote control**
+Add this to .bashr or .zshrc  
+* on board labtop
+'''bash
+# need to add this to onboard labtop that runs roscore
+export ROS_IP=0.0.0.0
+
+# set to localhost for onboard labtop that runs roscore
+export ROS_MASTER_URI=http://localhost:11311
+
+# IP of onboard labtop that runs roscore
+export ROS_HOSTNAME=10.21.152.74
+'''
+
+* remote control pc or labtop
+'''bash
+# IP of onboard labtop that runs roscore
+export ROS_MASTER_URI=http://10.21.152.74:11311
+
+# IP of remote pc 
+export ROS_HOSTNAME=10.21.98,194
+'''
+
 # Usage:
 
 ## Simulator:
