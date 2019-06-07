@@ -24,8 +24,8 @@ elderly occupant and the safety of the home.
 `sudo apt install libaria-dev`
 
 # Other pre-configuration:
-**Grant usb port read permission**
-sudo usermod -a -G dialout $USER
+**Grant usb port read permission**  
+`sudo usermod -a -G dialout $USER`
 
 # Usage:
 
