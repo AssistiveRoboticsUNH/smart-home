@@ -25,7 +25,7 @@ elderly occupant and the safety of the home.
 
 # Other pre-configuration:
 **Grant usb port read permission**
-`sudo adduser $USER dialout`
+sudo usermod -a -G dialout $USER
 
 # Usage:
 
