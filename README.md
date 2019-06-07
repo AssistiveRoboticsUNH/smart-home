@@ -69,7 +69,7 @@ export ROS_HOSTNAME=10.21.98,194
 **Bring up pioneer from onboard labtop:**  
 `roscore && roslaunch pioneer_shr real_mapping.launch`
 
-**Start teleop keyboard from onboard labtop:**
+**Start teleop keyboard from onboard labtop:**  
 `roslaunch pioneer_shr keyboard_ctrl.launch`
 
 **Visualize from remote PC:**  
@@ -81,7 +81,7 @@ export ROS_HOSTNAME=10.21.98,194
 **Bring up pioneer from onboard labtop:**  
 `roscore && roslaunch pioneer_shr auto_navigation_real_world.launch`
 
-**Start teleop keyboard from onboard labtop:**
+**Start teleop keyboard from onboard labtop:**  
 `roslaunch pioneer_shr keyboard_ctrl.launch`
 
 **Visualize from remote PC:**  
