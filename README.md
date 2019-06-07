@@ -75,7 +75,7 @@ export ROS_HOSTNAME=10.21.98,194
 **Visualize from remote PC:**  
 `roslaunch pioneer_shr remote_vis.launch`
 
-## Real Robot autonavigation:
+## Real Robot auto-navigation:
 **ssh into onboard labtop**
 
 **Bring up pioneer from onboard labtop:**  
