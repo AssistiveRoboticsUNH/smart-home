@@ -21,7 +21,5 @@
 		<!-- <remap from="scan" to="RosAria/lms5XX_1_laserscan"/>-->
 		<!-- <remap from="scan" to="base_scan"/>-->
 	</node>
-	
-	<!-- start rviz -->
-	<include file="$(find pioneer_shr)/launch/rviz_pioneer_shr.launch"/>
+
 </launch>
