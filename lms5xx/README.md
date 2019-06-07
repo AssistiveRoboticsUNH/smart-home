@@ -19,3 +19,6 @@ Test:
 DISCLAIMER:
   I am not the creator of the drivers or node. I merely rebuild the package from scratch and altered the source files to make it work in 
   ROS jade.
+
+# REF:
+https://blog.csdn.net/zhuoyueljl/article/details/75244563
