@@ -1,0 +1,7 @@
+<launch> 
+	<!-- start rviz -->
+	<include file="$(find pioneer_shr)/launch/rviz_pioneer_shr.launch"/>
+
+    <!-- start keyboard control -->
+	<node pkg="teleop_twist_keyboard" type="teleop_twist_keyboard" name="teleop_twist_keyboard"/>
+</launch>
