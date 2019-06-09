@@ -65,6 +65,7 @@ export ROS_HOSTNAME=10.21.98,194
 
 **Visualize trajectory**  
 `roslaunch pioneer_shr trajectory_vis.launch`
+(you may want to visualize trajectory after mannually localize the robot)  
 
 ## Real Robot mapping:
 **ssh into onboard labtop**
