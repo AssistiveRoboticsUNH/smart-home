@@ -63,6 +63,9 @@ export ROS_HOSTNAME=10.21.98,194
 **Autonomous navigation in gazebo:**  
 `roslaunch pioneer_shr auto_navigation_gazebo.launch`
 
+**Visualize trajectory**  
+`roslaunch pioneer_shr trajectory_vis.launch`
+
 ## Real Robot mapping:
 **ssh into onboard labtop**
 
