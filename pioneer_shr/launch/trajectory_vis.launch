@@ -1,0 +1,6 @@
+<launch> 
+	
+	<!-- start trajectory server -->
+	<node name="hector_trajectory_server" pkg="hector_trajectory_server" type="hector_trajectory_server" />
+
+</launch>
