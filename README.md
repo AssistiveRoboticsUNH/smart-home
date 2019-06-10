@@ -28,9 +28,10 @@ elderly occupant and the safety of the home.
 `sudo usermod -a -G dialout $USER`
 
 **Laser Scan Ethernet Config**  
-set ethernet ip as 192.168.0.10   
-(the default set for lms500 is 192.168.0.1, we don't have to change that
-[ref(in Chinese)](https://blog.csdn.net/zhuoyueljl/article/details/75244563))
+Set ethernet ip as 192.168.0.10   
+
+The default set for lms500 is 192.168.0.1, and we don't have to change this. The labtop ethernet have to be in the same ip domain, so anything similar to 192.168.0.x will work. Here we use 192.168.0.10.
+ This is a [reference artical in chinese](https://blog.csdn.net/zhuoyueljl/article/details/75244563) about the LMS500 laser.
 
 **Set up for remote control**  
 
