@@ -82,10 +82,10 @@ export ROS_HOSTNAME=10.21.98,194
 ## Real Robot auto-navigation:
 **ssh into onboard labtop**
 
-**Bring up pioneer from onboard labtop:**  
+**Bring up pioneer from onboard labtop via ssh:**  
 `roscore && roslaunch pioneer_shr auto_navigation_real_world.launch`
 
-**Start teleop keyboard from onboard labtop:**  
+**Start teleop keyboard from onboard labtop via ssh:**  
 `roslaunch pioneer_shr keyboard_ctrl.launch`
 
 **Visualize from remote PC:**  
