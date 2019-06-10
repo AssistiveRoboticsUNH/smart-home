@@ -27,6 +27,11 @@ elderly occupant and the safety of the home.
 **Grant usb port read permission**  
 `sudo usermod -a -G dialout $USER`
 
+**Laser Scan Ethernet Config**  
+set ip as 192.168.0.10 
+(the default set for lms500 is 192.168.0.1, we don't have to change that)
+[ref(in Chinese)](https://blog.csdn.net/zhuoyueljl/article/details/75244563)
+
 **Set up for remote control**  
 
 Add this to .bashr or .zshrc:  
