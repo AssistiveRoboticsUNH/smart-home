@@ -25,10 +25,11 @@ elderly occupant and the safety of the home.
 
 # Other pre-configuration:
 **Grant usb port read permission**  
-`sudo usermod -a -G dialout $USER`
+`sudo usermod -a -G dialout $USER`  
+Have to reboot after.
 
 **Laser Scan Ethernet Config**  
-Set ethernet ip as 192.168.0.10   
+On onboard labtop, set ethernet ip as 192.168.0.10   
 
 The default set for lms500 is 192.168.0.1, and we don't have to change this. The labtop ethernet have to be in the same ip domain, so anything similar to 192.168.0.x will work. Here we use 192.168.0.10.
  This is a [reference artical in chinese](https://blog.csdn.net/zhuoyueljl/article/details/75244563) about the LMS500 laser.
