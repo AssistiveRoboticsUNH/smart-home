@@ -5,6 +5,7 @@ Panels:
     Property Tree Widget:
       Expanded:
         - /LocalCostMap1/Orientation1
+        - /Goal1
       Splitter Ratio: 0.5
     Tree Height: 456
   - Class: rviz/Selection
@@ -25,7 +26,7 @@ Panels:
     Experimental: false
     Name: Time
     SyncMode: 0
-    SyncSource: Back sonar
+    SyncSource: Laser
 Toolbars:
   toolButtonStyle: 2
 Visualization Manager:
@@ -354,6 +355,21 @@ Visualization Manager:
       Topic: /move_base/local_costmap/costmap
       Unreliable: false
       Use Timestamp: false
+      Value: true
+    - Alpha: 1
+      Axes Length: 1
+      Axes Radius: 0.100000001
+      Class: rviz/Pose
+      Color: 255; 85; 0
+      Enabled: true
+      Head Length: 0.300000012
+      Head Radius: 0.100000001
+      Name: Goal
+      Shaft Length: 0.5
+      Shaft Radius: 0.0500000007
+      Shape: Arrow
+      Topic: /move_base_simple/goal
+      Unreliable: false
       Value: true
   Enabled: true
   Global Options:
