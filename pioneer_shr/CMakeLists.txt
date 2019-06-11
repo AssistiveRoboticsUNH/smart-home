@@ -114,12 +114,14 @@ catkin_package(
 ###########
 ## Build ##
 ###########
+add_subdirectory(cpr)
 
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
 # include
   ${catkin_INCLUDE_DIRS}
+  ${CPR_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
@@ -138,6 +140,10 @@ include_directories(
 # add_executable(${PROJECT_NAME}_node src/pioneer_shr_node.cpp)
 add_executable(simple_navigation_goals src/goalPublisher.cpp)
 target_link_libraries(simple_navigation_goals ${catkin_LIBRARIES})
+
+add_executable(http_request src/httpRequest.cpp)
+target_link_libraries(http_request ${catkin_LIBRARIES} ${CPR_LIBRARIES})
+
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
