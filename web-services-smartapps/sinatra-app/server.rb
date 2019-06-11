@@ -197,15 +197,6 @@ get '/getcontacts' do
   
  
 end
-
-get '/zhJson' do
-    
-    if !authenticated?
-        
-        redirect '/authorize'
-        
-    end
-
     
 puts "9.0 ".inspect
 
