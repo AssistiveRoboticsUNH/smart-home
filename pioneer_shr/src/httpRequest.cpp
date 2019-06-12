@@ -1,11 +1,14 @@
 #include <cpr/cpr.h>
 #include <iostream>
+#include <string>
+#include "jasonParser.hpp"
 
 int main(int argc, char** argv) {
     auto r = cpr::Get(cpr::Url{"http://www.httpbin.org/get"});
 
-    std::cout << r.url << std::endl;
-    std::cout << r.status_code << std::endl;
-    std::cout << r.header["content-type"] << std::endl;
-    std::cout << r.text << std::endl;
+    std::cout << "parser by tianyi:  " << std::endl;
+
+	JasonParser jason(r.text);
+
+    std::cout << jason.getValue("origin") << std::endl;
 }
