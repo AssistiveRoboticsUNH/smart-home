@@ -193,6 +193,10 @@ get '/getcontacts' do
 
   contactsStatus = getcontactsHttp.request(getcontactsReq)
 
+  File.open("/home/tianyi/catkin_ws/src/web-services-smartapps/iot-sinatra-app/data.json", "w") do |f|
+      f.write(contactsStatus.body.to_json)
+  end
+
   '<h3>Response Code</h3>' + contactsStatus.code + '<br/><h3>Response Headers</h3>' + contactsStatus.to_hash.inspect + '<br/><h3>Response Body</h3>' + contactsStatus.body
   
  
