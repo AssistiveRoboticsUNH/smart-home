@@ -3,6 +3,7 @@
 #include <actionlib/client/simple_action_client.h>
 #include <geometry_msgs/Pose.h>
 #include "httpRequest.hpp"
+#include <string>
 
 typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseClient;
 
@@ -35,7 +36,21 @@ public:
         else
             ROS_INFO("The base failed to move for some reason");
     }
+
+    void playAudio() {
+        const char* ros_work_space = std::getenv("ROS_WORKSPACE");
+        if (ros_work_space == 0) {
+            std::cout << "ROS_WORKSPACE environment variable not found!"
+                      << std::endl;
+			return;
+        }
+        std::string resourcePath = ros_work_space;
+        resourcePath += "/src/pioneer_shr/resource/playAudio.sh";
+        std::system(resourcePath.c_str());
+    }
 };
+
+
 
 int main(int argc, char** argv){
   ros::init(argc, argv, "simple_navigation_goals");
@@ -67,6 +82,7 @@ int main(int argc, char** argv){
 
       if (httpReq.isOpen()) {
           autonav.navigateTo(goalPose);
+		  autonav.playAudio();
 		  doorOpen = true;
       }
   }
