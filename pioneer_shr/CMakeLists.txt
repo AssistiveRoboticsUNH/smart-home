@@ -144,6 +144,8 @@ target_link_libraries(simple_navigation_goals ${catkin_LIBRARIES})
 add_executable(http_request src/httpRequest.cpp)
 target_link_libraries(http_request ${catkin_LIBRARIES} ${CPR_LIBRARIES})
 
+add_executable(jason_parser src/jasonParser.cpp)
+target_link_libraries(jason_parser ${catkin_LIBRARIES})
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
