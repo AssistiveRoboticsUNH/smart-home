@@ -20,8 +20,21 @@ public:
 
         std::string jasonStr;
 
+        int i = 1;
         while (getline(ss, jasonStr, ',')) {
-            jasonStrList.push_back(jasonStr);
+            if (i % 2 != 0)
+                jasonStrList.push_back(jasonStr);
+            else
+                jasonStrList[jasonStrList.size() - 1] += "," + jasonStr;
+
+            i++;
+        }
+
+
+        std::vector<JasonParser> jasonList;
+
+        for (auto str : jasonStrList) {
+            jasonList.push_back(JasonParser(str));
         }
 
         std::cout << "parser by tianyi:  " << std::endl;
@@ -30,8 +43,11 @@ public:
 
         // std::cout << jason.getValue("origin") << std::endl;
 
-        std::cout << jasonStrList[0] << std::endl;
+        std::cout << jasonList[0].getValue("value") << std::endl;
 
-        return true;
+        if (jasonList[0].getValue("value") == "open")
+            return true;
+        else
+            return false;
     }
 };
