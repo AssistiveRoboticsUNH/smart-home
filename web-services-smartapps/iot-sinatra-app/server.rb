@@ -8,6 +8,7 @@ require "uri"
 # Our client ID and secret, used to get the access token
 CLIENT_ID = '891e1469-e265-4b81-b3f7-ec0ff12c2626'
 CLIENT_SECRET = 'ac4e4ea5-0f73-471b-961a-8cba50cd9467'
+TOKEN = nil
 
 puts "0.5 ".inspect
 
@@ -114,6 +115,7 @@ get '/oauth/callback' do
 
   # now that we have the access token, we will store it in the session
   session[:access_token] = response.token
+  TOKEN = response.token
 
   puts "5.7 ".inspect
 
@@ -141,19 +143,21 @@ get '/getcontacts' do
   
   puts "6.1 ".inspect
 
-  if !authenticated?
-    
-    puts "6.2 ".inspect
-
-    redirect '/'
-    
-    puts "6.3 ".inspect
-
-  end
+#  if !authenticated?
+#    
+#    puts "6.2 ".inspect
+#
+#    redirect '/'
+#    
+#    puts "6.3 ".inspect
+#
+#  end
 
   puts "7. handle requests to the /getcontacts URL. This is where we will make requests to get information about the configured contacts.".inspect
   
-  token = session[:access_token]
+#  token = session[:access_token]
+
+  token = TOKEN
 
   # make a request to the SmartThins endpoint URI, using the token,
   # to get our endpoints
