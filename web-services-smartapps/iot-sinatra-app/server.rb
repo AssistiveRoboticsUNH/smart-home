@@ -201,7 +201,8 @@ get '/getcontacts' do
       f.write(contactsStatus.body.to_json)
   end
 
-  '<h3>Response Code</h3>' + contactsStatus.code + '<br/><h3>Response Headers</h3>' + contactsStatus.to_hash.inspect + '<br/><h3>Response Body</h3>' + contactsStatus.body
+#  '<h3>Response Code</h3>' + contactsStatus.code + '<br/><h3>Response Headers</h3>' + contactsStatus.to_hash.inspect + '<br/><h3>Response Body</h3>' + contactsStatus.body
+   contactsStatus.body
   
  
 end
