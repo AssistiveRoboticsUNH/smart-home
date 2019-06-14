@@ -57,6 +57,8 @@ export ROS_MASTER_URI=http://10.21.152.74:11311
 # IP of remote pc 
 export ROS_HOSTNAME=10.21.98,194
 ```
+**Set up for audio and video resource**  
+`export ROS_WORKSPACE=/path/to/your/catkin_ws`  
 
 # Usage:
 
@@ -97,5 +99,13 @@ export ROS_HOSTNAME=10.21.98,194
 
 **Visualize from remote PC:**  
 `roslaunch pioneer_shr remote_vis.launch`
+
+## Auto-navigation trigger by sensor:
+**Do all steps in auto-navigation**
+
+**Bring up simple_navigation_goal ros node**  
+`rosrun pioneer_shr simple_navigation_goals`
+
+
 
 
