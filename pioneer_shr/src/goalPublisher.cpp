@@ -58,10 +58,15 @@ int main(int argc, char** argv){
   AutoNavigation autonav;
 
   geometry_msgs::Pose goalPose;
-  goalPose.position.x = 1.72;
-  goalPose.position.y = 1.52;
-  goalPose.orientation.z = 0.73;
-  goalPose.orientation.w = 0.67;
+  /*goalPose.position.x = 1.72;*/
+  //goalPose.position.y = 1.52;
+  //goalPose.orientation.z = 0.73;
+  /*goalPose.orientation.w = 0.67;*/
+
+  goalPose.position.x = -0.6109;
+  goalPose.position.y = -1.7612;
+  goalPose.orientation.z = 0.9947;
+  goalPose.orientation.w = -0.1019;
 
   HttpRequest httpReq;
 
