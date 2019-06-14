@@ -1,0 +1,12 @@
+IoT:
+
+---1.Motion sensor: same sensor used in two sinarios. The different range could't be configured. 
+---Idea: use different time schedule as different purpose. 
+
+2.If the AWD open the door and never close it, the robot would be always trigger to go towards the door.
+
+Robot:
+
+1. If the body is too high, the laser sensor can't detect blocked way.
+
+
