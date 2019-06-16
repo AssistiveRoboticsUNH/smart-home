@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<launch> 
+
+<include file="$(find turtle_tf_3d)/launch/spawn_sdf.launch">
+    <arg name="model_sdf_file" value="turtle1.sdf"/>
+    <arg name="robot_name" default="turtle1" />
+    <arg name="x" default="0.0" />
+    <arg name="y" default="0.0" />
+    <arg name="z" default="1.0" />
+</include>
+
+<include file="$(find turtle_tf_3d)/launch/spawn_sdf.launch">
+    <arg name="model_sdf_file" value="turtle2.sdf"/>
+    <arg name="robot_name" default="turtle2" />
+    <arg name="x" default="3.0" />
+    <arg name="y" default="0.0" />
+    <arg name="z" default="1.0" />
+</include>
+
+</launch>

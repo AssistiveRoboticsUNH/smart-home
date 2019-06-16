@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<launch>
+    <arg name="robot_name" default="turtle2" />
+
+    <node name="$(arg robot_name)_twist_keyboard" pkg="turtle_tf_3d" type="turtle_twist_keyboard.py" args="$(arg robot_name)" output="screen"/>
+</launch>

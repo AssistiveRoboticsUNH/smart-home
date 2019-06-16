@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<launch> 
+    <node name="person_tf_broadcaster_node" pkg="person_sim" type="person_tf_broadcaster.py" args="" output="screen"/>
+</launch> 

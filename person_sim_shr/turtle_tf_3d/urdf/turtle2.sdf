@@ -1,0 +1,50 @@
+<sdf version='1.6'>
+  <model name='turtle1'>
+    <link name='base_link'>
+      <pose frame=''>0 0 0 0 -0 0</pose>
+      <inertial>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <mass>0.5</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>1</iyy>
+          <iyz>0</iyz>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='base_link_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <box>
+            <size>0.3 0.3 0.08</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name='base_link_visual'>
+        <pose frame=''>0 0 0 0 0 0</pose>
+        <geometry>
+            <mesh>
+                <scale>150 150 150</scale>
+                <uri>file://turtlebot/meshes/create_body.dae</uri>
+            </mesh>
+          
+          <!--
+          <box>
+            <size>1 1 1</size>
+          </box>
+          -->
+        </geometry>
+        <!--
+        <material>
+            <script>
+            <uri>file://media/materials/scripts/gazebo.material</uri>
+            <name>Gazebo/Red</name>
+            </script>
+        </material>
+        -->
+      </visual>
+    </link>
+  </model>
+</sdf>
