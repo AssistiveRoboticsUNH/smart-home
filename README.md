@@ -104,7 +104,8 @@ export ROS_HOSTNAME=10.21.98,194
 **Do all steps in auto-navigation**
 
 **Bring up simple_navigation_goal ros node**  
-`rosrun pioneer_shr simple_navigation_goals`
+`roslaunch pioneer_shr sensor_trigger_move2goal_real.launch` (real world)  
+`roslaunch pioneer_shr sensor_trigger_move2goal_gazebo.launch` (gazebo)    
 
 ## Face detection in gazebo:
 **Do Autonomous navigation in gazebo:**  
