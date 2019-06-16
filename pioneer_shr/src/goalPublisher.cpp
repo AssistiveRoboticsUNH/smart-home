@@ -72,7 +72,6 @@ int main(int argc, char** argv){
   AutoNavigation autonav;
 
   geometry_msgs::Pose goalPose;
-  //goalPose.position.x = 1.72;
   goalPose.position.x = x;
   goalPose.position.y = y;
   goalPose.orientation.z = z;
@@ -83,7 +82,7 @@ int main(int argc, char** argv){
   //goalPose.orientation.z = 0.9947;
   //goalPose.orientation.w = -0.1019;
 
-  //HttpRequest httpReq;
+  HttpRequest httpReq;
 
   //we don't need this if there is a nodehandle be created
   //ros::Time::init();
@@ -92,22 +91,22 @@ int main(int argc, char** argv){
   loop_rate.sleep();
   ros::spinOnce();
 
-  //bool doorOpen = false;
+  bool doorOpen = false;
 
-  //while (ros::ok()) {
-      //if (doorOpen)
-          //break;
+  while (ros::ok()) {
+	  if (doorOpen)
+		  break;
 
-      //ros::spinOnce();
+	  ros::spinOnce();
 
-      //if (httpReq.isOpen()) {
-          //autonav.navigateTo(goalPose);
-		  //autonav.playAudio();
-		  //doorOpen = true;
-      //}
-  /*}*/
+	  if (httpReq.isOpen()) {
+		  autonav.navigateTo(goalPose);
+		  autonav.playAudio();
+		  doorOpen = true;
+	  }
+  }
 
-  autonav.navigateTo(goalPose);
+  //autonav.navigateTo(goalPose);
 
   return 0;
 }
