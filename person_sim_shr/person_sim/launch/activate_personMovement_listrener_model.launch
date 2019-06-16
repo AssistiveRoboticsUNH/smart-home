@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<launch> 
+
+<include file="$(find spawn_robot_tools_pkg)/launch/move_model.launch">
+        <arg name="robot_name" value="person_standing" />
+</include>
+
+
+</launch>

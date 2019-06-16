@@ -1,0 +1,22 @@
+<launch>
+    
+    <arg name="x" default="0.0" />
+    <arg name="y" default="0.0" />
+    <arg name="z" default="0.0" />
+    <arg name="yaw" default="0.0" />
+    
+    <!-- Spawn Model Standin person Model-->
+    <include file="$(find person_sim)/launch/spawn_standing_person.launch">
+        <arg name="x" value="$(arg x)" />
+        <arg name="y" value="$(arg y)" />
+        <arg name="z" value="$(arg z)" />
+        <arg name="yaw" value="$(arg yaw)" />
+    </include>
+    <!-- Activate TF publishing of the person -->
+    <include file="$(find person_sim)/launch/run_person_tf_broadcaster.launch"/>
+    <!-- 
+    Activate keyboard listener to be able to move it roslaunch turtle_tf_3d move_person_standing.launch ,
+    to move it through keyboard
+    -->
+    <include file="$(find person_sim)/launch/activate_personMovement_listrener_model.launch"/>
+</launch>

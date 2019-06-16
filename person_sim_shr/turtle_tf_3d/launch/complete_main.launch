@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<launch>  
+  <arg name="robot" default="machines"/>
+  <arg name="debug" default="false"/>
+  <arg name="gui" default="true"/>
+  <arg name="headless" default="false"/>
+  <arg name="pause" default="true"/>  <!-- Start Gazebo with a blank world -->
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" value="$(find turtle_tf_3d)/worlds/model.world"/>
+    <arg name="debug" value="$(arg debug)" />
+    <arg name="gui" value="$(arg gui)" />
+    <arg name="paused" value="$(arg pause)"/>
+    <arg name="use_sim_time" value="true"/>
+    <arg name="headless" value="$(arg headless)"/>
+  </include>
+<!--  Include launch.xml if needed -->
+    <include file="$(find turtle_tf_3d)/launch/spawn_turtles.launch"/>
+    <include file="$(find turtle_tf_3d)/launch/move_model.launch">
+        <arg name="robot_name" value="turtle1" />
+    </include>
+    <include file="$(find turtle_tf_3d)/launch/move_model.launch">
+        <arg name="robot_name" value="turtle2" />
+    </include>
+    <include file="$(find turtle_tf_3d)/launch/run_turtle_tf_broadcaster.launch"/>
+
+</launch>

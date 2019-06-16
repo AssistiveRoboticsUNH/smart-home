@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+
+    <arg name="put_robot_in_world" default="true" />
+    <arg name="put_robot_in_world_package" default="turtle_tf_3d" />
+    <arg name="put_robot_in_world_launch1" default="put_robot_in_world_realturtle.launch" />
+    <arg name="put_robot_in_world_launch2" default="put_robot_in_world_irobot.launch" />
+
+    <arg name="x1" default="0.0" />
+    <arg name="y1" default="0.0" />
+    <arg name="z1" default="1.0" />
+    <arg name="x2" default="3.0" />
+    <arg name="y2" default="0.0" />
+    <arg name="z2" default="1.0" />
+    <arg name="roll" default="0.0"/>
+    <arg name="pitch" default="0.0"/>
+    <arg name="yaw" default="0.0"/>
+
+    <include file="$(find turtle_tf_3d)/launch/start_world.launch">
+        <arg name="put_robot_in_world" value="$(arg put_robot_in_world)" />
+        <arg name="put_robot_in_world_package" value="$(arg put_robot_in_world_package)" />
+        <arg name="put_robot_in_world_launch" value="$(arg put_robot_in_world_launch1)" />
+        <arg name="x" value="$(arg x1)" />
+        <arg name="y" value="$(arg y1)" />
+        <arg name="z" value="$(arg z1)" />
+        <arg name="roll" value="$(arg roll)"/>
+        <arg name="pitch" value="$(arg pitch)"/>
+        <arg name="yaw" value="$(arg yaw)" />
+    </include>
+
+    <include file="$(eval find(put_robot_in_world_package) + '/launch/' + put_robot_in_world_launch2)">
+        <arg name="x" value="$(arg x2)" />
+        <arg name="y" value="$(arg y2)" />
+        <arg name="z" value="$(arg z2)" />
+        <arg name="roll" value="$(arg roll)"/>
+        <arg name="pitch" value="$(arg pitch)"/>
+        <arg name="yaw" value="$(arg yaw)" />
+    </include>
+
+</launch>
