@@ -106,6 +106,16 @@ export ROS_HOSTNAME=10.21.98,194
 **Bring up simple_navigation_goal ros node**  
 `rosrun pioneer_shr simple_navigation_goals`
 
+## Face detection in gazebo:
+**Do Autonomous navigation in gazebo:**  
+
+**start person sim**  
+`roslaunch person_sim init_standing_person.launch`  
+
+**keyboard control for the person**  
+`roslaunch person_sim move_person_standing.launch`
+
+
 
 
 
