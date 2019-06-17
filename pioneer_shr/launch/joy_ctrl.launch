@@ -1,0 +1,7 @@
+<launch> 
+
+    <!-- start joy control -->
+	<include file="$(find teleop_twist_joy)/launch/teleop.launch">
+		<arg name="joy_config" value="xbox"/>
+    </include>
+</launch>
