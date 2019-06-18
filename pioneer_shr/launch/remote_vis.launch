@@ -1,5 +1,7 @@
 <launch> 
 	<!-- start rviz -->
-	<include file="$(find pioneer_shr)/launch/rviz_pioneer_shr.launch"/>
+	<include file="$(find pioneer_shr)/launch/rviz_pioneer_shr.launch">
+		<arg name="rviz_file" value="real_pioneer_shr.rviz"/>
+	</include>
 
 </launch>
