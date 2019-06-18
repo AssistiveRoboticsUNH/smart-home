@@ -1,0 +1,5 @@
+geometry_msgs/Pose pose       # Pose to move tcp to
+float64[] joints_array # Alternative joints positions array. In case of TORSO its only important the first element in the array which will be the height, in HEAD its the three first that indicate the XYZ position in the world frame that the head should look at, GRIPPER is first element the aperture and second the maximum grip force
+std_msgs/String movement_type # Supported JOINTS, TCP, TORSO and HEAD
+---
+bool success         # Did it achieve it?
