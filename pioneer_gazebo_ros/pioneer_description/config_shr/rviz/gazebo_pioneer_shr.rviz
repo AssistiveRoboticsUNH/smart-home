@@ -7,6 +7,7 @@ Panels:
         - /LocalCostMap1/Orientation1
         - /Camera1
         - /PointCloud21
+        - /PeoplePositionMeasurementArray1
       Splitter Ratio: 0.5
     Tree Height: 260
   - Class: rviz/Selection
@@ -400,6 +401,7 @@ Visualization Manager:
         LocalCostMap: true
         LocalPlan: true
         Map: true
+        PeoplePositionMeasurementArray: true
         PointCloud2: true
         RobotModel: true
         Trajectory: true
@@ -435,6 +437,16 @@ Visualization Manager:
       Use Fixed Frame: true
       Use rainbow: true
       Value: true
+    - Class: jsk_rviz_plugin/PeoplePositionMeasurementArray
+      Enabled: true
+      Name: PeoplePositionMeasurementArray
+      Topic: /face_detector/people_tracker_measurements_array
+      Unreliable: false
+      Value: true
+      anonymous: false
+      size: 0.300000012
+      text: person found here person found here
+      timeout: 10
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -475,10 +487,10 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.00999999978
-      Pitch: 1.00539863
+      Pitch: 0.750398636
       Target Frame: base_link
       Value: ThirdPersonFollower (rviz)
-      Yaw: 3.37039971
+      Yaw: 3.43039989
     Saved: ~
 Window Geometry:
   Camera:
