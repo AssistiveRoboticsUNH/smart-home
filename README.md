@@ -19,6 +19,9 @@ elderly occupant and the safety of the home.
 `sudo apt-get install ros-kinetic-teleop-twist-joy`  
 `sudo apt-get install ros-kinetic-teleop-twist-keyboard` 
 
+**face module package**  
+`sudo apt-get install ros-kinetic-face-detector`  
+`sudo apt-get install ros-kinetic-jsk-rviz-plugin` 
 
 **Aria package(for rosaria)**  
 `sudo apt install libaria-dev`
