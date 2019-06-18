@@ -23,6 +23,10 @@ elderly occupant and the safety of the home.
 `sudo apt-get install ros-kinetic-face-detector`  
 `sudo apt-get install ros-kinetic-jsk-rviz-plugin` 
 
+**primesense camera drive**  
+`sudo apt install libopenni2-dev`  
+`sudo apt install ros-kinetic-openni2-launch`  
+
 **Aria package(for rosaria)**  
 `sudo apt install libaria-dev`
 
