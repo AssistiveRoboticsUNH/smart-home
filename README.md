@@ -26,6 +26,7 @@ elderly occupant and the safety of the home.
 **primesense camera drive**  
 `sudo apt install libopenni2-dev`  
 `sudo apt install ros-kinetic-openni2-launch`  
+The primesense camera has to be connect to usb2.0 port  
 
 **Aria package(for rosaria)**  
 `sudo apt install libaria-dev`
