@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+    
+  <!-- Start Gazebo with a blank world -->
+  <include file="$(find spawn_robot_tools_pkg)/launch/spawn_object.launch">
+    <arg name="x" value="0.0" />
+    <arg name="y" value="0.0" />
+    <arg name="z" value="0.0" />
+    <arg name="roll" value="0"/>
+    <arg name="pitch" value="0"/>
+    <arg name="yaw" value="0.0" />
+    <arg name="urdf_robot_file" value="$(find fetch_domain_randomization)/urdf/wooden_low_box.urdf" />
+    <arg name="robot_name" value="wooden_low_box" />
+    
+  </include>
+    
+</launch>

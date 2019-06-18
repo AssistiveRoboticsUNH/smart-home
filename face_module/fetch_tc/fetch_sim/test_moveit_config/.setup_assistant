@@ -1,0 +1,10 @@
+moveit_setup_assistant_config:
+  URDF:
+    package: fetch_description
+    relative_path: robots/fetch.gazebo.xacro
+  SRDF:
+    relative_path: config/fetch.srdf
+  CONFIG:
+    author_name: test
+    author_email: test@test.com
+    generated_timestamp: 1500919508

@@ -1,0 +1,8 @@
+<launch> 
+
+    <!-- start face detection -->
+	<include file="$(find face_detection_tc)/launch/face_detection_tc.launch">
+		<arg name="camera" value="/gazebo/camera1"/>
+		<arg name="fixed_frame" value="camera_link_optical"/>
+    </include>
+</launch>

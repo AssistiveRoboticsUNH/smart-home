@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<package>
+  <name>face_detection_tc</name>
+  <version>0.0.0</version>
+  <description>The face_detection_tc package</description>
+
+  <maintainer email="user@todo.todo">user</maintainer>
+
+  <license>TODO</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>dynamic_reconfigure</build_depend>
+  <build_depend>face_detector</build_depend>
+  <build_depend>fetch_gazebo</build_depend>
+  <build_depend>person_sim</build_depend>
+  <run_depend>dynamic_reconfigure</run_depend>
+  <run_depend>face_detector</run_depend>
+  <run_depend>fetch_gazebo</run_depend>
+  <run_depend>person_sim</run_depend>
+ <!-- The export tag contains other, unspecified, tags -->
+  <export>
+    <!-- Other tools can request additional information be placed here -->
+
+  </export>
+</package>

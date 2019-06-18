@@ -1,0 +1,74 @@
+<launch>
+    <include file="$(find fetch_gazebo)/launch/main.launch" >
+        <arg name="pause" value="false"/>
+        <arg name="world_name" default="$(find face_recognition_tc)/worlds/unwritable.world"/>
+        <arg name="x" value="0.0" />
+        <arg name="y" value="0.0" />
+        <arg name="z" value="0.0" />
+        <arg name="yaw" value="3.14" />
+    </include>
+    
+  
+    <include file="$(find person_sim)/launch/spawn_person.launch">
+        <arg name="sdf_robot_file" value="$(find person_sim)/models/bobeye/model.sdf"/>
+        <arg name="robot_name" value="bobeye" />
+        <arg name="x" value="0.0" />
+        <arg name="y" value="-2.0" />
+        <arg name="z" value="0.0" />
+        <arg name="yaw" value="1.57" />
+    </include>
+    
+    <include file="$(find person_sim)/launch/spawn_person.launch">
+        <arg name="sdf_robot_file" value="$(find person_sim)/models/naokoeye/model.sdf"/>
+        <arg name="robot_name" value="naokoeye" />
+        <arg name="x" value="-2.0" />
+        <arg name="y" value="-1.5" />
+        <arg name="z" value="0.0" />
+        <arg name="yaw" value="0.7" />
+    </include>
+    
+    <include file="$(find person_sim)/launch/spawn_person.launch">
+        <arg name="sdf_robot_file" value="$(find person_sim)/models/kumaeye/model.sdf"/>
+        <arg name="robot_name" value="kumaeye" />
+        <arg name="x" value="-2.0" />
+        <arg name="y" value="1.5" />
+        <arg name="z" value="0.0" />
+        <arg name="yaw" value="-0.7" />
+    </include>
+    
+    <include file="$(find person_sim)/launch/spawn_person.launch">
+        <arg name="sdf_robot_file" value="$(find person_sim)/models/gertrudiseye/model.sdf"/>
+        <arg name="robot_name" value="gertrudiseye" />
+        <arg name="x" value="0.0" />
+        <arg name="y" value="2.0" />
+        <arg name="z" value="0.0" />
+        <arg name="yaw" value="-1.57" />
+    </include>
+    
+    <include file="$(find face_recognition_tc)/launch/make_person_movable.launch">
+        <arg name="robot_name" value="bobeye" />
+    </include>
+        <include file="$(find face_recognition_tc)/launch/make_person_movable.launch">
+        <arg name="robot_name" value="naokoeye" />
+    </include>
+        <include file="$(find face_recognition_tc)/launch/make_person_movable.launch">
+        <arg name="robot_name" value="kumaeye" />
+    </include>
+        <include file="$(find face_recognition_tc)/launch/make_person_movable.launch">
+        <arg name="robot_name" value="gertrudiseye" />
+    </include>
+    
+    
+    <!-- Start MoveIt -->
+    <include file="$(find fetch_moveit_config)/launch/move_group.launch" >
+        <arg name="info" value="true"/><!-- publish grasp markers -->
+    </include>
+    
+    <!-- Start navigation -->
+    <include file="$(find fetch_gazebo_demo)/launch/fetch_nav.launch" />
+    
+    
+    
+  
+  
+</launch>
