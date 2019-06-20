@@ -1,0 +1,9 @@
+<launch> 
+
+    <!-- start face recognition -->
+    <node pkg="face_recognition_pkg" type="recognise_face.py" name="recognise_face" output="screen">
+		<param name="cameraTopic" type="string" value="camera/rgb/image_raw"/>
+		<param name="isGazebo" type="bool" value="false"/>
+	</node>
+
+</launch>

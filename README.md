@@ -21,7 +21,9 @@ elderly occupant and the safety of the home.
 
 **face module package**  
 `sudo apt-get install ros-kinetic-face-detector`  
-`sudo apt-get install ros-kinetic-jsk-rviz-plugin` 
+`sudo apt-get install ros-kinetic-jsk-rviz-plugin`   
+`sudo pip2 install face_recognition`  
+`sudo pip2 install opencv-python`  
 
 **primesense camera drive**  
 `sudo apt install libopenni2-dev`  
