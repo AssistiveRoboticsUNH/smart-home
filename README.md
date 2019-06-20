@@ -124,6 +124,15 @@ export ROS_HOSTNAME=10.21.98,194
 **keyboard control for the person**  
 `roslaunch person_sim move_person_standing.launch`
 
+**run face detection**  
+`roslaunch pioneer_shr face_detection_gazebo.launch`  
+
+## Face detection in real world:
+**Do Autonomous navigation in real world:**  
+
+**run face detection**  
+`roslaunch pioneer_shr face_detection_real.launch`  
+
 
 
 
