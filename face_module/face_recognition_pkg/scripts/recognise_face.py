@@ -11,16 +11,18 @@ import rospkg
 
 class FaceRecogniser(object):
 
-    def __init__(self):
+    def __init__(self, cameraTopic, isGazebo):
         rospy.loginfo("Start FaceRecogniser Init process...")
         # get an instance of RosPack with the default search paths
         rospack = rospkg.RosPack()
         # get the file path for face_recognition_pkg
         self.path_to_package = rospack.get_path('face_recognition_pkg')
 
+        self.isGazebo = isGazebo
+
         self.bridge_object = CvBridge()
         rospy.loginfo("Start camera suscriber...")
-        self.image_sub = rospy.Subscriber("/head_camera/rgb/image_raw",Image,self.camera_callback)
+        self.image_sub = rospy.Subscriber(cameraTopic,Image,self.camera_callback)
         rospy.loginfo("Finished FaceRecogniser Init process...Ready")
         
     def camera_callback(self,data):
@@ -38,7 +40,13 @@ class FaceRecogniser(object):
         
         
         # Load a sample picture and learn how to recognize it.
-        image_path = os.path.join(self.path_to_package,"person_img/standing_person.png")
+        if self.isGazebo:
+            image_path = os.path.join(self.path_to_package,"person_img/standing_person.png")
+            rospy.loginfo("try to find standing_person")
+        else:
+            image_path = os.path.join(self.path_to_package,"person_img/tianyi.png")
+            rospy.loginfo("try to find tianyi")
+
         
         standing_person_image = face_recognition.load_image_file(image_path)
         standing_person_face_encoding = face_recognition.face_encodings(standing_person_image)[0]
@@ -107,8 +115,11 @@ class FaceRecogniser(object):
 
 def main():
     rospy.init_node('face_recognising_python_node', anonymous=True)
+
+    isGazebo = rospy.get_param('~isGazebo')
+    cameraTopic = rospy.get_param('~cameraTopic')
    
-    line_follower_object = FaceRecogniser()
+    line_follower_object = FaceRecogniser(cameraTopic, isGazebo)
 
     rospy.spin()
     cv2.destroyAllWindows()
