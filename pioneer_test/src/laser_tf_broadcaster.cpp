@@ -16,6 +16,7 @@ int main(int argc, char** argv){
   while (node.ok()){
     transform.setOrigin( tf::Vector3(0.0, 0.0, 0.0) );
     transformSonar.setOrigin( tf::Vector3(0.0, 0.0, 0.0) );
+    transformCamera.setOrigin( tf::Vector3(0.0, 0.0, 0.0) );
     tf::Quaternion q;
     q.setEuler(0.0, 0.0, 0.0);    
     transform.setRotation( q );
