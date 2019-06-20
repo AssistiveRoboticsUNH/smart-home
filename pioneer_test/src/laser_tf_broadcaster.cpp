@@ -24,7 +24,7 @@ int main(int argc, char** argv){
     transformSonar.setRotation( q );
     br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "base_link", "laser"));
     br.sendTransform(tf::StampedTransform(transformSonar, ros::Time::now(), "base_link", "sonar"));
-    br.sendTransform(tf::StampedTransform(transformSonar, ros::Time::now(), "base_link", "camera_optical_frame"));
+    br.sendTransform(tf::StampedTransform(transformCamera, ros::Time::now(), "base_link", "camera_optical_frame"));
     rate.sleep();
   }
   return 0;
