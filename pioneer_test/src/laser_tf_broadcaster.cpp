@@ -8,6 +8,7 @@ int main(int argc, char** argv){
   tf::TransformBroadcaster br;
   tf::Transform transform;
   tf::Transform transformSonar;
+  tf::Transform transformCamera;
 
   const double pi = 3.14159265358979323846264338328 ;
 
@@ -18,10 +19,12 @@ int main(int argc, char** argv){
     tf::Quaternion q;
     q.setEuler(0.0, 0.0, 0.0);    
     transform.setRotation( q );
+    transformCamera.setRotation( q );
     q.setEuler(0.0, 0.0, pi);
     transformSonar.setRotation( q );
     br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "base_link", "laser"));
     br.sendTransform(tf::StampedTransform(transformSonar, ros::Time::now(), "base_link", "sonar"));
+    br.sendTransform(tf::StampedTransform(transformSonar, ros::Time::now(), "base_link", "camera_optical_frame"));
     rate.sleep();
   }
   return 0;
