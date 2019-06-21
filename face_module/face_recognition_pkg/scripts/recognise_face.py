@@ -82,7 +82,11 @@ class FaceRecogniser(object):
     
                 if match[0]:
                     rospy.loginfo("MATCH")
-                    name = "StandingPerson"
+                    if self.isGazebo:
+                        name = "StandingPerson"
+                    else:
+                        name = "Tianyi Gu"
+
                 else:
                     rospy.logwarn("NO Match")
     
