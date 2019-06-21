@@ -11,7 +11,7 @@ import rospkg
 
 class FaceRecogniser(object):
 
-    def __init__(self):
+    def __init__(self, cameraTopic, isGazebo):
         rospy.loginfo("Start FaceRecogniser Init process...")
         # get an instance of RosPack with the default search paths
         rospack = rospkg.RosPack()
@@ -19,10 +19,32 @@ class FaceRecogniser(object):
         self.path_to_package = rospack.get_path('face_recognition_pkg')
     
         self.bridge_object = CvBridge()
+
+        self.names = []
+        self.photos = []
+
+        if isGazebo :
+            self.names = ['Bobeye','Naoko','Standing_person','Momotaz','Sajay','Dain']
+            self.photos = ["person_img/bobeye.png",
+                          "person_img/naoko.png",
+                          "person_img/standing_person.png",
+                          "person_img/momotaz.png",
+                          "person_img/sajay.png",
+                          "person_img/dain.png"]
+        else :
+            self.names = ['Tianyi','Alex','Dongpeng','Momotaz','Saja','Dain']
+            self.photos = ["person_img/tianyi.png",
+                          "person_img/alex.png",
+                          "person_img/dongpeng.png",
+                          "person_img/momotaz.png",
+                          "person_img/sajay.png",
+                          "person_img/dain.png"]
+
         rospy.loginfo("Start camera suscriber...")
-        self.image_sub = rospy.Subscriber("/head_camera/rgb/image_raw",Image,self.camera_callback)
+        self.image_sub = rospy.Subscriber(cameraTopic,Image,self.camera_callback)
         rospy.loginfo("Finished FaceRecogniser Init process...Ready")
-    
+
+            
     def camera_callback(self,data):
         
         self.recognise(data)
@@ -36,30 +58,21 @@ class FaceRecogniser(object):
         except CvBridgeError as e:
             print(e)
         
-        
-        # Load a sample picture of each person you want to recognise.
-        bobeye_image_file = os.path.join(self.path_to_package,"person_img/bobeye.png")
-        naoko_image_file = os.path.join(self.path_to_package,"person_img/naoko.png")
-        standing_person_image_file = os.path.join(self.path_to_package,"person_img/standing_person.png")
-        
-        # Get the face encodings for each face in each image file
-        # Since there could be more than one face in each image, it returns a list of encordings.
-        # But since I know each image only has one face, I only care about the first encoding in each image, so I grab index 0.
-        bobeye_image = face_recognition.load_image_file(bobeye_image_file)
-        bobeye_face_encoding = face_recognition.face_encodings(bobeye_image)[0]
-        
-        naoko_image = face_recognition.load_image_file(naoko_image_file)
-        naoko_face_encoding = face_recognition.face_encodings(naoko_image)[0]
-        
-        standing_person_image = face_recognition.load_image_file(standing_person_image_file)
-        standing_person_face_encoding = face_recognition.face_encodings(standing_person_image)[0]
-        
-        
-        known_faces = [
-                        bobeye_face_encoding,
-                        naoko_face_encoding,
-                        standing_person_face_encoding
-                        ]
+        known_faces = []
+
+        for i in range(5):
+            print(self.photos[i])
+
+            # Load a sample picture of each person you want to recognise.
+            img_file = os.path.join(self.path_to_package,self.photos[i])
+            p_image = face_recognition.load_image_file(img_file)
+
+            # Get the face encodings for each face in each image file
+            # Since there could be more than one face in each image, it returns a list of encordings.
+            # But since I know each image only has one face, 
+            # I only care about the first encoding in each image, so I grab index 0.
+
+            known_faces.append(face_recognition.face_encodings(p_image)[0])
         
         # Initialize some variables
         face_locations = []
@@ -89,13 +102,17 @@ class FaceRecogniser(object):
                 match = face_recognition.compare_faces(known_faces, face_encoding)
                 name = "Unknown"
     
-                if match[0] and not match[1] and not match[2]:
-                    name = "Bob"
-                elif not match[0] and match[1] and not match[2]:
-                    name = "Naoko"
-                elif not match[0] and not match[1] and match[2]:
-                    name = "Standing_person"
-                elif not match[0] and not match[1] and not match[2]:
+                if match[0] and not match[1] and not match[2] and not match[3] and not match[4]:
+                    name = self.names[0]
+                elif not match[0] and match[1] and not match[2] and not match[3] and not match[4]:
+                    name = self.names[1]
+                elif not match[0] and not match[1] and match[2] and not match[3] and not match[4]:
+                    name = self.names[2]
+                elif not match[0] and not match[1] and not match[2] and match[3] and not match[4]:
+                    name = self.names[3]
+                elif not match[0] and not match[1] and not match[2] and not match[3] and match[4]:
+                    name = self.names[4]
+                elif not match[0] and not match[1] and not match[2] and not match[3] and not match[4]:
                     name = ""
                 else:
                     name = "SOMETHING_IS_WRONG"
@@ -132,8 +149,11 @@ class FaceRecogniser(object):
 
 def main():
     rospy.init_node('face_recognising_python_node', anonymous=True)
+
+    isGazebo = rospy.get_param('~isGazebo')
+    cameraTopic = rospy.get_param('~cameraTopic')
    
-    line_follower_object = FaceRecogniser()
+    line_follower_object = FaceRecogniser(cameraTopic, isGazebo)
 
     rospy.spin()
     cv2.destroyAllWindows()
