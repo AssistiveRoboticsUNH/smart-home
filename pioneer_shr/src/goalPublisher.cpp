@@ -91,23 +91,23 @@ int main(int argc, char** argv){
   loop_rate.sleep();
   ros::spinOnce();
 
-  /*bool doorOpen = false;*/
+  bool doorOpen = false;
 
-  //while (ros::ok()) {
-	  //if (doorOpen)
-		  //break;
+  while (ros::ok()) {
+	  if (doorOpen)
+		  break;
 
-	  //ros::spinOnce();
+	  ros::spinOnce();
 
-	  //if (httpReq.isOpen()) {
-		  //autonav.navigateTo(goalPose);
-		  //autonav.playAudio();
-		  //doorOpen = true;
-	  //}
-  /*}*/
+	  if (httpReq.isOpen()) {
+		  autonav.navigateTo(goalPose);
+		  autonav.playAudio();
+		  doorOpen = true;
+	  }
+  }
 
-  autonav.navigateTo(goalPose);
-  autonav.playAudio();
+  //autonav.navigateTo(goalPose);
+  //autonav.playAudio();
 
   return 0;
 }
