@@ -135,6 +135,16 @@ export ROS_HOSTNAME=10.21.98,194
 **run face detection**  
 `roslaunch pioneer_shr face_detection_real.launch`  
 
+## Face recognition in real world:
+**Do Autonomous navigation in real world:**  
+
+**run camera on robot labtop**  
+`roslaunch pioneer_shr camera_real.launch`  
+
+**start face recognition on remote labtop**  
+`roslaunch pioneer_shr face_recognition_real_multiple.launch`  
+
+
 
 
 
