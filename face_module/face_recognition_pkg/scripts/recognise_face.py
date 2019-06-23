@@ -26,6 +26,8 @@ class FaceRecogniser(object):
             image_path = os.path.join(self.path_to_package,"person_img/tianyi.png")
             rospy.loginfo("training on tianyi")
 
+        self.isGazebo = isGazebo
+
         self.standing_person_face_encoding = self.training(image_path)
 
         self.bridge_object = CvBridge()
