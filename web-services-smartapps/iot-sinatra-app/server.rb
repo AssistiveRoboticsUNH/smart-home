@@ -10,29 +10,29 @@ CLIENT_ID = '891e1469-e265-4b81-b3f7-ec0ff12c2626'
 CLIENT_SECRET = 'ac4e4ea5-0f73-471b-961a-8cba50cd9467'
 TOKEN = nil
 
-puts "0.5 ".inspect
+#puts "0.5 ".inspect
 
 # We'll store the access token in the session
 use Rack::Session::Pool, :cookie_only => false
 
-puts "0.6 ".inspect
+#puts "0.6 ".inspect
 
 # This is the URI that will be called with our access
 # code after we authenticate with our SmartThings account
 redirect_uri = 'http://localhost:4567/oauth/callback'
 
-puts "0.7 " + redirect_uri.inspect
+#puts "0.7 " + redirect_uri.inspect
 
 # This is the URI we will use to get the endpoints once we've received our token
 endpoints_uri = 'https://graph.api.smartthings.com/api/smartapps/endpoints'
 
-puts "0.8 " + endpoints_uri.inspect
+#puts "0.8 " + endpoints_uri.inspect
 
 # just store the token globally
 # This is a HORRIBLE idea in a real application, of course.
 # But, it works for our example
 #thetoken = ''
-puts "1. just store the token globally".inspect
+#puts "1. just store the token globally".inspect
 
 options = {
   site: 'https://graph.api.smartthings.com',
@@ -40,36 +40,36 @@ options = {
   token_url: '/oauth/token'
 }
 
-puts "1.5 ".inspect
+#puts "1.5 ".inspect
 
 # use the OAuth2 module to handle OAuth flow
 client = OAuth2::Client.new(CLIENT_ID, CLIENT_SECRET, options)
 
-puts "2." + client.inspect
+#puts "2." + client.inspect
 
 def authenticated?
     
-    puts "2.4 ".inspect
+    #puts "2.4 ".inspect
 
   session[:access_token]
 end
 
-puts "2.5 ".inspect
+#puts "2.5 ".inspect
 
 
 # handle requests to the application root
 get '/' do
     
-    puts "2.6 " + request.inspect
+    #puts "2.6 " + request.inspect
     
-    puts "2.7 " + response.inspect
+    #puts "2.7 " + response.inspect
     
     
   %(<a href="/authorize">Connect with SmartThings</a>)
   
 end
 
-puts "3. handle requests to the application root".inspect
+#puts "3. handle requests to the application root".inspect
 
 # handle requests to /authorize URL
 get '/authorize' do
@@ -77,19 +77,19 @@ get '/authorize' do
   # After we authenticate with SmartThings, we will be redirected to the
   # redirect_uri, including our access code used to get the token
   
-  puts "3.5 get request" + request.inspect
+  #puts "3.5 get request" + request.inspect
 
   url = client.auth_code.authorize_url(redirect_uri: redirect_uri, scope: 'app')
   
-  puts "3.6 " + url.inspect
+  #puts "3.6 " + url.inspect
   #stop here to provide samsung account and password & select certain devices
   redirect url
   
-  puts "3.7 ".inspect
+  #puts "3.7 ".inspect
 
 end
 
-puts "4. Use the OAuth2 module to get the authorize URL. After we authenticate with SmartThings, we will be redirected to the redirect_uri, including our access code used to get the token".inspect
+#puts "4. Use the OAuth2 module to get the authorize URL. After we authenticate with SmartThings, we will be redirected to the redirect_uri, including our access code used to get the token".inspect
 
 # hanlde requests to /oauth/callback URL. We
 # will tell SmartThings to call this URL with our
@@ -98,41 +98,41 @@ get '/oauth/callback' do
   # The callback is called with a "code" URL parameter
   # This is the code we can use to get our access token
   
-  puts "4.5 ".inspect
+  #puts "4.5 ".inspect
 
   code = params[:code]
 
-  puts "5. hanlde requests to /oauth/callback URL. We will tell SmartThings to call this URL with our authorization code once we've authenticated.".inspect
+  #puts "5. hanlde requests to /oauth/callback URL. We will tell SmartThings to call this URL with our authorization code once we've authenticated.".inspect
   
   puts 'headers: ' + headers.to_hash.inspect
 
-  puts "5.5 ".inspect
+  #puts "5.5 ".inspect
   
   # Use the code to get the token.
   response = client.auth_code.get_token(code, redirect_uri: redirect_uri, scope: 'app')
 
-  puts "5.6 ".inspect
+  #puts "5.6 ".inspect
 
   # now that we have the access token, we will store it in the session
   session[:access_token] = response.token
   TOKEN = response.token
 
-  puts "5.7 ".inspect
+  #puts "5.7 ".inspect
 
   # debug - inspect the running console for the
   # expires in (seconds from now), and the expires at (in epoch time)
   puts 'TOKEN EXPIRES IN ' + response.expires_in.to_s
   puts 'TOKEN EXPIRES AT ' + response.expires_at.to_s
   
-  puts "5.8 ".inspect
+  #puts "5.8 ".inspect
 
   redirect '/getcontacts'
   
-  puts "5.9 ".inspect
+  #puts "5.9 ".inspect
 
 end
 
-puts "6. debug - inspect the running console for the expires in (seconds from now), and the expires at (in epoch time)".inspect
+#puts "6. debug - inspect the running console for the expires in (seconds from now), and the expires at (in epoch time)".inspect
 
 # handle requests to the /getcontacts URL. This is where
 # we will make requests to get information about the configured
@@ -141,7 +141,7 @@ get '/getcontacts' do
   # If we get to this URL without having gotten the access token
   # redirect back to root to go through authorization
   
-  puts "6.1 ".inspect
+  #puts "6.1 ".inspect
 
 #  if !authenticated?
 #    
@@ -153,7 +153,7 @@ get '/getcontacts' do
 #
 #  end
 
-  puts "7. handle requests to the /getcontacts URL. This is where we will make requests to get information about the configured contacts.".inspect
+  #puts "7. handle requests to the /getcontacts URL. This is where we will make requests to get information about the configured contacts.".inspect
   
 #  token = session[:access_token]
 
@@ -164,7 +164,7 @@ get '/getcontacts' do
   url = URI.parse(endpoints_uri)
   req = Net::HTTP::Get.new(url.request_uri)
 
-  puts "8. make a request to the SmartThins endpoint URI, using the token, to get our endpoints".inspect
+  #puts "8. make a request to the SmartThins endpoint URI, using the token, to get our endpoints".inspect
   
   # we set a HTTP header of "Authorization: Bearer <API Token>"
   req['Authorization'] = 'Bearer ' + token
@@ -207,4 +207,4 @@ get '/getcontacts' do
  
 end
     
-puts "9.0 ".inspect
+#puts "9.0 ".inspect
