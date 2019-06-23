@@ -18,7 +18,15 @@ class FaceRecogniser(object):
         # get the file path for face_recognition_pkg
         self.path_to_package = rospack.get_path('face_recognition_pkg')
 
-        self.isGazebo = isGazebo
+        image_path = ''
+        if isGazebo:
+            image_path = os.path.join(self.path_to_package,"person_img/standing_person.png")
+            rospy.loginfo("training on standing_person")
+        else:
+            image_path = os.path.join(self.path_to_package,"person_img/tianyi.png")
+            rospy.loginfo("training on tianyi")
+
+        self.standing_person_face_encoding = self.training(image_path)
 
         self.bridge_object = CvBridge()
         rospy.loginfo("Start camera suscriber...")
@@ -29,6 +37,13 @@ class FaceRecogniser(object):
         
         self.recognise(data)
 
+    def training(self, image_path):
+        # Load a sample picture and learn how to recognize it.
+        standing_person_image = face_recognition.load_image_file(image_path)
+        standing_person_face_encoding = face_recognition.face_encodings(standing_person_image)[0]
+
+        return standing_person_face_encoding
+
     def recognise(self,data):
         
         # Get a reference to webcam #0 (the default one)
@@ -37,21 +52,7 @@ class FaceRecogniser(object):
             video_capture = self.bridge_object.imgmsg_to_cv2(data, desired_encoding="bgr8")
         except CvBridgeError as e:
             print(e)
-        
-        
-        # Load a sample picture and learn how to recognize it.
-        if self.isGazebo:
-            image_path = os.path.join(self.path_to_package,"person_img/standing_person.png")
-            rospy.loginfo("try to find standing_person")
-        else:
-            image_path = os.path.join(self.path_to_package,"person_img/tianyi.png")
-            rospy.loginfo("try to find tianyi")
-
-        
-        standing_person_image = face_recognition.load_image_file(image_path)
-        standing_person_face_encoding = face_recognition.face_encodings(standing_person_image)[0]
-        
-        
+                
         # Initialize some variables
         face_locations = []
         face_encodings = []
@@ -77,7 +78,7 @@ class FaceRecogniser(object):
             face_names = []
             for face_encoding in face_encodings:
                 # See if the face is a match for the known face(s)
-                match = face_recognition.compare_faces([standing_person_face_encoding], face_encoding)
+                match = face_recognition.compare_faces([self.standing_person_face_encoding], face_encoding)
                 name = "Unknown"
     
                 if match[0]:
