@@ -40,6 +40,10 @@ class FaceRecogniser(object):
                           "person_img/sajay.png",
                           "person_img/dain.png"]
 
+
+        rospy.loginfo("Start training...")
+        self.known_faces = self.training()
+
         rospy.loginfo("Start camera suscriber...")
         self.image_sub = rospy.Subscriber(cameraTopic,Image,self.camera_callback)
         rospy.loginfo("Finished FaceRecogniser Init process...Ready")
@@ -49,15 +53,7 @@ class FaceRecogniser(object):
         
         self.recognise(data)
 
-    def recognise(self,data):
-        
-        # Get a reference to webcam #0 (the default one)
-        try:
-            # We select bgr8 because its the OpneCV encoding by default
-            video_capture = self.bridge_object.imgmsg_to_cv2(data, desired_encoding="bgr8")
-        except CvBridgeError as e:
-            print(e)
-        
+    def training(self):
         known_faces = []
 
         for i in range(5):
@@ -73,13 +69,25 @@ class FaceRecogniser(object):
             # I only care about the first encoding in each image, so I grab index 0.
 
             known_faces.append(face_recognition.face_encodings(p_image)[0])
+
+        return known_faces
+
+
+    def recognise(self,data):
         
+        # Get a reference to webcam #0 (the default one)
+        try:
+            # We select bgr8 because its the OpneCV encoding by default
+            video_capture = self.bridge_object.imgmsg_to_cv2(data, desired_encoding="bgr8")
+        except CvBridgeError as e:
+            print(e)
+        
+                
         # Initialize some variables
         face_locations = []
         face_encodings = []
         face_names = []
         process_this_frame = True
-
 
         # Grab a single frame of video
         #ret, frame = video_capture.read()
@@ -99,7 +107,7 @@ class FaceRecogniser(object):
             face_names = []
             for face_encoding in face_encodings:
                 # See if the face is a match for the known face(s)
-                match = face_recognition.compare_faces(known_faces, face_encoding)
+                match = face_recognition.compare_faces(self.known_faces, face_encoding)
                 name = "Unknown"
     
                 if match[0] and not match[1] and not match[2] and not match[3] and not match[4]:
