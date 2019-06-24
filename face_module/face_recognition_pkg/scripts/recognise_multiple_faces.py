@@ -110,20 +110,32 @@ class FaceRecogniser(object):
                 match = face_recognition.compare_faces(self.known_faces, face_encoding)
                 name = "Unknown"
     
-                if match[0] and not match[1] and not match[2] and not match[3] and not match[4]:
+              #   if match[0] and not match[1] and not match[2] and not match[3] and not match[4]:
+                    # name = self.names[0]
+                # elif not match[0] and match[1] and not match[2] and not match[3] and not match[4]:
+                    # name = self.names[1]
+                # elif not match[0] and not match[1] and match[2] and not match[3] and not match[4]:
+                    # name = self.names[2]
+                # elif not match[0] and not match[1] and not match[2] and match[3] and not match[4]:
+                    # name = self.names[3]
+                # elif not match[0] and not match[1] and not match[2] and not match[3] and match[4]:
+                    # name = self.names[4]
+                # elif not match[0] and not match[1] and not match[2] and not match[3] and not match[4]:
+                    # name = ""
+                # else:
+                    # name = "SOMETHING_IS_WRONG"
+
+                if match[0] :
                     name = self.names[0]
-                elif not match[0] and match[1] and not match[2] and not match[3] and not match[4]:
+                elif match[1] :
                     name = self.names[1]
-                elif not match[0] and not match[1] and match[2] and not match[3] and not match[4]:
+                elif match[2] :
                     name = self.names[2]
-                elif not match[0] and not match[1] and not match[2] and match[3] and not match[4]:
+                elif match[3] :
                     name = self.names[3]
-                elif not match[0] and not match[1] and not match[2] and not match[3] and match[4]:
+                elif match[4] :
                     name = self.names[4]
-                elif not match[0] and not match[1] and not match[2] and not match[3] and not match[4]:
-                    name = ""
-                else:
-                    name = "SOMETHING_IS_WRONG"
+
                 rospy.loginfo(name)
     
                 face_names.append(name)
