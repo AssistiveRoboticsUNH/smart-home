@@ -4,53 +4,7 @@
 #include <geometry_msgs/Pose.h>
 #include "httpRequest.hpp"
 #include <string>
-
-typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseClient;
-
-class AutoNavigation {
-public:
-    void navigateTo(const geometry_msgs::Pose& goalPose) const {
-        // tell the action client that we want to spin a thread by default
-        MoveBaseClient ac("move_base", true);
-
-        // wait for the action server to come up
-        while (!ac.waitForServer(ros::Duration(5.0))) {
-            ROS_INFO("Waiting for the move_base action server to come up");
-        }
-
-        move_base_msgs::MoveBaseGoal goal;
-
-        // we'll send a goal to the robot to move 1 meter forward
-        goal.target_pose.header.frame_id = "map";
-        goal.target_pose.header.stamp = ros::Time::now();
-
-        goal.target_pose.pose = goalPose;
-
-        ROS_INFO("Sending goal");
-        ac.sendGoal(goal);
-
-        ac.waitForResult();
-
-        if (ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
-            ROS_INFO("Hooray, the base moved to goal");
-        else
-            ROS_INFO("The base failed to move for some reason");
-    }
-
-    void playAudio() {
-        const char* ros_work_space = std::getenv("ROS_WORKSPACE");
-        if (ros_work_space == 0) {
-            std::cout << "ROS_WORKSPACE environment variable not found!"
-                      << std::endl;
-			return;
-        }
-        std::string resourcePath = ros_work_space;
-        resourcePath += "/src/pioneer_shr/resource/playAudio.sh";
-        std::system(resourcePath.c_str());
-    }
-};
-
-
+#include "skills.hpp"
 
 int main(int argc, char** argv){
   ros::init(argc, argv, "simple_navigation_goals");
@@ -69,7 +23,7 @@ int main(int argc, char** argv){
   std::cout << "load in goalPoseOrientationZ: " << z << std::endl;
   std::cout << "load in goalPoseOrientationW: " << w << std::endl;
 
-  AutoNavigation autonav;
+  Skills autonav;
 
   geometry_msgs::Pose goalPose;
   goalPose.position.x = x;
@@ -100,7 +54,7 @@ int main(int argc, char** argv){
 	  ros::spinOnce();
 
 	  if (httpReq.isOpen()) {
-		  autonav.navigateTo(goalPose);
+		  //autonav.navigateTo(goalPose);
 		  autonav.playAudio();
 		  doorOpen = true;
 	  }
