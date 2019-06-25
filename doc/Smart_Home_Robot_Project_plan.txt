@@ -1,21 +1,23 @@
 ﻿Plan for the Smart Home Project (robot part):
 
-
 Skills:
 =====================================
 ---1.mapping & Localization
 ---2.Autonomous Navigation (by the end of week 2, June 9)
 ---Done -- June 9 2019
+---
+---3.Database monitoring     
+---4.Play audio, play video  (by the end of week 4, June 23) 
+---      Union test: 
+---            Trigger movement by sensor data, with pre-defined goal         
+---            Trigger play audio by arriving the goal
+---
+---5.Face recognition in the picture (by the end of week 6, July 7)
+---Done -- June 25 2019
 
-3.Database monitoring     
-4.Play audio, play video  (by the end of week 4, June 23) 
-      Union test: 
-            Trigger movement by sensor data, with pre-defined goal         
-            Trigger play audio by arriving the goal
-
-5.Scanning the room, eg, take pictures 
-6.Face recognition in the picture 
-7.Call 911, skype to care-giver (by the end of week 6, July 7)
+6.Find person in the room 
+7.AI Planner (by the end of week 6, July 7)
+8.Call 911, skype to care-giver (by the end of week 8, July 24)
 
 Behavior:
 ====================================
@@ -24,7 +26,7 @@ Monitoring medication ( DB monitoring)
 Find the AWD (move + scan + face recognition)
 Remind AWD to apply medicate (play audio)
 Keep monitoring (DB monitoring)
-If fail, call caregiver(skype)  (by the end of week 8) 
+If fail, call caregiver(skype)  (by the end of week 8, July 24) 
 
 Protol 2:
 Monitoring motion sensor 2 (DB monitoring)
