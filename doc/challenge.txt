@@ -12,5 +12,13 @@ Robot:
 2. If the AWD is facing an object, than the current person finding routin cannot recognize him/her.
 
 3. Need a domain expert to model the robot behavious, i.e., someone have to write the PDDL model.
-   ad-hoc idea: model for current specific senarios by tianyi and sajay
+   ad-hoc solution: do modellong for current specific senarios by tianyi and sajay
    research direction: do the task planning in a general way
+
+4. how to build up the map of the AWD house?
+   ad-hoc solution: mapping by tianyi
+   autonumous solution: autonumous mapping useing slam
+
+4. how to pre-define place for robot to do the cruise for finding the AWD?
+   ad-hoc solution: pre-define by tianyi
+   autonumous solution: find the best point after doing the mapping
