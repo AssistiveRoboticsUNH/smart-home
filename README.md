@@ -33,6 +33,17 @@ The primesense camera has to be connect to usb2.0 port
 **Aria package(for rosaria)**  
 `sudo apt install libaria-dev`
 
+**Pull and build SHR**  
+```bash
+mkdir -p ~/catkin_ws/src
+cd ~/catkin_ws/src
+git clone git@github.com:AssistiveRoboticsUNH/smart-home.git
+cd ~/catkin_ws
+catkin_make 
+# if you use youcompleteme, you need a compile database:  
+# catkin_make -DCMAKE_EXPORT_COMPILE_COMMANDS=1
+```
+
 # Other pre-configuration:
 **Grant usb port read permission**  
 `sudo usermod -a -G dialout $USER`  
