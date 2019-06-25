@@ -35,9 +35,10 @@ The primesense camera has to be connect to usb2.0 port
 
 **Pull and build SHR**
 ```bash
-mkdir -p ~/catkin_ws/src
-cd ~/catkin_ws/src
+mkdir -p ~/catkin_ws
+cd ~/catkin_ws
 git clone git@github.com:AssistiveRoboticsUNH/smart-home.git
+mv smart-home src
 cd ~/catkin_ws
 catkin_make 
 # if you use youcompleteme, you need a compile database:  
