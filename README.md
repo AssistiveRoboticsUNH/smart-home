@@ -33,7 +33,7 @@ The primesense camera has to be connect to usb2.0 port
 **Aria package(for rosaria)**  
 `sudo apt install libaria-dev`
 
-**Pull and build SHR**  
+**Pull and build SHR**
 ```bash
 mkdir -p ~/catkin_ws/src
 cd ~/catkin_ws/src
