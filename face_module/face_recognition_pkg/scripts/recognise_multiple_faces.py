@@ -24,21 +24,23 @@ class FaceRecogniser(object):
         self.photos = []
 
         if isGazebo :
-            self.names = ['Bobeye','Naoko','Standing_person','Momotaz','Sajay','Dain']
+            self.names = ['Bobeye','Naoko','Standing_person','Momotaz','Sajay','Dain', 'Lingling']
             self.photos = ["person_img/bobeye.png",
                           "person_img/naoko.png",
                           "person_img/standing_person.png",
                           "person_img/momotaz.png",
                           "person_img/sajay.png",
-                          "person_img/dain.png"]
+                          "person_img/dain.png",
+                          "person_img/lingling.png"]
         else :
-            self.names = ['Tianyi','Alex','Dongpeng','Momotaz','Saja','Dain']
+            self.names = ['Tianyi','Alex','Dongpeng','Momotaz','Saja','Dain', 'Lingling']
             self.photos = ["person_img/tianyi.png",
                           "person_img/alex.png",
                           "person_img/dongpeng.png",
                           "person_img/momotaz.png",
                           "person_img/sajay.png",
-                          "person_img/dain.png"]
+                          "person_img/dain.png",
+                          "person_img/lingling.png"]
 
 
         rospy.loginfo("Start training...")
