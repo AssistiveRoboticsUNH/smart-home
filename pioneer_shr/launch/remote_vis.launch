@@ -1,7 +1,6 @@
 <launch> 
-	<!-- start rviz -->
-	<include file="$(find pioneer_shr)/launch/rviz_pioneer_shr.launch">
-		<arg name="rviz_file" value="real_pioneer_shr.rviz"/>
-	</include>
+    <!-- Show in Rviz   -->
+	<arg name="rviz_file" default="real_pioneer_shr.rviz"/>
+	<node name="rviz" pkg="rviz" type="rviz" args="-d $(find pioneer_description)/config_shr/rviz/$(arg rviz_file)"/>
 
 </launch>
