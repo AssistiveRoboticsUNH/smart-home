@@ -58,7 +58,7 @@ class FaceRecogniser(object):
     def training(self):
         known_faces = []
 
-        for i in range(5):
+        for i in range(7):
             print(self.photos[i])
 
             # Load a sample picture of each person you want to recognise.
