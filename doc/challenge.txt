@@ -9,7 +9,9 @@ Robot:
 
 1. If the body is too high, the laser sensor can't detect blocked way.
 
-2. If the AWD is facing an object, than the current person finding routin cannot recognize him/her.
+2. If the AWD is facing an object, than the current person finding routin cannot recognize the target.
+   ad-hoc: play video to ask the target to turn tward the robot camera.
+   autonumous solution: implement auto zoom function with zoomable camera.
 
 3. Need a domain expert to model the robot behavious, i.e., someone have to write the PDDL model.
    ad-hoc solution: do modellong for current specific senarios by tianyi and sajay
@@ -19,6 +21,20 @@ Robot:
    ad-hoc solution: mapping by tianyi
    autonumous solution: autonumous mapping useing slam
 
-4. how to pre-define place for robot to do the cruise for finding the AWD?
+5. how to pre-define place for robot to do the cruise for finding the AWD?
    ad-hoc solution: pre-define by tianyi
    autonumous solution: find the best point after doing the mapping
+
+6. the approach person function assume that the target person is not moveing in house. If the person is hiden from the robot on purpose, than the robot will report no face found in house and call emgergency contact.
+   ad-hoc: let it be
+   autonumous: inplement people tracking function. Once found the target, lock the target in the view, than approach the target wihile the target is moving.
+
+7. face detection false positive error
+   ad-hoc: manually fix the scene
+   autonumous: tweak the face detector source code
+
+8. move base fail when the destination pose is behind the robot
+   ad-hoc: turn the robot toward the destination before calling move_base
+   autonumous: not sure, we really don't want to implement our own low level motion planner in this project.
+
+
