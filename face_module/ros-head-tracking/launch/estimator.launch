@@ -1,8 +1,8 @@
 <launch>
-    <arg name="camera" default="camera"/>
+    <!--<arg name="camera" default="camera"/> -->
 
 	<node name="head_pose_estimator" type="head_pose_estimation" pkg="head_pose_estimation" output="screen">
-		<remap from="cloud" to="$(arg camera)/depth_registered/points"/>
+		<remap from="cloud" to="/face_detector/face_cloud"/>
 		<param name="tree_path" value="$(find head_pose_estimation)/trees/tree"/>
 		<param name="ntrees" value="10"/>
 		<param name="max_variance" value="800.0"/>
@@ -10,7 +10,7 @@
 		<param name="smaller_radius_ratio" value="6.0"/>
 		<param name="stride" value="5"/>
 		<param name="head_threshold" value="400"/>
-		<param name="head_target_frame" value="$(arg camera)_depth_frame"/>
+		<param name="head_target_frame" value="camera_link_optical"/>
 	</node>
 	
 	<!-- <node
