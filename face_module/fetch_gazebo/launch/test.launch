@@ -1,5 +1,0 @@
-<launch>
-    <node pkg="fetch_gazebo" type="test.py" name="simple_disco" output="screen">
-        
-    </node>
-</launch>
