@@ -71,5 +71,5 @@ cpr_option(CMAKE_USE_OPENSSL "Use OpenSSL code. Experimental" ON)
 message(STATUS "=======================================================")
 
 add_subdirectory(opt)
-add_subdirectory(cpr)
+#add_subdirectory(cpr)
 
