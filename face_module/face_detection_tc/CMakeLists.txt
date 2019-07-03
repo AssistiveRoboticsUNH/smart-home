@@ -10,7 +10,6 @@ project(face_detection_tc)
 find_package(catkin REQUIRED COMPONENTS
   dynamic_reconfigure
   face_detector
-  fetch_gazebo
   person_sim
 )
 
