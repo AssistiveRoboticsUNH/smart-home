@@ -13,6 +13,7 @@
 		<param name="predefined2OrientationW" type="double" value="0.5423"/>
 		<param name="predefined2Name" type="string" value="SPOT_B"/>
 		<param name="targetPersonName" type="string" value="Alex"/>
+		<param name="cameraFrameId" type="string" value="camera_link_optical"/>
 	</node>
 
 </launch>

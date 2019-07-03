@@ -5,34 +5,37 @@ import cv2
 import face_recognition
 from cv_bridge import CvBridge, CvBridgeError
 from sensor_msgs.msg import Image
+from std_msgs.msg import String
 import rospkg
 
 
 
 class FaceRecogniser(object):
 
-    def __init__(self, cameraTopic, isGazebo):
+    def __init__(self, cameraTopic, targetName):
         rospy.loginfo("Start FaceRecogniser Init process...")
         # get an instance of RosPack with the default search paths
         rospack = rospkg.RosPack()
         # get the file path for face_recognition_pkg
         self.path_to_package = rospack.get_path('face_recognition_pkg')
 
-        image_path = ''
-        if isGazebo:
-            image_path = os.path.join(self.path_to_package,"person_img/standing_person.png")
-            rospy.loginfo("training on standing_person")
-        else:
-            image_path = os.path.join(self.path_to_package,"person_img/tianyi.png")
-            rospy.loginfo("training on tianyi")
+        image_path = os.path.join(self.path_to_package,"person_img/"+targetName+".png")
+        rospy.loginfo("training on "+targetName)
 
-        self.isGazebo = isGazebo
+        self.targetName = targetName
 
         self.standing_person_face_encoding = self.training(image_path)
 
         self.bridge_object = CvBridge()
+
         rospy.loginfo("Start camera suscriber...")
+
         self.image_sub = rospy.Subscriber(cameraTopic,Image,self.camera_callback)
+
+        rospy.loginfo("Start face recognizer publisher...")
+
+        self.pub = rospy.Publisher('face_recognizer', String, queue_size=10)
+
         rospy.loginfo("Finished FaceRecogniser Init process...Ready")
         
     def camera_callback(self,data):
@@ -85,11 +88,8 @@ class FaceRecogniser(object):
     
                 if match[0]:
                     rospy.loginfo("MATCH")
-                    if self.isGazebo:
-                        name = "StandingPerson"
-                    else:
-                        name = "Tianyi Gu"
-
+                    name = self.targetName.capitalize()
+                    self.pub.publish("Recoginized "+self.targetName)
                 else:
                     rospy.logwarn("NO Match")
     
@@ -123,10 +123,10 @@ class FaceRecogniser(object):
 def main():
     rospy.init_node('face_recognising_python_node', anonymous=True)
 
-    isGazebo = rospy.get_param('~isGazebo')
     cameraTopic = rospy.get_param('~cameraTopic')
+    targetName = rospy.get_param('~targetName')
    
-    line_follower_object = FaceRecogniser(cameraTopic, isGazebo)
+    line_follower_object = FaceRecogniser(cameraTopic, targetName)
 
     rospy.spin()
     cv2.destroyAllWindows()

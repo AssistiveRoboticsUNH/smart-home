@@ -32,6 +32,8 @@ public:
 
         nh.getParam("targetPersonName", tname);
 
+        nh.getParam("cameraFrameId", cameraFrameId);
+
         ROS_INFO_STREAM("load in predefined1PositionX: " << x1);
         ROS_INFO_STREAM("load in predefined1PositionY: " << y1);
         ROS_INFO_STREAM("load in predefined1OrientationZ: " << z1);
@@ -76,7 +78,7 @@ public:
 private:
     bool doAction(pioneer_shr_msg::Action_Approach_Person::Request& req,
             pioneer_shr_msg::Action_Approach_Person::Response& res) {
-        Skills skills(nh, landMarks);
+        Skills skills(nh, landMarks, cameraFrameId);
 
 		std::thread faceDetect(&Skills::detectFace, &skills);
         std::thread cruise(&Skills::cruiseHouse, &skills);
@@ -87,11 +89,27 @@ private:
         if (!skills.faceInHouse()) {
             res.success = false;
             //ROS_INFO_STREAM("call caregiver");
-        } else {
-            ROS_INFO_STREAM(skills.getFaceRecognitionLocation().getName());
-            res.success = true;
+            ROS_INFO_STREAM("Action service approach person finished!");
+            ROS_INFO("Keep Running action service approach person");
+            return true;
         }
 
+
+		std::thread faceRecognize(&Skills::recognizeFace, &skills);
+        std::thread approachFace(&Skills::approachCurrentFace, &skills);
+
+		faceRecognize.join();
+		approachFace.join();
+
+        if (!skills.targetInHouse()) {
+            res.success = false;
+            //ROS_INFO_STREAM("call caregiver");
+            ROS_INFO_STREAM("Action service approach person finished!");
+            ROS_INFO("Keep Running action service approach person");
+            return true;
+        }
+
+        res.success = true;
         ROS_INFO_STREAM("Action service approach person finished!");
         ROS_INFO("Keep Running action service approach person");
         return true;
@@ -99,6 +117,7 @@ private:
 
     std::vector<PreDefinedPose> landMarks;
     ros::NodeHandle nh;
+	std::string cameraFrameId;
 };
 
 int main(int argc, char** argv){
