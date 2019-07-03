@@ -20,7 +20,7 @@ int main(int argc, char** argv){
     tf::Quaternion q;
     q.setEuler(0.0, 0.0, 0.0);    
     transform.setRotation( q );
-    q.setEuler(pi/2, pi/2, 0.0);    
+    q.setEuler(-pi/2, -pi/2, 0.0);    
     transformCamera.setRotation( q );
     q.setEuler(0.0, 0.0, pi);
     transformSonar.setRotation( q );
