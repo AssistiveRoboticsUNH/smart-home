@@ -31,7 +31,7 @@
         <param name="fixed_frame" type="string" value="$(arg fixed_frame)" />
         
         <param name="classifier_name" type="string" value="frontalface" />
-        <rosparam command="load" file="$(find face_detector)/param/classifier.yaml"/>
+        <rosparam command="load" file="$(find face_detection_tc)/launch/classifier.yaml"/>
         <param name="classifier_reliability" type="double" value="0.9"/>
         <param name="do_continuous" type="bool" value="true" />
         <param name="do_publish_faces_of_unknown_size" type="bool" value="false" /> 
