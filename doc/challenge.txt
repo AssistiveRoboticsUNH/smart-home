@@ -30,8 +30,7 @@ Robot:
    autonumous: inplement people tracking function. Once found the target, lock the target in the view, than approach the target wihile the target is moving.
 
 7. face detection false positive error
-   ad-hoc: manually fix the scene
-   autonumous: tweak the face detector source code
+   solved autonumous: tweak the face detector source code
 
 8. move base fail when the destination pose is behind the robot
    ad-hoc: turn the robot toward the destination before calling move_base
