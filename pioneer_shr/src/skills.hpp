@@ -20,6 +20,7 @@ public:
     Skills(ros::NodeHandle& nh, std::vector<PreDefinedPose>& landMarks, std::string& cameraFrameId)
             : nh(nh),
               faceFound(false),
+              stopDetect(false),
               recognizedTarget(false),
               stopRecognize(false),
 			  landMarks(landMarks),
@@ -119,8 +120,11 @@ public:
 
         fullStop();
 
-        if (!faceFound)
+		if (!faceFound){
             ROS_INFO("No face detected in house!");
+			stopDetect = true;
+		}
+
     }
 
     void approachCurrentFace() {
@@ -148,7 +152,7 @@ public:
         ros::spinOnce();
 
         ROS_INFO("detecting face....");
-        while (ros::ok() && !faceFound ) {
+        while (ros::ok() && !faceFound && !stopDetect) {
             ros::spinOnce();
         }
         ROS_INFO("stop detecting face");
@@ -274,6 +278,7 @@ private:
     ros::NodeHandle nh;
     ros::Publisher pub_vel;
     bool faceFound;
+    bool stopDetect;
     bool recognizedTarget;
     bool stopRecognize;
     geometry_msgs::Pose detectedFacePose;
