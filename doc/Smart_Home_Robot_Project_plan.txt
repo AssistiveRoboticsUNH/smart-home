@@ -14,8 +14,10 @@ Skills:
 ---
 ---5.Face recognition in the picture (by the end of week 6, July 7)
 ---Done -- June 25 2019
+---
+---6.Find person in the room 
+---Done -- July 5 2019
 
-6.Find person in the room 
 7.AI Planner (by the end of week 6, July 7)
 8.Call 911, skype to care-giver (by the end of week 8, July 24)
 
