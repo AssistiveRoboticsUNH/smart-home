@@ -17,9 +17,11 @@ Skills:
 ---
 ---6.Find person in the room 
 ---Done -- July 5 2019
+---
+---7.Call 911, skype to care-giver (by the end of week 6, July 7)
+---Done -- July 6 2019
 
-7.AI Planner (by the end of week 6, July 7)
-8.Call 911, skype to care-giver (by the end of week 8, July 24)
+8.AI Planner (by the end of week 8, July 24)
 
 Behavior:
 ====================================
