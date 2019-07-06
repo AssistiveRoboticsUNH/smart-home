@@ -9,7 +9,8 @@ auth_token = '8187d159382b0a2719caa9aa0b20aa1e'
 client = Client(account_sid, auth_token)
 
 call = client.calls.create(
-                        url='http://demo.twilio.com/docs/voice.xml',
+                        # url='http://demo.twilio.com/docs/voice.xml',
+                        url='http://cs.unh.edu/~tg1034/shr/call_msg.xml',
                         to='+16262026180',
                         from_='+15624541623'
                     )
