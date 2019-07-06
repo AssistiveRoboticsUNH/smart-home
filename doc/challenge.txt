@@ -31,8 +31,14 @@ Robot:
 
 7. face detection false positive error
    solved autonumous: tweak the face detector source code
+   side effect: have a better face detector ros package, better than the state of the art
 
-8. move base fail when the destination pose is behind the robot
+
+8. face recognize fail if people is too high. 
+   ad-hoc: invite short mock patient to do experiment, or even ask the patient to sit down during approach action.
+   autonumous: use camear with controllable camera angle and zoomable len.
+
+9. move base fail when the destination pose is behind the robot
    ad-hoc: turn the robot toward the destination before calling move_base
    autonumous: not sure, we really don't want to implement our own low level motion planner in this project.
 
