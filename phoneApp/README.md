@@ -4,7 +4,7 @@
 https://www.fullstackpython.com/blog/make-phone-calls-python.html
 
 # Other pre-configuration:
-**Set up for virtualenv**  
+**Set up virtualenv for resolve all dependency of twilio library**  
 
 Add this to .bashr or .zshrc:  
 ```bash
