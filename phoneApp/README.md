@@ -8,11 +8,16 @@ https://www.fullstackpython.com/blog/make-phone-calls-python.html
 
 Add this to .bashr or .zshrc:  
 ```bash
-source phoneapp/bin/activate
+source ~/phoneapp/bin/activate
+```
+
+**Copy call messages to webserver**  
+
+```bash
+scp call_msg.xml tg1034@agate.cs.unh.edu:~/public_html/shr
 ```
 
 # Usage:
-
 **make phone call and play pre-record message:**  
-`python2 call.py`
+`python call.py`
 
