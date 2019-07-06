@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Response>
+    <Say voice="alice">Hi care giver, this is pioneer robot calling from Hewitt Hall. For some reason, Alex don't want to take medicine today, I have no idea why. Please takeover me via remote control and check with him!</Say>
+    <!--<Play>http://demo.twilio.com/docs/classic.mp3</Play>-->
+</Response>
