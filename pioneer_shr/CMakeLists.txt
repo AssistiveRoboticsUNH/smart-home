@@ -142,7 +142,7 @@ include_directories(
 ## The recommended prefix ensures that target names across packages don't collide
 # add_executable(${PROJECT_NAME}_node src/pioneer_shr_node.cpp)
 
-add_executable(approach_person_service src/approachPerson.cpp)
+add_executable(approach_person_service src/approachPersonService.cpp)
 target_link_libraries(
 	approach_person_service 
 	${catkin_LIBRARIES} 
