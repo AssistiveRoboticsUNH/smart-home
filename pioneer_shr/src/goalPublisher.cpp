@@ -23,7 +23,9 @@ int main(int argc, char** argv){
   std::cout << "load in goalPoseOrientationZ: " << z << std::endl;
   std::cout << "load in goalPoseOrientationW: " << w << std::endl;
 
-  Skills autonav;
+  std::vector<PreDefinedPose> pdlist;
+  std::string cameraTopic = "/camera";
+  Skills autonav(nh, pdlist, cameraTopic);
 
   geometry_msgs::Pose goalPose;
   goalPose.position.x = x;
@@ -48,16 +50,16 @@ int main(int argc, char** argv){
   bool doorOpen = false;
 
   while (ros::ok()) {
-	  if (doorOpen)
-		  break;
+      if (doorOpen)
+          break;
 
-	  ros::spinOnce();
+      ros::spinOnce();
 
-	  if (httpReq.isOpen()) {
-		  //autonav.navigateTo(goalPose);
-		  autonav.playAudio();
-		  doorOpen = true;
-	  }
+      if (httpReq.isOpen()) {
+          autonav.navigateTo(PreDefinedPose(goalPose, "Door"));
+          autonav.playAudio();
+          doorOpen = true;
+      }
   }
 
   //autonav.navigateTo(goalPose);
