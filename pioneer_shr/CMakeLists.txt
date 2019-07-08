@@ -158,6 +158,7 @@ add_executable(simple_navigation_goals src/goalPublisher.cpp)
 target_link_libraries(
 	simple_navigation_goals 
 	${catkin_LIBRARIES} 
+    ${CPR_LIBRARIES}
 )
 
 ## Rename C++ executable without prefix
