@@ -1,0 +1,9 @@
+<launch>
+	<!-- simple goal node -->
+	<node pkg="pioneer_shr" type="simple_navigation_goals" name="simple_navigation_goals" output="screen">
+		<param name="goalPosePositionX" value="-0.6109"/>
+		<param name="goalPosePositionY" value="-1.7612"/>
+		<param name="goalPoseOrientationZ" value="0.9947"/>
+		<param name="goalPoseOrientationW" value="-0.1019"/>
+	</node>
+</launch>
