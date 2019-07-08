@@ -20,7 +20,7 @@ elderly occupant and the safety of the home.
 `sudo apt-get install ros-kinetic-teleop-twist-keyboard` 
 
 **face module package**  
-`sudo apt-get install ros-kinetic-face-detector`  
+`sudo apt-get install ros-kinetic-people-msgs`  
 `sudo apt-get install ros-kinetic-jsk-rviz-plugin`   
 `sudo pip2 install face_recognition`  
 `sudo pip2 install opencv-python`  
