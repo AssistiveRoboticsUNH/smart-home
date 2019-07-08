@@ -17,14 +17,16 @@ const int LOOP_RATE = 50;
 
 class Skills {
 public:
-    Skills(ros::NodeHandle& nh, std::vector<PreDefinedPose>& landMarks, std::string& cameraFrameId)
+    Skills(ros::NodeHandle& nh,
+            std::vector<PreDefinedPose>& landMarks,
+            std::string& cameraFrameId)
             : nh(nh),
               faceFound(false),
               stopDetect(false),
               recognizedTarget(false),
               stopRecognize(false),
-			  landMarks(landMarks),
-			  cameraFrameId(cameraFrameId) {
+              landMarks(landMarks),
+              cameraFrameId(cameraFrameId) {
         pub_vel = nh.advertise<geometry_msgs::Twist>("/cmd_vel", 100);
     }
 
