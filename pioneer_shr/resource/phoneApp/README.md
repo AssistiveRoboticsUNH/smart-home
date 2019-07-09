@@ -10,14 +10,17 @@ Add this to .bashr or .zshrc:
 ```bash
 source ~/phoneapp/bin/activate
 ```
-
-**Copy call messages to webserver**  
-
-```bash
-scp call_msg.xml tg1034@agate.cs.unh.edu:~/public_html/shr
-```
+(not sure if we really need this. It seems work even without this step)
 
 # Usage:
+**edit or create pre-record message:**  
+`vim call_msg.xml`
+
+**Copy call messages to webserver**  
+```bash
+./upload_messages.sh
+```
+
 **make phone call and play pre-record message:**  
-`python call.py`
+`python call.py call_msg.xml`
 

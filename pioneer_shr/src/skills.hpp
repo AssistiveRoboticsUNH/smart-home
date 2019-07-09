@@ -9,6 +9,7 @@
 #include <tf2_ros/transform_listener.h>
 #include <string>
 #include "preDefinedPose.hpp"
+#include <system_error>
 
 typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseClient;
 
@@ -17,6 +18,8 @@ const int LOOP_RATE = 50;
 
 class Skills {
 public:
+    Skills(ros::NodeHandle& nh) : nh(nh) {}
+
     Skills(ros::NodeHandle& nh,
             std::vector<PreDefinedPose>& landMarks,
             std::string& cameraFrameId)
@@ -77,9 +80,16 @@ public:
         ROS_INFO("current goal has been canceled");
     }
 
-    void playAudio() const { play("audio"); }
-
-    void playVideo() const { play("video"); }
+    bool runScript(const std::string& scriptFile) const {
+        try {
+            std::system(scriptFile.c_str());
+			return true;
+        } catch (const std::system_error& e) {
+            ROS_ERROR_STREAM("Caught system_error with code "
+                    << e.code() << " meaning " << e.what());
+			return false;
+        }
+    }
 
     void rotate360() const {
         double vl, vr;
@@ -192,24 +202,7 @@ public:
     bool targetInHouse() const { return recognizedTarget; }
 
 private:
-    void play(std::string mediaType) const {
-        const char* ros_work_space = std::getenv("ROS_WORKSPACE");
-        if (ros_work_space == 0) {
-            std::cout << "ROS_WORKSPACE environment variable not found!"
-                      << std::endl;
-            return;
-        }
-        std::string resourcePath = ros_work_space;
-
-        if (mediaType == "audio")
-            resourcePath += "/src/pioneer_shr/resource/playAudio.sh";
-        else if (mediaType == "video")
-            resourcePath += "/src/pioneer_shr/resource/playVideo.sh";
-        else
-            ROS_ERROR("wrong media type !");
-
-        std::system(resourcePath.c_str());
-    }
+    
 
     void vel_from_wheels(double vl, double vr, double sec) const {
         double lin_vel = 0.5 * (vl + vr);

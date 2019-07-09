@@ -154,12 +154,24 @@ target_link_libraries(
 	${catkin_LIBRARIES} 
 )
 
-add_executable(simple_navigation_goals src/goalPublisher.cpp)
+add_executable(run_script_service src/runScriptService.cpp)
 target_link_libraries(
-	simple_navigation_goals 
+	run_script_service 
 	${catkin_LIBRARIES} 
-    ${CPR_LIBRARIES}
 )
+
+add_executable(executive src/executive.cpp)
+target_link_libraries(
+	executive 
+	${catkin_LIBRARIES} 
+)
+
+#add_executable(simple_navigation_goals src/goalPublisher.cpp)
+#target_link_libraries(
+	#simple_navigation_goals 
+	#${catkin_LIBRARIES} 
+    #${CPR_LIBRARIES}
+#)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the

@@ -1,5 +1,7 @@
+#!/usr/bin python
 # Download the helper library from https://www.twilio.com/docs/python/install
 from twilio.rest import Client
+import sys
 
 
 # Your Account Sid and Auth Token from twilio.com/console
@@ -10,7 +12,7 @@ client = Client(account_sid, auth_token)
 
 call = client.calls.create(
                         # url='http://demo.twilio.com/docs/voice.xml',
-                        url='http://cs.unh.edu/~tg1034/shr/call_msg_medical.xml',
+                        url='http://cs.unh.edu/~tg1034/shr/'+sys.argv[1],
                         to='+16262026180',
                         from_='+15624541623'
                     )
