@@ -58,6 +58,7 @@ find_package(catkin REQUIRED COMPONENTS
 add_service_files(
   FILES
   Action_Approach_Person.srv
+  Action_Run_Script.srv
 )
 
 ## Generate actions in the 'action' folder
