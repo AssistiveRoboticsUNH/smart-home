@@ -49,6 +49,8 @@ public:
 
             beginTime = ros::Time::now();
 
+            secondsIWantToSendMessagesFor = ros::Duration(20);
+
             endTime = beginTime + secondsIWantToSendMessagesFor;
 
             ROS_INFO_STREAM("Advice given, start DB monitoring again...");
