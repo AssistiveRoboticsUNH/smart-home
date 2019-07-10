@@ -160,6 +160,13 @@ target_link_libraries(
 	${catkin_LIBRARIES} 
 )
 
+add_executable(db_monitor_service src/dbMonitorService.cpp)
+target_link_libraries(
+	db_monitor_service 
+	${catkin_LIBRARIES} 
+	${CPR_LIBRARIES}
+)
+
 add_executable(executive src/executive.cpp)
 target_link_libraries(
 	executive 

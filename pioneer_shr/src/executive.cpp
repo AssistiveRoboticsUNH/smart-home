@@ -1,69 +1,161 @@
 #include "ros/ros.h"
 #include "pioneer_shr_msg/Action_Approach_Person.h"
 #include "pioneer_shr_msg/Action_Run_Script.h"
+#include "pioneer_shr_msg/Action_Monitoring_DB.h"
 #include <cstdlib>
 
 class Executive {
 public:
-    Executive(const char* ros_work_space) : ros_work_space(ros_work_space) {
+    Executive(const char* ros_work_space)
+            : ros_work_space(ros_work_space), medicineTaken(false) {
         n = ros::NodeHandle("~");
     }
 
-	int run(){
-            /*ros::ServiceClient approach_person_client =
-             * n.serviceClient<pioneer_shr_msg::Action_Approach_Person>("/approach_person_service/Action_Approach_Person");*/
-            // pioneer_shr_msg::Action_Approach_Person approach_person_srv;
-            // if (approach_person_client.call(approach_person_srv))
-            //{
-            ////ROS_INFO_STREAM("Result: " << srv.response.success ? "Success" :
-            ///"Fail");
-            // if (approach_person_srv.response.success)
-            // ROS_INFO_STREAM("Result: "
-            //<< "Success");
-            // else
-            // ROS_INFO_STREAM("Result: "
-            //<< "Fail");
+    int run() {
+        ros::Rate loop_rate(0.5);
+        loop_rate.sleep();
 
-            //}
-            // else
-            //{
-            // ROS_ERROR("Failed to call service Action_Approach_Person");
-            // return 1;
-            //}
+        ros::Time beginTime = ros::Time::now();
+        ros::Duration secondsIWantToSendMessagesFor = ros::Duration(10);
+        ros::Time endTime = beginTime + secondsIWantToSendMessagesFor;
 
-            ros::ServiceClient run_script_client =
-                    n.serviceClient<pioneer_shr_msg::Action_Run_Script>(
-                            "/run_script_service/Action_Run_Script");
+        pioneer_shr_msg::SmartSensor curSensorInfo;
 
-            std::string resourcePath = ros_work_space;
+        ROS_INFO_STREAM("Start DB monitoring...");
+        ROS_INFO_STREAM(beginTime);
+        ROS_INFO_STREAM(endTime);
 
-            //if (mediaType == "audio")
-                //resourcePath += "/src/pioneer_shr/resource/playAudio.sh";
-            resourcePath += "/src/pioneer_shr/resource/phoneApp/call.py";
+        while (ros::Time::now() < endTime && ros::ok()) {
+            if (medicineTaken)
+                continue;
+            curSensorInfo = monitoringDB();
+            medicineTaken = curSensorInfo.motion1_is_on;
+            ros::spinOnce();
+            loop_rate.sleep();
+            ROS_INFO_STREAM("Monitoring DB...");
+        }
+        ROS_INFO_STREAM(ros::Time::now());
 
-            pioneer_shr_msg::Action_Run_Script run_script_srv;
-            run_script_srv.request.script_file_name =
-                    "python " + resourcePath + " call_msg_medical.xml";
+        if (medicineTaken) {
+            ROS_INFO_STREAM("Medicine is taken in the moring!");
+            return 0;
+        }
 
-            if (run_script_client.call(run_script_srv)) {
-                if (run_script_srv.response.success)
-                    ROS_INFO_STREAM("Result: "
-                            << "Success");
-                else
-                    ROS_INFO_STREAM("Result: "
-                            << "Fail");
+        ROS_INFO_STREAM("Medicine is not taken, approaching person...");
 
+        if (approachPerson()) {
+
+            playMediaWithSciptFile("playMedicalNotify.sh");
+
+            beginTime = ros::Time::now();
+
+            endTime = beginTime + secondsIWantToSendMessagesFor;
+
+            ROS_INFO_STREAM("Advice given, start DB monitoring again...");
+
+            while (ros::Time::now() < endTime && ros::ok()) {
+                if (medicineTaken)
+                    continue;
+                curSensorInfo = monitoringDB();
+                medicineTaken = curSensorInfo.motion1_is_on;
+                ros::spinOnce();
+                loop_rate.sleep();
+            }
+
+            if (medicineTaken) {
+                ROS_INFO_STREAM("Medicine is taken after notify!");
+                return 0;
             } else {
-                ROS_ERROR("Failed to call service Action_Approach_Person");
-                return 1;
+                phoneCallWithMessageFile("call_msg_medical.xml");
+                ROS_INFO_STREAM(
+                        "Medicine still not be take, hand over to caregiver!");
             }
 
             return 0;
         }
 
+        phoneCallWithMessageFile("call_msg_alex_not_in_house.xml");
+        ROS_INFO_STREAM("People is missing, hand over to caregiver!");
+        return 0;
+    }
+
 private:
+    template <class ServiceType>
+    void callService(ros::ServiceClient& client,
+            ServiceType& service,
+            const std::string& serviceName) const {
+        if (!client.call(service))
+            ROS_ERROR_STREAM("Failed to call service " << serviceName);
+    }
+
+    bool phoneCallWithMessageFile(const std::string& msgFile) {
+        ros::ServiceClient run_script_client =
+                n.serviceClient<pioneer_shr_msg::Action_Run_Script>(
+                        "/run_script_service/Action_Run_Script");
+
+        std::string resourcePath = ros_work_space;
+
+        resourcePath += "/src/pioneer_shr/resource/phoneApp/call.py";
+
+        pioneer_shr_msg::Action_Run_Script run_script_srv;
+        run_script_srv.request.script_file_name =
+                "python " + resourcePath + " "+msgFile;
+
+        callService<pioneer_shr_msg::Action_Run_Script>(
+                run_script_client, run_script_srv, "Action_Run_Script");
+
+		return run_script_srv.response.success;
+    }
+
+    bool playMediaWithSciptFile(const std::string& scriptFile) {
+        ros::ServiceClient run_script_client =
+                n.serviceClient<pioneer_shr_msg::Action_Run_Script>(
+                        "/run_script_service/Action_Run_Script");
+
+        std::string resourcePath = ros_work_space;
+
+        resourcePath += "/src/pioneer_shr/resource/" + scriptFile;
+
+        pioneer_shr_msg::Action_Run_Script run_script_srv;
+
+        run_script_srv.request.script_file_name = resourcePath;
+
+        callService<pioneer_shr_msg::Action_Run_Script>(
+                run_script_client, run_script_srv, "Action_Run_Script");
+
+		return run_script_srv.response.success;
+    }
+
+    bool approachPerson() {
+        ros::ServiceClient approach_person_client =
+                n.serviceClient<pioneer_shr_msg::Action_Approach_Person>(
+                        "/approach_person_service/Action_Approach_Person");
+        pioneer_shr_msg::Action_Approach_Person approach_person_srv;
+
+        callService<pioneer_shr_msg::Action_Approach_Person>(
+                approach_person_client,
+                approach_person_srv,
+                "Action_Approach_Person");
+
+        return approach_person_srv.response.success;
+    }
+
+    pioneer_shr_msg::SmartSensor monitoringDB() {
+        ros::ServiceClient db_monitor_client =
+                n.serviceClient<pioneer_shr_msg::Action_Monitoring_DB>(
+                        "/db_monitor_service/Action_Monitoring_DB");
+        pioneer_shr_msg::Action_Monitoring_DB monitoring_db_srv;
+
+        callService<pioneer_shr_msg::Action_Monitoring_DB>(db_monitor_client,
+                monitoring_db_srv,
+                "Action_Monitoring_DB");
+
+        return monitoring_db_srv.response.sensorMsg;
+    }
+
     ros::NodeHandle n;
 	const std::string ros_work_space;
+	bool medicineTaken;
 };
 
 int main(int argc, char** argv){
