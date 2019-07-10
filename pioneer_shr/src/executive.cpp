@@ -65,6 +65,7 @@ public:
                 medicineTaken = curSensorInfo.motion1_is_on;
                 ros::spinOnce();
                 loop_rate.sleep();
+                ROS_INFO_STREAM("Monitoring DB...");
             }
 
             ROS_INFO_STREAM(ros::Time::now());
