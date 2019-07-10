@@ -4,10 +4,12 @@
 #include <string>
 #include <vector>
 #include "jasonParser.hpp"
+#include "pioneer_shr_msg/SmartSensor.h"
+#include <ros/ros.h>
 
 class HttpRequest {
 public:
-    bool isOpen() {
+    static pioneer_shr_msg::SmartSensor getSensorData() {
         auto r = cpr::Get(cpr::Url{"http://localhost:4567/getcontacts"});
 
         std::string webtext = r.text;
@@ -33,21 +35,19 @@ public:
 
         std::vector<JasonParser> jasonList;
 
+        ROS_INFO("parse sensor data:  ");
+
         for (auto str : jasonStrList) {
             jasonList.push_back(JasonParser(str));
+            ROS_INFO_STREAM(str);
         }
 
-        std::cout << "parser by tianyi:  " << std::endl;
+        pioneer_shr_msg::SmartSensor sensorMsg;
 
-        // JasonParser jason(r.body);
+        sensorMsg.door_is_open = jasonList[0].getValue("value") == "open";
+        sensorMsg.motion1_is_on = jasonList[1].getValue("value") == "active";
+        sensorMsg.motion2_is_on = jasonList[2].getValue("value") == "active";
 
-        // std::cout << jason.getValue("origin") << std::endl;
-
-        std::cout << jasonList[0].getValue("value") << std::endl;
-
-        if (jasonList[0].getValue("value") == "open")
-            return true;
-        else
-            return false;
+		return sensorMsg;
     }
 };
