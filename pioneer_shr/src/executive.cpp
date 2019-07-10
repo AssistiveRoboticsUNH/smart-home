@@ -47,12 +47,14 @@ public:
 
             playMediaWithSciptFile("playMedicalNotify.sh");
 
-            loop_rate.sleep();
             beginTime = ros::Time::now();
 
             endTime = beginTime + secondsIWantToSendMessagesFor;
 
             ROS_INFO_STREAM("Advice given, start DB monitoring again...");
+
+            ROS_INFO_STREAM(beginTime);
+            ROS_INFO_STREAM(endTime);
 
             while (ros::Time::now() < endTime && ros::ok()) {
                 if (medicineTaken)
@@ -62,6 +64,8 @@ public:
                 ros::spinOnce();
                 loop_rate.sleep();
             }
+
+            ROS_INFO_STREAM(ros::Time::now());
 
             if (medicineTaken) {
                 ROS_INFO_STREAM("Medicine is taken after notify!");
