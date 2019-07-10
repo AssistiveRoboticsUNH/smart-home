@@ -47,6 +47,7 @@ public:
 
             playMediaWithSciptFile("playMedicalNotify.sh");
 
+            loop_rate.sleep();
             beginTime = ros::Time::now();
 
             endTime = beginTime + secondsIWantToSendMessagesFor;
