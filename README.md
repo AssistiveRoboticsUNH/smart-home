@@ -152,9 +152,10 @@ export ROS_HOSTNAME=10.21.98,194
 
 **run camera on robot labtop**  
 `roslaunch pioneer_shr camera_real.launch`  
+(not needed if have face_detection running first)
 
 **start face recognition on remote labtop**  
-`roslaunch pioneer_shr face_recognition_real_multiple.launch`  
+`roslaunch pioneer_shr face_recognition_real.launch`  
 
 ## Mecial Protocal in simulation:
 **Do face detection and face recogniton in gazebo:**  
