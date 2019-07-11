@@ -157,7 +157,7 @@ export ROS_HOSTNAME=10.21.98,194
 **start face recognition on remote labtop**  
 `roslaunch pioneer_shr face_recognition_real.launch`  
 
-## Mecial Protocal in simulation:
+## Medcial Protocal in simulation:
 **Do face detection and face recogniton in gazebo:**  
 
 **run approach person service**  
@@ -166,7 +166,7 @@ export ROS_HOSTNAME=10.21.98,194
 **run executive**  
 `rosrun pioneer_shr executive`  
 
-## Mecial Protocal in real world:
+## Medcial Protocal in real world:
 **Do face detection and face recogniton in real world:**  
 
 **run approach person service**  
