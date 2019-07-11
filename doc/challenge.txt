@@ -9,8 +9,8 @@ Robot:
 
 1. If the body is too high, the laser sensor can't detect blocked way.
 
-2. If the AWD is facing an object, than the current person finding routin cannot recognize the target.
-   ad-hoc: play video to ask the target to turn tward the robot camera.
+2. If the AWD is facing an object or in some place move_base cannot reach, than the current person finding routin cannot recognize the target.
+   ad-hoc: play video to ask the target to turn tward the robot camera or move out from the narrwo area.
    autonumous solution: implement auto zoom function with zoomable camera.
 
 3. Need a domain expert to model the robot behavious, i.e., someone have to write the PDDL model.
@@ -25,14 +25,13 @@ Robot:
    ad-hoc solution: pre-define by tianyi
    autonumous solution: find the best point after doing the mapping
 
-6. the approach person function assume that the target person is not moveing in house. If the person is hiden from the robot on purpose, than the robot will report no face found in house and call emgergency contact.
+6. the approach person function assume that the target person is not moveing in house. If the person is hiden from the robot for purpose, than the robot will report no face found in house and call emgergency contact.
    ad-hoc: let it be
    autonumous: inplement people tracking function. Once found the target, lock the target in the view, than approach the target wihile the target is moving.
 
 7. face detection false positive error
    solved autonumous: tweak the face detector source code
    side effect: have a better face detector ros package, better than the state of the art
-
 
 8. face recognize fail if people is too high. 
    ad-hoc: invite short mock patient to do experiment, or even ask the patient to sit down during approach action.
@@ -41,5 +40,4 @@ Robot:
 9. move base fail when the destination pose is behind the robot
    ad-hoc: turn the robot toward the destination before calling move_base
    autonumous: not sure, we really don't want to implement our own low level motion planner in this project.
-
 
