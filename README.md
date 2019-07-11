@@ -122,7 +122,7 @@ export ROS_HOSTNAME=10.21.98,194
 **Visualize from remote PC:**  
 `roslaunch pioneer_shr remote_vis.launch`
 
-## Auto-navigation trigger by sensor:
+## Auto-navigation trigger by sensor (obselet):
 **Do all steps in auto-navigation**
 
 **Bring up simple_navigation_goal ros node**  
@@ -130,7 +130,7 @@ export ROS_HOSTNAME=10.21.98,194
 `roslaunch pioneer_shr sensor_trigger_move2goal_gazebo.launch` (gazebo)    
 
 ## Face detection in gazebo:
-**Do Autonomous navigation in gazebo:**  
+**Do Autonomous navigation in gazebo**  
 
 **start person sim**  
 `roslaunch person_sim init_standing_person.launch`  
@@ -142,13 +142,13 @@ export ROS_HOSTNAME=10.21.98,194
 `roslaunch pioneer_shr face_detection_gazebo.launch`  
 
 ## Face detection in real world:
-**Do Autonomous navigation in real world:**  
+**Do Autonomous navigation in real world**  
 
 **run face detection**  
 `roslaunch pioneer_shr face_detection_real.launch`  
 
 ## Face recognition in real world:
-**Do Autonomous navigation in real world:**  
+**Do Autonomous navigation in real world**  
 
 **run camera on robot labtop**  
 `roslaunch pioneer_shr camera_real.launch`  
@@ -157,8 +157,8 @@ export ROS_HOSTNAME=10.21.98,194
 **start face recognition on remote labtop**  
 `roslaunch pioneer_shr face_recognition_real.launch`  
 
-## Mecial Protocal in simulation:
-**Do face detection and face recogniton in gazebo:**  
+## Medcial Protocal in simulation:
+**Do face detection and face recogniton in gazebo**  
 
 **run approach person service**  
 `roslaunch pioneer_shr action_service_gazebo.launch`  
@@ -166,8 +166,8 @@ export ROS_HOSTNAME=10.21.98,194
 **run executive**  
 `rosrun pioneer_shr executive`  
 
-## Mecial Protocal in real world:
-**Do face detection and face recogniton in real world:**  
+## Medcial Protocal in real world:
+**Do face detection and face recogniton in real world**  
 
 **run approach person service**  
 `roslaunch pioneer_shr action_service_real.launch`  
