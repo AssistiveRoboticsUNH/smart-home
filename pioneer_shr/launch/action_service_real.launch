@@ -1,0 +1,27 @@
+<launch> 
+
+    <!-- start approach person service -->
+    <node pkg="pioneer_shr" type="approach_person_service" name="approach_person_service" output="screen">
+		<param name="predefined1PositionX" type="double" value="2.5131"/>
+		<param name="predefined1PositionY" type="double" value="-2.3602"/>
+		<param name="predefined1OrientationZ" type="double" value="0.9957"/>
+		<param name="predefined1OrientationW" type="double" value="-0.0923"/>
+		<param name="predefined1Name" type="string" value="Bedroom"/>
+        <param name="predefined2PositionX" type="double" value="0.2802"/>
+		<param name="predefined2PositionY" type="double" value="-2.2539"/>
+		<param name="predefined2OrientationZ" type="double" value="0.8970"/>
+		<param name="predefined2OrientationW" type="double" value="0.4420"/>
+		<param name="predefined2Name" type="string" value="Kitchen"/>
+		<param name="targetPersonName" type="string" value="Alex"/>
+		<param name="cameraFrameId" type="string" value="camera_optical_frame"/>
+	</node>
+
+    <!-- start run script service -->
+    <node pkg="pioneer_shr" type="run_script_service" name="run_script_service" output="screen">
+    </node>
+
+    <!-- start DB monitor service -->
+    <node pkg="pioneer_shr" type="db_monitor_service" name="db_monitor_service" output="screen">
+    </node>
+
+</launch>
