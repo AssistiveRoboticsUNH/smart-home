@@ -41,3 +41,10 @@ Robot:
    ad-hoc: turn the robot toward the destination before calling move_base
    autonumous: not sure, we really don't want to implement our own low level motion planner in this project.
 
+10. PDDL plan does not support parallel action execution
+    ad-hoc: report the first action success immediately after launch the action as if it is successed already. Run the first action in the background.
+	autonumous: study how to do parallel plan with PDDL, with parallel action respond
+
+11. how to handle stochasity cause by the human
+    now: conditional planning with nested contigent planners
+    future: POMDP
