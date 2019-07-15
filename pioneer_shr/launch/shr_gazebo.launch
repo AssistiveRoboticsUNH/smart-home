@@ -1,0 +1,21 @@
+<launch> 
+	
+	<!-- navigation nodes -->
+	<include file="$(find pioneer_shr)/launch/auto_navigation_gazebo.launch"/>
+
+    <!-- person sim nodes -->
+	<include file="$(find person_sim)/launch/init_standing_person.launch"/>
+
+    <!-- action service nodes -->
+	<include file="$(find pioneer_shr)/launch/action_service_gazebo.launch"/>
+
+    <!-- sound play -->
+	<node name="sound_play" pkg="sound_play" type="soundplay_node.py" output="screen"/>
+
+    <!-- face detection nodes -->
+	<include file="$(find pioneer_shr)/launch/face_detection_gazebo.launch"/>
+
+    <!-- face recognition nodes -->
+	<include file="$(find pioneer_shr)/launch/face_recognition_gazebo.launch"/>
+
+</launch>

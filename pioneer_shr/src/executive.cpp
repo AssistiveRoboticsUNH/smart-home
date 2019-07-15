@@ -45,7 +45,8 @@ public:
 
         if (approachPerson()) {
 
-            playMediaWithSciptFile("playMedicalNotify.sh");
+            //playMediaWithSciptFile("playMedicalNotify.sh");
+			playAudioWithMessageFile("medicine_remidner.txt");
 
             beginTime = ros::Time::now();
 
@@ -87,6 +88,11 @@ public:
         return 0;
     }
 
+    int runP2() {
+        playAudioWithMessageFile("medicine_remidner.txt");
+        return 0;
+    }
+
 private:
     template <class ServiceType>
     void callService(ros::ServiceClient& client,
@@ -108,6 +114,24 @@ private:
         pioneer_shr_msg::Action_Run_Script run_script_srv;
         run_script_srv.request.script_file_name =
                 "python " + resourcePath + " "+msgFile;
+
+        callService<pioneer_shr_msg::Action_Run_Script>(
+                run_script_client, run_script_srv, "Action_Run_Script");
+
+		return run_script_srv.response.success;
+    }
+
+    bool playAudioWithMessageFile(const std::string& msgFile) {
+        ros::ServiceClient run_script_client =
+                n.serviceClient<pioneer_shr_msg::Action_Run_Script>(
+                        "/run_script_service/Action_Run_Script");
+
+        std::string resourcePath = ros_work_space;
+        resourcePath += "/src/pioneer_shr/resource/";
+
+        pioneer_shr_msg::Action_Run_Script run_script_srv;
+        run_script_srv.request.script_file_name =
+                "rosrun sound_play say.py < " + resourcePath + msgFile;
 
         callService<pioneer_shr_msg::Action_Run_Script>(
                 run_script_client, run_script_srv, "Action_Run_Script");
@@ -177,7 +201,7 @@ int main(int argc, char** argv){
 
   Executive executive(ros_work_space);
 
-  if(executive.run())
+  if(executive.runP2())
 		  return 1;
 
   return 0;
