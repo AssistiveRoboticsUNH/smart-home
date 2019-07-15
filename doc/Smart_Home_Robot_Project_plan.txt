@@ -25,12 +25,13 @@ Skills:
 
 Behavior:
 ====================================
-Protol 1:
-Monitoring medication ( DB monitoring)
-Find the AWD (move + scan + face recognition)
-Remind AWD to apply medicate (play audio)
-Keep monitoring (DB monitoring)
-If fail, call caregiver(skype)  (by the end of week 8, July 24) 
+---Protol 1:
+---Monitoring medication ( DB monitoring)
+---Find the AWD (move + scan + face recognition)
+---Remind AWD to apply medicate (play audio)
+---Keep monitoring (DB monitoring)
+---If fail, call caregiver(skype)  (by the end of week 8, July 24) 
+---Done -- July 11 2019
 
 Protol 2:
 Monitoring motion sensor 2 (DB monitoring)

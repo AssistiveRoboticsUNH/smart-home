@@ -46,7 +46,7 @@ public:
         if (approachPerson()) {
 
             //playMediaWithSciptFile("playMedicalNotify.sh");
-			playAudioWithMessageFile("medicine_remidner.txt");
+			playAudioWithMessageFile("medicine_reminder.txt");
 
             beginTime = ros::Time::now();
 
@@ -89,7 +89,7 @@ public:
     }
 
     int runP2() {
-        playAudioWithMessageFile("medicine_remidner.txt");
+        playAudioWithMessageFile("medicine_reminder.txt");
         return 0;
     }
 
