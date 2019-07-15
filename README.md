@@ -25,6 +25,9 @@ elderly occupant and the safety of the home.
 `sudo pip2 install face_recognition`  
 `sudo pip2 install opencv-python`  
 
+**Speech module**  
+`sudo apt-get install ros-kinetic-sound-play`
+
 **primesense camera drive**  
 `sudo apt install libopenni2-dev`  
 `sudo apt install ros-kinetic-openni2-launch`  
