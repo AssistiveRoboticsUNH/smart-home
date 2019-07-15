@@ -89,7 +89,79 @@ public:
     }
 
     int runP2() {
-        playAudioWithMessageFile("medicine_reminder.txt");
+        ros::Rate loop_rate(0.5);
+        loop_rate.sleep();
+
+        ros::Time beginTime = ros::Time::now();
+        ros::Duration secondsIWantToSendMessagesFor = ros::Duration(10);
+        ros::Time endTime = beginTime + secondsIWantToSendMessagesFor;
+
+        pioneer_shr_msg::SmartSensor curSensorInfo;
+
+        ROS_INFO_STREAM("Start DB monitoring...");
+        ROS_INFO_STREAM(beginTime);
+        ROS_INFO_STREAM(endTime);
+
+        while (ros::Time::now() < endTime && ros::ok()) {
+            if (medicineTaken)
+                continue;
+            curSensorInfo = monitoringDB();
+            medicineTaken = curSensorInfo.motion1_is_on;
+            ros::spinOnce();
+            loop_rate.sleep();
+            ROS_INFO_STREAM("Monitoring DB...");
+        }
+        ROS_INFO_STREAM(ros::Time::now());
+
+        if (medicineTaken) {
+            ROS_INFO_STREAM("Medicine is taken in the moring!");
+            return 0;
+        }
+
+        ROS_INFO_STREAM("Medicine is not taken, approaching person...");
+
+        if (approachPerson()) {
+
+            //playMediaWithSciptFile("playMedicalNotify.sh");
+			playAudioWithMessageFile("medicine_reminder.txt");
+
+            beginTime = ros::Time::now();
+
+            secondsIWantToSendMessagesFor = ros::Duration(20);
+
+            endTime = beginTime + secondsIWantToSendMessagesFor;
+
+            ROS_INFO_STREAM("Advice given, start DB monitoring again...");
+
+            ROS_INFO_STREAM(beginTime);
+            ROS_INFO_STREAM(endTime);
+
+            while (ros::Time::now() < endTime && ros::ok()) {
+                if (medicineTaken)
+                    continue;
+                curSensorInfo = monitoringDB();
+                medicineTaken = curSensorInfo.motion1_is_on;
+                ros::spinOnce();
+                loop_rate.sleep();
+                ROS_INFO_STREAM("Monitoring DB...");
+            }
+
+            ROS_INFO_STREAM(ros::Time::now());
+
+            if (medicineTaken) {
+                ROS_INFO_STREAM("Medicine is taken after notify!");
+                return 0;
+            } else {
+                phoneCallWithMessageFile("call_msg_medical.xml");
+                ROS_INFO_STREAM(
+                        "Medicine still not be take, hand over to caregiver!");
+            }
+
+            return 0;
+        }
+
+        phoneCallWithMessageFile("call_msg_alex_not_in_house.xml");
+        ROS_INFO_STREAM("People is missing, hand over to caregiver!");
         return 0;
     }
 
