@@ -59,6 +59,7 @@ add_service_files(
   Action_Approach_Person.srv
   Action_Run_Script.srv
   Action_Monitoring_DB.srv
+  Action_Move_To.srv
 )
 
 ## Generate actions in the 'action' folder
