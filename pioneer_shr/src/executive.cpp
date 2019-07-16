@@ -2,12 +2,18 @@
 #include "pioneer_shr_msg/Action_Approach_Person.h"
 #include "pioneer_shr_msg/Action_Run_Script.h"
 #include "pioneer_shr_msg/Action_Monitoring_DB.h"
+#include "pioneer_shr_msg/Action_Move_To.h"
 #include <cstdlib>
+#include <thread>
 
 class Executive {
 public:
     Executive(const char* ros_work_space)
-            : ros_work_space(ros_work_space), medicineTaken(false) {
+            : ros_work_space(ros_work_space),
+              medicineTaken(false),
+              isDoorOpen(false),
+              isPeopleBackToBed(false),
+              isPeopleAtDoor(false) {
         n = ros::NodeHandle("~");
     }
 
@@ -98,70 +104,87 @@ public:
 
         pioneer_shr_msg::SmartSensor curSensorInfo;
 
-        ROS_INFO_STREAM("Start DB monitoring...");
+        ROS_INFO_STREAM("Start DB monitoring M2...");
         ROS_INFO_STREAM(beginTime);
         ROS_INFO_STREAM(endTime);
 
-        while (ros::Time::now() < endTime && ros::ok()) {
-            if (medicineTaken)
-                continue;
+        while (ros::Time::now() < endTime && ros::ok() && !isPeopleAtDoor) {
             curSensorInfo = monitoringDB();
-            medicineTaken = curSensorInfo.motion1_is_on;
+            isPeopleAtDoor = curSensorInfo.motion2_is_on;
             ros::spinOnce();
             loop_rate.sleep();
-            ROS_INFO_STREAM("Monitoring DB...");
+            ROS_INFO_STREAM("Monitoring DB M2...");
         }
-        ROS_INFO_STREAM(ros::Time::now());
 
-        if (medicineTaken) {
-            ROS_INFO_STREAM("Medicine is taken in the moring!");
+        if (!isPeopleAtDoor) {
+            ROS_INFO_STREAM("No one approach the door during last night!");
             return 0;
         }
 
-        ROS_INFO_STREAM("Medicine is not taken, approaching person...");
+        ROS_INFO_STREAM("some one approach the door, approaching door...");
+		std::thread yell(&Executive::playAudioWithMessageFile, this, "alex_wait.txt");
+		std::thread move2door(&Executive::moveTo, this, "door");
 
-        if (approachPerson()) {
+		yell.join();
+		move2door.join();
 
-            //playMediaWithSciptFile("playMedicalNotify.sh");
-			playAudioWithMessageFile("medicine_reminder.txt");
+        // playMediaWithSciptFile("playMedicalNotify.sh");
+        playAudioWithMessageFile("midnight_warning.txt");
 
-            beginTime = ros::Time::now();
+        beginTime = ros::Time::now();
 
-            secondsIWantToSendMessagesFor = ros::Duration(20);
+        secondsIWantToSendMessagesFor = ros::Duration(5);
 
-            endTime = beginTime + secondsIWantToSendMessagesFor;
+        endTime = beginTime + secondsIWantToSendMessagesFor;
 
-            ROS_INFO_STREAM("Advice given, start DB monitoring again...");
+        ROS_INFO_STREAM("mid night warning given, start DB monitoring on Door "
+                        "Sensor...");
 
-            ROS_INFO_STREAM(beginTime);
-            ROS_INFO_STREAM(endTime);
+        curSensorInfo = monitoringDB();
+        isDoorOpen= curSensorInfo.door_is_open;
 
-            while (ros::Time::now() < endTime && ros::ok()) {
-                if (medicineTaken)
-                    continue;
-                curSensorInfo = monitoringDB();
-                medicineTaken = curSensorInfo.motion1_is_on;
-                ros::spinOnce();
-                loop_rate.sleep();
-                ROS_INFO_STREAM("Monitoring DB...");
-            }
-
-            ROS_INFO_STREAM(ros::Time::now());
-
-            if (medicineTaken) {
-                ROS_INFO_STREAM("Medicine is taken after notify!");
-                return 0;
-            } else {
-                phoneCallWithMessageFile("call_msg_medical.xml");
-                ROS_INFO_STREAM(
-                        "Medicine still not be take, hand over to caregiver!");
-            }
-
-            return 0;
+        while (ros::Time::now() < endTime && ros::ok() && isDoorOpen) {
+            curSensorInfo = monitoringDB();
+            isDoorOpen = curSensorInfo.door_is_open;
+            ros::spinOnce();
+            loop_rate.sleep();
+            ROS_INFO_STREAM("Monitoring DB on Door Sensor...");
         }
 
-        phoneCallWithMessageFile("call_msg_alex_not_in_house.xml");
-        ROS_INFO_STREAM("People is missing, hand over to caregiver!");
+
+        if (!isDoorOpen) {
+            ROS_INFO_STREAM("Door closed after notify!");
+			return 0;
+        }
+
+        ROS_INFO_STREAM(
+                "Door is still open after voice notify, playing video!");
+        playMediaWithSciptFile("playVideo.sh");
+        phoneCallWithMessageFile("call_msg_leaving_house.xml");
+
+        beginTime = ros::Time::now();
+
+        secondsIWantToSendMessagesFor = ros::Duration(10);
+
+        endTime = beginTime + secondsIWantToSendMessagesFor;
+
+        ROS_INFO_STREAM("video warning given, start DB monitoring on Bed "
+                        "Sensor...");
+
+        while (ros::Time::now() < endTime && ros::ok() && !isPeopleBackToBed) {
+            curSensorInfo = monitoringDB();
+            isPeopleBackToBed = curSensorInfo.motion1_is_on;
+            ros::spinOnce();
+            loop_rate.sleep();
+            ROS_INFO_STREAM("Monitoring DB on Bed Sensor...");
+        }
+
+        if (isPeopleBackToBed) {
+            phoneCallWithMessageFile("call_msg_alarm_off.xml");
+			return 0;
+        }
+
+        phoneCallWithMessageFile("call_msg_911.xml");
         return 0;
     }
 
@@ -257,9 +280,26 @@ private:
         return monitoring_db_srv.response.sensorMsg;
     }
 
+    void moveTo(const std::string& destinationName) {
+        ros::ServiceClient move_to_client =
+                n.serviceClient<pioneer_shr_msg::Action_Move_To>(
+                        "/move_to_service/Action_Move_To");
+
+        pioneer_shr_msg::Action_Move_To move_to_srv;
+
+		move_to_srv.request.destination_name = destinationName;
+
+        callService<pioneer_shr_msg::Action_Move_To>(move_to_client,
+                move_to_srv,
+                "Action_Move_To");
+    }
+
     ros::NodeHandle n;
 	const std::string ros_work_space;
 	bool medicineTaken;
+	bool isDoorOpen;
+	bool isPeopleBackToBed;
+	bool isPeopleAtDoor;
 };
 
 int main(int argc, char** argv){
@@ -271,10 +311,23 @@ int main(int argc, char** argv){
       return 1;
   }
 
+  if (argc<2){
+      ROS_ERROR_STREAM("usage: executive [p1|p2]");
+      return 1;
+  }
+
   Executive executive(ros_work_space);
 
-  if(executive.runP2())
-		  return 1;
+  if (std::string(argv[1]) == "p1") {
+      if (executive.run())
+          return 1;
+  } else if (std::string(argv[1]) == "p2") {
+      if (executive.runP2())
+          return 1;
+  } else {
+      ROS_ERROR_STREAM("usage: executive [p1|p2]");
+      return 1;
+  }
 
-  return 0;
+    return 0;
 }

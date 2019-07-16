@@ -36,6 +36,10 @@ The primesense camera has to be connect to usb2.0 port
 **Aria package(for rosaria)**  
 `sudo apt install libaria-dev`
 
+**ROSPlan**  
+`sudo apt install ros-kinetic-mongodb-store`
+ROSPlan: https://github.com/KCL-Planning/ROSPlan
+
 **Pull and build SHR**
 ```bash
 mkdir -p ~/catkin_ws

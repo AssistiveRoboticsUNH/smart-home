@@ -148,11 +148,11 @@ target_link_libraries(
 	${catkin_LIBRARIES} 
 )
 
-add_executable(approach_person_client src/approachPersonClient.cpp)
-target_link_libraries(
-	approach_person_client 
-	${catkin_LIBRARIES} 
-)
+#add_executable(approach_person_client src/approachPersonClient.cpp)
+#target_link_libraries(
+	#approach_person_client 
+	#${catkin_LIBRARIES} 
+#)
 
 add_executable(run_script_service src/runScriptService.cpp)
 target_link_libraries(
@@ -165,6 +165,12 @@ target_link_libraries(
 	db_monitor_service 
 	${catkin_LIBRARIES} 
 	${CPR_LIBRARIES}
+)
+
+add_executable(move_to_service src/moveToService.cpp)
+target_link_libraries(
+	move_to_service 
+	${catkin_LIBRARIES} 
 )
 
 add_executable(executive src/executive.cpp)
