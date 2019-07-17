@@ -1,0 +1,3 @@
+string destination_name
+---
+bool success # True if the action was executed successfully
