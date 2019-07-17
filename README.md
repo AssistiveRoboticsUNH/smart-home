@@ -42,14 +42,13 @@ ROSPlan: https://github.com/KCL-Planning/ROSPlan
 
 **Pull and build SHR**
 ```bash
-mkdir -p ~/catkin_ws
-cd ~/catkin_ws
+mkdir -p ~/catkin_ws/src
+cd ~/catkin_ws/src
 git clone git@github.com:AssistiveRoboticsUNH/smart-home.git
-mv smart-home src
 cd ~/catkin_ws
-catkin_make 
-# if you use youcompleteme, you need a compile database:  
-# catkin_make -DCMAKE_EXPORT_COMPILE_COMMANDS=1
+catkin build 
+# if you are using youcompleteme so need a compile database:  
+# catkin build -DCMAKE_EXPORT_COMPILE_COMMANDS=1
 ```
 
 # Other pre-configuration:
