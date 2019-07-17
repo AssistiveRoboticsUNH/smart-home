@@ -1,17 +1,46 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(rosplan_shr)
 
-## Compile as C++11, supported in ROS Kinetic and newer
-# add_compile_options(-std=c++11)
-
 ## Find catkin macros and libraries
-## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
-## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
+  actionlib
   std_msgs
+  std_srvs
+  diagnostic_msgs
+  rosplan_dispatch_msgs
+  rosplan_knowledge_msgs
+  rosplan_dependencies
 )
+
+## Compile as C++11, supported in ROS Kinetic and newer
+add_compile_options(-std=c++11)
+
+###################################
+## catkin specific configuration ##
+###################################
+
+## Declare things to be passed to dependent projects
+catkin_package(
+  INCLUDE_DIRS include ${catkin_INCLUDE_DIRS}
+  LIBRARIES rosplan_action_interface
+  CATKIN_DEPENDS roscpp rospy actionlib std_msgs std_srvs diagnostic_msgs rosplan_dispatch_msgs rosplan_knowledge_msgs
+  DEPENDS
+)
+
+###########
+## Build ##
+###########
+
+include_directories(include)
+include_directories(${catkin_INCLUDE_DIRS})
+
+find_package(FLEX REQUIRED)
+
+# Disable deprecated declarations warning (about std::auto_ptr)
+add_definitions(-Wno-deprecated-declarations)
+
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -134,6 +163,9 @@ include_directories(
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 # add_executable(${PROJECT_NAME}_node src/rosplan_shr_node.cpp)
+add_executable(shrActionInterface src/ActionInterface/RPTutorial10.cpp src/ActionInterface/RPActionInterface.cpp)
+add_dependencies(shrActionInterface ${catkin_EXPORTED_TARGETS})
+target_link_libraries(shrActionInterface ${catkin_LIBRARIES})
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
