@@ -107,7 +107,9 @@ def GetCompilationDatabaseFolder(filename):
         return ''
     dir = (os.path.expandvars('$ROS_WORKSPACE') +
            os.path.sep +
-           'build')
+           'build' +
+           os.path.sep +
+           pkg_name)
 
     return dir
 

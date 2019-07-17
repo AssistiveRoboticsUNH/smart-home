@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<launch>
+
+	<!-- ROSPlan -->
+	<include file="$(find rosplan_planning_system)/launch/interfaced_planning_system.launch" >
+		<arg name="domain_path"		value="$(find rosplan_shr)/common/domain_shr.pddl" />
+		<arg name="problem_path"	value="$(find rosplan_shr)/common/problem_shr.pddl" />
+		<arg name="autom_gen_problem_path"	value="$(find rosplan_shr)/common/problem.pddl" />
+		<arg name="data_path"            value="$(find rosplan_shr)/common/" />
+	</include>
+
+	<!-- moveto action interface -->
+	<node name="rosplan_interface_moveto" pkg="rosplan_shr" type="shrActionInterface" respawn="false" output="screen">
+		<param name="knowledge_base"		value="rosplan_knowledge_base" />
+		<param name="pddl_action_name"		value="moveto_landmark" />
+		<param name="action_dispatch_topic" value="/rosplan_plan_dispatcher/action_dispatch" />
+		<param name="action_feedback_topic" value="/rosplan_plan_dispatcher/action_feedback" />
+	</node>
+
+    <!-- notifyat action interface -->
+	<node name="rosplan_interface_notifyat" pkg="rosplan_shr" type="shrActionInterface" respawn="false" output="screen">
+		<param name="knowledge_base"		value="rosplan_knowledge_base" />
+		<param name="pddl_action_name"		value="notifyat" />
+		<param name="action_dispatch_topic" value="/rosplan_plan_dispatcher/action_dispatch" />
+		<param name="action_feedback_topic" value="/rosplan_plan_dispatcher/action_feedback" />
+	</node>
+</launch>
