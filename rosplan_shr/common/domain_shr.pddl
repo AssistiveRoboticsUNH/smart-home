@@ -18,8 +18,7 @@
 (:durative-action moveto_landmark
 	:parameters (?v - robot ?from ?to - landmark)
 	:duration ( = ?duration 60)
-	:condition (and
-		(at start (robot_at ?v ?from)))
+	:condition (at start (robot_at ?v ?from))
 	:effect (and
 		(at end (robot_at ?v ?to))
 		(at start (not (robot_at ?v ?from))))
@@ -31,7 +30,6 @@
 	:duration ( = ?duration 60)
 	:condition (and
 	        (at start (robot_at ?v ?lm))
-	        (at start (not (notified ?msg))))
 	        (at start (message_at ?msg ?lm)))
 	:effect (at end (notified ?msg))
 )
