@@ -95,7 +95,7 @@ public:
     }
 
     int runP2() {
-        ros::Rate loop_rate(0.5);
+        ros::Rate loop_rate(10);
         loop_rate.sleep();
 
         ros::Time beginTime = ros::Time::now();
@@ -186,6 +186,55 @@ public:
 
         phoneCallWithMessageFile("call_msg_911.xml");
         return 0;
+    }
+
+    int runpddl() {
+        ros::Rate loop_rate(10);
+        loop_rate.sleep();
+
+        ros::Time beginTime = ros::Time::now();
+        ros::Duration secondsIWantToSendMessagesFor = ros::Duration(10);
+        ros::Time endTime = beginTime + secondsIWantToSendMessagesFor;
+
+        pioneer_shr_msg::SmartSensor curSensorInfo;
+
+        ROS_INFO_STREAM("Start DB monitoring M2...");
+        ROS_INFO_STREAM(beginTime);
+        ROS_INFO_STREAM(endTime);
+
+        while (ros::Time::now() < endTime && ros::ok() && !isPeopleAtDoor) {
+            curSensorInfo = monitoringDB();
+            isPeopleAtDoor = curSensorInfo.motion2_is_on;
+            ros::spinOnce();
+            loop_rate.sleep();
+            ROS_INFO_STREAM("Monitoring DB M2...");
+        }
+
+        if (!isPeopleAtDoor) {
+            ROS_INFO_STREAM("No one approach the door during last night!");
+            return 0;
+        }
+
+        ROS_INFO_STREAM("some one approach the door, approaching door...");
+        std::thread yell(
+                &Executive::playAudioWithMessageFile, this, "alex_wait.txt");
+
+        ros::ServiceClient run_script_client =
+                n.serviceClient<pioneer_shr_msg::Action_Run_Script>(
+                        "/run_script_service/Action_Run_Script");
+
+        std::string resourcePath = ros_work_space;
+
+        resourcePath += "/src/rosplan_shr/run_rosplan.bash";
+
+        pioneer_shr_msg::Action_Run_Script run_script_srv;
+
+        run_script_srv.request.script_file_name = resourcePath;
+
+        callService<pioneer_shr_msg::Action_Run_Script>(
+                run_script_client, run_script_srv, "Action_Run_Script");
+
+		return run_script_srv.response.success;
     }
 
 private:
@@ -312,7 +361,7 @@ int main(int argc, char** argv){
   }
 
   if (argc<2){
-      ROS_ERROR_STREAM("usage: executive [p1|p2]");
+      ROS_ERROR_STREAM("usage: executive [p1|p2|pddl]");
       return 1;
   }
 
@@ -324,8 +373,11 @@ int main(int argc, char** argv){
   } else if (std::string(argv[1]) == "p2") {
       if (executive.runP2())
           return 1;
+  } else if (std::string(argv[1]) == "pddl") {
+      if (executive.runpddl())
+          return 1;
   } else {
-      ROS_ERROR_STREAM("usage: executive [p1|p2]");
+      ROS_ERROR_STREAM("usage: executive [p1|p2|pddl]");
       return 1;
   }
 

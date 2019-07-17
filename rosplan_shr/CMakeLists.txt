@@ -12,6 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
   rosplan_dispatch_msgs
   rosplan_knowledge_msgs
   rosplan_dependencies
+  pioneer_shr_msg
 )
 
 ## Compile as C++11, supported in ROS Kinetic and newer
@@ -163,7 +164,7 @@ include_directories(
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 # add_executable(${PROJECT_NAME}_node src/rosplan_shr_node.cpp)
-add_executable(shrActionInterface src/ActionInterface/RPTutorial10.cpp src/ActionInterface/RPActionInterface.cpp)
+add_executable(shrActionInterface src/ActionInterface/ShrActionInterface.cpp src/ActionInterface/RPActionInterface.cpp)
 add_dependencies(shrActionInterface ${catkin_EXPORTED_TARGETS})
 target_link_libraries(shrActionInterface ${catkin_LIBRARIES})
 

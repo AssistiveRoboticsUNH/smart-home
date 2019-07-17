@@ -48,7 +48,7 @@ git clone git@github.com:AssistiveRoboticsUNH/smart-home.git
 cd ~/catkin_ws
 catkin build 
 # if you are using youcompleteme so need a compile database:  
-# catkin build -DCMAKE_EXPORT_COMPILE_COMMANDS=1
+# catkin build --cmake-args -DCMAKE_EXPORT_COMPILE_COMMANDS=1
 ```
 
 # Other pre-configuration:
