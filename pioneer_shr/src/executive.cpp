@@ -83,7 +83,8 @@ public:
                 ROS_INFO_STREAM("Medicine is taken after notify!");
                 return 0;
             } else {
-                phoneCallWithMessageFile("call_msg_medical.xml");
+                phoneCallWithScriptandMessageFile(
+                        "call.py", "call_msg_medical.xml");
                 ROS_INFO_STREAM(
                         "Medicine still not be take, hand over to caregiver!");
             }
@@ -91,7 +92,8 @@ public:
             return 0;
         }
 
-        phoneCallWithMessageFile("call_msg_alex_not_in_house.xml");
+        phoneCallWithScriptandMessageFile(
+                "call.py", "call_msg_alex_not_in_house.xml");
         ROS_INFO_STREAM("People is missing, hand over to caregiver!");
         return 0;
     }
@@ -162,7 +164,8 @@ public:
         ROS_INFO_STREAM(
                 "Door is still open after voice notify, playing video!");
         playMediaWithSciptFile("playVideo.sh");
-        phoneCallWithMessageFile("call_msg_leaving_house.xml");
+        phoneCallWithScriptandMessageFile(
+                "call.py", "call_msg_leaving_house.xml");
 
         beginTime = ros::Time::now();
 
@@ -182,11 +185,14 @@ public:
         }
 
         if (isPeopleBackToBed) {
-            phoneCallWithMessageFile("call_msg_alarm_off.xml");
-			return 0;
+            ROS_INFO_STREAM("Patient go back to bed...");
+            phoneCallWithScriptandMessageFile(
+                    "call.py", "call_msg_alarm_off.xml");
+            return 0;
         }
 
-        phoneCallWithMessageFile("call_msg_911.xml");
+        phoneCallWithScriptandMessageFile(
+                    "call_emg.py","call_msg_911.xml");
         return 0;
     }
 
@@ -260,14 +266,15 @@ private:
             ROS_ERROR_STREAM("Failed to call service " << serviceName);
     }
 
-    bool phoneCallWithMessageFile(const std::string& msgFile) {
+    bool phoneCallWithScriptandMessageFile(const std::string& script,
+            const std::string& msgFile) {
         ros::ServiceClient run_script_client =
                 n.serviceClient<pioneer_shr_msg::Action_Run_Script>(
                         "/run_script_service/Action_Run_Script");
 
         std::string resourcePath = ros_work_space;
 
-        resourcePath += "/src/pioneer_shr/resource/phoneApp/call.py";
+        resourcePath += "/src/pioneer_shr/resource/phoneApp/"+script;
 
         pioneer_shr_msg::Action_Run_Script run_script_srv;
         run_script_srv.request.script_file_name =
