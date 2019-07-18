@@ -12,7 +12,8 @@
     <!-- face detection nodes -->
 	<include file="$(find pioneer_shr)/launch/face_detection_real.launch"/>
 
-    <!-- face recognition nodes -->
+    <!-- face recognition nodes
 	<include file="$(find pioneer_shr)/launch/face_recognition_real.launch"/>
+	-->
 
 </launch>
