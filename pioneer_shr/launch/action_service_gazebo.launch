@@ -18,7 +18,7 @@
 
     <!-- start run script service -->
     <node pkg="pioneer_shr" type="run_script_service" name="run_script_service" output="screen">
-    </node>
+    </node> 
 
     <!-- start DB monitor service -->
     <node pkg="pioneer_shr" type="db_monitor_service" name="db_monitor_service" output="screen">

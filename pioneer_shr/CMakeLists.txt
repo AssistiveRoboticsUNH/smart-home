@@ -16,6 +16,7 @@ find_package(catkin REQUIRED COMPONENTS
   pioneer_shr_msg
   tf2_geometry_msgs
   tf2_ros
+  rosplan_dispatch_msgs
 )
 
 ## System dependencies are found with CMake's conventions

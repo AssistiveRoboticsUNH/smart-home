@@ -11,7 +11,7 @@ void ShrActionInterface::callService(ros::ServiceClient &client,
     ROS_ERROR_STREAM("Failed to call service " << serviceName);
 }
 
-void ShrActionInterface::moveTo(const std::string &destinationName){
+bool ShrActionInterface::moveTo(const std::string &destinationName){
 
     ros::ServiceClient move_to_client =
                 n.serviceClient<pioneer_shr_msg::Action_Move_To>(
@@ -24,6 +24,8 @@ void ShrActionInterface::moveTo(const std::string &destinationName){
         callService<pioneer_shr_msg::Action_Move_To>(move_to_client,
                 move_to_srv,
                 "Action_Move_To");
+
+        return move_to_srv.response.success;
 }
 
 bool ShrActionInterface::playAudioWithMessageFile(const std::string &msgFile) {
@@ -55,15 +57,28 @@ ShrActionInterface::ShrActionInterface(ros::NodeHandle &nh):ros_work_space(std::
 bool ShrActionInterface::concreteCallback(
     const rosplan_dispatch_msgs::ActionDispatch::ConstPtr &msg) {
   if (msg->name == "moveto_landmark") {
-    moveTo(msg->parameters[2].value);
-    ROS_INFO("KCL: (%s) move to landmark (%s) action completing.",
-             msg->name.c_str(), msg->parameters[2].value.c_str());
-  }
-  else if(msg->name == "notifyat"){
-    playAudioWithMessageFile(msg->parameters[1].value + ".txt");
-    ROS_INFO("KCL: (%s) notify msg: (%s) at (%s) action completing.",
-             msg->name.c_str(), msg->parameters[0].value.c_str(),
-             msg->parameters[1].value.c_str());
+    if (moveTo(msg->parameters[2].value)) {
+      ROS_INFO("KCL: (%s) move to landmark (%s) action completing.",
+               msg->name.c_str(), msg->parameters[2].value.c_str());
+      return true;
+    } else {
+      ROS_ERROR("KCL: (%s) move to landmark (%s): call action service fail.",
+                msg->name.c_str(), msg->parameters[2].value.c_str());
+      return false;
+    }
+  } else if (msg->name == "notifyat") {
+    if (playAudioWithMessageFile(msg->parameters[2].value + ".txt")) {
+      ROS_INFO("KCL: (%s) notify msg: (%s) at (%s) action completing.",
+               msg->name.c_str(), msg->parameters[1].value.c_str(),
+               msg->parameters[2].value.c_str());
+      return true;
+    } else {
+      ROS_ERROR(
+          "KCL: (%s) notify msg: (%s) at (%s) : call action service fail.",
+          msg->name.c_str(), msg->parameters[1].value.c_str(),
+          msg->parameters[2].value.c_str());
+      return false;
+    }
   }
 
   return true;

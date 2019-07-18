@@ -3,17 +3,17 @@
 (:objects
     door home - landmark
     pioneer - robot
-    midnightmsg - message
+    midnight_warning - message
 )
 (:init
     (robot_at pioneer home)
 
 
-    (message_at midnightmsg door)
+    (message_at midnight_warning door)
 
 )
 (:goal (and
     (robot_at pioneer door)
-    (notified midnightmsg)
+    (notified midnight_warning)
 ))
 )
