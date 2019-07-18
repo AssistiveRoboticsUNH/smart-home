@@ -24,4 +24,22 @@
     <node pkg="pioneer_shr" type="db_monitor_service" name="db_monitor_service" output="screen">
     </node>
 
+    <!-- start move to service -->
+    <node pkg="pioneer_shr" type="move_to_service" name="move_to_service" output="screen">
+		<param name="predefined1PositionX" type="double" value="-2.9485"/>
+		<param name="predefined1PositionY" type="double" value="-2.4927"/>
+		<param name="predefined1OrientationZ" type="double" value="-0.1139"/>
+		<param name="predefined1OrientationW" type="double" value="0.9934"/>
+		<param name="predefined1Name" type="string" value="Bedroom"/>
+        <param name="predefined2PositionX" type="double" value="0.7521"/>
+		<param name="predefined2PositionY" type="double" value="-2.5142"/>
+		<param name="predefined2OrientationZ" type="double" value="0.3459"/>
+		<param name="predefined2OrientationW" type="double" value="0.9382"/>
+		<param name="predefined2Name" type="string" value="Kitchen"/>
+        <param name="predefined3PositionX" type="double" value="-1.5779"/>
+		<param name="predefined3PositionY" type="double" value="-0.3099"/>
+		<param name="predefined3OrientationZ" type="double" value="0.7913"/>
+		<param name="predefined3OrientationW" type="double" value="0.6113"/>
+		<param name="predefined3Name" type="string" value="door"/>
+	</node>
 </launch>
