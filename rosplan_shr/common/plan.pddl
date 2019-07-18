@@ -9,4 +9,4 @@ b (1.000 | 60.000);;;; Solution Found
 ; Cost: 120.001
 ; Time 0.00
 0.000: (moveto_landmark pioneer home door)  [60.000]
-60.001: (notifyat pioneer door midnightmsg)  [60.000]
+60.001: (notifyat pioneer door midnight_warning)  [60.000]

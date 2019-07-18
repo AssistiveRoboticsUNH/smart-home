@@ -181,6 +181,28 @@ export ROS_HOSTNAME=10.21.98,194
 **run executive**  
 `rosrun pioneer_shr executive`  
 
+## Mid Night Protocal in real world:
+
+**launch robot and run all service**  
+`roslaunch pioneer_shr shr_real.launch`  
+
+**launch face recognition on robot labtop**  
+`roslaunch pioneer_shr face_recognition_real.launch`  
+
+**run executive**  
+`rosrun pioneer_shr executive p2`  
+
+## rosplan simple demo:
+
+**launch robot and run all service**  
+`roslaunch pioneer_shr shr_real.launch`  
+
+**launch planner**  
+`roslaunch rosplan_shr shr.launchp`   
+
+**run executive**  
+`rosrun pioneer_shr executive pddl`  
+
 
 
 

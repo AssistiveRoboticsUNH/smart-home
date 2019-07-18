@@ -89,7 +89,7 @@ public:
                         &ActionMoveTo::doAction,
                         this);
 
-        ROS_INFO_STREAM("Running action service run scipt");
+        ROS_INFO_STREAM("Running action service move to");
 
         ros::spin();
     }

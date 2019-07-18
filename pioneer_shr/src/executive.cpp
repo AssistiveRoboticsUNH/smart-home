@@ -3,6 +3,8 @@
 #include "pioneer_shr_msg/Action_Run_Script.h"
 #include "pioneer_shr_msg/Action_Monitoring_DB.h"
 #include "pioneer_shr_msg/Action_Move_To.h"
+#include "std_srvs/Empty.h"
+#include "rosplan_dispatch_msgs/DispatchService.h"
 #include <cstdlib>
 #include <thread>
 
@@ -210,31 +212,43 @@ public:
             ROS_INFO_STREAM("Monitoring DB M2...");
         }
 
-        if (!isPeopleAtDoor) {
-            ROS_INFO_STREAM("No one approach the door during last night!");
-            return 0;
-        }
+		if (!isPeopleAtDoor) {
+			ROS_INFO_STREAM("No one approach the door during last night!");
+			return 0;
+		}
 
         ROS_INFO_STREAM("some one approach the door, approaching door...");
-        std::thread yell(
-                &Executive::playAudioWithMessageFile, this, "alex_wait.txt");
+        ROS_INFO_STREAM("yelling...");
+        playAudioWithMessageFile("alex_wait.txt");
 
-        ros::ServiceClient run_script_client =
-                n.serviceClient<pioneer_shr_msg::Action_Run_Script>(
-                        "/run_script_service/Action_Run_Script");
 
-        std::string resourcePath = ros_work_space;
+        ROS_INFO_STREAM("run rosplan");
 
-        resourcePath += "/src/rosplan_shr/run_rosplan.bash";
+        std_srvs::Empty srv;
 
-        pioneer_shr_msg::Action_Run_Script run_script_srv;
+        ROS_INFO_STREAM("Generating a Problem");
+        ros::ServiceClient rosplan_client =
+                n.serviceClient<std_srvs::Empty>(
+                        "/rosplan_problem_interface/problem_generation_server");
+        rosplan_client.call(srv);
+		
+        ROS_INFO_STREAM("Planning");
+        rosplan_client = n.serviceClient<std_srvs::Empty>(
+                "/rosplan_planner_interface/planning_server");
+        rosplan_client.call(srv);
 
-        run_script_srv.request.script_file_name = resourcePath;
+        ROS_INFO_STREAM("Parsing the Plan");
+        rosplan_client = n.serviceClient<std_srvs::Empty>(
+                "/rosplan_parsing_interface/parse_plan");
+        rosplan_client.call(srv);
 
-        callService<pioneer_shr_msg::Action_Run_Script>(
-                run_script_client, run_script_srv, "Action_Run_Script");
+        ROS_INFO_STREAM("Executing the Plan");
+		rosplan_dispatch_msgs::DispatchService dsrv;
+        rosplan_client = n.serviceClient<rosplan_dispatch_msgs::DispatchService>(
+                "/rosplan_plan_dispatcher/dispatch_plan");
+        rosplan_client.call(dsrv);
 
-		return run_script_srv.response.success;
+        return 0;
     }
 
 private:

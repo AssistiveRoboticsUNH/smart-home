@@ -18,7 +18,7 @@ namespace KCL_rosplan {
           template <class ServiceType>
           void callService(ros::ServiceClient &client, ServiceType &service,
                            const std::string &serviceName) const;
-          void moveTo(const std::string &destinationName);
+          bool moveTo(const std::string &destinationName);
 
           bool playAudioWithMessageFile(const std::string &msgFile);
 
