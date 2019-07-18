@@ -1,0 +1,17 @@
+digraph plan {
+0[ label="plan_start",style=filled,fillcolor=black,fontcolor=white];
+1[ label="moveto_landmark_start
+(pioneer,home,door)",style=filled,fillcolor=darkolivegreen,fontcolor=white];
+2[ label="moveto_landmark_end
+(pioneer,home,door)",style=filled,fillcolor=darkolivegreen,fontcolor=white];
+3[ label="notifyat_start
+(pioneer,door,midnight_warning)"];
+4[ label="notifyat_end
+ (pioneer,door,midnight_warning)"];
+"0" -> "1" [ label="[0.001, inf]" , penwidth=2,  color="black"]
+"1" -> "2" [ label="[60, 60]" , penwidth=2, color="red" ]
+"0" -> "2" [ label="[0.001, inf]" , penwidth=2, color="red"]
+"2" ->  "3" [ label="[0.001, inf]" , penwidth=2, color="black"]
+"3" -> "4"  [ label="[60, 60]" , penwidth=2, color="black"]
+"0" -> "4" [ label=" [0.001, inf]" , penwidth=2, color="red"]
+}
