@@ -169,7 +169,7 @@ public:
 
         beginTime = ros::Time::now();
 
-        secondsIWantToSendMessagesFor = ros::Duration(10);
+        secondsIWantToSendMessagesFor = ros::Duration(30);
 
         endTime = beginTime + secondsIWantToSendMessagesFor;
 
