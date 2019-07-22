@@ -296,7 +296,8 @@ private:
 
         pioneer_shr_msg::Action_Run_Script run_script_srv;
         run_script_srv.request.script_file_name =
-                "rosrun sound_play say.py < " + resourcePath + msgFile;
+                "rosrun sound_play say.py \"`cat " + resourcePath + msgFile +
+                "`\" voice_don_diphone";
 
         callService<pioneer_shr_msg::Action_Run_Script>(
                 run_script_client, run_script_srv, "Action_Run_Script");
