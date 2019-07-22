@@ -1,0 +1,20 @@
+<launch> 
+	
+	<!-- navigation nodes -->
+	<include file="$(find pioneer_shr)/launch/auto_navigation_real_world_kings.launch"/>
+
+    <!-- action service nodes -->
+	<include file="$(find pioneer_shr)/launch/action_service_real_kings.launch"/>
+
+    <!-- sound play -->
+	<node name="sound_play" pkg="sound_play" type="soundplay_node.py" output="screen"/>
+
+    <!-- face detection nodes -->
+	<include file="$(find pioneer_shr)/launch/face_detection_real.launch"/>
+	
+
+    <!-- face recognition nodes
+	<include file="$(find pioneer_shr)/launch/face_recognition_real.launch"/>
+	-->
+
+</launch>
