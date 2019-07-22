@@ -27,6 +27,7 @@ elderly occupant and the safety of the home.
 
 **Speech module**  
 `sudo apt-get install ros-kinetic-sound-play`
+Better TTS voice: https://ubuntuforums.org/archive/index.php/t-751169.html
 
 **primesense camera drive**  
 `sudo apt install libopenni2-dev`  
