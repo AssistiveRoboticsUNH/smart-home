@@ -103,7 +103,7 @@ public:
         loop_rate.sleep();
 
         ros::Time beginTime = ros::Time::now();
-        ros::Duration secondsIWantToSendMessagesFor = ros::Duration(10);
+        ros::Duration secondsIWantToSendMessagesFor = ros::Duration(15);
         ros::Time endTime = beginTime + secondsIWantToSendMessagesFor;
 
         pioneer_shr_msg::SmartSensor curSensorInfo;
@@ -137,7 +137,7 @@ public:
 
         beginTime = ros::Time::now();
 
-        secondsIWantToSendMessagesFor = ros::Duration(5);
+        secondsIWantToSendMessagesFor = ros::Duration(15);
 
         endTime = beginTime + secondsIWantToSendMessagesFor;
 
@@ -169,7 +169,7 @@ public:
 
         beginTime = ros::Time::now();
 
-        secondsIWantToSendMessagesFor = ros::Duration(30);
+        secondsIWantToSendMessagesFor = ros::Duration(60);
 
         endTime = beginTime + secondsIWantToSendMessagesFor;
 
