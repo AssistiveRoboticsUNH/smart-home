@@ -14,6 +14,7 @@
 	(notified ?msg - message)
 	(message_at ?msg - message ?lm -landmark)
 	(is_on ?ss - sensor)
+	(is_off ?ss - sensor)
 	(available_to_check_s ?ss - sensor)
 	(sensor_after_notified ?ss -sensor ?msg - message)
 )
@@ -35,23 +36,32 @@
 	:condition (and
 	        (at start (robot_at ?v ?lm))
 	        (at start (message_at ?msg ?lm)))
-	:effect (at end (notified ?msg))
+	:effect (and
+	       (at end (forall (?ss - sensor) (when (sensor_after_notified ?ss ?msg) (available_to_check_s ?ss))))
+	       (at end (notified ?msg)))
 )
 
-;; events triggered by notifying message 
-(:event enableSensorAfterPlayedMsg
-	:parameters (?ss - sensor ?msg - message)
-	:precondition (and
-	        (sensor_after_notified ?ss ?msg)
-	        (notified ?msg ))
-	:effect (available_to_check_s ?ss)
-)
-
-;; check sensor 
-(:action check_sensor
+;; check if sensor ss is on
+(:action check_sensor_on
 	:parameters (?ss - sensor)
 	:precondition (available_to_check_s ?ss)
 	:observe (is_on ?ss)
+)
+
+;; check if sensor ss is off
+;; I guest this is the way to do it since 
+;; it only allow true precondtion actions
+(:action check_sensor_off
+	:parameters (?ss - sensor)
+	:precondition (available_to_check_s ?ss)
+	:observe (is_off ?ss)
+)
+
+;; call caregiver and play message msg if sensor ss is on
+(:action call_caregiver
+	:parameters (?ss - sensor ?msg - message)
+	:precondition (is_on ?ss)
+	:effect (notified ?msg)
 )
 
 )
