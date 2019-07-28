@@ -1,6 +1,6 @@
 (define (domain shr_contingent)
 
-(:requirements :strips :typing :fluents :disjunctive-preconditions :durative-actions)
+(:requirements :strips :typing :disjunctive-preconditions)
 
 (:types
 	landmark 
@@ -11,34 +11,35 @@
 
 (:predicates
 	(robot_at ?v - robot ?lm - landmark)
+	(is_home ?lm - landmark)
 	(notified ?msg - message)
 	(message_at ?msg - message ?lm -landmark)
 	(is_on ?ss - sensor)
 	(is_off ?ss - sensor)
 	(available_to_check_s ?ss - sensor)
 	(sensor_after_notified ?ss -sensor ?msg - message)
+	(is_safe)
+	(is_not_safe)
 )
 
 ;; Move to any landmark, avoiding terrain
-(:durative-action moveto_landmark
+(:action moveto_landmark
 	:parameters (?v - robot ?from ?to - landmark)
-	:duration ( = ?duration 60)
-	:condition (at start (robot_at ?v ?from))
+	:precondition (robot_at ?v ?from)
 	:effect (and
-		(at end (robot_at ?v ?to))
-		(at start (not (robot_at ?v ?from))))
+		(robot_at ?v ?to)
+		(not (robot_at ?v ?from)))
 )
 
 ;; Notify message at landmark
-(:durative-action notifyAt
+(:action notifyAt
 	:parameters (?v - robot ?lm - landmark ?msg - message)
-	:duration ( = ?duration 60)
-	:condition (and
-	        (at start (robot_at ?v ?lm))
-	        (at start (message_at ?msg ?lm)))
+	:precondition (and
+	        (robot_at ?v ?lm)
+	        (message_at ?msg ?lm))
 	:effect (and
-	       (at end (forall (?ss - sensor) (when (sensor_after_notified ?ss ?msg) (available_to_check_s ?ss))))
-	       (at end (notified ?msg)))
+	       (forall (?ss - sensor) (when (sensor_after_notified ?ss ?msg) (available_to_check_s ?ss)))
+	       (notified ?msg))
 )
 
 ;; check if sensor ss is on
@@ -61,7 +62,23 @@
 (:action call_caregiver
 	:parameters (?ss - sensor ?msg - message)
 	:precondition (is_on ?ss)
-	:effect (notified ?msg)
+	:effect (and
+	        (is_safe)
+	        (not (is_not_safe))
+	        (notified ?msg))
+)
+
+;; go home from landmark lm if sensor ss is off
+(:action go_home_from
+	:parameters (?v - robot ?from - landmark ?ss - sensor)
+	:precondition (and 
+				(robot_at ?v ?from)
+				(is_off ?ss))
+	:effect (and
+	        (is_safe)
+	        (not (is_not_safe))
+		    (not (robot_at ?v ?from))
+	        (forall (?lm - landmark) (when (is_home ?lm) (robot_at ?v ?lm))))
 )
 
 )

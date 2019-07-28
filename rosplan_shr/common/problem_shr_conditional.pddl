@@ -9,11 +9,17 @@
 )
 (:init
     (robot_at pioneer home)
+    (is_home home)
     (message_at midnight_warning door)
-    (sensor_after_notified doorss midnight_warning )
+    (sensor_after_notified doorss midnight_warning)
+    (unknown (is_on doorss))
+    (unknown (is_off doorss))
+	(oneof
+		(is_on doorss)
+		(is_off doorss)
+	)
+    (is_not_safe)
 )
-(:goal (or
-    (is_off doorss)
-    (notified leaving_house)
-))
+(:goal (is_safe)
+)
 )
