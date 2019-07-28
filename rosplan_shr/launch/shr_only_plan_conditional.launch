@@ -36,7 +36,8 @@
 		<arg name="problem_path"         value="$(arg problem_path)" />
 		<arg name="data_path"            value="$(find rosplan_shr)/common/" />
 		<arg name="planner_command"      value="timeout 10 $(find rosplan_planning_system)/common/bin/Contingent-FF -o DOMAIN -f PROBLEM" />
-		<arg name="planner_interface"            value="planner" />
+		<arg name="planner_interface"            value="ff_planner_interface" /> 
+		<!-- <arg name="planner_interface"            value="planner" /> -->
 	</include>
 
 </launch>
