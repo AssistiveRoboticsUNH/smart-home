@@ -13,7 +13,7 @@
 	(robot_at ?v - robot ?lm - landmark)
 	(is_home ?lm - landmark)
 	(notified ?msg - message)
-	(message_at ?msg - message ?lm -landmark)
+	(message_at ?msg - message ?lm - landmark)
 	(is_on ?ss - sensor)
 	(is_off ?ss - sensor)
 	(available_to_check_s ?ss - sensor)
