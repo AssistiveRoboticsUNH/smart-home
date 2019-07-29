@@ -204,7 +204,10 @@ export ROS_HOSTNAME=10.21.98,194
 **run executive**  
 `rosrun pioneer_shr executive pddl`  
 
+## rosplan dry run on contigent-FF:
 
+cd to catkin_ws/src/rosplan_shr  
+`rosrun rosplan_planning_system Contingent-FF -o ./common/domain_shr_conditional.pddl -f ./common/problem_shr_conditional.pddl`  
 
 
 
