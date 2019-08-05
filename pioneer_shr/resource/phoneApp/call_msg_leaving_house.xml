@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Response>
-    <Say voice="alice">Hi care giver, this is pioneer robot calling from Hewitt Hall. Alex is leaving the house, I can't stop him by playing the warning audio. I am playing the warning video now. I will call night one one in a minite if he still wants to leave. I will give you update soon.</Say>
+    <Say voice="alice">Hi Sophie, this is the pioneer robot calling. James is leaving the house, I can't stop him by playing the warning audio. I am playing the warning video now. I will call emergency personnel in a minute if he still wants to leave. I will give you an update soon.</Say>
     <!--<Play>http://demo.twilio.com/docs/classic.mp3</Play>-->
 </Response>
