@@ -3,7 +3,7 @@
     <!-- start face recognition -->
     <node pkg="face_recognition_pkg" type="recognise_face.py" name="recognise_face" output="screen">
 		<param name="cameraTopic" type="string" value="camera/rgb/image_raw"/>
-		<param name="targetName" type="string" value="caregiver"/>
+		<param name="targetName" type="string" value="james"/>
 	</node>
 
 </launch>
