@@ -29,7 +29,7 @@ Robot:
    ad-hoc: let it be
    autonumous: inplement people tracking function. Once found the target, lock the target in the view, than approach the target wihile the target is moving.
 
-7. face detection false positive error
+7. face detection false positive error, especially when the camera men is filming the sence, there are a lot of things look like faces.
    solved autonumous: tweak the face detector source code
    side effect: have a better face detector ros package, better than the state of the art
 
