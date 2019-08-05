@@ -9,9 +9,9 @@
     <!-- sound play -->
 	<node name="sound_play" pkg="sound_play" type="soundplay_node.py" output="screen"/>
 
-    <!-- face detection nodes 
+    <!-- face detection nodes -->
 	<include file="$(find pioneer_shr)/launch/face_detection_real.launch"/>
-    -->
+    
 
     <!-- face recognition nodes 
 	<include file="$(find pioneer_shr)/launch/face_recognition_real.launch"/>
