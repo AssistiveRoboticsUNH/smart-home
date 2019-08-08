@@ -86,6 +86,18 @@ sudo apt-get install python3-matplotlib
         
 ### 5. check database backup 
         run ~$ cd dumps/
+
+### 6. database operate instruction
+	~$ mysql -u root -p
+
+	show databases;
+	use sensordata;
+	show tables;
+	select * from users;
+	select * from patientinformation;
+	select * from sensorstatus;
+
+	
         
         
         
