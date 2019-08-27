@@ -1,6 +1,6 @@
 (define (domain shr_contingent)
 
-(:requirements :strips :typing :fluents :disjunctive-preconditions)
+(:requirements :strips :typing :disjunctive-preconditions)
 
 (:types
 	landmark 
@@ -25,17 +25,12 @@
 	(is_not_safe)
 )
 
-(:functions
-	(total-cost)
-)
-
 ;; Move to any landmark, avoiding terrain
 (:action moveto_landmark
 	:parameters (?from ?to - landmark)
 	:precondition (robot_at ?from)
 	:effect (and
 		(robot_at ?to)
-		(increase (total-cost) 1)
 		(not (robot_at ?from)))
 )
 
@@ -47,7 +42,6 @@
 	        (message_at ?msg ?lm))
 	:effect (and
 	       (forall (?ss - sensor) (when (sensor_after_notified ?ss ?msg) (available_to_check_s ?ss)))
-		   (increase (total-cost) 1)
 	       (notified ?msg))
 )
 
@@ -77,7 +71,6 @@
 	        (phonemessage_about_sensor ?msg ?ss))
 	:effect (and
 	        (is_safe)
-		    (increase (total-cost) 1)
 	        (not (is_not_safe)))
 )
 
@@ -91,7 +84,6 @@
 	        (phonemessage_about_sensor ?msg ?ss))
 	:effect (and
 	        (is_safe)
-		    (increase (total-cost) 1)
 	        (not (is_not_safe)))
 )
 
@@ -107,7 +99,6 @@
 	        (is_safe)
 	        (not (is_not_safe))
 		    (not (robot_at ?from))
-		    (increase (total-cost) 1)
 	        (forall (?lm - landmark) (when (is_home ?lm) (robot_at ?lm))))
 )
 
@@ -123,7 +114,6 @@
 	        (is_safe)
 	        (not (is_not_safe))
 		    (not (robot_at ?from))
-		    (increase (total-cost) 1)
 	        (forall (?lm - landmark) (when (is_home ?lm) (robot_at ?lm))))
 )
 
