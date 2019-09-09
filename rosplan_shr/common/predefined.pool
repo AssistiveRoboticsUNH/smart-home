@@ -1,0 +1,57 @@
+(define (domain shr_contingent)
+
+(:requirements :strips :typing :disjunctive-preconditions)
+
+(:types
+	object
+)
+
+(:predicates
+	(available_to_locate_o ?ob - object)
+	(is_found ?ob - object)
+	(is_not_found ?ob - object)
+	(notified_location ?ob - object)
+)
+
+;;check if able to locate object ob 
+(:action locate_object_success
+	:parameters (?ob - object)
+	:precondition (available_to_locate_o ?ob)
+	:observe (is_found ?ob)
+)
+
+;;check if not able to locate object ob 
+(:action locate_object_fail
+	:parameters (?ob - object)
+	:precondition (available_to_locate_o ?ob)
+	:observe (is_not_found ?ob)
+)
+
+;; Notify message at landmark
+(:action notifyObjectLocation
+	:parameters (?ob - object)
+	:precondition (is_found ?ob)
+	:effect (notified_location ?ob) 
+)
+
+;; call caregiver and play message msg if sensor ss is on
+
+;; we have to add precondition say, 
+;;    if the patient not say anything we call, 
+;;    otherwise we check if what he say is where is the bottle
+;;         if yes, we go find the bottle
+;;         else,   we call
+
+;; call caregiver and play message msg if sensor ss is still off
+(:action call_caregiver_when_sensor_off_at
+	:parameters (?ss - sensor ?msg - phonemessage ?lm - landmark)
+	:precondition  (and
+	        (is_off ?ss)
+	        (is_safe_when_on ?ss)
+	        (robot_at ?lm)
+	        (phonemessage_about_sensor ?msg ?ss))
+	:effect (and
+	        (is_safe)
+	        (not (is_not_safe)))
+)
+)
