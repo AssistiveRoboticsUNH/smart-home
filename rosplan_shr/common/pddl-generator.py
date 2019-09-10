@@ -12,14 +12,15 @@ import sys
 from collections import OrderedDict, defaultdict
 from datetime import datetime
 
-import matplotlib.pyplot as plt
 import numpy as np
+
+import matplotlib.pyplot as plt
 import seaborn as sns
 
 
 def printUsage():
-    print "usage: python pddl-generator.py <answer text> <target pddl file>"
-    print "answer text file has to be follow the predefined language"
+    print("usage: python pddl-generator.py <answer text> <target pddl file>")
+    print("answer text file has to be follow the predefined language")
 
 
 def make_histrogram(h_value, hslistpair, file_dir):
@@ -113,21 +114,6 @@ def merge2map(map_1, map_2):
     return ret_map
 
 
-def makeupSamples(dist):
-    totoalSample = 1000
-
-    ret = {}
-
-    for h in dist:
-        samples = []
-
-        for onebin in dist[h]["bins"]: print onebin samples += int( totoalSample * float(onebin["prob"])) * [onebin["h*"]]
-
-        ret[h] = samples
-
-    return ret
-
-
 def main():
 
     if len(sys.argv) != 3:
@@ -139,19 +125,15 @@ def main():
     FILE_PS_BELIEF = "../../../results/SlidingTilePuzzle/sampleData/" + sys.argv[
         1] + "-statSummary-postd.json"
 
-    print "reading in data..."
+    print("reading in data...")
     H_TO_HS = {}
     H_TO_PSHS = {}
 
-    with open(FILE_BELIEF) as json_file:
-        H_TO_HS = makeupSamples(json.load(json_file))
-
-    with open(FILE_PS_BELIEF) as json_file:
-        H_TO_PSHS = makeupSamples(json.load(json_file))
-
     H_TO_HSS_MAP = merge2map(H_TO_HS, H_TO_PSHS)
 
-    print "plotting..."
+    print("plotting...")
+    print(FILE_BELIEF)
+    print(FILE_PS_BELIEF)
 
     OD = OrderedDict(sorted(H_TO_HSS_MAP.items()))
 
