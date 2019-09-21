@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Response>
-    <Say voice="alice">Hi Sophie, this is pioneer robot calling from Hewitt Hall. James has not taken his 8 am medicine. Please drive me to him via remote control and check with him!</Say>
+    <Say voice="alice">Hi Ellen, this is pioneer robot calling from Hewitt Hall. Cacy has not taken his 8 am medicine. Please drive me to her via remote control and check with her!</Say>
     <!--<Play>http://demo.twilio.com/docs/classic.mp3</Play>-->
 </Response>
