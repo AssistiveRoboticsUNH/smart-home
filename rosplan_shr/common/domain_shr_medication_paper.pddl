@@ -1,4 +1,4 @@
-(define (domain shr_contingent)
+(define (domain shr_conditional_medication)
 
 (:requirements :strips :typing :disjunctive-preconditions)
 
@@ -37,12 +37,14 @@
 	:observe (person_is_not_approached)
 )
 
-;; Notify message if person is approach
+;; Notify message if person is approached
 (:action notify
 	:parameters (?msg - message)
 	:precondition (person_is_approached)
 	:effect (and
-	       (forall (?ss - sensor) (when (sensor_after_notified ?ss ?msg) (available_to_check_s ?ss)))
+	       (forall (?ss - sensor) (when 
+		           (sensor_after_notified ?ss ?msg) 
+				   (available_to_check_s ?ss)))
 	       (notified ?msg))
 )
 
