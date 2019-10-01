@@ -15,8 +15,6 @@
 
 (define (domain shr_conditional_wildcard)
 
-(:requirements :strips :typing :disjunctive-preconditions)
-
 (:types
 	object
 	as_object
