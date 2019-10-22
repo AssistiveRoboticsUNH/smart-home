@@ -213,7 +213,7 @@ cd to catkin_ws/src/rosplan_shr
 **Can not bring up robot or remote laptop can not visulalize the environment**  
 make sure ROS_MASTER_URI and ROS_HOSTNAME set correctly
 
-**Can read input from rosaira or camera**  
-pioneer cable should be plug into the usb port on right, the one further from the ethernet cable  
-camera should be plug into the usb port on the left  
-plug in the robot cable, camera cable, laser cable after rebooting the laptop  
+**Can not read input from rosaira or camera**  
+1.pioneer cable should be plug into the usb port on right, the one further from the ethernet cable  
+2.camera should be plug into the usb port on the left  
+3.plug in the robot cable, camera cable, laser cable after rebooting the laptop  
