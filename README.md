@@ -218,10 +218,9 @@ make sure ROS_MASTER_URI and ROS_HOSTNAME set correctly
 2.camera should be plug into the usb port on the left  
 3.plug in the robot cable, camera cable, laser cable after rebooting the laptop  
 
-
 **Can not read smart home sensor data**  
 reboot the laptop and re-authorize the samsung accout to the robot  
 
-**Samsung sensor does not update data correctly**  
-1. update the samsung smart app on the phone  
-2. check the battery usage on the phone  
+**Samsung sensor does not update data correctly**
+1.update the samsung smart app on the phone  
+2.check the battery usage on the phone  
