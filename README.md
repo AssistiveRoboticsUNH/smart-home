@@ -209,6 +209,11 @@ export ROS_HOSTNAME=10.21.98,194
 cd to catkin_ws/src/rosplan_shr  
 `rosrun rosplan_planning_system Contingent-FF -o ./common/domain_shr_conditional.pddl -f ./common/problem_shr_conditional.pddl`  
 
+# Trouble Shooting:
+**Can not bring up robot or remote laptop can not visulalize the environment**  
+make sure ROS_MASTER_URI and ROS_HOSTNAME set correctly
 
-
-
+**Can read input from rosaira or camera**  
+pioneer cable should be plug into the usb port on right, the one further from the ethernet cable  
+camera should be plug into the usb port on the left  
+plug in the robot cable, camera cable, laser cable after rebooting the laptop  
