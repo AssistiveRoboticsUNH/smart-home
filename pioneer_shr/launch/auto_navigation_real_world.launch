@@ -1,7 +1,7 @@
 <launch> 
 	
 	<!-- map server -->
-	<arg name="map_file" default="$(find pioneer_shr)/maps/Hewitt139.yaml"/>
+	<arg name="map_file" default="$(find pioneer_shr)/maps/hewittTPC.yaml"/>
 	<node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)" />
 
 	<include file="$(find pioneer_shr)/launch/amcl_pioneer_shr_real.launch"/> 

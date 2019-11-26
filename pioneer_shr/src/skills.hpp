@@ -93,8 +93,8 @@ public:
 
     void rotate360() const {
         double vl, vr;
-        vl = 0.05;
-        vr = -0.05;
+        vl = -0.05;
+        vr = 0.05;
         vel_from_wheels(vl, vr, 25);
     }
 

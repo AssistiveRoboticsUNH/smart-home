@@ -5,7 +5,8 @@
 		<param name="cameraTopic" type="string" value="camera/rgb/image_raw"/>
 		/*<param name="targetName" type="string" value="james"/>*/
 		/*<param name="targetName" type="string" value="cacy"/>*/
-		<param name="targetName" type="string" value="janine"/>
+		/*<param name="targetName" type="string" value="janine"/>*/
+		<param name="targetName" type="string" value="tianyi"/>
 	</node>
 
 </launch>
