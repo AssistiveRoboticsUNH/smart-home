@@ -18,7 +18,9 @@ const int LOOP_RATE = 50;
 
 class Skills {
 public:
-    Skills(ros::NodeHandle& nh) : nh(nh) {}
+		Skills(ros::NodeHandle& nh) : nh(nh) {
+			pub_vel = nh.advertise<geometry_msgs::Twist>("/cmd_vel", 100);
+		}
 
     Skills(ros::NodeHandle& nh,
             std::vector<PreDefinedPose>& landMarks,
@@ -91,11 +93,15 @@ public:
         }
     }
 
-    void rotate360() const {
+    void rotateSec(double sec) const {
         double vl, vr;
         vl = -0.05;
         vr = 0.05;
-        vel_from_wheels(vl, vr, 25);
+        vel_from_wheels(vl, vr, sec);
+    }
+
+    void rotate360() const {
+        rotateSec(25);
     }
 
     void fullStop() const {
@@ -219,13 +225,13 @@ private:
         ros::Duration secondsIWantToSendMessagesFor = ros::Duration(sec);
         ros::Time endTime = beginTime + secondsIWantToSendMessagesFor;
 
-        ROS_INFO_STREAM("rotate 360...");
+        ROS_INFO_STREAM("rotating ...");
         while (ros::Time::now() < endTime && ros::ok() && !faceFound) {
             pub_vel.publish(curVel);
             ros::spinOnce();
             loop_rate.sleep();
         }
-        ROS_INFO_STREAM("finsihed rotate 360!");
+        ROS_INFO_STREAM("finsihed rotate!");
     }
 
     void face_detector_callback(const people_msgs::PositionMeasurementArray& msg) {

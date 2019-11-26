@@ -31,15 +31,18 @@
 		<param name="predefined1OrientationZ" type="double" value="0.7772"/>
 		<param name="predefined1OrientationW" type="double" value="0.6292"/>
 		<param name="predefined1Name" type="string" value="Bedroom"/>
+		<param name="predefined1Rotate" type="bool" value="true"/>
         <param name="predefined2PositionX" type="double" value="-1.1975"/>
 		<param name="predefined2PositionY" type="double" value="-1.0274"/>
 		<param name="predefined2OrientationZ" type="double" value="0.9541"/>
 		<param name="predefined2OrientationW" type="double" value="-0.2994"/>
 		<param name="predefined2Name" type="string" value="Kitchen"/>
+		<param name="predefined2Rotate" type="bool" value="true"/>
         <param name="predefined3PositionX" type="double" value="-0.3334"/>
 		<param name="predefined3PositionY" type="double" value="-0.3031"/>
 		<param name="predefined3OrientationZ" type="double" value="-0.0527"/>
 		<param name="predefined3OrientationW" type="double" value="0.9986"/>
 		<param name="predefined3Name" type="string" value="door"/>
+		<param name="predefined3Rotate" type="bool" value="false"/>
 	</node>
 </launch>

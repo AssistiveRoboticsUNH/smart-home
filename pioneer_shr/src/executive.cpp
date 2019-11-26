@@ -257,6 +257,29 @@ public:
         return 0;
     }
 
+    int walk() {
+        ros::Rate loop_rate(10);
+        loop_rate.sleep();
+        ROS_INFO_STREAM("Start walking...");
+
+        while (ros::ok()) {
+			ROS_INFO_STREAM("Move to door...");
+		    moveTo("door");
+            ros::spinOnce();
+            loop_rate.sleep();
+			ROS_INFO_STREAM("Move to bedroom...");
+			moveTo("Bedroom");
+            ros::spinOnce();
+            loop_rate.sleep();
+			ROS_INFO_STREAM("Move to kitchen...");
+			moveTo("Kitchen");
+            ros::spinOnce();
+            loop_rate.sleep();
+        }
+
+        return 0;
+    }
+
 private:
     template <class ServiceType>
     void callService(ros::ServiceClient& client,
@@ -383,7 +406,7 @@ int main(int argc, char** argv){
   }
 
   if (argc<2){
-      ROS_ERROR_STREAM("usage: executive [p1|p2|pddl]");
+      ROS_ERROR_STREAM("usage: executive [p1|p2|pddl|walk]");
       return 1;
   }
 
@@ -398,10 +421,13 @@ int main(int argc, char** argv){
   } else if (std::string(argv[1]) == "pddl") {
       if (executive.runpddl())
           return 1;
+  } else if (std::string(argv[1]) == "walk") {
+      if (executive.walk())
+          return 1;
   } else {
-      ROS_ERROR_STREAM("usage: executive [p1|p2|pddl]");
+      ROS_ERROR_STREAM("usage: executive [p1|p2|pddl|walk]");
       return 1;
   }
 
-    return 0;
+  return 0;
 }

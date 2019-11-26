@@ -18,25 +18,28 @@ public:
         float x1, y1, z1, w1, x2, y2, z2, w2, x3, y3, z3, w3;
 
         std::string p1name, p2name, p3name;
+		bool p1rotate, p2rotate, p3rotate;
 
         nh.getParam("predefined1PositionX", x1);
         nh.getParam("predefined1PositionY", y1);
         nh.getParam("predefined1OrientationZ", z1);
         nh.getParam("predefined1OrientationW", w1);
         nh.getParam("predefined1Name", p1name);
+        nh.getParam("predefined1Rotate", p1rotate);
 
         nh.getParam("predefined2PositionX", x2);
         nh.getParam("predefined2PositionY", y2);
         nh.getParam("predefined2OrientationZ", z2);
         nh.getParam("predefined2OrientationW", w2);
         nh.getParam("predefined2Name", p2name);
+        nh.getParam("predefined2Rotate", p2rotate);
 
         nh.getParam("predefined3PositionX", x3);
         nh.getParam("predefined3PositionY", y3);
         nh.getParam("predefined3OrientationZ", z3);
         nh.getParam("predefined3OrientationW", w3);
         nh.getParam("predefined3Name", p3name);
-
+        nh.getParam("predefined3Rotate", p3rotate);
 
         ROS_INFO_STREAM("load in predefined1PositionX: " << x1);
         ROS_INFO_STREAM("load in predefined1PositionY: " << y1);
@@ -84,6 +87,10 @@ public:
         availablePlaces[p2name] = pdpose2Ptr;
         availablePlaces[p3name] = pdpose3Ptr;
 
+		availablePlaces_is_rotate[p1name] = p1rotate;
+        availablePlaces_is_rotate[p2name] = p2rotate;
+        availablePlaces_is_rotate[p3name] = p3rotate;
+
         ros::ServiceServer service =
                 nh.advertiseService("Action_Move_To",
                         &ActionMoveTo::doAction,
@@ -101,6 +108,10 @@ private:
 
         skills.navigateTo(*availablePlaces[req.destination_name]);
 
+		if (availablePlaces_is_rotate[req.destination_name]){
+			skills.rotateSec(10);
+		}
+
 		res.success = true;
 
         ROS_INFO_STREAM(
@@ -112,6 +123,8 @@ private:
     ros::NodeHandle nh;
     std::unordered_map<std::string, std::shared_ptr<PreDefinedPose>>
             availablePlaces;
+    std::unordered_map<std::string, bool>
+            availablePlaces_is_rotate;
 };
 
 int main(int argc, char** argv){

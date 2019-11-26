@@ -173,6 +173,15 @@ export ROS_HOSTNAME=10.21.98,194
 **run executive**  
 `rosrun pioneer_shr executive`  
 
+## Robot cruise house:
+
+**launch robot and run all service**  
+`roslaunch pioneer_shr auto_navigation_real_world.launch`  
+`roslaunch pioneer_shr action_service_real.launch`  
+
+**run executive**  
+`rosrun pioneer_shr executive walk`  
+
 ## Medcial Protocal in real world:
 **Do face detection and face recogniton in real world**  
 
@@ -199,7 +208,7 @@ export ROS_HOSTNAME=10.21.98,194
 `roslaunch pioneer_shr shr_real.launch`  
 
 **launch planner**  
-`roslaunch rosplan_shr shr.launchp`   
+`roslaunch rosplan_shr shr.launch`   
 
 **run executive**  
 `rosrun pioneer_shr executive pddl`  
