@@ -10,6 +10,9 @@ elderly occupant and the safety of the home.
 
 [[pdf]](http://cs.unh.edu/~tg1034/publication/shr_PlanRob2020.pdf) [[video]](https://youtu.be/MjQJuN2I3Vo) [[talk]](https://youtu.be/_laXuQWBT8U) [[slides]](http://cs.unh.edu/~tg1034/slides/PlanRob-2020-shr-slides.pdf)
 
+[2] Sajay Arthanat, Momotaz Begum, Tianyi Gu, Dain P. LaRoche, Dongpeng Xu, and Naiqian Zhang, Caregiver Perspectives on A Smart Home-based Socially Assistive Robot for Individuals with Alzheimer's Disease and Related Dementia. Disability and Rehabilitation: Assistive Technology, 2020.
+[[pdf]](http://cs.unh.edu/~tg1034/publication/shr_sajay.pdf)
+
 # Install:
 **ROS Kinetic**  
 `sudo apt-get install ros-kinetic-desktop-full`
