@@ -7,7 +7,8 @@ elderly occupant and the safety of the home.
 
 # Paper
 [1] Tianyi Gu, Momotaz Begum, Naiqian Zhang, Dongpeng Xu, Sajay Arthanat, and Dain P. LaRoche, An Adaptive Software Framework for Dementia-care Robots. Proceedings of the ICAPS Workshop on Planning and Robotics (PlanRob-20), 2020. 
-[pdf](http://cs.unh.edu/~tg1034/publication/shr_PlanRob2020.pdf) [video](https://youtu.be/MjQJuN2I3Vo)
+
+[[pdf]](http://cs.unh.edu/~tg1034/publication/shr_PlanRob2020.pdf) [[video]](https://youtu.be/MjQJuN2I3Vo) [[talk]](https://youtu.be/_laXuQWBT8U) [[slides]](http://cs.unh.edu/~tg1034/slides/PlanRob-2020-shr-slides.pdf)
 
 # Install:
 **ROS Kinetic**  
