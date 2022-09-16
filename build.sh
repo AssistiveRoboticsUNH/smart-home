@@ -1,0 +1,1 @@
+colcon build --packages-select sick_scan --cmake-args -DLDMRS=0 -DROS_VERSION=2 -DSCANSEGMENT_XD=0 --event-handlers console_direct+

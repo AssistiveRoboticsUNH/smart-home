@@ -3,3 +3,11 @@ repositories:
     type: git
     url: https://github.com/wg-perception/people.git
     version: ros2
+  external/audio_common:
+    type: git
+    url: https://github.com/ros-drivers/audio_common.git
+    version: ros2
+  external/sick_scan_xd:
+    type: git
+    url: https://github.com/AssistiveRoboticsUNH/sick_scan_xd.git
+    version: master
