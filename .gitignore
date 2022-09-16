@@ -2,3 +2,25 @@
 *.pyc
 call.py
 call_emg.py
+
+external/
+devel/
+logs/
+build/
+bin/
+lib/
+msg_gen/
+srv_gen/
+msg/_*.py
+build_isolated/
+devel_isolated/
+
+# Ignore generated docs
+*.dox
+*.wikidoc
+
+*.pcd
+*.pyc
+
+# Colcon custom files
+COLCON_IGNORE

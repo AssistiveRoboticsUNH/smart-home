@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import rospy
+import rclpy
 from people_msgs.msg import PositionMeasurementArray
 
 # Move base using navigation stack
