@@ -15,7 +15,7 @@ find_package(catkin REQUIRED COMPONENTS message_generation roscpp rospy std_msgs
 ## See http://ros.org/doc/api/catkin/html/user_guide/setup_dot_py.html
 # catkin_python_setup()
 
-################################################
+################################################sick_tim_5xx.launch.py
 ## Declare ROS messages, services and actions ##
 ################################################
 
