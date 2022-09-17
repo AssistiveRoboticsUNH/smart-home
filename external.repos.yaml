@@ -11,3 +11,7 @@ repositories:
     type: git
     url: https://github.com/AssistiveRoboticsUNH/sick_scan_xd.git
     version: master
+  external/p2os:
+    type: git
+    url: https://github.com/AssistiveRoboticsUNH/p2os.git
+    version: ros2_port
