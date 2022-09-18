@@ -41,6 +41,7 @@ Better TTS voice: https://ubuntuforums.org/archive/index.php/t-751169.html
 **primesense camera drive**  
 `sudo apt install libopenni2-dev`  
 `sudo apt install ros-kinetic-openni2-launch`  
+`sudo apt install ros-humble-depth-image-proc`
 The primesense camera has to be connect to usb2.0 port  
 
 **Aria package(for rosaria)**  
