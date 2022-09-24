@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<launch>
-    <arg name="follower_model_name" default="turtle2" />
-    <arg name="model_to_be_followed_name" default="turtle1" />
-    
-    <node name="turtle_tf_listener_node" pkg="turtle_tf_3d" type="turtle_tf_listener.py" args="$(arg follower_model_name) $(arg model_to_be_followed_name)" output="screen"/>
-</launch>
