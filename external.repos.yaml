@@ -14,8 +14,12 @@ repositories:
   external/p2os:
     type: git
     url: https://github.com/AssistiveRoboticsUNH/p2os.git
-    version: ros2_port
+    version: main
   external/openni2_camera:
     type: git
     url: https://github.com/mikeferguson/openni2_camera.git
     version: ros2
+  external/unity_pioneer:
+    type: git
+    url: git@github.com:pac48/unity_pioneer.git
+    version: main
