@@ -1,3 +1,0 @@
-<launch>
-  <node pkg="pioneer_test" type="odom_map_frame_publisher" name="odom_map_frame_publisher" output="screen"/>
-</launch>
