@@ -5,16 +5,16 @@ repositories:
     version: ros2
   external/audio_common:
     type: git
-    url: https://github.com/ros-drivers/audio_common.git
+    url: https://github.com/AssistiveRoboticsUNH/audio_common.git
     version: ros2
   external/sick_scan_xd:
     type: git
     url: https://github.com/AssistiveRoboticsUNH/sick_scan_xd.git
-    version: master
+    version: ros2
   external/p2os:
     type: git
     url: https://github.com/AssistiveRoboticsUNH/p2os.git
-    version: main
+    version: ros2
   external/openni2_camera:
     type: git
     url: https://github.com/mikeferguson/openni2_camera.git
