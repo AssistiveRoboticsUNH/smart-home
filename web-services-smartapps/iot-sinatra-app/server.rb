@@ -8,7 +8,7 @@ require "uri"
 # Our client ID and secret, used to get the access token
 CLIENT_ID = '891e1469-e265-4b81-b3f7-ec0ff12c2626'
 CLIENT_SECRET = 'ac4e4ea5-0f73-471b-961a-8cba50cd9467'
-TOKEN = ""#nil
+TOKEN = nil  # "5be348b5-297b-4af0-a773-a2a30266754b" #nil  5be348b5-297b-4af0-a773-a2a30266754b
 
 #puts "0.5 ".inspect
 
@@ -157,7 +157,8 @@ get '/getcontacts' do
   
 #  token = session[:access_token]
 
-  token = TOKEN
+#   token = TOKEN
+  token = "5be348b5-297b-4af0-a773-a2a30266754b"
 
   # make a request to the SmartThins endpoint URI, using the token,
   # to get our endpoints
@@ -173,6 +174,8 @@ get '/getcontacts' do
   http.use_ssl = (url.scheme == "https")
 
   response = http.request(req)
+  puts "dfbszbszbsergrebsdrthsrt"
+  puts req
   json = JSON.parse(response.body)
 
   # debug statement
