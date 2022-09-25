@@ -1,0 +1,13 @@
+current directory: /home/pac48/smart_home_ws/src/smart-home/web-services-smartapps/iot-sinatra-app/vendor/bundle/ruby/3.0.0/gems/json-2.2.0/ext/json
+/usr/bin/ruby3.0 -I /usr/lib/ruby/vendor_ruby -r ./siteconf20220924-537627-2x3xop.rb extconf.rb
+creating Makefile
+
+current directory: /home/pac48/smart_home_ws/src/smart-home/web-services-smartapps/iot-sinatra-app/vendor/bundle/ruby/3.0.0/gems/json-2.2.0/ext/json
+make DESTDIR\= clean
+
+current directory: /home/pac48/smart_home_ws/src/smart-home/web-services-smartapps/iot-sinatra-app/vendor/bundle/ruby/3.0.0/gems/json-2.2.0/ext/json
+make DESTDIR\=
+make: Nothing to be done for 'all'.
+
+current directory: /home/pac48/smart_home_ws/src/smart-home/web-services-smartapps/iot-sinatra-app/vendor/bundle/ruby/3.0.0/gems/json-2.2.0/ext/json
+make DESTDIR\= install
