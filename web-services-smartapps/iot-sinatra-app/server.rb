@@ -8,7 +8,7 @@ require "uri"
 # Our client ID and secret, used to get the access token
 CLIENT_ID = '891e1469-e265-4b81-b3f7-ec0ff12c2626'
 CLIENT_SECRET = 'ac4e4ea5-0f73-471b-961a-8cba50cd9467'
-TOKEN = nil
+TOKEN = ""#nil
 
 #puts "0.5 ".inspect
 
