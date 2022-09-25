@@ -1,7 +1,7 @@
-image: /home/pac48/smart_home_ws/src/smart-home/pioneer_navigation2/map/map.pgm
+image: map.pgm
 mode: trinary
 resolution: 0.05
-origin: [-12.5, -2.46, 0]
+origin: [-12.3, -2.56, 0]
 negate: 0
 occupied_thresh: 0.65
 free_thresh: 0.25
