@@ -15,6 +15,12 @@ elderly occupant and the safety of the home.
 [[pdf]](http://cs.unh.edu/~tg1034/publication/shr_sajay.pdf)
 
 # Install:
+**festival voices**
+http://www.festvox.org/packed/festival/2.5/voices/
+
+**ffmpeg**
+ffmpeg
+
 **ROS Kinetic**  
 `sudo apt-get install ros-kinetic-desktop-full`
 

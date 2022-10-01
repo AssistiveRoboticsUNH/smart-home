@@ -19,7 +19,7 @@ class FaceRecogniser(object):
         # get the file path for face_recognition_pkg
         self.path_to_package = rospack.get_path('face_recognition_pkg')
 
-        image_path = os.path.join(self.path_to_package,"person_img/"+targetName+".png")
+        image_path = os.path.join(self.path_to_package, "person_img/"+targetName+".png")
         rospy.loginfo("training on "+targetName)
 
         self.targetName = targetName
@@ -30,7 +30,7 @@ class FaceRecogniser(object):
 
         rospy.loginfo("Start camera suscriber...")
 
-        self.image_sub = rospy.Subscriber(cameraTopic,Image,self.camera_callback)
+        self.image_sub = rospy.Subscriber(cameraTopic, Image, self.camera_callback)
 
         rospy.loginfo("Start face recognizer publisher...")
 

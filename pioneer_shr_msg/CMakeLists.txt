@@ -10,16 +10,32 @@ if (CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif ()
 
 find_package(ament_cmake REQUIRED)
+find_package(action_msgs REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 
+
 set(msg_files
-    "msg/SmartSensor.msg"
-)
+        "msg/SmartSensor.msg"
+        )
+
+set(action_files
+        action/SkillRequest.action
+        action/EmptyRequest.action
+        )
 
 rosidl_generate_interfaces(pioneer_shr_msg
         ${msg_files}
-)
+        ${action_files}
+        DEPENDENCIES
+        action_msgs
+        builtin_interfaces
+        )
+
 
 ament_export_dependencies(rosidl_default_runtime)
 
+install(
+        DIRECTORY resources
+        DESTINATION share/pioneer_shr_msg
+)
 ament_package()

@@ -1,8 +1,0 @@
-<launch> 
-	<!-- start gazebo with pioneer -->
-	<include file="$(find pioneer_gazebo)/launch/pioneer_world.launch"/>
-
-	<!-- start pioneer controller so it can move-->
-	<include file="$(find pioneer_ros)/launch/pioneer_controller.launch"/>
-	
-</launch>
