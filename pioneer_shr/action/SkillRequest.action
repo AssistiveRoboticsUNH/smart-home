@@ -1,6 +1,0 @@
-# simple action interface to call shr_skills
-string skill_name
----
-bool success # returns true if succeeded
----
-bool running # returns true if running

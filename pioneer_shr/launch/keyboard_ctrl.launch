@@ -1,5 +1,0 @@
-<launch> 
-
-    <!-- start keyboard control -->
-	<node pkg="teleop_twist_keyboard" type="teleop_twist_keyboard.py" name="teleop"/>
-</launch>

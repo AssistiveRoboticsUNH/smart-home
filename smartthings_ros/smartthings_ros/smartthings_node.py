@@ -9,6 +9,7 @@ import rclpy
 from rclpy.node import Node
 from pioneer_shr_msg.msg import SmartSensor
 
+
 class SmartthingsPublisher(Node):
 
     def __init__(self, smartthings_response, update_period):
@@ -16,6 +17,7 @@ class SmartthingsPublisher(Node):
         self.publisher_ = self.create_publisher(SmartSensor, 'smartthings_sensors', 10)
         self.timer = self.create_timer(update_period, self.timer_callback)
         self.smartthings_response = smartthings_response
+
 
     def timer_callback(self):
         if self.smartthings_response.updated:
