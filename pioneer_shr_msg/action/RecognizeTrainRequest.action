@@ -1,0 +1,6 @@
+# name of person
+string name
+---
+bool success # returns true if succeeded
+---
+bool running # returns true if running
