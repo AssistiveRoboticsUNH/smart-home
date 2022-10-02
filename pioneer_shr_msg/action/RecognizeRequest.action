@@ -1,0 +1,5 @@
+
+---
+string[] names  # list of names for all detected people
+---
+bool running # returns true if running

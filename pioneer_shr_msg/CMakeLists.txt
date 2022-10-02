@@ -21,6 +21,8 @@ set(msg_files
 set(action_files
         action/SkillRequest.action
         action/EmptyRequest.action
+        action/RecognizeRequest.action
+        action/RecognizeTrainRequest.action
         )
 
 rosidl_generate_interfaces(pioneer_shr_msg
