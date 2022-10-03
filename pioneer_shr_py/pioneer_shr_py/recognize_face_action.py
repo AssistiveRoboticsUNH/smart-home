@@ -18,11 +18,13 @@ from cv_bridge import CvBridge
 import cv2
 import numpy as np
 
-recognize_train_timeout = 30
-recognize_timeout = 2
+# recognize_train_timeout = 30
+# recognize_timeout = 2
 save_path = os.path.join(os.path.expanduser('~'), '.smart-home')
-camera_topic = '/camera/rgb/image_raw'
-voice = 'voice_cmu_us_fem_cg'
+
+
+# camera_topic = '/camera/rgb/image_raw'
+# voice = 'voice_cmu_us_fem_cg'
 
 
 # voice = 'voice_kal_diphone'
@@ -32,6 +34,17 @@ voice = 'voice_cmu_us_fem_cg'
 class RecognizeFaceActionServer(Node):
     def __init__(self):
         super().__init__('recognize_face_action')
+        # self.declare_parameter('camera_topic', '/camera/rgb/image_raw')
+        # self.declare_parameter('camera_topic', 'unity_camera/color/image_raw')
+        self.declare_parameter('camera_topic', 'smart_home/camera/color/image_raw')
+        self.declare_parameter('voice', 'voice_cmu_us_fem_cg')
+        self.declare_parameter('recognize_train_timeout', 30)
+        self.declare_parameter('recognize_timeout', 10)
+
+        self.voice = self.get_parameter('voice').value
+        self.camera_topic = self.get_parameter('camera_topic').value
+        self.recognize_train_timeout = self.get_parameter('recognize_train_timeout').value
+        self.recognize_timeout = self.get_parameter('recognize_timeout').value
 
         self.training_action = False
         self.recognize_action = False
@@ -39,7 +52,7 @@ class RecognizeFaceActionServer(Node):
         self.face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
         self.br = CvBridge()
 
-        self.sub = self.create_subscription(Image, camera_topic, self.image_callback, 1)
+        self.sub = self.create_subscription(Image, self.camera_topic, self.image_callback, 1)
         self.train_action_server = ActionServer(self, RecognizeTrainRequest, 'train_recognize_face',
                                                 self.train_callback)
         self.recognize_action_server = ActionServer(self, RecognizeRequest, 'recognize_face', self.recognize_callback)
@@ -62,7 +75,7 @@ class RecognizeFaceActionServer(Node):
 
         self.recognize_action = True
         standing_person_face_encoding = None
-        while time.time() - start_time < recognize_timeout:
+        while time.time() - start_time < self.recognize_timeout:
             if self.latest_image.shape[0] > 1:
                 standing_person_face_encoding = self.detect_face(self.latest_image)
                 if standing_person_face_encoding is not None:
@@ -101,9 +114,9 @@ class RecognizeFaceActionServer(Node):
         center_prompt_given = False
         only_person_prompt_given = False
         consecutive_identified = 0
-        while time.time() - start_time < recognize_train_timeout:
+        while time.time() - start_time < self.recognize_train_timeout:
             if time.time() - start_time > 10 and not center_prompt_given:
-                self.soundhandle.say('Make sure you are centered in the camera frame', voice, 1.0)
+                self.soundhandle.say('Make sure you are centered in the camera frame', self.voice, 1.0)
                 center_prompt_given = True
 
             if self.latest_image.shape[0] > 1:
@@ -113,11 +126,11 @@ class RecognizeFaceActionServer(Node):
                 elif len(standing_person_face_encoding) > 1:
                     consecutive_identified = 0
                     if not only_person_prompt_given:
-                        self.soundhandle.say('Make sure you are the only person in the frame', voice, 1.0)
+                        self.soundhandle.say('Make sure you are the only person in the frame', self.voice, 1.0)
                         only_person_prompt_given = True
                 else:
                     consecutive_identified += 1
-                if consecutive_identified > 10:
+                if consecutive_identified > 2:
                     self.add_to_database(goal_handle.request.name, standing_person_face_encoding)
                     cv2.waitKey(1)
                     break
@@ -149,12 +162,15 @@ class RecognizeFaceActionServer(Node):
             cv2.waitKey(1)
 
         standing_person_face_encoding = None
-        if len(faces) > 0:
-            if faces[0][2] > 100 and faces[0][3] > 100:
-                # tmp = face_recognition.face_encodings(image, known_face_locations=faces)
-                tmp = face_recognition.face_encodings(image)
-                if len(tmp) > 0:
-                    standing_person_face_encoding = tmp
+        # box = face_recognition.api.face_locations(image, number_of_times_to_upsample=2) # (top, right, bottom, left)
+        boxes = []
+        for face in faces:
+            boxes.append([face[1], face[0]+face[2], face[1]+face[3], face[0]])
+
+        if len(boxes) > 0:#face[2] > 20 and face[3] > 20:
+            tmp = face_recognition.face_encodings(image, known_face_locations=boxes)
+            if len(tmp) > 0:
+                standing_person_face_encoding = tmp
 
         return standing_person_face_encoding
 
@@ -174,14 +190,13 @@ class RecognizeFaceActionServer(Node):
 
         cv2.imwrite(os.path.join(path_images, 'image_' + str(num_files) + '.jpg'), self.latest_image)
 
-
     def get_database(self):
         person_list = os.listdir(save_path)
         data_base = dict()
         for person in person_list:
-            encoding_files = os.listdir(os.path.join(save_path, person))
+            encoding_files = os.listdir(os.path.join(save_path, person, 'encodings'))
             for encoding_file in encoding_files:
-                with open(os.path.join(save_path, person, encoding_file), 'rb') as f:
+                with open(os.path.join(save_path, person, 'encodings', encoding_file), 'rb') as f:
                     face_encoding = np.load(f)
                     if person in data_base:
                         data_base[person] = np.concatenate((data_base[person], face_encoding), axis=0)
