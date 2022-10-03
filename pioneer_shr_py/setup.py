@@ -13,7 +13,6 @@ setup(
          ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
     ],
-    package_data={'': ['bar.txt']},
     install_requires=['setuptools'],
     zip_safe=True,
     maintainer='pac48',
@@ -22,8 +21,7 @@ setup(
     license='TODO: License declaration',
     tests_require=['pytest'],
     entry_points={
-        'console_scripts': [
-            'recognize_face_action = pioneer_shr_py.recognize_face_action:main'
+        'console_scripts': ['recognize_face_action = pioneer_shr_py.recognize_face_action:main'
         ],
     },
 )
