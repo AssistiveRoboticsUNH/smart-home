@@ -23,6 +23,8 @@ set(action_files
         action/EmptyRequest.action
         action/RecognizeRequest.action
         action/RecognizeTrainRequest.action
+        action/ReadScriptRequest.action
+        action/CallRequest.action
         )
 
 rosidl_generate_interfaces(pioneer_shr_msg
