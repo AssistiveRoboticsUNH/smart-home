@@ -22,6 +22,8 @@ setup(
         'console_scripts': ['recognize_face_action = pioneer_shr_py.recognize_face_action:main',
                             'read_script_action = pioneer_shr_py.read_script_action:main',
                             'make_call_action = pioneer_shr_py.make_call_action:main',
+                            'play_audio_action = pioneer_shr_py.play_audio_action:main',
+                            'play_video_action = pioneer_shr_py.play_video_action:main',
                             ],
     },
 )

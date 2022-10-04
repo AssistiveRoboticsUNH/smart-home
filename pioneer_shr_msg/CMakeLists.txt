@@ -24,6 +24,8 @@ set(action_files
         action/RecognizeRequest.action
         action/RecognizeTrainRequest.action
         action/ReadScriptRequest.action
+        action/PlayAudioRequest.action
+        action/PlayVideoRequest.action
         action/CallRequest.action
         )
 
