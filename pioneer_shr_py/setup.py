@@ -1,6 +1,4 @@
-from setuptools import setup, find_packages
-
-# from distutils.core import setup
+from setuptools import setup
 
 package_name = 'pioneer_shr_py'
 
@@ -21,7 +19,9 @@ setup(
     license='TODO: License declaration',
     tests_require=['pytest'],
     entry_points={
-        'console_scripts': ['recognize_face_action = pioneer_shr_py.recognize_face_action:main'
-        ],
+        'console_scripts': ['recognize_face_action = pioneer_shr_py.recognize_face_action:main',
+                            'read_script_action = pioneer_shr_py.read_script_action:main',
+                            'make_call_action = pioneer_shr_py.make_call_action:main',
+                            ],
     },
 )
