@@ -100,33 +100,4 @@ def generate_launch_description():
     ld.add_action(open_image_node_cmd)
     ld.add_action(make_call_node_cmd)
 
-    # actions
-    move_cmd = Node(
-        package='plansys2_simple_example',
-        executable='move_action_node',
-        name='move_action_node',
-        namespace=namespace,
-        output='screen',
-        parameters=[])
-
-    charge_cmd = Node(
-        package='plansys2_simple_example',
-        executable='charge_action_node',
-        name='charge_action_node',
-        namespace=namespace,
-        output='screen',
-        parameters=[])
-
-    ask_charge_cmd = Node(
-        package='plansys2_simple_example',
-        executable='ask_charge_action_node',
-        name='ask_charge_action_node',
-        namespace=namespace,
-        output='screen',
-        parameters=[])  # Create the launch description and populate
-
-    # ld.add_action(move_cmd)
-    # ld.add_action(charge_cmd)
-    # ld.add_action(ask_charge_cmd)
-
     return ld

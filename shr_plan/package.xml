@@ -9,6 +9,18 @@
 
     <buildtool_depend>ament_cmake</buildtool_depend>
 
+
+    <depend>geometry_msgs</depend>
+    <depend>nav2_msgs</depend>
+    <depend>plansys2_domain_expert</depend>
+    <depend>plansys2_executor</depend>
+    <depend>plansys2_msgs</depend>
+    <depend>plansys2_pddl_parser</depend>
+    <depend>plansys2_planner</depend>
+    <depend>plansys2_problem_expert</depend>
+    <depend>rclcpp</depend>
+    <depend>rclcpp_action</depend>
+
     <exec_depend>launch</exec_depend>
     <exec_depend>launch_ros</exec_depend>
     <exec_depend>plansys2_bringup</exec_depend>
