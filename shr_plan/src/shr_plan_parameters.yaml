@@ -1,0 +1,22 @@
+shr_plan_parameters:
+  senor_pills_motion_topic: {
+    type: string,
+    default_value: "smartthings_sensors_motion_pills",
+    description: "topic for detecting pills being taken",
+  }
+  sensors_door_motion_topic: {
+    type: string,
+    default_value: "smartthings_sensors_motion_door",
+    description: "topic for person going to door",
+  }
+  sensors_door_open_topic: {
+    type: string,
+    default_value: "smartthings_sensors_door",
+    description: "topic for detecting if door is open",
+  }
+  update_protocol_topic: {
+    type: string,
+    default_value: "update_protocol",
+    description: "topic updating active protocol",
+  }
+
