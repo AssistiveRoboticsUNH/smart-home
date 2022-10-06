@@ -1,0 +1,6 @@
+string file_name
+bool open
+---
+string status
+---
+bool running # returns true if running

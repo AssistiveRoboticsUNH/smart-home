@@ -26,7 +26,7 @@ class PlayVideoActionServer(Node):
             goal_handle.abort()
             return result
 
-        command = 'vlc ' + file_path + ' vlc://quit &'
+        command = 'vlc ' + file_path + ' --fullscreen vlc://quit &'
         os.system(command)
         result.status = "success"
         goal_handle.succeed()
