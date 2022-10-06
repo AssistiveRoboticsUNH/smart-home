@@ -26,6 +26,7 @@ set(action_files
         action/ReadScriptRequest.action
         action/PlayAudioRequest.action
         action/PlayVideoRequest.action
+        action/OpenImageRequest.action
         action/CallRequest.action
         )
 
