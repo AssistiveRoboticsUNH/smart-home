@@ -20,6 +20,9 @@ find_package(plansys2_executor REQUIRED)
 find_package(plansys2_planner REQUIRED)
 find_package(plansys2_problem_expert REQUIRED)
 find_package(plansys2_pddl_parser REQUIRED)
+find_package(tf2_ros REQUIRED)
+find_package(pioneer_shr_msg REQUIRED)
+find_package(generate_parameter_library REQUIRED)
 
 set(dependencies
         rclcpp
@@ -31,12 +34,31 @@ set(dependencies
         plansys2_planner
         plansys2_problem_expert
         plansys2_pddl_parser
+        tf2_ros
+        pioneer_shr_msg
         )
 add_executable(planning_controller_node src/planning_controller_node.cpp)
 ament_target_dependencies(planning_controller_node ${dependencies})
 
+generate_parameter_library(shr_plan_parameters
+        src/shr_plan_parameters.yaml
+        )
+
+target_link_libraries(planning_controller_node
+        shr_plan_parameters
+        )
+
+
+add_executable(notify_action_node src/notify_action_node.cpp)
+ament_target_dependencies(notify_action_node ${dependencies})
+
+add_executable(move_action_node src/move_action_node.cpp)
+ament_target_dependencies(move_action_node ${dependencies})
+
 install(TARGETS
         planning_controller_node
+        notify_action_node
+        move_action_node
         ARCHIVE DESTINATION lib
         LIBRARY DESTINATION lib
         RUNTIME DESTINATION lib/${PROJECT_NAME}

@@ -26,7 +26,7 @@ def generate_launch_description():
         PythonLaunchDescriptionSource(PathJoinSubstitution([
             get_package_share_directory('plansys2_bringup'),
             'launch',
-            'plansys2_bringup_launch_monolithic.py'])),
+            'plansys2_bringup_launch_distributed.py'])), # 'plansys2_bringup_launch_monolithic.py' 'plansys2_bringup_launch_distributed.py'
         launch_arguments={
             'model_file': PathJoinSubstitution([shr_dir, 'pddl', 'domain_shr.pddl']),
             'namespace': namespace
@@ -85,6 +85,25 @@ def generate_launch_description():
         name='make_call_action',
         output='screen')
 
+    # plansys2 actions
+    moveto_landmark_cmd = Node(
+        package='shr_plan',
+        executable='move_action_node',
+        name='move_action_node',
+        output='screen')
+
+    notify_action_cmd = Node(
+        package='shr_plan',
+        executable='notify_action_node',
+        name='notify_action_node',
+        output='screen')
+
+    planning_controller_node_cmd = Node(
+        package='shr_plan',
+        executable='planning_controller_node',
+        name='planning_controller_node',
+        output='screen')
+
     ld = LaunchDescription()
     ld.add_action(declare_namespace_cmd)
     ld.add_action(declare_use_sim_cmd)
@@ -99,5 +118,10 @@ def generate_launch_description():
     ld.add_action(play_video_node_cmd)
     ld.add_action(open_image_node_cmd)
     ld.add_action(make_call_node_cmd)
+
+    ld.add_action(moveto_landmark_cmd)
+    ld.add_action(notify_action_cmd)
+
+    ld.add_action(planning_controller_node_cmd)
 
     return ld
