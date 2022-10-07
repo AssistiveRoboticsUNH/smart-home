@@ -55,6 +55,10 @@ ament_target_dependencies(notify_action_node ${dependencies})
 add_executable(move_action_node src/move_action_node.cpp)
 ament_target_dependencies(move_action_node ${dependencies})
 
+include_directories(
+        include
+)
+
 install(TARGETS
         planning_controller_node
         notify_action_node
@@ -63,6 +67,11 @@ install(TARGETS
         LIBRARY DESTINATION lib
         RUNTIME DESTINATION lib/${PROJECT_NAME}
         )
+
+install(
+        DIRECTORY include/
+        DESTINATION include
+)
 
 install(
         DIRECTORY launch pddl

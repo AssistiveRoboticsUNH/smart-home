@@ -19,4 +19,10 @@ shr_plan_parameters:
     default_value: "update_protocol",
     description: "topic updating active protocol",
   }
+  locations: {
+    type: string_array,
+    default_value: ["bedroom_robot_pos", "door_robot_pos", "kitchen_robot_pos", "couch_robot_pos",],
+    description: "list of tf frame locations that the robot can visit",
+  }
+
 
