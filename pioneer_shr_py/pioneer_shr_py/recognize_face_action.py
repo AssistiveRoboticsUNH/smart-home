@@ -153,7 +153,7 @@ class RecognizeFaceActionServer(Node):
         return result
 
     def detect_face(self, image, gui=False):
-        faces = self.face_cascade.detectMultiScale(self.latest_image_gray, 1.1, 4)
+        faces = self.face_cascade.detectMultiScale(self.latest_image_gray, 1.1, 4, minSize=(15, 15),)
         if gui:
             image_mod = image.copy()
             for (x, y, w, h) in faces:
@@ -167,7 +167,7 @@ class RecognizeFaceActionServer(Node):
         for face in faces:
             boxes.append([face[1], face[0]+face[2], face[1]+face[3], face[0]])
 
-        if len(boxes) > 0:#face[2] > 20 and face[3] > 20:
+        if len(boxes) > 0:
             tmp = face_recognition.face_encodings(image, known_face_locations=boxes)
             if len(tmp) > 0:
                 standing_person_face_encoding = tmp

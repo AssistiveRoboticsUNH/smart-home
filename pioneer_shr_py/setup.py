@@ -25,6 +25,7 @@ setup(
                             'play_audio_action = pioneer_shr_py.play_audio_action:main',
                             'play_video_action = pioneer_shr_py.play_video_action:main',
                             'open_image_action = pioneer_shr_py.open_image_action:main',
+                            'rotate_action = pioneer_shr_py.rotate_action:main',
                             ],
     },
 )
