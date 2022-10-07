@@ -27,10 +27,13 @@
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_action/rclcpp_action.hpp"
 
-#include <shr_plan_parameters.hpp>
+
 #include "std_msgs/msg/bool.hpp"
 #include "std_msgs/msg/string.hpp"
+#include "pioneer_shr_msg/action/rotate_request.hpp"
+#include "pioneer_shr_msg/action/recognize_request.hpp"
 
+#include <shr_plan_parameters.hpp>
 #include "shr_plan/utils.hpp"
 
 
@@ -43,7 +46,7 @@ namespace planning_controller {
         std::string person_location;
     };
 
-    bool fully_updated(const World& world) {
+    bool fully_updated(const World &world) {
         auto tmp = World();
         return world.pills_motion_sensor != tmp.pills_motion_sensor &&
                world.door_motion_sensor != tmp.door_motion_sensor &&
@@ -73,10 +76,14 @@ namespace planning_controller {
                     params_.update_protocol_topic, 10,
                     std::bind(&PlanningController::update_protocol_callback, this, _1));
 
-            navigation_action_client_ =
-                    rclcpp_action::create_client<nav2_msgs::action::NavigateToPose>(
-                            this,
-                            "navigate_to_pose");
+            navigation_action_client_ = rclcpp_action::create_client<nav2_msgs::action::NavigateToPose>(
+                    this, "navigate_to_pose");
+            rotate_client_ = rclcpp_action::create_client<pioneer_shr_msg::action::RotateRequest>(
+                    this, "rotate");
+            recognize_face_client_ = rclcpp_action::create_client<pioneer_shr_msg::action::RecognizeRequest>(
+                    this, "recognize_face");
+
+
 
             tf_buffer_ =
                     std::make_unique<tf2_ros::Buffer>(this->get_clock());
@@ -108,12 +115,23 @@ namespace planning_controller {
                     if (fully_updated(world_)) {
                         state_ = PLANNING;
                     }
-                    if (world_.person_location.empty() && !navigating_){
-                        auto result_callback = [this](auto) {navigating_ = false;};
-                        location_ind_ = (location_ind_ + 1) % params_.locations.size();
-                        shr_plan::send_nav_request(*tf_buffer_, params_.locations[location_ind_], now(), navigation_action_client_,
-                                                   std::nullopt, result_callback);
-                        navigating_ = true;
+                    if (world_.person_location.empty()) {
+
+                        if (!navigating_ && !rotating_) {
+                            auto result_callback = [this](auto) {
+                                navigating_ = false;
+                                rotate_360();
+                            };
+                            location_ind_ = (location_ind_ + 1) % params_.locations.size();
+                            shr_plan::send_nav_request(*tf_buffer_, params_.locations[location_ind_], now(),
+                                                       navigation_action_client_,
+                                                       std::nullopt, result_callback);
+                            navigating_ = true;
+                        }
+
+                        if (!recognizing_){
+                            recognize_patient();
+                        }
                     }
                     break;
                 }
@@ -264,6 +282,36 @@ namespace planning_controller {
 
         }
 
+        void rotate_360(){
+            auto goal_msg = pioneer_shr_msg::action::RotateRequest::Goal();
+            goal_msg.angle = 2*M_PI;
+            goal_msg.total_time = 10.0;
+            auto send_goal_options = rclcpp_action::Client<pioneer_shr_msg::action::RotateRequest>::SendGoalOptions();
+            auto result_callback = [this](auto) {
+                rotating_ = false;
+            };
+            send_goal_options.result_callback = result_callback;
+            rotate_client_->async_send_goal(goal_msg, send_goal_options);
+            rotating_ = true;
+        }
+
+        bool recognize_patient(){
+            auto goal_msg = pioneer_shr_msg::action::RecognizeRequest::Goal();
+            auto send_goal_options = rclcpp_action::Client<pioneer_shr_msg::action::RecognizeRequest>::SendGoalOptions();
+            auto result_callback = [this](const rclcpp_action::ClientGoalHandle<pioneer_shr_msg::action::RecognizeRequest>::WrappedResult & response) {
+                for (const auto& name : response.result->names){
+                    if (name == params_.patient_name){
+                        world_.person_location = params_.locations[location_ind_];
+                        person_last_location_ = params_.locations[location_ind_];
+                    }
+                }
+                recognizing_ = false;
+            };
+            send_goal_options.result_callback = result_callback;
+            recognize_face_client_->async_send_goal(goal_msg, send_goal_options);
+            recognizing_ = true;
+        }
+
         typedef enum {
             IDLE, KNOWLEDGE_GATHERING, PLANNING, EXECUTING
         } StateType;
@@ -283,6 +331,8 @@ namespace planning_controller {
         rclcpp::Subscription<std_msgs::msg::String>::SharedPtr protocol_sub_;
 
         rclcpp_action::Client<nav2_msgs::action::NavigateToPose>::SharedPtr navigation_action_client_;
+        rclcpp_action::Client<pioneer_shr_msg::action::RotateRequest>::SharedPtr rotate_client_;
+        rclcpp_action::Client<pioneer_shr_msg::action::RecognizeRequest>::SharedPtr recognize_face_client_;
 
         std::shared_ptr<tf2_ros::TransformListener> tf_listener_{nullptr};
         std::unique_ptr<tf2_ros::Buffer> tf_buffer_;
@@ -293,6 +343,8 @@ namespace planning_controller {
         std::string person_last_location_;
         int location_ind_ = -1;
         bool navigating_;
+        bool rotating_;
+        bool recognizing_;
     };
 
 }

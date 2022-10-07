@@ -68,6 +68,12 @@ def generate_launch_description():
         name='make_call_action',
         output='screen')
 
+    rotate_node_cmd = Node(
+        package='pioneer_shr_py',
+        executable='rotate_action',
+        name='rotate_action',
+        output='screen')
+
     # plansys2 actions
     moveto_landmark_cmd = Node(
         package='shr_plan',
@@ -98,6 +104,7 @@ def generate_launch_description():
     ld.add_action(play_video_node_cmd)
     ld.add_action(open_image_node_cmd)
     ld.add_action(make_call_node_cmd)
+    ld.add_action(rotate_node_cmd)
 
     ld.add_action(moveto_landmark_cmd)
     ld.add_action(notify_action_cmd)
