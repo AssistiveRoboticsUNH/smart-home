@@ -31,13 +31,25 @@
 #include "std_msgs/msg/bool.hpp"
 #include "std_msgs/msg/string.hpp"
 
+#include "shr_plan/utils.hpp"
+
+
 namespace planning_controller {
 
     struct World {
         int pills_motion_sensor = -1;
         int door_motion_sensor = -1;
         int door_sensor = -1;
+        std::string person_location;
     };
+
+    bool fully_updated(const World& world) {
+        auto tmp = World();
+        return world.pills_motion_sensor != tmp.pills_motion_sensor &&
+               world.door_motion_sensor != tmp.door_motion_sensor &&
+               world.door_sensor != tmp.door_sensor &&
+               world.person_location != tmp.person_location;
+    }
 
     class PlanningController : public rclcpp::Node {
     public:
@@ -61,6 +73,18 @@ namespace planning_controller {
                     params_.update_protocol_topic, 10,
                     std::bind(&PlanningController::update_protocol_callback, this, _1));
 
+            navigation_action_client_ =
+                    rclcpp_action::create_client<nav2_msgs::action::NavigateToPose>(
+                            this,
+                            "navigate_to_pose");
+
+            tf_buffer_ =
+                    std::make_unique<tf2_ros::Buffer>(this->get_clock());
+            tf_listener_ =
+                    std::make_shared<tf2_ros::TransformListener>(*tf_buffer_);
+
+            // assume position to initialize
+            person_last_location_ = params_.locations[0];
 
         }
 
@@ -75,7 +99,21 @@ namespace planning_controller {
             switch (state_) {
                 case IDLE: {
                     if (!protocol_.empty()) {
+                        world_ = World();
+                        state_ = KNOWLEDGE_GATHERING;
+                    }
+                    break;
+                }
+                case KNOWLEDGE_GATHERING: {
+                    if (fully_updated(world_)) {
                         state_ = PLANNING;
+                    }
+                    if (world_.person_location.empty() && !navigating_){
+                        auto result_callback = [this](auto) {navigating_ = false;};
+                        location_ind_ = (location_ind_ + 1) % params_.locations.size();
+                        shr_plan::send_nav_request(*tf_buffer_, params_.locations[location_ind_], now(), navigation_action_client_,
+                                                   std::nullopt, result_callback);
+                        navigating_ = true;
                     }
                     break;
                 }
@@ -107,7 +145,7 @@ namespace planning_controller {
                 case EXECUTING: {
                     if (world_changed_) {
                         executor_client_->cancel_plan_execution();
-                    } else{
+                    } else {
                         auto feedback = executor_client_->getFeedBack();
 
                         for (const auto &action_feedback: feedback.action_execution_status) {
@@ -180,22 +218,23 @@ namespace planning_controller {
                 problem_expert_->addInstance(plansys2::Instance{"home", "landmark"});
                 problem_expert_->addInstance(plansys2::Instance{"pioneer", "robot"});
                 problem_expert_->addInstance(plansys2::Instance{"midnight_warning", "message"});
-            } else if (protocol_ == "take_pills") {
-                problem_expert_->addInstance(plansys2::Instance{"door", "landmark"});
-                problem_expert_->addInstance(plansys2::Instance{"home", "landmark"});
-                problem_expert_->addInstance(plansys2::Instance{"bedroom", "landmark"});
-                problem_expert_->addInstance(plansys2::Instance{"kitchen", "landmark"});
-
-                problem_expert_->addInstance(plansys2::Instance{"medicine_robot_msg", "message"});
-                problem_expert_->addInstance(plansys2::Instance{"medicine_phone_msg", "phonemessage"});
-
-                problem_expert_->addInstance(plansys2::Instance{"mediciness", "sensor"});
-
-//                door kitchen bedroom home - landmark
-//                medicine_robot_msg - message
-//                medicine_phone_msg - phonemessage
-//                mediciness - sensor
             }
+//            else if (protocol_ == "take_pills") {
+//                problem_expert_->addInstance(plansys2::Instance{"door", "landmark"});
+//                problem_expert_->addInstance(plansys2::Instance{"home", "landmark"});
+//                problem_expert_->addInstance(plansys2::Instance{"bedroom", "landmark"});
+//                problem_expert_->addInstance(plansys2::Instance{"kitchen", "landmark"});
+//
+//                problem_expert_->addInstance(plansys2::Instance{"medicine_robot_msg", "message"});
+//                problem_expert_->addInstance(plansys2::Instance{"medicine_phone_msg", "phonemessage"});
+//
+//                problem_expert_->addInstance(plansys2::Instance{"mediciness", "sensor"});
+//
+////                door kitchen bedroom home - landmark
+////                medicine_robot_msg - message
+////                medicine_phone_msg - phonemessage
+////                mediciness - sensor
+//            }
 
         }
 
@@ -207,24 +246,26 @@ namespace planning_controller {
             if (protocol_ == "midnight_warning") {
                 problem_expert_->addPredicate(plansys2::Predicate("(robot_at pioneer home)"));
                 problem_expert_->addPredicate(plansys2::Predicate("(message_at midnight_warning door)"));
-            } else if (protocol_ == "take_pills") {
-                problem_expert_->addPredicate(plansys2::Predicate("(robot_at pioneer home)"));
-                problem_expert_->addPredicate(plansys2::Predicate("(message_at midnight_warning door)"));
             }
+//            else if (protocol_ == "take_pills") {
+//                problem_expert_->addPredicate(plansys2::Predicate("(robot_at pioneer home)"));
+//                problem_expert_->addPredicate(plansys2::Predicate("(message_at midnight_warning door)"));
+//            }
 
         }
 
         void set_goal() {
             if (protocol_ == "midnight_warning") {
                 problem_expert_->setGoal(plansys2::Goal("(and(robot_at pioneer door)(notified midnight_warning))"));
-            } else if (protocol_ == "take_pills") {
-                problem_expert_->setGoal(plansys2::Goal("(and(robot_at pioneer door)(notified midnight_warning))"));
             }
+//            else if (protocol_ == "take_pills") {
+//                problem_expert_->setGoal(plansys2::Goal("(and(robot_at pioneer door)(notified midnight_warning))"));
+//            }
 
         }
 
         typedef enum {
-            IDLE, PLANNING, EXECUTING
+            IDLE, KNOWLEDGE_GATHERING, PLANNING, EXECUTING
         } StateType;
         StateType state_;
 
@@ -241,9 +282,17 @@ namespace planning_controller {
         rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr door_open_sub_;
         rclcpp::Subscription<std_msgs::msg::String>::SharedPtr protocol_sub_;
 
+        rclcpp_action::Client<nav2_msgs::action::NavigateToPose>::SharedPtr navigation_action_client_;
+
+        std::shared_ptr<tf2_ros::TransformListener> tf_listener_{nullptr};
+        std::unique_ptr<tf2_ros::Buffer> tf_buffer_;
+
         World world_;
         bool world_changed_ = false;
-        std::string protocol_ = "";
+        std::string protocol_;
+        std::string person_last_location_;
+        int location_ind_ = -1;
+        bool navigating_;
     };
 
 }

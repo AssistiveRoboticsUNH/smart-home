@@ -9,17 +9,11 @@ from launch.conditions import IfCondition
 
 def generate_launch_description():
     namespace = LaunchConfiguration('namespace')
-    use_sim = LaunchConfiguration('use_simulation')
 
     declare_namespace_cmd = DeclareLaunchArgument(
         'namespace',
         default_value='',
         description='Namespace')
-
-    declare_use_sim_cmd = DeclareLaunchArgument(
-        'use_simulation',
-        default_value='True',
-        description='Use simulation')
 
     shr_dir = get_package_share_directory('shr_plan')
     plansys2_cmd = IncludeLaunchDescription(
@@ -28,20 +22,9 @@ def generate_launch_description():
             'launch',
             'plansys2_bringup_launch_distributed.py'])), # 'plansys2_bringup_launch_monolithic.py' 'plansys2_bringup_launch_distributed.py'
         launch_arguments={
-            'model_file': PathJoinSubstitution([shr_dir, 'pddl', 'domain_shr.pddl']),
+            'model_file': PathJoinSubstitution([shr_dir, 'pddl', 'domain_shr.pddl']), # 'paul_domain_shr.pddl'
             'namespace': namespace
         }.items())
-
-    unity_sim_cmd = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(PathJoinSubstitution([
-            get_package_share_directory('unity_launch'), 'launch', 'launch.launch.py'])),
-        condition=IfCondition(use_sim)
-    )
-
-    pioneer_nav_cmd = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(PathJoinSubstitution([
-            get_package_share_directory('pioneer_navigation2'), 'launch', 'navigation2.launch.py']))
-    )
 
     sound_node_cmd = Node(
         package='sound_play',
@@ -106,11 +89,8 @@ def generate_launch_description():
 
     ld = LaunchDescription()
     ld.add_action(declare_namespace_cmd)
-    ld.add_action(declare_use_sim_cmd)
-    ld.add_action(pioneer_nav_cmd)
 
     ld.add_action(plansys2_cmd)
-    ld.add_action(unity_sim_cmd)
     ld.add_action(sound_node_cmd)
     ld.add_action(face_node_cmd)
     ld.add_action(read_script_node_cmd)

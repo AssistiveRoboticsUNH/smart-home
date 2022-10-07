@@ -32,28 +32,30 @@
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_action/rclcpp_action.hpp"
 
+#include "shr_plan/utils.hpp"
+
 
 namespace move_action {
     using namespace std::chrono_literals;
 
-    geometry_msgs::msg::Pose
-    get_tf_as_point(const tf2_ros::Buffer &tf_buffer, const std::string &parent_id, const std::string &child_id) {
-        auto transformStamped = tf_buffer.lookupTransform(
-                parent_id,
-                child_id,
-                tf2::TimePointZero);
-
-        geometry_msgs::msg::Pose point;
-        point.position.x = transformStamped.transform.translation.x;
-        point.position.y = transformStamped.transform.translation.y;
-        point.position.z = transformStamped.transform.translation.z;
-        point.orientation.x = transformStamped.transform.rotation.x;
-        point.orientation.y = transformStamped.transform.rotation.y;
-        point.orientation.z = transformStamped.transform.rotation.z;
-        point.orientation.w = transformStamped.transform.rotation.w;
-
-        return point;
-    }
+//    geometry_msgs::msg::Pose
+//    get_tf_as_point(const tf2_ros::Buffer &tf_buffer, const std::string &parent_id, const std::string &child_id) {
+//        auto transformStamped = tf_buffer.lookupTransform(
+//                parent_id,
+//                child_id,
+//                tf2::TimePointZero);
+//
+//        geometry_msgs::msg::Pose point;
+//        point.position.x = transformStamped.transform.translation.x;
+//        point.position.y = transformStamped.transform.translation.y;
+//        point.position.z = transformStamped.transform.translation.z;
+//        point.orientation.x = transformStamped.transform.rotation.x;
+//        point.orientation.y = transformStamped.transform.rotation.y;
+//        point.orientation.z = transformStamped.transform.rotation.z;
+//        point.orientation.w = transformStamped.transform.rotation.w;
+//
+//        return point;
+//    }
 
 
     class MoveAction : public plansys2::ActionExecutorClient {
@@ -99,28 +101,45 @@ namespace move_action {
             auto wp_to_navigate = get_arguments()[2];  // The goal is in the 3rd argument of the action
             RCLCPP_INFO(get_logger(), "Start navigation to [%s]", wp_to_navigate.c_str());
 
-            navigation_goal_.pose.header.frame_id = "map";
-            navigation_goal_.pose.header.stamp = now();
-            auto point = get_tf_as_point(*tf_buffer_, "map", wp_to_navigate + "_robot_pos");
-            navigation_goal_.pose.pose = point;
 
-            dist_to_move = getDistance(goal_pos_.pose, current_pos_);
 
-            auto send_goal_options =
-                    rclcpp_action::Client<nav2_msgs::action::NavigateToPose>::SendGoalOptions();
-
-            send_goal_options.feedback_callback = [this](
+            auto feedback_callback = [this](
                     NavigationGoalHandle::SharedPtr,
                     NavigationFeedback feedback) {
                 send_feedback(std::min(1.0, std::max(0.0, 1.0 - (feedback->distance_remaining / dist_to_move))),
-                        "Move running");
+                              "Move running");
             };
-
-            send_goal_options.result_callback = [this](auto) {
+            auto result_callback = [this](auto) {
                 finish(true, 1.0, "Move completed");
             };
 
-            future_navigation_goal_handle_ = navigation_action_client_->async_send_goal(navigation_goal_, send_goal_options);
+            shr_plan::send_nav_request(*tf_buffer_, wp_to_navigate + "_robot_pos", now(),
+            navigation_action_client_, feedback_callback, result_callback);
+
+//
+//
+//            navigation_goal_.pose.header.frame_id = "map";
+//            navigation_goal_.pose.header.stamp = now();
+//            auto point = shr_plan::get_tf_as_point(*tf_buffer_, "map", wp_to_navigate + "_robot_pos");
+//            navigation_goal_.pose.pose = point;
+//
+//            dist_to_move = getDistance(point, current_pos_);
+//
+//            auto send_goal_options =
+//                    rclcpp_action::Client<nav2_msgs::action::NavigateToPose>::SendGoalOptions();
+//
+//            send_goal_options.feedback_callback = [this](
+//                    NavigationGoalHandle::SharedPtr,
+//                    NavigationFeedback feedback) {
+//                send_feedback(std::min(1.0, std::max(0.0, 1.0 - (feedback->distance_remaining / dist_to_move))),
+//                        "Move running");
+//            };
+//
+//            send_goal_options.result_callback = [this](auto) {
+//                finish(true, 1.0, "Move completed");
+//            };
+//
+//            future_navigation_goal_handle_ = navigation_action_client_->async_send_goal(navigation_goal_, send_goal_options);
 
             return ActionExecutorClient::on_activate(previous_state);
         }
@@ -135,11 +154,6 @@ namespace move_action {
         void do_work() {
         }
 
-        using NavigationGoalHandle =
-                rclcpp_action::ClientGoalHandle<nav2_msgs::action::NavigateToPose>;
-        using NavigationFeedback =
-                const std::shared_ptr<const nav2_msgs::action::NavigateToPose::Feedback>;
-
         rclcpp_action::Client<nav2_msgs::action::NavigateToPose>::SharedPtr navigation_action_client_;
         std::shared_future<NavigationGoalHandle::SharedPtr> future_navigation_goal_handle_;
         NavigationGoalHandle::SharedPtr navigation_goal_handle_;
@@ -149,7 +163,6 @@ namespace move_action {
 
         rclcpp::Subscription<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr pos_sub_;
         geometry_msgs::msg::Pose current_pos_;
-        geometry_msgs::msg::PoseStamped goal_pos_;
         nav2_msgs::action::NavigateToPose::Goal navigation_goal_;
 
         double dist_to_move;
