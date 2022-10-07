@@ -1,0 +1,6 @@
+float32 angle
+float32 total_time
+---
+string status
+---
+bool running # returns true if running

@@ -15,7 +15,7 @@ find_package(rosidl_default_generators REQUIRED)
 
 
 set(msg_files
-        "msg/SmartSensor.msg"
+        msg/SmartSensor.msg
         )
 
 set(action_files
@@ -28,6 +28,7 @@ set(action_files
         action/PlayVideoRequest.action
         action/OpenImageRequest.action
         action/CallRequest.action
+        action/RotateRequest.action
         )
 
 rosidl_generate_interfaces(pioneer_shr_msg
