@@ -22,7 +22,7 @@ def generate_launch_description():
             'launch',
             'plansys2_bringup_launch_distributed.py'])), # 'plansys2_bringup_launch_monolithic.py' 'plansys2_bringup_launch_distributed.py'
         launch_arguments={
-            'model_file': PathJoinSubstitution([shr_dir, 'pddl', 'domain_shr.pddl']), # 'paul_domain_shr.pddl'
+            'model_file': PathJoinSubstitution([shr_dir, 'pddl', 'paul_domain_shr.pddl']), # 'paul_domain_shr.pddl'   'domain_shr.pddl'
             'namespace': namespace
         }.items())
 
