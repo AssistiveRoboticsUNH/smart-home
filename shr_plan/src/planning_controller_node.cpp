@@ -162,16 +162,17 @@ namespace planning_controller {
                     break;
                 }
                 case EXECUTING: {
+
+                    auto feedback = executor_client_->getFeedBack();
+
+                    for (const auto &action_feedback: feedback.action_execution_status) {
+                        std::cout << "[" << action_feedback.action << " " <<
+                                  action_feedback.completion * 100.0 << "%]";
+                    }
+                    std::cout << std::endl;
+
                     if (world_changed_) {
                         executor_client_->cancel_plan_execution();
-                    } else {
-                        auto feedback = executor_client_->getFeedBack();
-
-                        for (const auto &action_feedback: feedback.action_execution_status) {
-                            std::cout << "[" << action_feedback.action << " " <<
-                                      action_feedback.completion * 100.0 << "%]";
-                        }
-                        std::cout << std::endl;
                     }
 
                     if (!executor_client_->execute_and_check_plan() && executor_client_->getResult()) {
@@ -181,18 +182,7 @@ namespace planning_controller {
                             protocol_ = "";
                         } else {
                             state_ = PLANNING;
-//                            for (const auto &action_feedback: feedback.action_execution_status) {
-//                                if (action_feedback.status == plansys2_msgs::msg::ActionExecutionInfo::FAILED) {
-//                                    std::cout << "[" << action_feedback.action << "] finished with error: " <<
-//                                              action_feedback.message_status << std::endl;
-//                                }
-//                                if (action_feedback.status == plansys2_msgs::msg::ActionExecutionInfo::CANCELLED) {
-//                                    std::cout << "[" << action_feedback.action << "] finished with cancel: " <<
-//                                              action_feedback.message_status << std::endl;
-//                                }
-//                            }
                         }
-
                     }
 
                     break;
