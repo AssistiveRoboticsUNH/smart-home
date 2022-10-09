@@ -26,4 +26,4 @@ repositories:
   external/ros2_planning_system:
     type: git
     url: https://github.com/pac48/ros2_planning_system.git
-    version: fix-not-regex-in-parser-utils
+    version: master
