@@ -107,7 +107,8 @@ namespace planning_controller {
                 case IDLE: {
                     if (!protocol_.empty()) {
                         world_ = World();
-                        state_ = KNOWLEDGE_GATHERING;
+//                        state_ = KNOWLEDGE_GATHERING;
+                        state_ = PLANNING;
                     }
                     break;
                 }
