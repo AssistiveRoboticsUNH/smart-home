@@ -63,7 +63,7 @@ class RecognizeFaceActionServer(Node):
         if self.training_action or self.recognize_action:
             current_frame = self.br.imgmsg_to_cv2(data)
             self.latest_image = cv2.cvtColor(current_frame, cv2.COLOR_BGR2RGB)
-            self.latest_image_gray = cv2.cvtColor(current_frame, cv2.COLOR_BGR2GRAY)
+            self.latest_image = cv2.resize(self.latest_image, (0, 0), fx=2, fy=2)
         else:
             self.latest_image = np.array([0])
 
@@ -72,36 +72,57 @@ class RecognizeFaceActionServer(Node):
         feedback_msg = RecognizeRequest.Feedback()
         database = self.get_database()
         start_time = time.time()
+        result = RecognizeRequest.Result()
 
         self.recognize_action = True
-        standing_person_face_encoding = None
+        # standing_person_face_encoding = None
         while time.time() - start_time < self.recognize_timeout:
             if self.latest_image.shape[0] > 1:
                 standing_person_face_encoding = self.detect_face(self.latest_image)
                 if standing_person_face_encoding is not None:
-                    break
+                    names = set()
+                    for encoding in standing_person_face_encoding:
+                        # min_val = np.finfo(float).max
+                        # min_name = ""
+                        for name in database:
+                            known_encodings = database[name]
+                            for known_encoding in known_encodings:
+                                match = face_recognition.compare_faces(known_encoding, encoding, tolerance=0.4)
+                                if match[0]:
+                                    names.add(name)
+
+                    result.names = list(names)
+                    if len(result.names) > 0:
+                        goal_handle.succeed()
+                        return result
+
             feedback_msg.running = True
             goal_handle.publish_feedback(feedback_msg)
             rclpy.spin_once(self)
 
         self.recognize_action = False
 
-        result = RecognizeRequest.Result()
-        if standing_person_face_encoding is not None:
-            goal_handle.succeed()
-            for encoding in standing_person_face_encoding:
-                min_val = np.finfo(float).max
-                min_name = ""
-                for name in database:
-                    tmp = np.sum(np.abs(database[name] - encoding), axis=1)
-                    if np.min(tmp) < min_val:
-                        min_val = np.min(tmp)
-                        min_name = name
+        # if standing_person_face_encoding is not None:
+        #     goal_handle.succeed()
+        #     names = set()
+        #     for encoding in standing_person_face_encoding:
+        #         min_val = np.finfo(float).max
+        #         min_name = ""
+        #         for name in database:
+        #             known_encodings = database[name]
+        #             # for known_encoding in known_encodings:
+        #             match = face_recognition.compare_faces(known_encodings, encoding, tolerance=0.6)
+        #             if match:
+        #                 names.add(min_name)
+        # tmp = np.sum(np.abs(database[name] - encoding), axis=1)
+        # if np.min(tmp) < min_val:
+        #     min_val = np.min(tmp)
+        #     min_name = name
+        # result.names.append(min_name)
+        # names.add(min_name)
 
-                result.names.append(min_name)
-        else:
-            goal_handle.abort()
-            result.names = [""]
+        goal_handle.abort()
+        result.names = [""]
 
         return result
 
@@ -153,7 +174,9 @@ class RecognizeFaceActionServer(Node):
         return result
 
     def detect_face(self, image, gui=False):
-        faces = self.face_cascade.detectMultiScale(self.latest_image_gray, 1.1, 4, minSize=(15, 15),)
+        image_gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        faces = self.face_cascade.detectMultiScale(image_gray, 1.1, 4, minSize=(30, 30), )
+
         if gui:
             image_mod = image.copy()
             for (x, y, w, h) in faces:
@@ -165,13 +188,15 @@ class RecognizeFaceActionServer(Node):
         # box = face_recognition.api.face_locations(image, number_of_times_to_upsample=2) # (top, right, bottom, left)
         boxes = []
         for face in faces:
-            boxes.append([face[1], face[0]+face[2], face[1]+face[3], face[0]])
+            boxes.append([face[1], face[0] + face[2], face[1] + face[3], face[0]])
 
         if len(boxes) > 0:
             tmp = face_recognition.face_encodings(image, known_face_locations=boxes)
             if len(tmp) > 0:
                 standing_person_face_encoding = tmp
 
+        # return [x.reshape((1, 128)) for x in
+        #         standing_person_face_encoding]  # somehow this is messedup   standing_person_face_encoding
         return standing_person_face_encoding
 
     def add_to_database(self, name, face_encoding):
@@ -199,9 +224,10 @@ class RecognizeFaceActionServer(Node):
                 with open(os.path.join(save_path, person, 'encodings', encoding_file), 'rb') as f:
                     face_encoding = np.load(f)
                     if person in data_base:
-                        data_base[person] = np.concatenate((data_base[person], face_encoding), axis=0)
+                        # data_base[person] = np.concatenate((data_base[person], face_encoding), axis=0)
+                        data_base[person].append(face_encoding)
                     else:
-                        data_base[person] = face_encoding
+                        data_base[person] = [face_encoding]
         return data_base
 
 

@@ -15,9 +15,9 @@
 	(person_at ?p - person ?lm - landmark)
 	(give_message_location ?lm - landmark)
 	(person_outside ?v - person)
-	(recorded_message_given)
-	(automated_message_given)
-	(talked_with_caregiver ?v - person)
+	(recorded_message_given ?msg - recorded_message)
+	(automated_message_given ?msg - automated_message)
+	(talked_with_caregiver ?p - person)
 	(alerted_caregiver ?r - robot)
 	(is_safe ?p - person)
 )
@@ -77,24 +77,24 @@
                	    )
                 )
 	:effect (at end
-	            (automated_message_given)
+	            (automated_message_given ?msg)
             )
 )
 
 ;; Notify message at landmark
 (:durative-action notifyRecordedAt
-	:parameters (?r - robot ?p - person ?loc - landmark ?msg - recorded_message)
+	:parameters (?r - robot ?p - person ?loc - landmark ?msg1 - automated_message ?msg2 - recorded_message)
 	:duration ( = ?duration 60)
 	:condition (at start
                     (and
                         (robot_at ?r ?loc)
                         (person_at ?p ?loc)
                         (give_message_location ?loc)
-                        (automated_message_given)
+                        (automated_message_given ?msg1)
                	    )
                 )
 	:effect (at end
-	            (recorded_message_given)
+	            (recorded_message_given ?msg2)
 	        )
 )
 
@@ -115,10 +115,10 @@
 
 ;; Notify message at landmark
 (:durative-action alertCaregiver
-	:parameters (?r - robot)
+	:parameters (?r - robot ?msg - recorded_message)
 	:duration ( = ?duration 60)
 	:condition (at start
-	                (recorded_message_given)
+	                (recorded_message_given ?msg)
                 )
 	:effect (at end
 	            (alerted_caregiver ?r)
@@ -127,11 +127,11 @@
 
 ;; Notify message at landmark
 (:durative-action callCaregiver
-	:parameters (?r - robot ?p - person ?loc - landmark)
+	:parameters (?r - robot ?p - person ?loc - landmark ?msg - recorded_message)
 	:duration ( = ?duration 60)
 	:condition (at start
 	                (and
-                        (recorded_message_given)
+                        (recorded_message_given ?msg)
                         (robot_at ?r ?loc)
                         (person_at ?p ?loc)
                	    )

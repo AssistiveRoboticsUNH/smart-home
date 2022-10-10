@@ -74,6 +74,13 @@ def generate_launch_description():
         name='rotate_action',
         output='screen')
 
+
+    find_person_cmd = Node(
+        package='pioneer_shr_cpp',
+        executable='find_person_action_server',
+        name='find_person_action_server',
+        output='screen')
+
     # plansys2 actions
     moveto_landmark_cmd = Node(
         package='shr_plan',
@@ -81,10 +88,16 @@ def generate_launch_description():
         name='move_action_node',
         output='screen')
 
-    notify_action_cmd = Node(
+    notify_automated_cmd = Node(
         package='shr_plan',
-        executable='notify_action_node',
-        name='notify_action_node',
+        executable='notify_automated_action_node',
+        name='notify_automated_action_node',
+        output='screen')
+
+    notify_recorded_video_cmd = Node(
+        package='shr_plan',
+        executable='notify_recorded_video_node',
+        name='notify_recorded_video_node',
         output='screen')
 
     planning_controller_node_cmd = Node(
@@ -105,9 +118,11 @@ def generate_launch_description():
     ld.add_action(open_image_node_cmd)
     ld.add_action(make_call_node_cmd)
     ld.add_action(rotate_node_cmd)
+    ld.add_action(find_person_cmd)
 
     ld.add_action(moveto_landmark_cmd)
-    ld.add_action(notify_action_cmd)
+    ld.add_action(notify_automated_cmd)
+    ld.add_action(notify_recorded_video_cmd)
 
     ld.add_action(planning_controller_node_cmd)
 

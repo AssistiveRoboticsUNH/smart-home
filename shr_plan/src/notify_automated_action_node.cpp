@@ -12,32 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <math.h>
 
 #include <memory>
 #include <string>
 #include <map>
-#include <algorithm>
-
-#include "geometry_msgs/msg/pose_stamped.hpp"
-#include "geometry_msgs/msg/pose.hpp"
-#include "geometry_msgs/msg/pose_with_covariance_stamped.hpp"
-#include "pioneer_shr_msg/action/read_script_request.hpp"
-#include "pioneer_shr_msg/action/play_audio_request.hpp"
-
-
 
 #include "plansys2_executor/ActionExecutorClient.hpp"
-
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_action/rclcpp_action.hpp"
 
+#include "pioneer_shr_msg/action/read_script_request.hpp"
+
 using namespace std::chrono_literals;
 
-class MoveAction : public plansys2::ActionExecutorClient {
+class NotifyAutomated : public plansys2::ActionExecutorClient {
 public:
-    MoveAction()
-            : plansys2::ActionExecutorClient("notifyat", 500ms) {
+    NotifyAutomated()
+            : plansys2::ActionExecutorClient("notifyautomatedat", 500ms) {
 
     }
 
@@ -59,8 +50,8 @@ public:
 
         RCLCPP_INFO(get_logger(), "/read_script action server ready");
 
-        auto message = get_arguments()[2];  // The goal is in the 3rd argument of the action
-        auto location = get_arguments()[1];  // The goal is in the 3rd argument of the action
+        auto message = get_arguments()[3];  // The goal is in the 3rd argument of the action
+        auto location = get_arguments()[2];  // The goal is in the 3rd argument of the action
         RCLCPP_INFO(get_logger(), "Saying message [%s] at [%s]", message.c_str(), location.c_str());
 
 
@@ -92,18 +83,15 @@ private:
     std::shared_future<AudioGoalHandle::SharedPtr> future_navigation_goal_handle_;
     AudioGoalHandle::SharedPtr navigation_goal_handle_;
 
-    rclcpp::Subscription<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr pos_sub_;
-    geometry_msgs::msg::Pose current_pos_;
-    geometry_msgs::msg::PoseStamped goal_pos_;
     pioneer_shr_msg::action::ReadScriptRequest::Goal navigation_goal_;
 
 };
 
 int main(int argc, char **argv) {
     rclcpp::init(argc, argv);
-    auto node = std::make_shared<MoveAction>();
+    auto node = std::make_shared<NotifyAutomated>();
 
-    node->set_parameter(rclcpp::Parameter("action_name", "notifyat"));
+    node->set_parameter(rclcpp::Parameter("action_name", "notifyautomatedat"));
     node->trigger_transition(lifecycle_msgs::msg::Transition::TRANSITION_CONFIGURE);
 
     rclcpp::spin(node->get_node_base_interface());

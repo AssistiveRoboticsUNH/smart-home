@@ -1,0 +1,7 @@
+string[] locations # tf id frames to search
+string name # person's name
+---
+int32 ind # index of location
+string location # name of location
+---
+bool running # returns true if running

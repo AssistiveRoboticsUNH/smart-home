@@ -10,62 +10,61 @@ if (CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif ()
 
 
+
 find_package(ament_cmake REQUIRED)
-
-find_package(nav2_msgs REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(rclcpp_action REQUIRED)
+find_package(plansys2_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
-find_package(std_msgs REQUIRED)
-find_package(rosidl_default_generators REQUIRED)
-find_package(tf2_geometry_msgs REQUIRED)
+find_package(nav2_msgs REQUIRED)
+find_package(plansys2_domain_expert REQUIRED)
+find_package(plansys2_executor REQUIRED)
+find_package(plansys2_planner REQUIRED)
+find_package(plansys2_problem_expert REQUIRED)
+find_package(plansys2_pddl_parser REQUIRED)
 find_package(tf2_ros REQUIRED)
-find_package(rclcpp_components REQUIRED)
+find_package(pioneer_shr_msg REQUIRED)
+find_package(generate_parameter_library REQUIRED)
 
-add_executable(approach_person_service src/approachPersonService.cpp)
-
-
-ament_target_dependencies(approach_person_service
-        action_msgs
+set(dependencies
+        rclcpp
+        rclcpp_action
+        plansys2_msgs
         nav2_msgs
-        std_msgs
-        tf2_geometry_msgs
-        geometry_msgs
+        plansys2_domain_expert
+        plansys2_executor
+        plansys2_planner
+        plansys2_problem_expert
+        plansys2_pddl_parser
         tf2_ros
+        pioneer_shr_msg
         rclcpp_components
         )
+add_library(find_person_node src/find_person_action.cpp)
+#target_include_directories(find_person_node PRIVATE
+#        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+#        $<INSTALL_INTERFACE:include>)
+#target_compile_definitions(find_person_node
+#        PRIVATE "Find_PERSON_CPP_PUBLIC")
 
-ament_export_dependencies(
-        approach_person_service
+
+ament_target_dependencies(find_person_node ${dependencies})
+
+rclcpp_components_register_node(find_person_node PLUGIN "find_person_request::FindPersonRequestActionServer" EXECUTABLE find_person_action_server)
+
+include_directories(
+        include
+)
+install(
+        DIRECTORY include/
+        DESTINATION include
 )
 
-#add_executable(run_script_service src/runScriptService.cpp)
-#target_link_libraries(
-#	run_script_service
-#	${catkin_LIBRARIES}
-#)
-#
-#add_executable(db_monitor_service src/dbMonitorService.cpp)
-#target_link_libraries(
-#	db_monitor_service
-#	${catkin_LIBRARIES}
-#	${CPR_LIBRARIES}
-#)
-#
-#add_executable(move_to_service src/moveToService.cpp)
-#target_link_libraries(
-#	move_to_service
-#	${catkin_LIBRARIES}
-#)
-#
-#add_executable(executive src/executive.cpp)
-#target_link_libraries(
-#	executive
-#	${catkin_LIBRARIES}
-#)
-
-
 install(TARGETS
-        approach_person_service
-        RUNTIME DESTINATION lib/${PROJECT_NAME}
+        find_person_node
+        ARCHIVE DESTINATION lib
+        LIBRARY DESTINATION lib
+        RUNTIME DESTINATION bin
         )
 
 
