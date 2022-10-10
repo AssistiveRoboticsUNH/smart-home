@@ -19,16 +19,17 @@ set(msg_files
         )
 
 set(action_files
-        action/SkillRequest.action
+        action/CallRequest.action
         action/EmptyRequest.action
-        action/RecognizeRequest.action
-        action/RecognizeTrainRequest.action
-        action/ReadScriptRequest.action
+        action/FindPersonRequest.action
+        action/OpenImageRequest.action
         action/PlayAudioRequest.action
         action/PlayVideoRequest.action
-        action/OpenImageRequest.action
-        action/CallRequest.action
+        action/ReadScriptRequest.action
+        action/RecognizeRequest.action
+        action/RecognizeTrainRequest.action
         action/RotateRequest.action
+        action/SkillRequest.action
         )
 
 rosidl_generate_interfaces(pioneer_shr_msg

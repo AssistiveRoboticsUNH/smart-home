@@ -30,8 +30,10 @@
 
 #include "std_msgs/msg/bool.hpp"
 #include "std_msgs/msg/string.hpp"
-#include "pioneer_shr_msg/action/rotate_request.hpp"
-#include "pioneer_shr_msg/action/recognize_request.hpp"
+//#include "pioneer_shr_msg/action/rotate_request.hpp"
+//#include "pioneer_shr_msg/action/recognize_request.hpp"
+#include "pioneer_shr_msg/action/find_person_request.hpp"
+#include "plansys2_msgs/msg/action_execution.hpp"
 
 #include <shr_plan_parameters.hpp>
 #include "shr_plan/utils.hpp"
@@ -44,6 +46,14 @@ namespace planning_controller {
         int door_motion_sensor = -1;
         int door_sensor = -1;
         std::string person_location;
+    };
+
+    struct Protocol {
+        std::string name;
+        int automated_message_give = 0;
+        int recorded_message_give = 0;
+        int care_giver_called = 0;
+        int emergency_called = 0;
     };
 
     bool fully_updated(const World &world) {
@@ -76,22 +86,20 @@ namespace planning_controller {
                     params_.update_protocol_topic, 10,
                     std::bind(&PlanningController::update_protocol_callback, this, _1));
 
-            navigation_action_client_ = rclcpp_action::create_client<nav2_msgs::action::NavigateToPose>(
-                    this, "navigate_to_pose");
-            rotate_client_ = rclcpp_action::create_client<pioneer_shr_msg::action::RotateRequest>(
-                    this, "rotate");
-            recognize_face_client_ = rclcpp_action::create_client<pioneer_shr_msg::action::RecognizeRequest>(
-                    this, "recognize_face");
+//            navigation_action_client_ = rclcpp_action::create_client<nav2_msgs::action::NavigateToPose>(
+//                    this, "navigate_to_pose");
+            find_person_client_ = rclcpp_action::create_client<pioneer_shr_msg::action::FindPersonRequest>(
+                    this, "find_person");
 
 
+            action_hub_sub_ = create_subscription<plansys2_msgs::msg::ActionExecution>(
+                    "actions_hub", rclcpp::QoS(100).reliable(),
+                    std::bind(&PlanningController::action_hub_callback, this, _1));
 
             tf_buffer_ =
                     std::make_unique<tf2_ros::Buffer>(this->get_clock());
             tf_listener_ =
                     std::make_shared<tf2_ros::TransformListener>(*tf_buffer_);
-
-            // assume position to initialize
-            person_last_location_ = params_.locations[0];
 
         }
 
@@ -102,36 +110,46 @@ namespace planning_controller {
             executor_client_ = std::make_shared<plansys2::ExecutorClient>();
         }
 
+        Protocol get_protocol() {
+            return protocol_;
+        }
+
         void step() {
             switch (state_) {
                 case IDLE: {
-                    if (!protocol_.empty()) {
+                    if (!protocol_.name.empty()) {
                         world_ = World();
-//                        state_ = KNOWLEDGE_GATHERING;
-                        state_ = PLANNING;
+                        location_ind_ = std::max(person_last_location_ind_, 0);
+                        state_ = KNOWLEDGE_GATHERING;
                     }
                     break;
                 }
                 case KNOWLEDGE_GATHERING: {
                     if (fully_updated(world_)) {
                         state_ = PLANNING;
+                        break;
                     }
+                    if (world_.door_motion_sensor == 1) {
+                        person_last_location_ind_ = params_.door_location_ind;
+                        location_ind_ = params_.door_location_ind;
+                        world_.person_location =   params_.locations[location_ind_];
+                    }
+
+
                     if (world_.person_location.empty()) {
 
-                        if (!navigating_ && !rotating_) {
-                            auto result_callback = [this](auto) {
-                                navigating_ = false;
-                                rotate_360();
+                        if (!finding_person_ ) {
+                            auto result_callback = [this](const rclcpp_action::ClientGoalHandle<pioneer_shr_msg::action::FindPersonRequest>::WrappedResult & res) {
+                                finding_person_ = false;
+                                world_.person_location = res.result->location;
                             };
-                            location_ind_ = (location_ind_ + 1) % params_.locations.size();
-                            shr_plan::send_nav_request(*tf_buffer_, params_.locations[location_ind_], now(),
-                                                       navigation_action_client_,
-                                                       std::nullopt, result_callback);
-                            navigating_ = true;
-                        }
-
-                        if (!recognizing_){
-                            recognize_patient();
+                            auto send_goal_options = rclcpp_action::Client<pioneer_shr_msg::action::FindPersonRequest>::SendGoalOptions();
+                            send_goal_options.result_callback = result_callback;
+                            auto request = pioneer_shr_msg::action::FindPersonRequest::Goal();
+                            request.locations = params_.locations;
+                            request.name = params_.patient_name;
+                            find_person_client_->async_send_goal(request, send_goal_options);
+                            finding_person_ = true;
                         }
                     }
                     break;
@@ -179,7 +197,7 @@ namespace planning_controller {
                         if (executor_client_->getResult().value().success) {
                             std::cout << "Successful finished " << std::endl;
                             state_ = IDLE;
-                            protocol_ = "";
+                            protocol_.name = "";
                         } else {
                             state_ = PLANNING;
                         }
@@ -214,19 +232,29 @@ namespace planning_controller {
         }
 
         void update_protocol_callback(const std_msgs::msg::String::SharedPtr msg) {
-            protocol_ = msg->data;
+            protocol_.name = msg->data;
         }
+
+        void action_hub_callback(const plansys2_msgs::msg::ActionExecution::SharedPtr msg) {
+          if (msg->type == plansys2_msgs::msg::ActionExecution::FINISH){
+              // action finished
+              std::cout <<  "Action: " << msg->action << " has completed!!!!!!!!!!" << std::endl;
+          }
+        }
+
 
         void init_knowledge() {
             for (const auto &instance: problem_expert_->getInstances()) {
                 problem_expert_->removeInstance(instance);
             }
 
-            if (protocol_ == "midnight_warning") {
+            if (protocol_.name == "midnight_warning") {
                 problem_expert_->addInstance(plansys2::Instance{"door", "landmark"});
                 problem_expert_->addInstance(plansys2::Instance{"home", "landmark"});
                 problem_expert_->addInstance(plansys2::Instance{"pioneer", "robot"});
-                problem_expert_->addInstance(plansys2::Instance{"midnight_warning", "message"});
+                problem_expert_->addInstance(plansys2::Instance{params_.patient_name, "person"});
+                problem_expert_->addInstance(plansys2::Instance{"midnight_warning", "automated_message"});
+                problem_expert_->addInstance(plansys2::Instance{"midnight_warning_video", "recorded_message"});
             }
 //            else if (protocol_ == "take_pills") {
 //                problem_expert_->addInstance(plansys2::Instance{"door", "landmark"});
@@ -252,9 +280,13 @@ namespace planning_controller {
                 problem_expert_->removePredicate(pred);
             }
 
-            if (protocol_ == "midnight_warning") {
+            if (protocol_.name == "midnight_warning") {
                 problem_expert_->addPredicate(plansys2::Predicate("(robot_at pioneer home)"));
-                problem_expert_->addPredicate(plansys2::Predicate("(message_at midnight_warning door)"));
+                problem_expert_->addPredicate(plansys2::Predicate("(person_at " + params_.patient_name + " door)"));
+                problem_expert_->addPredicate(plansys2::Predicate("(give_message_location door)"));
+                if (world_.door_sensor == 1){
+                    problem_expert_->addPredicate(plansys2::Predicate("(automated_message_given midnight_warning)"));
+                }
             }
 //            else if (protocol_ == "take_pills") {
 //                problem_expert_->addPredicate(plansys2::Predicate("(robot_at pioneer home)"));
@@ -264,8 +296,12 @@ namespace planning_controller {
         }
 
         void set_goal() {
-            if (protocol_ == "midnight_warning") {
-                problem_expert_->setGoal(plansys2::Goal("(and(robot_at pioneer door)(notified midnight_warning))"));
+            if (protocol_.name == "midnight_warning") {
+                if (world_.door_sensor == 1){
+                    problem_expert_->setGoal(plansys2::Goal("(and(robot_at pioneer door)(recorded_message_given midnight_warning_video))"));
+                } else{
+                    problem_expert_->setGoal(plansys2::Goal("(and(robot_at pioneer door)(automated_message_given midnight_warning))"));
+                }
             }
 //            else if (protocol_ == "take_pills") {
 //                problem_expert_->setGoal(plansys2::Goal("(and(robot_at pioneer door)(notified midnight_warning))"));
@@ -273,35 +309,20 @@ namespace planning_controller {
 
         }
 
-        void rotate_360(){
-            auto goal_msg = pioneer_shr_msg::action::RotateRequest::Goal();
-            goal_msg.angle = 2*M_PI;
-            goal_msg.total_time = 10.0;
-            auto send_goal_options = rclcpp_action::Client<pioneer_shr_msg::action::RotateRequest>::SendGoalOptions();
-            auto result_callback = [this](auto) {
-                rotating_ = false;
-            };
-            send_goal_options.result_callback = result_callback;
-            rotate_client_->async_send_goal(goal_msg, send_goal_options);
-            rotating_ = true;
-        }
+//        void rotate_360(){
+//            auto goal_msg = pioneer_shr_msg::action::RotateRequest::Goal();
+//            goal_msg.angle = 2*M_PI;
+//            goal_msg.total_time = 10.0;
+//            auto send_goal_options = rclcpp_action::Client<pioneer_shr_msg::action::RotateRequest>::SendGoalOptions();
+//            auto result_callback = [this](auto) {
+//                rotating_ = false;
+//            };
+//            send_goal_options.result_callback = result_callback;
+//            rotate_client_->async_send_goal(goal_msg, send_goal_options);
+//            rotating_ = true;
+//        }
 
-        bool recognize_patient(){
-            auto goal_msg = pioneer_shr_msg::action::RecognizeRequest::Goal();
-            auto send_goal_options = rclcpp_action::Client<pioneer_shr_msg::action::RecognizeRequest>::SendGoalOptions();
-            auto result_callback = [this](const rclcpp_action::ClientGoalHandle<pioneer_shr_msg::action::RecognizeRequest>::WrappedResult & response) {
-                for (const auto& name : response.result->names){
-                    if (name == params_.patient_name){
-                        world_.person_location = params_.locations[location_ind_];
-                        person_last_location_ = params_.locations[location_ind_];
-                    }
-                }
-                recognizing_ = false;
-            };
-            send_goal_options.result_callback = result_callback;
-            recognize_face_client_->async_send_goal(goal_msg, send_goal_options);
-            recognizing_ = true;
-        }
+
 
         typedef enum {
             IDLE, KNOWLEDGE_GATHERING, PLANNING, EXECUTING
@@ -322,18 +343,22 @@ namespace planning_controller {
         rclcpp::Subscription<std_msgs::msg::String>::SharedPtr protocol_sub_;
 
         rclcpp_action::Client<nav2_msgs::action::NavigateToPose>::SharedPtr navigation_action_client_;
-        rclcpp_action::Client<pioneer_shr_msg::action::RotateRequest>::SharedPtr rotate_client_;
-        rclcpp_action::Client<pioneer_shr_msg::action::RecognizeRequest>::SharedPtr recognize_face_client_;
+//        rclcpp_action::Client<pioneer_shr_msg::action::RotateRequest>::SharedPtr rotate_client_;
+//        rclcpp_action::Client<pioneer_shr_msg::action::RecognizeRequest>::SharedPtr recognize_face_client_;
+        rclcpp_action::Client<pioneer_shr_msg::action::FindPersonRequest>::SharedPtr find_person_client_;
 
-        std::shared_ptr<tf2_ros::TransformListener> tf_listener_{nullptr};
+        rclcpp::Subscription<plansys2_msgs::msg::ActionExecution>::SharedPtr action_hub_sub_;
+
+        std::shared_ptr<tf2_ros::TransformListener> tf_listener_;
         std::unique_ptr<tf2_ros::Buffer> tf_buffer_;
 
         World world_;
         bool world_changed_ = false;
-        std::string protocol_;
-        std::string person_last_location_;
+//        std::string protocol_;
+        Protocol protocol_;
         int location_ind_ = -1;
-        bool navigating_;
+        int person_last_location_ind_ =-1;
+        bool finding_person_;
         bool rotating_;
         bool recognizing_;
     };

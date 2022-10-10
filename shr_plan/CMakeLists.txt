@@ -49,11 +49,17 @@ target_link_libraries(planning_controller_node
         )
 
 
-add_executable(notify_action_node src/notify_action_node.cpp)
-ament_target_dependencies(notify_action_node ${dependencies})
+add_executable(notify_automated_action_node src/notify_automated_action_node.cpp)
+ament_target_dependencies(notify_automated_action_node ${dependencies})
+
+add_executable(notify_recorded_video_node src/notify_recorded_action_node.cpp)
+ament_target_dependencies(notify_recorded_video_node ${dependencies})
+
 
 add_executable(move_action_node src/move_action_node.cpp)
 ament_target_dependencies(move_action_node ${dependencies})
+
+
 
 include_directories(
         include
@@ -61,7 +67,8 @@ include_directories(
 
 install(TARGETS
         planning_controller_node
-        notify_action_node
+        notify_automated_action_node
+        notify_recorded_video_node
         move_action_node
         ARCHIVE DESTINATION lib
         LIBRARY DESTINATION lib

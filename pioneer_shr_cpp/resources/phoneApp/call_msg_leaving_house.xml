@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<Response>
-    <Say voice="alice">Hi Ellen, this is the pioneer robot calling. Cacy is leaving the house, I can't stop her by playing the warning audio. I am playing the warning video now. I will call emergency personnel in a minute if she still wants to leave. I will give you an update soon.</Say>
-    <!--<Play>http://demo.twilio.com/docs/classic.mp3</Play>-->
-</Response>

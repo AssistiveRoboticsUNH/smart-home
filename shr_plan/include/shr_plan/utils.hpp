@@ -60,6 +60,7 @@ namespace shr_plan {
 
         auto future_navigation_goal_handle_ = navigation_action_client->async_send_goal(navigation_goal_,
                                                                                         send_goal_options);
+
     }
 
 }
