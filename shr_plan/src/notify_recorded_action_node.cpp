@@ -21,7 +21,7 @@
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_action/rclcpp_action.hpp"
 
-#include "pioneer_shr_msg/action/play_video_request.hpp"
+#include "shr_msg/action/play_video_request.hpp"
 
 using namespace std::chrono_literals;
 
@@ -38,7 +38,7 @@ public:
         send_feedback(0.0, "Begin video");
 
         navigation_action_client_ =
-                rclcpp_action::create_client<pioneer_shr_msg::action::PlayVideoRequest>(shared_from_this(), "play_video");
+                rclcpp_action::create_client<shr_msg::action::PlayVideoRequest>(shared_from_this(), "play_video");
 
         bool is_action_server_ready = false;
         do {
@@ -55,7 +55,7 @@ public:
         RCLCPP_INFO(get_logger(), "Saying message [%s] at [%s]", message.c_str(), location.c_str());
 
 
-        auto send_goal_options = rclcpp_action::Client<pioneer_shr_msg::action::PlayVideoRequest>::SendGoalOptions();
+        auto send_goal_options = rclcpp_action::Client<shr_msg::action::PlayVideoRequest>::SendGoalOptions();
 
         send_goal_options.result_callback = [this](auto) {
             finish(true, 1.0, "Message completed");
@@ -77,13 +77,13 @@ private:
     }
 
     using AudioGoalHandle =
-            rclcpp_action::ClientGoalHandle<pioneer_shr_msg::action::PlayVideoRequest>;
+            rclcpp_action::ClientGoalHandle<shr_msg::action::PlayVideoRequest>;
 
-    rclcpp_action::Client<pioneer_shr_msg::action::PlayVideoRequest>::SharedPtr navigation_action_client_;
+    rclcpp_action::Client<shr_msg::action::PlayVideoRequest>::SharedPtr navigation_action_client_;
     std::shared_future<AudioGoalHandle::SharedPtr> future_navigation_goal_handle_;
     AudioGoalHandle::SharedPtr navigation_goal_handle_;
 
-    pioneer_shr_msg::action::PlayVideoRequest::Goal navigation_goal_;
+    shr_msg::action::PlayVideoRequest::Goal navigation_goal_;
 
 };
 

@@ -35,49 +35,49 @@ def generate_launch_description():
         output='screen')
 
     face_node_cmd = Node(
-        package='pioneer_shr_py',
+        package='shr_actions_py',
         executable='recognize_face_action',
         name='recognize_face_action',
         output='screen')
 
     read_script_node_cmd = Node(
-        package='pioneer_shr_py',
+        package='shr_actions_py',
         executable='read_script_action',
         name='read_script_action',
         output='screen')
 
     play_audio_node_cmd = Node(
-        package='pioneer_shr_py',
+        package='shr_actions_py',
         executable='play_audio_action',
         name='play_audio_action',
         output='screen')
 
     play_video_node_cmd = Node(
-        package='pioneer_shr_py',
+        package='shr_actions_py',
         executable='play_video_action',
         name='play_video_action',
         output='screen')
 
     open_image_node_cmd = Node(
-        package='pioneer_shr_py',
+        package='shr_actions_py',
         executable='open_image_action',
         name='open_image_action',
         output='screen')
 
     make_call_node_cmd = Node(
-        package='pioneer_shr_py',
+        package='shr_actions_py',
         executable='make_call_action',
         name='make_call_action',
         output='screen')
 
     rotate_node_cmd = Node(
-        package='pioneer_shr_py',
+        package='shr_actions_py',
         executable='rotate_action',
         name='rotate_action',
         output='screen')
 
     find_person_cmd = Node(
-        package='pioneer_shr_cpp',
+        package='shr_actions_cpp',
         executable='find_person_node',
         name='find_person_node',
         output='screen')

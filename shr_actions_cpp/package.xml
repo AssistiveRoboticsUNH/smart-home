@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-    <name>pioneer_shr_cpp</name>
+    <name>shr_actions_cpp</name>
     <version>0.0.0</version>
     <description>The pioneer_shr package</description>
 
@@ -17,7 +17,7 @@
     <depend>rclcpp_components</depend>
     <depend>std_msgs</depend>
     <depend>tf2_ros</depend>
-    <depend>pioneer_shr_msg</depend>
+    <depend>shr_msg</depend>
     <depend>plansys2_domain_expert</depend>
     <depend>plansys2_executor</depend>
     <depend>plansys2_msgs</depend>

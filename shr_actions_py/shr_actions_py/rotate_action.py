@@ -1,7 +1,7 @@
 import os
 import time
 
-from pioneer_shr_msg.action import RotateRequest
+from shr_msg.action import RotateRequest
 from rclpy.action import ActionServer, ActionClient
 from rclpy.node import Node
 import rclpy

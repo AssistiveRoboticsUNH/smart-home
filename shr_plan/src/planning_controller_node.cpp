@@ -30,7 +30,7 @@
 
 #include "std_msgs/msg/bool.hpp"
 #include "std_msgs/msg/string.hpp"
-#include "pioneer_shr_msg/action/find_person_request.hpp"
+#include "shr_msg/action/find_person_request.hpp"
 #include "plansys2_msgs/msg/action_execution.hpp"
 
 #include <shr_plan_parameters.hpp>
@@ -90,7 +90,7 @@ namespace planning_controller {
 
 //            navigation_action_client_ = rclcpp_action::create_client<nav2_msgs::action::NavigateToPose>(
 //                    this, "navigate_to_pose");
-            find_person_client_ = rclcpp_action::create_client<pioneer_shr_msg::action::FindPersonRequest>(
+            find_person_client_ = rclcpp_action::create_client<shr_msg::action::FindPersonRequest>(
                     this, "find_person");
 
 
@@ -161,13 +161,13 @@ namespace planning_controller {
 
                         if (!finding_person_) {
                             auto result_callback = [this](
-                                    const rclcpp_action::ClientGoalHandle<pioneer_shr_msg::action::FindPersonRequest>::WrappedResult &res) {
+                                    const rclcpp_action::ClientGoalHandle<shr_msg::action::FindPersonRequest>::WrappedResult &res) {
                                 finding_person_ = false;
                                 world_.person_location = res.result->location;
                             };
-                            auto send_goal_options = rclcpp_action::Client<pioneer_shr_msg::action::FindPersonRequest>::SendGoalOptions();
+                            auto send_goal_options = rclcpp_action::Client<shr_msg::action::FindPersonRequest>::SendGoalOptions();
                             send_goal_options.result_callback = result_callback;
-                            auto request = pioneer_shr_msg::action::FindPersonRequest::Goal();
+                            auto request = shr_msg::action::FindPersonRequest::Goal();
                             request.locations = params_.locations;
                             request.name = params_.patient_name;
                             find_person_client_->async_send_goal(request, send_goal_options);
@@ -337,10 +337,10 @@ namespace planning_controller {
         }
 
 //        void rotate_360(){
-//            auto goal_msg = pioneer_shr_msg::action::RotateRequest::Goal();
+//            auto goal_msg = shr_msg::action::RotateRequest::Goal();
 //            goal_msg.angle = 2*M_PI;
 //            goal_msg.total_time = 10.0;
-//            auto send_goal_options = rclcpp_action::Client<pioneer_shr_msg::action::RotateRequest>::SendGoalOptions();
+//            auto send_goal_options = rclcpp_action::Client<shr_msg::action::RotateRequest>::SendGoalOptions();
 //            auto result_callback = [this](auto) {
 //                rotating_ = false;
 //            };
@@ -367,9 +367,9 @@ namespace planning_controller {
         rclcpp::Subscription<std_msgs::msg::String>::SharedPtr protocol_sub_;
 
         rclcpp_action::Client<nav2_msgs::action::NavigateToPose>::SharedPtr navigation_action_client_;
-//        rclcpp_action::Client<pioneer_shr_msg::action::RotateRequest>::SharedPtr rotate_client_;
-//        rclcpp_action::Client<pioneer_shr_msg::action::RecognizeRequest>::SharedPtr recognize_face_client_;
-        rclcpp_action::Client<pioneer_shr_msg::action::FindPersonRequest>::SharedPtr find_person_client_;
+//        rclcpp_action::Client<shr_msg::action::RotateRequest>::SharedPtr rotate_client_;
+//        rclcpp_action::Client<shr_msg::action::RecognizeRequest>::SharedPtr recognize_face_client_;
+        rclcpp_action::Client<shr_msg::action::FindPersonRequest>::SharedPtr find_person_client_;
 
         rclcpp::Subscription<plansys2_msgs::msg::ActionExecution>::SharedPtr action_hub_sub_;
 

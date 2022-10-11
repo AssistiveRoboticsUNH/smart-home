@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(pioneer_shr_msg)
+project(shr_msg)
 
 if (NOT CMAKE_CXX_STANDARD)
     set(CMAKE_CXX_STANDARD 14)
@@ -32,7 +32,7 @@ set(action_files
         action/SkillRequest.action
         )
 
-rosidl_generate_interfaces(pioneer_shr_msg
+rosidl_generate_interfaces(shr_msg
         ${msg_files}
         ${action_files}
         DEPENDENCIES
@@ -45,6 +45,6 @@ ament_export_dependencies(rosidl_default_runtime)
 
 install(
         DIRECTORY resources
-        DESTINATION share/pioneer_shr_msg
+        DESTINATION share/shr_msg
 )
 ament_package()
