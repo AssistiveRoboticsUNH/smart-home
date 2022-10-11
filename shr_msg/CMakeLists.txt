@@ -43,8 +43,4 @@ rosidl_generate_interfaces(shr_msg
 
 ament_export_dependencies(rosidl_default_runtime)
 
-install(
-        DIRECTORY resources
-        DESTINATION share/shr_msg
-)
 ament_package()

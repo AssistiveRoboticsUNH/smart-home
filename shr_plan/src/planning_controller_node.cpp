@@ -274,7 +274,7 @@ namespace planning_controller {
             }
 
             if (protocol_.name == "midnight_warning") {
-                problem_expert_->addInstance(plansys2::Instance{"door", "landmark"});
+                problem_expert_->addInstance(plansys2::Instance{door_location_, "landmark"});
                 problem_expert_->addInstance(plansys2::Instance{"home", "landmark"});
                 problem_expert_->addInstance(plansys2::Instance{"pioneer", "robot"});
                 problem_expert_->addInstance(plansys2::Instance{params_.patient_name, "person"});
@@ -308,7 +308,7 @@ namespace planning_controller {
             if (protocol_.name == "midnight_warning") {
                 problem_expert_->addPredicate(plansys2::Predicate("(robot_at pioneer home)"));
                 problem_expert_->addPredicate(plansys2::Predicate("(person_at " + params_.patient_name + " " + door_location_ + ")"));
-                problem_expert_->addPredicate(plansys2::Predicate("(give_message_location door)"));
+                problem_expert_->addPredicate(plansys2::Predicate("(give_message_location " + door_location_ +")"));
                 if (world_.door_sensor == 1) {
                     problem_expert_->addPredicate(plansys2::Predicate("(automated_message_given midnight_warning)"));
                 }
@@ -324,10 +324,10 @@ namespace planning_controller {
             if (protocol_.name == "midnight_warning") {
                 if (world_.door_sensor == 1) {
                     problem_expert_->setGoal(plansys2::Goal(
-                            "(and(robot_at pioneer door)(recorded_message_given midnight_warning_video))"));
+                            "(and(robot_at pioneer " + door_location_+ ")(recorded_message_given midnight_warning_video))"));
                 } else {
                     problem_expert_->setGoal(
-                            plansys2::Goal("(and(robot_at pioneer door)(automated_message_given midnight_warning))"));
+                            plansys2::Goal("(and(robot_at pioneer " + door_location_+ ")(automated_message_given midnight_warning))"));
                 }
             }
 //            else if (protocol_ == "take_pills") {
@@ -367,8 +367,6 @@ namespace planning_controller {
         rclcpp::Subscription<std_msgs::msg::String>::SharedPtr protocol_sub_;
 
         rclcpp_action::Client<nav2_msgs::action::NavigateToPose>::SharedPtr navigation_action_client_;
-//        rclcpp_action::Client<shr_msg::action::RotateRequest>::SharedPtr rotate_client_;
-//        rclcpp_action::Client<shr_msg::action::RecognizeRequest>::SharedPtr recognize_face_client_;
         rclcpp_action::Client<shr_msg::action::FindPersonRequest>::SharedPtr find_person_client_;
 
         rclcpp::Subscription<plansys2_msgs::msg::ActionExecution>::SharedPtr action_hub_sub_;

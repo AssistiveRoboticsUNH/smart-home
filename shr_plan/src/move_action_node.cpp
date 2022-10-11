@@ -113,7 +113,7 @@ namespace move_action {
                 finish(true, 1.0, "Move completed");
             };
 
-            shr_plan::send_nav_request(*tf_buffer_, wp_to_navigate + "_robot_pos", now(),
+            shr_plan::send_nav_request(*tf_buffer_, wp_to_navigate, now(),
             navigation_action_client_, feedback_callback, result_callback);
 
 //
