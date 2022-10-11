@@ -21,7 +21,7 @@ class ReadScriptActionServer(Node):
         result = ReadScriptRequest.Result()
 
         file_name = goal_handle.request.script_name
-        file_path = os.path.join(get_package_share_directory('shr_msg'), 'resources', file_name)
+        file_path = os.path.join(get_package_share_directory('shr_resources'), 'resources', file_name)
 
         if not os.path.isfile(file_path):
             result.status = "file '" + file_path + "' does not exist"

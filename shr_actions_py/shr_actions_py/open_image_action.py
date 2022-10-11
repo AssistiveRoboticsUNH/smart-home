@@ -21,7 +21,7 @@ class OpenImageActionServer(Node):
 
         if goal_handle.request.open:
             self.get_logger().info('Opening image...')
-            file_path = os.path.join(get_package_share_directory('shr_msg'), 'resources', file_name)
+            file_path = os.path.join(get_package_share_directory('shr_resources'), 'resources', file_name)
 
             if not os.path.isfile(file_path):
                 result.status = "file '" + file_path + "' does not exist"
