@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-    <name>pioneer_shr_msg</name>
+    <name>shr_msg</name>
     <version>0.0.0</version>
-    <description>The pioneer_shr_msg package</description>
+    <description>The shr_msg package</description>
     <maintainer email="gu@cs.unh.edu">tianyi</maintainer>
     <license>TODO</license>
 

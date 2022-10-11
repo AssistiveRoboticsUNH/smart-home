@@ -4,7 +4,7 @@ import time
 
 from ament_index_python.packages import get_package_share_directory
 from cv_bridge import CvBridge, CvBridgeError
-from pioneer_shr_msg.action import RecognizeTrainRequest, RecognizeRequest
+from shr_msg.action import RecognizeTrainRequest, RecognizeRequest
 from rclpy.action import ActionServer, ActionClient
 from rclpy.node import Node
 from sensor_msgs.msg import Image

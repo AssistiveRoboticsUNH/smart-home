@@ -1,6 +1,6 @@
 import os
 
-from pioneer_shr_msg.action import CallRequest
+from shr_msg.action import CallRequest
 from rclpy.action import ActionServer, ActionClient
 from rclpy.node import Node
 from sound_play.libsoundplay import SoundClient

@@ -1,6 +1,6 @@
 import os
 from ament_index_python.packages import get_package_share_directory
-from pioneer_shr_msg.action import ReadScriptRequest
+from shr_msg.action import ReadScriptRequest
 from rclpy.action import ActionServer, ActionClient
 from rclpy.node import Node
 from sound_play.libsoundplay import SoundClient
@@ -21,7 +21,7 @@ class ReadScriptActionServer(Node):
         result = ReadScriptRequest.Result()
 
         file_name = goal_handle.request.script_name
-        file_path = os.path.join(get_package_share_directory('pioneer_shr_msg'), 'resources', file_name)
+        file_path = os.path.join(get_package_share_directory('shr_msg'), 'resources', file_name)
 
         if not os.path.isfile(file_path):
             result.status = "file '" + file_path + "' does not exist"

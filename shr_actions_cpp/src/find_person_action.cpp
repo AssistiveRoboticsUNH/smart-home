@@ -6,12 +6,12 @@
 #include "rclcpp_action/rclcpp_action.hpp"
 #include "rclcpp_components/register_node_macro.hpp"
 
-#include "pioneer_shr_msg/action/find_person_request.hpp"
-#include "pioneer_shr_msg/action/rotate_request.hpp"
-#include "pioneer_shr_msg/action/recognize_request.hpp"
+#include "shr_msg/action/find_person_request.hpp"
+#include "shr_msg/action/rotate_request.hpp"
+#include "shr_msg/action/recognize_request.hpp"
 #include "nav2_msgs/action/navigate_to_pose.hpp"
 
-#include "pioneer_shr_cpp/utils.hpp"
+#include "shr_actions_cpp/utils.hpp"
 
 
 namespace find_person_request {
@@ -19,7 +19,7 @@ namespace find_person_request {
 
     class FindPersonRequestActionServer : public rclcpp::Node {
     public:
-        using FindPersonRequest = pioneer_shr_msg::action::FindPersonRequest;
+        using FindPersonRequest = shr_msg::action::FindPersonRequest;
         using GoalHandleFindPersonRequest = rclcpp_action::ServerGoalHandle<FindPersonRequest>;
 
 
@@ -27,9 +27,9 @@ namespace find_person_request {
                 : Node("find_person_request_action_server", options) {
             navigation_action_client_ = rclcpp_action::create_client<nav2_msgs::action::NavigateToPose>(
                     this, "navigate_to_pose");
-            rotate_client_ = rclcpp_action::create_client<pioneer_shr_msg::action::RotateRequest>(
+            rotate_client_ = rclcpp_action::create_client<shr_msg::action::RotateRequest>(
                     this, "rotate");
-            recognize_face_client_ = rclcpp_action::create_client<pioneer_shr_msg::action::RecognizeRequest>(
+            recognize_face_client_ = rclcpp_action::create_client<shr_msg::action::RecognizeRequest>(
                     this, "recognize_face");
 
             tf_buffer_ =
@@ -48,11 +48,11 @@ namespace find_person_request {
     private:
         rclcpp_action::Server<FindPersonRequest>::SharedPtr action_server_;
         rclcpp_action::Client<nav2_msgs::action::NavigateToPose>::SharedPtr navigation_action_client_;
-        rclcpp_action::Client<pioneer_shr_msg::action::RotateRequest>::SharedPtr rotate_client_;
-        rclcpp_action::Client<pioneer_shr_msg::action::RecognizeRequest>::SharedPtr recognize_face_client_;
+        rclcpp_action::Client<shr_msg::action::RotateRequest>::SharedPtr rotate_client_;
+        rclcpp_action::Client<shr_msg::action::RecognizeRequest>::SharedPtr recognize_face_client_;
 
-        rclcpp_action::ClientGoalHandle<pioneer_shr_msg::action::RecognizeRequest>::SharedPtr recognize_face_goal_;
-        rclcpp_action::ClientGoalHandle<pioneer_shr_msg::action::RotateRequest>::SharedPtr rotate_goal_;
+        rclcpp_action::ClientGoalHandle<shr_msg::action::RecognizeRequest>::SharedPtr recognize_face_goal_;
+        rclcpp_action::ClientGoalHandle<shr_msg::action::RotateRequest>::SharedPtr rotate_goal_;
         rclcpp_action::ClientGoalHandle<nav2_msgs::action::NavigateToPose>::SharedPtr navigation_goal_;
 
         std::shared_ptr<tf2_ros::TransformListener> tf_listener_;
@@ -137,10 +137,10 @@ namespace find_person_request {
         }
 
         void rotate_360() {
-            auto goal_msg = pioneer_shr_msg::action::RotateRequest::Goal();
+            auto goal_msg = shr_msg::action::RotateRequest::Goal();
             goal_msg.angle = 2 * M_PI;
             goal_msg.total_time = 10.0;
-            auto send_goal_options = rclcpp_action::Client<pioneer_shr_msg::action::RotateRequest>::SendGoalOptions();
+            auto send_goal_options = rclcpp_action::Client<shr_msg::action::RotateRequest>::SendGoalOptions();
             auto result_callback = [this](auto) {
                 rotating_ = false;
             };
@@ -151,10 +151,10 @@ namespace find_person_request {
 
 
         void recognize_patient(const FindPersonRequest::Goal &goal) {
-            auto goal_msg = pioneer_shr_msg::action::RecognizeRequest::Goal();
-            auto send_goal_options = rclcpp_action::Client<pioneer_shr_msg::action::RecognizeRequest>::SendGoalOptions();
+            auto goal_msg = shr_msg::action::RecognizeRequest::Goal();
+            auto send_goal_options = rclcpp_action::Client<shr_msg::action::RecognizeRequest>::SendGoalOptions();
             auto result_callback = [this, goal](
-                    const rclcpp_action::ClientGoalHandle<pioneer_shr_msg::action::RecognizeRequest>::WrappedResult &response) {
+                    const rclcpp_action::ClientGoalHandle<shr_msg::action::RecognizeRequest>::WrappedResult &response) {
                 if (rotating_) {
                     for (const auto &name: response.result->names) {
                         if (name == goal.name) {
