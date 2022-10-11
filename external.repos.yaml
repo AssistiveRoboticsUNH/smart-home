@@ -27,3 +27,8 @@ repositories:
     type: git
     url: https://github.com/pac48/ros2_planning_system.git
     version: master
+  external/smartthings_ros:
+    type: git
+    url: https://github.com/AssistiveRoboticsUNH/smartthings_ros.git
+    version: main
+

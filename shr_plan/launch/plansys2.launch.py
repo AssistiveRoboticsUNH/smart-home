@@ -20,9 +20,11 @@ def generate_launch_description():
         PythonLaunchDescriptionSource(PathJoinSubstitution([
             get_package_share_directory('plansys2_bringup'),
             'launch',
-            'plansys2_bringup_launch_distributed.py'])), # 'plansys2_bringup_launch_monolithic.py' 'plansys2_bringup_launch_distributed.py'
+            'plansys2_bringup_launch_distributed.py'])),
+        # 'plansys2_bringup_launch_monolithic.py' 'plansys2_bringup_launch_distributed.py'
         launch_arguments={
-            'model_file': PathJoinSubstitution([shr_dir, 'pddl', 'paul_domain_shr.pddl']), # 'paul_domain_shr.pddl'   'domain_shr.pddl'
+            'model_file': PathJoinSubstitution([shr_dir, 'pddl', 'paul_domain_shr.pddl']),
+            # 'paul_domain_shr.pddl'   'domain_shr.pddl'
             'namespace': namespace
         }.items())
 
@@ -74,11 +76,10 @@ def generate_launch_description():
         name='rotate_action',
         output='screen')
 
-
     find_person_cmd = Node(
         package='pioneer_shr_cpp',
-        executable='find_person_action_server',
-        name='find_person_action_server',
+        executable='find_person_node',
+        name='find_person_node',
         output='screen')
 
     # plansys2 actions

@@ -21,7 +21,7 @@ shr_plan_parameters:
   }
   locations: {
     type: string_array,
-    default_value: ["bedroom_robot_pos", "door_robot_pos", "kitchen_robot_pos", "couch_robot_pos",],
+    default_value: ["bedroom_robot_pos", "door_robot_pos", "kitchen_robot_pos", "couch_robot_pos", "outside"],
     description: "list of tf frame locations that the robot can visit",
   }
   door_location_ind: {
@@ -29,10 +29,18 @@ shr_plan_parameters:
     default_value: 1,
     description: "index of door location in the 'locations' parameter vector",
   }
+  outside_location_ind: {
+    type: int,
+    default_value: 4,
+    description: "index of outside location in the 'locations' parameter vector",
+  }
   patient_name: {
     type: string,
     default_value: "nathan",
     description: "name of patient",
   }
-
-
+  return_wait_time: {
+    type: int,
+    default_value: 1,
+    description: "number of minutes to wait for the patient to return once they leave the house when its too late",
+  }

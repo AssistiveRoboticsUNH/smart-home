@@ -173,4 +173,16 @@ namespace find_person_request {
 
 }  // namespace action_tutorials_cpp
 
-RCLCPP_COMPONENTS_REGISTER_NODE(find_person_request::FindPersonRequestActionServer)
+
+
+int main(int argc, char ** argv)
+{
+    rclcpp::init(argc, argv);
+
+    auto action_server = std::make_shared<find_person_request::FindPersonRequestActionServer>();
+
+    rclcpp::spin(action_server);
+
+    rclcpp::shutdown();
+    return 0;
+}

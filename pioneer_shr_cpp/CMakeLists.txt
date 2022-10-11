@@ -40,17 +40,8 @@ set(dependencies
         pioneer_shr_msg
         rclcpp_components
         )
-add_library(find_person_node src/find_person_action.cpp)
-#target_include_directories(find_person_node PRIVATE
-#        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-#        $<INSTALL_INTERFACE:include>)
-#target_compile_definitions(find_person_node
-#        PRIVATE "Find_PERSON_CPP_PUBLIC")
-
-
+add_executable(find_person_node src/find_person_action.cpp)
 ament_target_dependencies(find_person_node ${dependencies})
-
-rclcpp_components_register_node(find_person_node PLUGIN "find_person_request::FindPersonRequestActionServer" EXECUTABLE find_person_action_server)
 
 include_directories(
         include
@@ -62,10 +53,8 @@ install(
 
 install(TARGETS
         find_person_node
-        ARCHIVE DESTINATION lib
-        LIBRARY DESTINATION lib
-        RUNTIME DESTINATION bin
-        )
+        DESTINATION lib/${PROJECT_NAME}
+)
 
 
 ament_package()
