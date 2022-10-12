@@ -17,7 +17,7 @@
     <depend>rclcpp_components</depend>
     <depend>std_msgs</depend>
     <depend>tf2_ros</depend>
-    <depend>shr_msg</depend>
+    <depend>shr_msgs</depend>
     <depend>shr_utils</depend>
     <depend>plansys2_domain_expert</depend>
     <depend>plansys2_executor</depend>

@@ -2,7 +2,7 @@ import os
 from subprocess import Popen
 
 from ament_index_python.packages import get_package_share_directory
-from shr_msg.action import OpenImageRequest
+from shr_msgs.action import OpenImageRequest
 from rclpy.action import ActionServer, ActionClient
 from rclpy.node import Node
 import rclpy

@@ -1,0 +1,3 @@
+shr_msgs/ActionRecord automated_message_given
+shr_msgs/ActionRecord recorded_message_given
+shr_msgs/ActionRecord care_giver_called

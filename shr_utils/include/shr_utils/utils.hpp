@@ -28,4 +28,6 @@ namespace shr_utils {
                           std::optional <std::function<void(
                                   const rclcpp_action::ClientGoalHandle<nav2_msgs::action::NavigateToPose>::WrappedResult &)>> result_callback = std::nullopt);
 
+    int get_nearest_location(const tf2_ros::Buffer &tf_buffer, const std::vector<std::string> &locations);
+
 }
