@@ -19,7 +19,7 @@
 #include <map>
 #include <algorithm>
 
-#include "geometry_msgs/msg/pose_stamped.hpp"
+
 #include "geometry_msgs/msg/pose.hpp"
 #include "geometry_msgs/msg/pose_with_covariance_stamped.hpp"
 #include "nav2_msgs/action/navigate_to_pose.hpp"
@@ -32,31 +32,11 @@
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_action/rclcpp_action.hpp"
 
-#include "shr_plan/utils.hpp"
+#include "shr_utils/utils.hpp"
 
 
 namespace move_action {
     using namespace std::chrono_literals;
-
-//    geometry_msgs::msg::Pose
-//    get_tf_as_point(const tf2_ros::Buffer &tf_buffer, const std::string &parent_id, const std::string &child_id) {
-//        auto transformStamped = tf_buffer.lookupTransform(
-//                parent_id,
-//                child_id,
-//                tf2::TimePointZero);
-//
-//        geometry_msgs::msg::Pose point;
-//        point.position.x = transformStamped.transform.translation.x;
-//        point.position.y = transformStamped.transform.translation.y;
-//        point.position.z = transformStamped.transform.translation.z;
-//        point.orientation.x = transformStamped.transform.rotation.x;
-//        point.orientation.y = transformStamped.transform.rotation.y;
-//        point.orientation.z = transformStamped.transform.rotation.z;
-//        point.orientation.w = transformStamped.transform.rotation.w;
-//
-//        return point;
-//    }
-
 
     class MoveAction : public plansys2::ActionExecutorClient {
     public:
@@ -101,11 +81,11 @@ namespace move_action {
             auto wp_to_navigate = get_arguments()[2];  // The goal is in the 3rd argument of the action
             RCLCPP_INFO(get_logger(), "Start navigation to [%s]", wp_to_navigate.c_str());
 
-
-
+            auto point = shr_utils::get_tf_as_point(*tf_buffer_, "map", wp_to_navigate);
+            dist_to_move = getDistance(point, current_pos_);
             auto feedback_callback = [this](
-                    NavigationGoalHandle::SharedPtr,
-                    NavigationFeedback feedback) {
+                    shr_utils::NavigationGoalHandle::SharedPtr,
+                    shr_utils::NavigationFeedback feedback) {
                 send_feedback(std::min(1.0, std::max(0.0, 1.0 - (feedback->distance_remaining / dist_to_move))),
                               "Move running");
             };
@@ -113,33 +93,8 @@ namespace move_action {
                 finish(true, 1.0, "Move completed");
             };
 
-            shr_plan::send_nav_request(*tf_buffer_, wp_to_navigate, now(),
+            shr_utils::send_nav_request(*tf_buffer_, wp_to_navigate, now(),
             navigation_action_client_, feedback_callback, result_callback);
-
-//
-//
-//            navigation_goal_.pose.header.frame_id = "map";
-//            navigation_goal_.pose.header.stamp = now();
-//            auto point = shr_plan::get_tf_as_point(*tf_buffer_, "map", wp_to_navigate + "_robot_pos");
-//            navigation_goal_.pose.pose = point;
-//
-//            dist_to_move = getDistance(point, current_pos_);
-//
-//            auto send_goal_options =
-//                    rclcpp_action::Client<nav2_msgs::action::NavigateToPose>::SendGoalOptions();
-//
-//            send_goal_options.feedback_callback = [this](
-//                    NavigationGoalHandle::SharedPtr,
-//                    NavigationFeedback feedback) {
-//                send_feedback(std::min(1.0, std::max(0.0, 1.0 - (feedback->distance_remaining / dist_to_move))),
-//                        "Move running");
-//            };
-//
-//            send_goal_options.result_callback = [this](auto) {
-//                finish(true, 1.0, "Move completed");
-//            };
-//
-//            future_navigation_goal_handle_ = navigation_action_client_->async_send_goal(navigation_goal_, send_goal_options);
 
             return ActionExecutorClient::on_activate(previous_state);
         }
@@ -155,8 +110,8 @@ namespace move_action {
         }
 
         rclcpp_action::Client<nav2_msgs::action::NavigateToPose>::SharedPtr navigation_action_client_;
-        std::shared_future<NavigationGoalHandle::SharedPtr> future_navigation_goal_handle_;
-        NavigationGoalHandle::SharedPtr navigation_goal_handle_;
+        std::shared_future<shr_utils::NavigationGoalHandle::SharedPtr> future_navigation_goal_handle_;
+        shr_utils::NavigationGoalHandle::SharedPtr navigation_goal_handle_;
 
         std::shared_ptr<tf2_ros::TransformListener> tf_listener_{nullptr};
         std::unique_ptr<tf2_ros::Buffer> tf_buffer_;

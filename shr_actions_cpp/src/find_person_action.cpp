@@ -11,7 +11,7 @@
 #include "shr_msg/action/recognize_request.hpp"
 #include "nav2_msgs/action/navigate_to_pose.hpp"
 
-#include "shr_actions_cpp/utils.hpp"
+#include "shr_utils/utils.hpp"
 
 
 namespace find_person_request {
@@ -117,7 +117,7 @@ namespace find_person_request {
                         navigating_ = false;
                     };
                     location_ind_ = (location_ind_ + 1) % goal->locations.size();
-                    shr_plan::send_nav_request(*tf_buffer_, goal->locations[location_ind_], now(),
+                    shr_utils::send_nav_request(*tf_buffer_, goal->locations[location_ind_], now(),
                                                navigation_action_client_,
                                                std::nullopt, result_callback);
                     navigating_ = true;
