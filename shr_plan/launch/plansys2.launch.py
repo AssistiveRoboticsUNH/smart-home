@@ -82,6 +82,12 @@ def generate_launch_description():
         name='find_person_node',
         output='screen')
 
+    world_state_cmd = Node(
+        package='shr_world_state',
+        executable='world_state_node',
+        name='world_state_node',
+        output='screen')
+
     # plansys2 actions
     moveto_landmark_cmd = Node(
         package='shr_plan',
@@ -120,6 +126,7 @@ def generate_launch_description():
     ld.add_action(make_call_node_cmd)
     ld.add_action(rotate_node_cmd)
     ld.add_action(find_person_cmd)
+    ld.add_action(world_state_cmd)
 
     ld.add_action(moveto_landmark_cmd)
     ld.add_action(notify_automated_cmd)

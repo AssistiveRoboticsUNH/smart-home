@@ -6,9 +6,9 @@
 #include "rclcpp_action/rclcpp_action.hpp"
 #include "rclcpp_components/register_node_macro.hpp"
 
-#include "shr_msg/action/find_person_request.hpp"
-#include "shr_msg/action/rotate_request.hpp"
-#include "shr_msg/action/recognize_request.hpp"
+#include "shr_msgs/action/find_person_request.hpp"
+#include "shr_msgs/action/rotate_request.hpp"
+#include "shr_msgs/action/recognize_request.hpp"
 #include "nav2_msgs/action/navigate_to_pose.hpp"
 
 #include "shr_utils/utils.hpp"
@@ -19,7 +19,7 @@ namespace find_person_request {
 
     class FindPersonRequestActionServer : public rclcpp::Node {
     public:
-        using FindPersonRequest = shr_msg::action::FindPersonRequest;
+        using FindPersonRequest = shr_msgs::action::FindPersonRequest;
         using GoalHandleFindPersonRequest = rclcpp_action::ServerGoalHandle<FindPersonRequest>;
 
 
@@ -27,9 +27,9 @@ namespace find_person_request {
                 : Node("find_person_request_action_server", options) {
             navigation_action_client_ = rclcpp_action::create_client<nav2_msgs::action::NavigateToPose>(
                     this, "navigate_to_pose");
-            rotate_client_ = rclcpp_action::create_client<shr_msg::action::RotateRequest>(
+            rotate_client_ = rclcpp_action::create_client<shr_msgs::action::RotateRequest>(
                     this, "rotate");
-            recognize_face_client_ = rclcpp_action::create_client<shr_msg::action::RecognizeRequest>(
+            recognize_face_client_ = rclcpp_action::create_client<shr_msgs::action::RecognizeRequest>(
                     this, "recognize_face");
 
             tf_buffer_ =
@@ -48,18 +48,17 @@ namespace find_person_request {
     private:
         rclcpp_action::Server<FindPersonRequest>::SharedPtr action_server_;
         rclcpp_action::Client<nav2_msgs::action::NavigateToPose>::SharedPtr navigation_action_client_;
-        rclcpp_action::Client<shr_msg::action::RotateRequest>::SharedPtr rotate_client_;
-        rclcpp_action::Client<shr_msg::action::RecognizeRequest>::SharedPtr recognize_face_client_;
+        rclcpp_action::Client<shr_msgs::action::RotateRequest>::SharedPtr rotate_client_;
+        rclcpp_action::Client<shr_msgs::action::RecognizeRequest>::SharedPtr recognize_face_client_;
 
-        rclcpp_action::ClientGoalHandle<shr_msg::action::RecognizeRequest>::SharedPtr recognize_face_goal_;
-        rclcpp_action::ClientGoalHandle<shr_msg::action::RotateRequest>::SharedPtr rotate_goal_;
+        rclcpp_action::ClientGoalHandle<shr_msgs::action::RecognizeRequest>::SharedPtr recognize_face_goal_;
+        rclcpp_action::ClientGoalHandle<shr_msgs::action::RotateRequest>::SharedPtr rotate_goal_;
         rclcpp_action::ClientGoalHandle<nav2_msgs::action::NavigateToPose>::SharedPtr navigation_goal_;
 
         std::shared_ptr<tf2_ros::TransformListener> tf_listener_;
         std::unique_ptr<tf2_ros::Buffer> tf_buffer_;
 
-        int location_ind_ = -1;
-        int person_last_location_ind_ = -1;
+        int location_ind_ = 0;
         bool navigating_;
         bool rotating_;
         bool recognizing_;
@@ -101,6 +100,8 @@ namespace find_person_request {
             std::thread{std::bind(&FindPersonRequestActionServer::execute, this, _1), goal_handle}.detach();
         }
 
+
+
         void execute(const std::shared_ptr<GoalHandleFindPersonRequest> goal_handle) {
             RCLCPP_INFO(this->get_logger(), "Executing goal");
             rclcpp::Rate loop_rate(1);
@@ -110,21 +111,15 @@ namespace find_person_request {
             found_person_ = false;
             navigating_ = false;
             rotating_ = false;
+            recognizing_ = false;
+            location_ind_ = shr_utils::get_nearest_location(*tf_buffer_, goal->locations);
             while (!found_person_) {
                 if (!navigating_ && !rotating_) {
-                    auto result_callback = [this](auto) {
-                        rotate_360();
-                        navigating_ = false;
-                    };
-                    location_ind_ = (location_ind_ + 1) % goal->locations.size();
-                    shr_utils::send_nav_request(*tf_buffer_, goal->locations[location_ind_], now(),
-                                               navigation_action_client_,
-                                               std::nullopt, result_callback);
-                    navigating_ = true;
+                    rotate_360(goal);
                 }
 
                 if (!recognizing_) {
-                    recognize_patient(*goal);
+                    recognize_patient(goal);
                 }
 
             }
@@ -136,12 +131,15 @@ namespace find_person_request {
 
         }
 
-        void rotate_360() {
-            auto goal_msg = shr_msg::action::RotateRequest::Goal();
+        void rotate_360(const std::shared_ptr<const FindPersonRequest::Goal> &goal) {
+            auto goal_msg = shr_msgs::action::RotateRequest::Goal();
             goal_msg.angle = 2 * M_PI;
             goal_msg.total_time = 10.0;
-            auto send_goal_options = rclcpp_action::Client<shr_msg::action::RotateRequest>::SendGoalOptions();
-            auto result_callback = [this](auto) {
+            auto send_goal_options = rclcpp_action::Client<shr_msgs::action::RotateRequest>::SendGoalOptions();
+            auto result_callback = [this, goal](auto) {
+                if (!found_person_){
+                    navigate(goal);
+                }
                 rotating_ = false;
             };
             send_goal_options.result_callback = result_callback;
@@ -149,16 +147,26 @@ namespace find_person_request {
             rotating_ = true;
         }
 
+        void navigate(const std::shared_ptr<const FindPersonRequest::Goal> &goal)  {
+            auto result_callback = [this](auto) {
+                navigating_ = false;
+            };
+            location_ind_ = (location_ind_ + 1) % goal->locations.size();
+            shr_utils::send_nav_request(*tf_buffer_, goal->locations[location_ind_], now(),
+                                        navigation_action_client_,
+                                        std::nullopt, result_callback);
+            navigating_ = true;
+        }
 
-        void recognize_patient(const FindPersonRequest::Goal &goal) {
-            auto goal_msg = shr_msg::action::RecognizeRequest::Goal();
-            auto send_goal_options = rclcpp_action::Client<shr_msg::action::RecognizeRequest>::SendGoalOptions();
+
+        void recognize_patient(const std::shared_ptr<const FindPersonRequest::Goal> &goal) {
+            auto goal_msg = shr_msgs::action::RecognizeRequest::Goal();
+            auto send_goal_options = rclcpp_action::Client<shr_msgs::action::RecognizeRequest>::SendGoalOptions();
             auto result_callback = [this, goal](
-                    const rclcpp_action::ClientGoalHandle<shr_msg::action::RecognizeRequest>::WrappedResult &response) {
+                    const rclcpp_action::ClientGoalHandle<shr_msgs::action::RecognizeRequest>::WrappedResult &response) {
                 if (rotating_) {
                     for (const auto &name: response.result->names) {
-                        if (name == goal.name) {
-                            person_last_location_ind_ = location_ind_;
+                        if (name == goal->name) {
                             found_person_ = true;
                         }
                     }
@@ -167,7 +175,7 @@ namespace find_person_request {
             };
             send_goal_options.result_callback = result_callback;
             recognize_face_client_->async_send_goal(goal_msg, send_goal_options);
-            recognizing_ = true;;
+            recognizing_ = true;
         }
     };  // class FindPersonRequestActionServer
 

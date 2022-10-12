@@ -19,6 +19,11 @@ shr_plan_parameters:
     default_value: "update_protocol",
     description: "topic updating active protocol",
   }
+  world_state_topic: {
+    type: string,
+    default_value: "world_state",
+    description: "topic for world state",
+  }
   locations: {
     type: string_array,
     default_value: ["bedroom_robot_pos", "door_robot_pos", "kitchen_robot_pos", "couch_robot_pos", "outside"],

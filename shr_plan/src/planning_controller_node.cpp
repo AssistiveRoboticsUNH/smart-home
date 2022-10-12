@@ -29,9 +29,16 @@
 
 
 #include "std_msgs/msg/bool.hpp"
-#include "std_msgs/msg/string.hpp"
-#include "shr_msg/action/find_person_request.hpp"
+#include "shr_msgs/action/gather_information_request.hpp"
+#include "shr_msgs/msg/midnight_warning_protocol.hpp"
+#include "shr_msgs/msg/medicine_reminder_protocol.hpp"
+#include "shr_msgs/msg/world_state.hpp"
 #include "plansys2_msgs/msg/action_execution.hpp"
+
+#include <rclcpp_action/client.hpp>
+#include "nav2_msgs/action/navigate_to_pose.hpp"
+#include "tf2_ros/transform_listener.h"
+#include "tf2_ros/buffer.h"
 
 #include <shr_plan_parameters.hpp>
 
@@ -39,31 +46,8 @@
 namespace planning_controller {
 
     typedef enum {
-        IDLE, KNOWLEDGE_GATHERING, PLANNING, EXECUTING
+        IDLE, GATHERING_INFO, PLANNING, EXECUTING
     } StateType;
-
-    struct World {
-        int pills_motion_sensor = -1;
-        int door_motion_sensor = -1;
-        int door_sensor = -1;
-        std::string person_location;
-    };
-
-    struct Protocol {
-        std::string name;
-        int automated_message_give = 0;
-        int recorded_message_give = 0;
-        int care_giver_called = 0;
-        int emergency_called = 0;
-    };
-
-    bool fully_updated(const World &world) {
-        auto tmp = World();
-        return world.pills_motion_sensor != tmp.pills_motion_sensor &&
-               world.door_motion_sensor != tmp.door_motion_sensor &&
-               world.door_sensor != tmp.door_sensor &&
-               world.person_location != tmp.person_location;
-    }
 
     class PlanningController : public rclcpp::Node {
     public:
@@ -74,23 +58,15 @@ namespace planning_controller {
             params_ = param_listener_->get_params();
 
             using std::placeholders::_1;
-            pill_motion_sub_ = this->create_subscription<std_msgs::msg::Bool>(
-                    params_.senor_pills_motion_topic, 10,
-                    std::bind(&PlanningController::pill_motion_callback, this, _1));
-            door_motion_sub_ = this->create_subscription<std_msgs::msg::Bool>(
-                    params_.sensors_door_motion_topic, 10,
-                    std::bind(&PlanningController::door_motion_callback, this, _1));
-            door_open_sub_ = this->create_subscription<std_msgs::msg::Bool>(
-                    params_.sensors_door_open_topic, 10, std::bind(&PlanningController::door_open_callback, this, _1));
 
-            protocol_sub_ = this->create_subscription<std_msgs::msg::String>(
-                    params_.update_protocol_topic, 10,
-                    std::bind(&PlanningController::update_protocol_callback, this, _1));
+            world_state_sub_ = this->create_subscription<shr_msgs::msg::WorldState>(
+                    params_.world_state_topic, 10,
+                    std::bind(&PlanningController::update_world_state_callback, this, _1));
 
 //            navigation_action_client_ = rclcpp_action::create_client<nav2_msgs::action::NavigateToPose>(
 //                    this, "navigate_to_pose");
-            find_person_client_ = rclcpp_action::create_client<shr_msg::action::FindPersonRequest>(
-                    this, "find_person");
+            gathering_info_client_ = rclcpp_action::create_client<shr_msgs::action::GatherInformationRequest>(
+                    this, "gather_information");
 
 
             action_hub_sub_ = create_subscription<plansys2_msgs::msg::ActionExecution>(
@@ -102,8 +78,7 @@ namespace planning_controller {
             tf_listener_ =
                     std::make_shared<tf2_ros::TransformListener>(*tf_buffer_);
 
-            door_location_ = params_.locations[params_.door_location_ind];
-            outside_location_ = params_.locations[params_.outside_location_ind];
+            world_state_ = std::make_shared<shr_msgs::msg::WorldState>();
 
         }
 
@@ -114,24 +89,24 @@ namespace planning_controller {
             executor_client_ = std::make_shared<plansys2::ExecutorClient>();
         }
 
-        Protocol get_protocol() {
-            return protocol_;
-        }
 
-        StateType get_transition(Protocol protocol, World world) {
-            if (protocol.name == "midnight_warning") {
-                if (world.person_location == door_location_) {
-                    return PLANNING;
-                } else if (world.door_sensor == 1) {
-                    time_ = now();
-                    return KNOWLEDGE_GATHERING;
-                } else {
-                    return IDLE;
-                }
+        StateType get_transition() {
+            if (world_state_->too_late_to_leave == 1 &&
+                world_state_->patient_location == world_state_->door_location) {
+                active_protocol = "midnight_warning";
+                return PLANNING;
+            } else if (world_state_->too_late_to_leave == 1 &&
+                       world_state_->patient_location.empty() && world_state_->door_open) {
+                active_protocol = "midnight_warning";
+                requested_states = {"patient_location"};
+                return GATHERING_INFO;
             }
-            if (protocol.name == "medication_reminder") {
-                if (world.person_location.empty()) {
-                    return KNOWLEDGE_GATHERING;
+
+            if (world_state_->took_medicine == 0 && world_state_->time_to_take_medicine == 1) {
+                active_protocol = "medicine_reminder";
+                if (world_state_->patient_location.empty()) {
+                    requested_states = {"patient_location"};
+                    return GATHERING_INFO;
                 } else {
                     return PLANNING;
                 }
@@ -143,35 +118,23 @@ namespace planning_controller {
         void step() {
             switch (state_) {
                 case IDLE: {
-                    state_ = get_transition(protocol_, world_);
+                    state_ = get_transition();
                     break;
                 }
-                case KNOWLEDGE_GATHERING: {
-                    if (now() - time_ > rclcpp::Duration(params_.return_wait_time*60, 0) ){
-                        world_.person_location = outside_location_;
-                    }
+                case GATHERING_INFO: {
 
-                    if (fully_updated(world_)) {
-                        state_ = PLANNING;
-                        break;
-                    }
-
-                    if (world_.person_location.empty()) {
-
-                        if (!finding_person_) {
-                            auto result_callback = [this](
-                                    const rclcpp_action::ClientGoalHandle<shr_msg::action::FindPersonRequest>::WrappedResult &res) {
-                                finding_person_ = false;
-                                world_.person_location = res.result->location;
-                            };
-                            auto send_goal_options = rclcpp_action::Client<shr_msg::action::FindPersonRequest>::SendGoalOptions();
-                            send_goal_options.result_callback = result_callback;
-                            auto request = shr_msg::action::FindPersonRequest::Goal();
-                            request.locations = params_.locations;
-                            request.name = params_.patient_name;
-                            find_person_client_->async_send_goal(request, send_goal_options);
-                            finding_person_ = true;
-                        }
+                    if (!gathering_info) {
+                        auto result_callback = [this](
+                                const rclcpp_action::ClientGoalHandle<shr_msgs::action::GatherInformationRequest>::WrappedResult &res) {
+                            gathering_info = false;
+                            *world_state_ = res.result->world_state;
+                        };
+                        auto send_goal_options = rclcpp_action::Client<shr_msgs::action::GatherInformationRequest>::SendGoalOptions();
+                        send_goal_options.result_callback = result_callback;
+                        auto request = shr_msgs::action::GatherInformationRequest::Goal();
+                        request.states = requested_states;
+                        gathering_info_client_->async_send_goal(request, send_goal_options);
+                        gathering_info = true;
                     }
                     break;
                 }
@@ -218,7 +181,7 @@ namespace planning_controller {
                         if (executor_client_->getResult().value().success) {
                             std::cout << "Successful finished " << std::endl;
                             state_ = IDLE;
-                            protocol_.name = "";
+                            active_protocol = "";
                         } else {
                             state_ = PLANNING;
                         }
@@ -230,34 +193,19 @@ namespace planning_controller {
             }
         }
 
+        bool world_changed_ = false;
+
     private:
-        void pill_motion_callback(const std_msgs::msg::Bool::SharedPtr msg) {
-            if (world_.pills_motion_sensor != msg->data) {
-                world_changed_ = true;
-            }
-            world_.pills_motion_sensor = msg->data;
+
+//        void update_protocol_callback(const std_msgs::msg::String::SharedPtr msg) {
+//            active_protocol = msg->data;
+//        }
+
+        void update_world_state_callback(const shr_msgs::msg::WorldState::SharedPtr msg) {
+            world_state_ = msg;
+            world_changed_ = true;
         }
 
-        void door_motion_callback(const std_msgs::msg::Bool::SharedPtr msg) {
-            if (world_.door_motion_sensor != msg->data) {
-                world_changed_ = true;
-            }
-            world_.door_motion_sensor = msg->data;
-            if (msg->data){
-                world_.person_location = door_location_;
-            }
-        }
-
-        void door_open_callback(const std_msgs::msg::Bool::SharedPtr msg) {
-            if (world_.door_sensor != msg->data) {
-                world_changed_ = true;
-            }
-            world_.door_sensor = msg->data;
-        }
-
-        void update_protocol_callback(const std_msgs::msg::String::SharedPtr msg) {
-            protocol_.name = msg->data;
-        }
 
         void action_hub_callback(const plansys2_msgs::msg::ActionExecution::SharedPtr msg) {
             if (msg->type == plansys2_msgs::msg::ActionExecution::FINISH) {
@@ -272,8 +220,8 @@ namespace planning_controller {
                 problem_expert_->removeInstance(instance);
             }
 
-            if (protocol_.name == "midnight_warning") {
-                problem_expert_->addInstance(plansys2::Instance{door_location_, "landmark"});
+            if (active_protocol == "midnight_warning") {
+                problem_expert_->addInstance(plansys2::Instance{world_state_->door_location, "landmark"});
                 problem_expert_->addInstance(plansys2::Instance{"home", "landmark"});
                 problem_expert_->addInstance(plansys2::Instance{"pioneer", "robot"});
                 problem_expert_->addInstance(plansys2::Instance{params_.patient_name, "person"});
@@ -304,11 +252,13 @@ namespace planning_controller {
                 problem_expert_->removePredicate(pred);
             }
 
-            if (protocol_.name == "midnight_warning") {
+            if (active_protocol == "midnight_warning") {
                 problem_expert_->addPredicate(plansys2::Predicate("(robot_at pioneer home)"));
-                problem_expert_->addPredicate(plansys2::Predicate("(person_at " + params_.patient_name + " " + door_location_ + ")"));
-                problem_expert_->addPredicate(plansys2::Predicate("(give_message_location " + door_location_ +")"));
-                if (world_.door_sensor == 1) {
+                problem_expert_->addPredicate(plansys2::Predicate(
+                        "(person_at " + params_.patient_name + " " + world_state_->door_location + ")"));
+                problem_expert_->addPredicate(
+                        plansys2::Predicate("(give_message_location " + world_state_->door_location + ")"));
+                if (world_state_->door_open == 1) {
                     problem_expert_->addPredicate(plansys2::Predicate("(automated_message_given midnight_warning)"));
                 }
             }
@@ -320,13 +270,15 @@ namespace planning_controller {
         }
 
         void set_goal() {
-            if (protocol_.name == "midnight_warning") {
-                if (world_.door_sensor == 1) {
+            if (active_protocol == "midnight_warning") {
+                if (world_state_->door_open == 1) {
                     problem_expert_->setGoal(plansys2::Goal(
-                            "(and(robot_at pioneer " + door_location_+ ")(recorded_message_given midnight_warning_video))"));
+                            "(and(robot_at pioneer " + world_state_->door_location +
+                            ")(recorded_message_given midnight_warning_video))"));
                 } else {
                     problem_expert_->setGoal(
-                            plansys2::Goal("(and(robot_at pioneer " + door_location_+ ")(automated_message_given midnight_warning))"));
+                            plansys2::Goal("(and(robot_at pioneer " + world_state_->door_location +
+                                           ")(automated_message_given midnight_warning))"));
                 }
             }
 //            else if (protocol_ == "take_pills") {
@@ -334,20 +286,6 @@ namespace planning_controller {
 //            }
 
         }
-
-//        void rotate_360(){
-//            auto goal_msg = shr_msg::action::RotateRequest::Goal();
-//            goal_msg.angle = 2*M_PI;
-//            goal_msg.total_time = 10.0;
-//            auto send_goal_options = rclcpp_action::Client<shr_msg::action::RotateRequest>::SendGoalOptions();
-//            auto result_callback = [this](auto) {
-//                rotating_ = false;
-//            };
-//            send_goal_options.result_callback = result_callback;
-//            rotate_client_->async_send_goal(goal_msg, send_goal_options);
-//            rotating_ = true;
-//        }
-
 
 
         StateType state_;
@@ -363,24 +301,24 @@ namespace planning_controller {
         rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr pill_motion_sub_;
         rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr door_motion_sub_;
         rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr door_open_sub_;
-        rclcpp::Subscription<std_msgs::msg::String>::SharedPtr protocol_sub_;
+//        rclcpp::Subscription<std_msgs::msg::String>::SharedPtr protocol_sub_;
+        rclcpp::Subscription<shr_msgs::msg::WorldState>::SharedPtr world_state_sub_;
 
         rclcpp_action::Client<nav2_msgs::action::NavigateToPose>::SharedPtr navigation_action_client_;
-        rclcpp_action::Client<shr_msg::action::FindPersonRequest>::SharedPtr find_person_client_;
+        rclcpp_action::Client<shr_msgs::action::GatherInformationRequest>::SharedPtr gathering_info_client_;
 
         rclcpp::Subscription<plansys2_msgs::msg::ActionExecution>::SharedPtr action_hub_sub_;
 
         std::shared_ptr<tf2_ros::TransformListener> tf_listener_;
         std::unique_ptr<tf2_ros::Buffer> tf_buffer_;
 
-        World world_;
-        bool world_changed_ = false;
-        Protocol protocol_;
-        bool finding_person_;
-        rclcpp::Time time_;
-        std::string door_location_;
-        std::string outside_location_;
-        };
+
+
+        bool gathering_info = false;
+        shr_msgs::msg::WorldState::SharedPtr world_state_;
+        std::string active_protocol;
+        std::vector<std::string> requested_states;
+    };
 
 }
 
@@ -391,6 +329,12 @@ int main(int argc, char **argv) {
     node->init();
 
     rclcpp::Rate rate(5);
+    while (!node->world_changed_) {
+        std::cout << "Waiting for world update" << std::endl;
+        rate.sleep();
+        rclcpp::spin_some(node->get_node_base_interface());
+    }
+
     while (rclcpp::ok()) {
         node->step();
 

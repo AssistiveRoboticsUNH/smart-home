@@ -1,0 +1,5 @@
+string[] states # specifies which world state fields to gather
+---
+shr_msgs/WorldState world_state
+---
+bool running # returns true if running

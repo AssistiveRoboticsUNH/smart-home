@@ -1,7 +1,7 @@
 import os
 import time
 
-from shr_msg.action import RotateRequest
+from shr_msgs.action import RotateRequest
 from rclpy.action import ActionServer, ActionClient
 from rclpy.node import Node
 import rclpy
@@ -30,9 +30,9 @@ class RotateActionServer(Node):
             self.vel_pub.publish(msg)
 
         msg.angular.z = 0.0
-        for i in range(10):
-            self.vel_pub.publish(msg)
-            time.sleep(0.01)
+        # for i in range(3):
+        self.vel_pub.publish(msg)
+            # rclpy.spin_once(self)
 
         result.status = "success"
         goal_handle.succeed()

@@ -1,6 +1,6 @@
 import os
 from ament_index_python.packages import get_package_share_directory
-from shr_msg.action import ReadScriptRequest
+from shr_msgs.action import ReadScriptRequest
 from rclpy.action import ActionServer, ActionClient
 from rclpy.node import Node
 from sound_play.libsoundplay import SoundClient

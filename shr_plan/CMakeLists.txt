@@ -21,7 +21,7 @@ find_package(plansys2_planner REQUIRED)
 find_package(plansys2_problem_expert REQUIRED)
 find_package(plansys2_pddl_parser REQUIRED)
 find_package(tf2_ros REQUIRED)
-find_package(shr_msg REQUIRED)
+find_package(shr_msgs REQUIRED)
 find_package(shr_utils REQUIRED)
 find_package(generate_parameter_library REQUIRED)
 
@@ -36,7 +36,7 @@ set(dependencies
         plansys2_problem_expert
         plansys2_pddl_parser
         tf2_ros
-        shr_msg
+        shr_msgs
         shr_utils
         )
 add_executable(planning_controller_node src/planning_controller_node.cpp)

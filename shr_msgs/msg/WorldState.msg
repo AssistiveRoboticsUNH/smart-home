@@ -1,0 +1,10 @@
+string patient_name
+string[] locations
+string door_location
+string outside_location
+string medicine_location
+string patient_location
+int32 door_open # -1 means value is none
+int32 took_medicine # -1 means value is none
+int32 too_late_to_leave # -1 means value is none
+int32 time_to_take_medicine # -1 means value is none

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(shr_msg)
+project(shr_msgs)
 
 if (NOT CMAKE_CXX_STANDARD)
     set(CMAKE_CXX_STANDARD 14)
@@ -11,17 +11,22 @@ endif ()
 
 find_package(ament_cmake REQUIRED)
 find_package(action_msgs REQUIRED)
+find_package(std_msgs REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 
 
 set(msg_files
-        msg/SmartSensor.msg
+        msg/MidnightWarningProtocol.msg
+        msg/MedicineReminderProtocol.msg
+        msg/ActionRecord.msg
+        msg/WorldState.msg
         )
 
 set(action_files
         action/CallRequest.action
         action/EmptyRequest.action
         action/FindPersonRequest.action
+        action/GatherInformationRequest.action
         action/OpenImageRequest.action
         action/PlayAudioRequest.action
         action/PlayVideoRequest.action
@@ -32,11 +37,12 @@ set(action_files
         action/SkillRequest.action
         )
 
-rosidl_generate_interfaces(shr_msg
+rosidl_generate_interfaces(shr_msgs
         ${msg_files}
         ${action_files}
         DEPENDENCIES
         action_msgs
+        std_msgs
         builtin_interfaces
         )
 
