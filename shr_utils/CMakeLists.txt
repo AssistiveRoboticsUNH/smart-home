@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(shr_plan)
+project(shr_utils)
 
 if (NOT CMAKE_CXX_STANDARD)
     set(CMAKE_CXX_STANDARD 14)
@@ -22,7 +22,6 @@ find_package(plansys2_problem_expert REQUIRED)
 find_package(plansys2_pddl_parser REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(shr_msg REQUIRED)
-find_package(shr_utils REQUIRED)
 find_package(generate_parameter_library REQUIRED)
 
 set(dependencies
@@ -37,41 +36,21 @@ set(dependencies
         plansys2_pddl_parser
         tf2_ros
         shr_msg
-        shr_utils
         )
-add_executable(planning_controller_node src/planning_controller_node.cpp)
-ament_target_dependencies(planning_controller_node ${dependencies})
+add_library(${PROJECT_NAME} SHARED src/utils.cpp)
+ament_target_dependencies(${PROJECT_NAME} ${dependencies})
 
-generate_parameter_library(shr_plan_parameters
-        src/shr_plan_parameters.yaml
-        )
+target_include_directories(${PROJECT_NAME}
+        PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+        $<INSTALL_INTERFACE:include>)
 
-target_link_libraries(planning_controller_node
-        shr_plan_parameters
-        )
+#include_directories(
+#        include
+#)
 
-
-add_executable(notify_automated_action_node src/notify_automated_action_node.cpp)
-ament_target_dependencies(notify_automated_action_node ${dependencies})
-
-add_executable(notify_recorded_video_node src/notify_recorded_action_node.cpp)
-ament_target_dependencies(notify_recorded_video_node ${dependencies})
-
-
-add_executable(move_action_node src/move_action_node.cpp)
-ament_target_dependencies(move_action_node ${dependencies})
-
-
-
-include_directories(
-        include
-)
-
-install(TARGETS
-        planning_controller_node
-        notify_automated_action_node
-        notify_recorded_video_node
-        move_action_node
+install(TARGETS ${PROJECT_NAME}
+        EXPORT export_${PROJECT_NAME}
         ARCHIVE DESTINATION lib
         LIBRARY DESTINATION lib
         RUNTIME DESTINATION lib/${PROJECT_NAME}
@@ -82,11 +61,8 @@ install(
         DESTINATION include
 )
 
-install(
-        DIRECTORY launch pddl
-        DESTINATION share/shr_plan
-)
-
+ament_export_targets(export_${PROJECT_NAME} HAS_LIBRARY_TARGET)
 ament_export_dependencies(${dependencies})
+ament_export_include_directories(include)
 
 ament_package()

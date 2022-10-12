@@ -1,24 +1,19 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-    <name>shr_actions_cpp</name>
+    <name>shr_utils</name>
     <version>0.0.0</version>
-    <description>The pioneer_shr package</description>
-
+    <description>The rosplan_shr package</description>
     <maintainer email="gu@cs.unh.edu">tianyi</maintainer>
-    <license>TODO</license>
+    <license>BSD-3-Clause</license>
 
     <buildtool_depend>ament_cmake</buildtool_depend>
-    <buildtool_depend>rosidl_default_generators</buildtool_depend>
 
-    <depend>action_msgs</depend>
-    <depend>nav2_msgs</depend>
+
+    <depend>generate_parameter_library</depend>
     <depend>geometry_msgs</depend>
-    <depend>rclcpp_components</depend>
-    <depend>std_msgs</depend>
-    <depend>tf2_ros</depend>
+    <depend>nav2_msgs</depend>
     <depend>shr_msg</depend>
-    <depend>shr_utils</depend>
     <depend>plansys2_domain_expert</depend>
     <depend>plansys2_executor</depend>
     <depend>plansys2_msgs</depend>
@@ -27,14 +22,13 @@
     <depend>plansys2_problem_expert</depend>
     <depend>rclcpp</depend>
     <depend>rclcpp_action</depend>
+    <depend>tf2_ros</depend>
 
-
-    <exec_depend>rosidl_default_runtime</exec_depend>
-
-    <member_of_group>rosidl_interface_packages</member_of_group>
+    <exec_depend>launch</exec_depend>
+    <exec_depend>launch_ros</exec_depend>
+    <exec_depend>plansys2_bringup</exec_depend>
 
     <export>
         <build_type>ament_cmake</build_type>
     </export>
-
 </package>

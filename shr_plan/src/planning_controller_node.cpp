@@ -34,7 +34,6 @@
 #include "plansys2_msgs/msg/action_execution.hpp"
 
 #include <shr_plan_parameters.hpp>
-#include "shr_plan/utils.hpp"
 
 
 namespace planning_controller {
