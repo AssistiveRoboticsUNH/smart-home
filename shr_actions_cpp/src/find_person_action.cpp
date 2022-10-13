@@ -123,6 +123,12 @@ namespace find_person_request {
                 }
 
             }
+            rclcpp::Rate rate(5);
+            while (navigating_ || rotating_) {
+                rate.sleep();
+            }
+            rclcpp::Rate rate2(1);
+            rate2.sleep();
 
             auto result = std::make_shared<FindPersonRequest::Result>();
             result->location = goal->locations[location_ind_];

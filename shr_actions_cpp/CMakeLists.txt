@@ -35,10 +35,6 @@ ament_target_dependencies(find_person_node ${dependencies})
 include_directories(
         include
 )
-install(
-        DIRECTORY include/
-        DESTINATION include
-)
 
 install(TARGETS
         find_person_node
