@@ -1,4 +1,24 @@
  
+## Simulator keyboard controls 
+`shift+O` : open door
+
+`shift+D` : move to door
+
+`shift+B` : move to bedroom
+
+`shift+C` : move to couch
+
+`shift+K` : toggle move to kitchen position 1/2
+
+`shift+P` : take medicine
+
+`WASD` : nagivate camera
+
+`right-click and drag` : pan camera
+
+`mouse wheel` : zoom in
+
+
 ## Managing binary package dependencies 
 A binary package can be installed without the need to build it. Official ROS packages can be installed as binary with the following: 
 ``` 
