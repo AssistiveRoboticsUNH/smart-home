@@ -78,11 +78,6 @@ install(TARGETS
         )
 
 install(
-        DIRECTORY include/
-        DESTINATION include
-)
-
-install(
         DIRECTORY launch pddl
         DESTINATION share/shr_plan
 )
