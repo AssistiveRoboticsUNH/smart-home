@@ -62,8 +62,11 @@ elderly occupant and the safety of the home.
 [[pdf]](http://cs.unh.edu/~tg1034/publication/shr_sajay.pdf)
 
 # Install:
-**festival voices**
-http://www.festvox.org/packed/festival/2.5/voices/
+**Speech module**  
+Better TTS voices: 
+Download the new voice from [here](https://universitysystemnh-my.sharepoint.com/:u:/g/personal/pac48_usnh_edu/ERrsvRkJHx1Fve_Uv4RBRQ0BOGGKMvEZCGmGE4-R7GwuyQ?e=9730gE) then extract and copy it into `/usr/share/festival/voices/english`
+
+Additional voices can be found here: http://www.festvox.org/packed/festival/2.5/voices/
 
 **ffmpeg**
 ffmpeg
