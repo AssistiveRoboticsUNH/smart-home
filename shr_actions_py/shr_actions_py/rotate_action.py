@@ -58,7 +58,6 @@ def main(args=None):
 
     while True:
         executor.spin_once()
-        # rclpy.spin_once(rotate_action_server)
 
 
 if __name__ == '__main__':
