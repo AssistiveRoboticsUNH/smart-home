@@ -5,12 +5,10 @@ from ament_index_python.packages import get_package_share_directory
 from shr_msgs.action import ReadScriptRequest
 from rclpy.action import ActionServer, ActionClient
 from rclpy.node import Node
-from sound_play.libsoundplay import SoundClient
 import rclpy
 import tempfile
 import threading
 import functools
-
 
 
 class ReadScriptActionServer(Node):
@@ -18,8 +16,6 @@ class ReadScriptActionServer(Node):
         super().__init__('read_script_action')
         self.declare_parameter('voice', 'voice_cmu_us_fem_cg')
         self.voice = self.get_parameter('voice').value
-        self.soundhandle = SoundClient(self, blocking=True)
-        self.cached = dict()
         self.read_script_action_server = ActionServer(self, ReadScriptRequest, 'read_script',
                                                       self.read_script_callback)
 

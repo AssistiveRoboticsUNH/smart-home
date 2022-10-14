@@ -5,8 +5,9 @@ import time
 from ament_index_python.packages import get_package_share_directory
 from cv_bridge import CvBridge, CvBridgeError
 from shr_msgs.action import RecognizeTrainRequest, RecognizeRequest
-from rclpy.action import ActionServer, ActionClient
+from rclpy.action import ActionServer, ActionClient, CancelResponse
 from rclpy.node import Node
+from rclpy.executors import MultiThreadedExecutor
 from sensor_msgs.msg import Image
 from sound_play.libsoundplay import SoundClient
 from sound_play_msg.action import SoundRequest
@@ -38,8 +39,8 @@ class RecognizeFaceActionServer(Node):
         # self.declare_parameter('camera_topic', 'unity_camera/color/image_raw')
         self.declare_parameter('camera_topic', 'smart_home/camera/color/image_raw')
         self.declare_parameter('voice', 'voice_cmu_us_fem_cg')
-        self.declare_parameter('recognize_train_timeout', 30)
-        self.declare_parameter('recognize_timeout', 10)
+        self.declare_parameter('recognize_train_timeout', 1000)
+        self.declare_parameter('recognize_timeout', 1000)
 
         self.voice = self.get_parameter('voice').value
         self.camera_topic = self.get_parameter('camera_topic').value
@@ -54,10 +55,15 @@ class RecognizeFaceActionServer(Node):
 
         self.sub = self.create_subscription(Image, self.camera_topic, self.image_callback, 1)
         self.train_action_server = ActionServer(self, RecognizeTrainRequest, 'train_recognize_face',
-                                                self.train_callback)
-        self.recognize_action_server = ActionServer(self, RecognizeRequest, 'recognize_face', self.recognize_callback)
+                                                self.train_callback, cancel_callback=self.cancel_callback)
+        self.recognize_action_server = ActionServer(self, RecognizeRequest, 'recognize_face', self.recognize_callback,
+                                                    cancel_callback=self.cancel_callback)
 
         self.soundhandle = SoundClient(self, blocking=True)
+
+    def cancel_callback(self, goal_handle):
+        self.get_logger().info('Received cancel request')
+        return CancelResponse.ACCEPT
 
     def image_callback(self, data):
         if self.training_action or self.recognize_action:
@@ -75,8 +81,13 @@ class RecognizeFaceActionServer(Node):
         result = RecognizeRequest.Result()
 
         self.recognize_action = True
-        # standing_person_face_encoding = None
         while time.time() - start_time < self.recognize_timeout:
+            if goal_handle.is_cancel_requested:
+                goal_handle.canceled()
+                self.get_logger().info('Goal canceled')
+                self.recognize_action = False
+                return RecognizeRequest.Result()
+
             if self.latest_image.shape[0] > 1:
                 standing_person_face_encoding = self.detect_face(self.latest_image)
                 if standing_person_face_encoding is not None:
@@ -94,33 +105,14 @@ class RecognizeFaceActionServer(Node):
                     result.names = list(names)
                     if len(result.names) > 0:
                         goal_handle.succeed()
+                        self.recognize_action = False
                         return result
 
             feedback_msg.running = True
             goal_handle.publish_feedback(feedback_msg)
-            rclpy.spin_once(self)
+            # rclpy.spin_once(self)
 
-        self.recognize_action = False
-
-        # if standing_person_face_encoding is not None:
-        #     goal_handle.succeed()
-        #     names = set()
-        #     for encoding in standing_person_face_encoding:
-        #         min_val = np.finfo(float).max
-        #         min_name = ""
-        #         for name in database:
-        #             known_encodings = database[name]
-        #             # for known_encoding in known_encodings:
-        #             match = face_recognition.compare_faces(known_encodings, encoding, tolerance=0.6)
-        #             if match:
-        #                 names.add(min_name)
-        # tmp = np.sum(np.abs(database[name] - encoding), axis=1)
-        # if np.min(tmp) < min_val:
-        #     min_val = np.min(tmp)
-        #     min_name = name
-        # result.names.append(min_name)
-        # names.add(min_name)
-
+        # timeout
         goal_handle.abort()
         result.names = [""]
 
@@ -129,6 +121,7 @@ class RecognizeFaceActionServer(Node):
     def train_callback(self, goal_handle):
         self.get_logger().info('Train recognize face...')
         start_time = time.time()
+        result = RecognizeTrainRequest.Result()
         feedback_msg = RecognizeTrainRequest.Feedback()
 
         self.training_action = True
@@ -136,9 +129,11 @@ class RecognizeFaceActionServer(Node):
         only_person_prompt_given = False
         consecutive_identified = 0
         while time.time() - start_time < self.recognize_train_timeout:
-            if time.time() - start_time > 10 and not center_prompt_given:
-                self.soundhandle.say('Make sure you are centered in the camera frame', self.voice, 1.0)
-                center_prompt_given = True
+            if goal_handle.is_cancel_requested:
+                goal_handle.canceled()
+                self.get_logger().info('Goal canceled')
+                self.training_action = False
+                return RecognizeTrainRequest.Result()
 
             if self.latest_image.shape[0] > 1:
                 standing_person_face_encoding = self.detect_face(self.latest_image, gui=True)
@@ -146,30 +141,25 @@ class RecognizeFaceActionServer(Node):
                     consecutive_identified = 0
                 elif len(standing_person_face_encoding) > 1:
                     consecutive_identified = 0
-                    if not only_person_prompt_given:
-                        self.soundhandle.say('Make sure you are the only person in the frame', self.voice, 1.0)
-                        only_person_prompt_given = True
                 else:
                     consecutive_identified += 1
                 if consecutive_identified > 2:
                     self.add_to_database(goal_handle.request.name, standing_person_face_encoding)
-                    cv2.waitKey(1)
-                    break
+                    goal_handle.succeed()
+                    result.success = True
+                    cv2.destroyAllWindows()
+                    self.training_action = False
+                    return result
 
             feedback_msg.running = True
             goal_handle.publish_feedback(feedback_msg)
-            rclpy.spin_once(self)
+            # rclpy.spin_once(self)
 
+        # timeout
         self.training_action = False
         cv2.destroyAllWindows()
-
-        result = RecognizeTrainRequest.Result()
-        if standing_person_face_encoding is not None:
-            goal_handle.succeed()
-            result.success = True
-        else:
-            goal_handle.abort()
-            result.success = False
+        goal_handle.abort()
+        result.success = False
 
         return result
 
@@ -235,9 +225,11 @@ def main(args=None):
     rclpy.init(args=args)
 
     recognize_face_action_server = RecognizeFaceActionServer()
+    executor = MultiThreadedExecutor()
+    executor.add_node(recognize_face_action_server)
 
     while True:
-        rclpy.spin_once(recognize_face_action_server)
+        executor.spin_once()
 
 
 if __name__ == '__main__':

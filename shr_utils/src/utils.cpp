@@ -7,11 +7,11 @@ namespace shr_utils {
 
 
     geometry_msgs::msg::Pose
-    get_tf_as_point(const tf2_ros::Buffer &tf_buffer, const std::string &parent_id, const std::string &child_id) {
+    get_tf_as_point(tf2_ros::Buffer &tf_buffer, const std::string &parent_id, const std::string &child_id) {
         geometry_msgs::msg::TransformStamped transform;
         try {
             transform = tf_buffer.lookupTransform(parent_id, child_id,
-                                                  tf2::TimePointZero, std::chrono::seconds(1));
+                                                   tf2::TimePointZero, std::chrono::seconds(10));
         } catch (tf2::TransformException &e) {
             RCLCPP_ERROR(rclcpp::get_logger("shr_utils"), "transform exception '%s'", e.what());
         }
@@ -33,7 +33,7 @@ namespace shr_utils {
                pow(point1.position.z - point2.position.z, 2);
     }
 
-    int get_nearest_location(const tf2_ros::Buffer &tf_buffer, const std::vector<std::string> &locations) {
+    int get_nearest_location(tf2_ros::Buffer &tf_buffer, const std::vector<std::string> &locations) {
         if (locations.empty()) return -1;
 
         auto cur_pose = get_tf_as_point(tf_buffer, "map", "base_link");
@@ -55,7 +55,7 @@ namespace shr_utils {
 
 
 //    rclcpp_action::ClientGoalHandle<nav2_msgs::action::NavigateToPose>::SharedPtr
-    void send_nav_request(const tf2_ros::Buffer &tf_buffer, const std::string &goal_tf, const rclcpp::Time &cur_time,
+    void send_nav_request(tf2_ros::Buffer &tf_buffer, const std::string &goal_tf, const rclcpp::Time &cur_time,
                           rclcpp_action::Client<nav2_msgs::action::NavigateToPose>::SharedPtr navigation_action_client,
                           std::optional<const std::function<void(
                                   std::shared_ptr<rclcpp_action::ClientGoalHandle<nav2_msgs::action::NavigateToPose>>)>> goal_response_callback,
@@ -87,7 +87,7 @@ namespace shr_utils {
             RCLCPP_ERROR(rclcpp::get_logger("shr_utils"), "Action server not available after waiting");
         }
         auto navigation_goal_handle = navigation_action_client->async_send_goal(navigation_goal_,
-                                                                                        send_goal_options);
+                                                                                send_goal_options);
 //        return navigation_goal_handle;
 
     }
