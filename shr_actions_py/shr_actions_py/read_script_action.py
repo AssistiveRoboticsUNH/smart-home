@@ -1,10 +1,16 @@
 import os
+import glob
+
 from ament_index_python.packages import get_package_share_directory
 from shr_msgs.action import ReadScriptRequest
 from rclpy.action import ActionServer, ActionClient
 from rclpy.node import Node
 from sound_play.libsoundplay import SoundClient
 import rclpy
+import tempfile
+import threading
+import functools
+
 
 
 class ReadScriptActionServer(Node):
@@ -13,6 +19,7 @@ class ReadScriptActionServer(Node):
         self.declare_parameter('voice', 'voice_cmu_us_fem_cg')
         self.voice = self.get_parameter('voice').value
         self.soundhandle = SoundClient(self, blocking=True)
+        self.cached = dict()
         self.read_script_action_server = ActionServer(self, ReadScriptRequest, 'read_script',
                                                       self.read_script_callback)
 
@@ -28,19 +35,38 @@ class ReadScriptActionServer(Node):
             goal_handle.abort()
             return result
 
-        f = open(file_path, "r")
-        text = f.read()
-        self.soundhandle.say(text, self.voice, 1.0)
+        wavfilename = self.create_wav_from_text(file_path)
+        os.system('vlc ' + wavfilename + ' vlc://quit')
+
         result.status = "success"
         goal_handle.succeed()
 
         return result
 
+    @functools.cache
+    def create_wav_from_text(self, file_path):
+        (wavfile, wavfilename) = tempfile.mkstemp(
+            prefix='sound_play', suffix='.wav')
+        os.system("text2wave -eval '(" + self.voice + ")' " + file_path + " -o " + wavfilename)
+        # os.system("pico2wave -l en-US -w" + wavfilename + f' "{data.arg}"')
+        wavfilename_new = wavfilename.replace('.wav', '')
+        wavfilename_new += '_new.wav'
+        os.system("ffmpeg -i " + wavfilename + " -af areverse,apad=pad_dur=500ms,areverse " + wavfilename_new)
+        wavfilename = wavfilename_new
+        return wavfilename
+
+    def thread_function(self):
+        files = glob.glob(os.path.join(get_package_share_directory('shr_resources'), 'resources', '*.txt'))
+        for file in files:
+            wavfilename = self.create_wav_from_text(file)
+
 
 def main(args=None):
     rclpy.init(args=args)
-
     read_script_action_server = ReadScriptActionServer()
+
+    x = threading.Thread(target=read_script_action_server.thread_function)
+    x.start()
 
     while True:
         rclpy.spin_once(read_script_action_server)
