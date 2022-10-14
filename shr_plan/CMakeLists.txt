@@ -76,12 +76,7 @@ install(TARGETS
         LIBRARY DESTINATION lib
         RUNTIME DESTINATION lib/${PROJECT_NAME}
         )
-
-install(
-        DIRECTORY include/
-        DESTINATION include
-)
-
+ 
 install(
         DIRECTORY launch pddl
         DESTINATION share/shr_plan
