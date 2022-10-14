@@ -21,8 +21,11 @@ namespace shr_utils {
     geometry_msgs::msg::Pose
     get_tf_as_point(const tf2_ros::Buffer &tf_buffer, const std::string &parent_id, const std::string &child_id);
 
+//    rclcpp_action::ClientGoalHandle<nav2_msgs::action::NavigateToPose>::SharedPtr
     void send_nav_request(const tf2_ros::Buffer &tf_buffer, const std::string &goal_tf, const rclcpp::Time &cur_time,
                           rclcpp_action::Client<nav2_msgs::action::NavigateToPose>::SharedPtr navigation_action_client,
+                          std::optional<const std::function<void(
+                                  std::shared_ptr<rclcpp_action::ClientGoalHandle<nav2_msgs::action::NavigateToPose>>)>> goal_response_callback = std::nullopt,
                           std::optional <std::function<void(NavigationGoalHandle::SharedPtr,
                                                             NavigationFeedback)>> feedback_callback = std::nullopt,
                           std::optional <std::function<void(

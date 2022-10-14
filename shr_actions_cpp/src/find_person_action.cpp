@@ -25,12 +25,6 @@ namespace find_person_request {
 
         explicit FindPersonRequestActionServer(const rclcpp::NodeOptions &options = rclcpp::NodeOptions())
                 : Node("find_person_request_action_server", options) {
-            navigation_action_client_ = rclcpp_action::create_client<nav2_msgs::action::NavigateToPose>(
-                    this, "navigate_to_pose");
-            rotate_client_ = rclcpp_action::create_client<shr_msgs::action::RotateRequest>(
-                    this, "rotate");
-            recognize_face_client_ = rclcpp_action::create_client<shr_msgs::action::RecognizeRequest>(
-                    this, "recognize_face");
 
             tf_buffer_ =
                     std::make_unique<tf2_ros::Buffer>(this->get_clock());
@@ -43,6 +37,24 @@ namespace find_person_request {
                     std::bind(&FindPersonRequestActionServer::handle_goal, this, _1, _2),
                     std::bind(&FindPersonRequestActionServer::handle_cancel, this, _1),
                     std::bind(&FindPersonRequestActionServer::handle_accepted, this, _1));
+
+            navigation_action_client_ = rclcpp_action::create_client<nav2_msgs::action::NavigateToPose>(
+                    this, "navigate_to_pose");
+            rotate_client_ = rclcpp_action::create_client<shr_msgs::action::RotateRequest>(
+                    this, "rotate");
+            recognize_face_client_ = rclcpp_action::create_client<shr_msgs::action::RecognizeRequest>(
+                    this, "recognize_face");
+            if (!rotate_client_->wait_for_action_server()) {
+                RCLCPP_ERROR(get_logger(), "Action server not available after waiting");
+            }
+
+            if (!recognize_face_client_->wait_for_action_server()) {
+                RCLCPP_ERROR(get_logger(), "Action server not available after waiting");
+            }
+
+            if (!navigation_action_client_->wait_for_action_server()) {
+                RCLCPP_ERROR(get_logger(), "Action server not available after waiting");
+            }
         }
 
     private:
@@ -51,29 +63,43 @@ namespace find_person_request {
         rclcpp_action::Client<shr_msgs::action::RotateRequest>::SharedPtr rotate_client_;
         rclcpp_action::Client<shr_msgs::action::RecognizeRequest>::SharedPtr recognize_face_client_;
 
-        rclcpp_action::ClientGoalHandle<shr_msgs::action::RecognizeRequest>::SharedPtr recognize_face_goal_;
-        rclcpp_action::ClientGoalHandle<shr_msgs::action::RotateRequest>::SharedPtr rotate_goal_;
-        rclcpp_action::ClientGoalHandle<nav2_msgs::action::NavigateToPose>::SharedPtr navigation_goal_;
+//        std::shared_future<rclcpp_action::ClientGoalHandle<shr_msgs::action::RecognizeRequest>::SharedPtr> recognize_face_goal_;
+//        rclcpp_action::ClientGoalHandle<shr_msgs::action::RotateRequest>::SharedPtr rotate_goal_;
+//        rclcpp_action::ClientGoalHandle<nav2_msgs::action::NavigateToPose>::SharedPtr navigation_goal_;
 
         std::shared_ptr<tf2_ros::TransformListener> tf_listener_;
         std::unique_ptr<tf2_ros::Buffer> tf_buffer_;
 
-        int location_ind_ = 0;
-        bool navigating_;
-        bool rotating_;
-        bool recognizing_;
-        bool found_person_;
+//        int location_ind;
+//        bool navigating_;
+//        bool rotating_;
+//        bool recognizing_;
+//        bool found_person_;
+//        bool cancelled_;
 
         rclcpp_action::GoalResponse handle_goal(
                 const rclcpp_action::GoalUUID &uuid,
                 std::shared_ptr<const FindPersonRequest::Goal> goal) {
+            (void) uuid;
             std::stringstream ss;
-            for (const auto &loc: goal->locations)
+            for (const auto &loc: goal->locations) {
                 ss << loc << " ";
+            }
             RCLCPP_INFO(this->get_logger(), "Received find person request at locations request with order %s",
                         ss.str().c_str());
-            (void) uuid;
+//            if (rotating_ || recognizing_ || navigating_) {
+//                RCLCPP_INFO(this->get_logger(), "Goal rejected becuase action already in progress");
+//                return rclcpp_action::GoalResponse::REJECT;
+//            }
+
             return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
+        }
+
+        void cancel_all_goals() {
+            navigation_action_client_->async_cancel_all_goals();
+            rotate_client_->async_cancel_all_goals();
+            recognize_face_client_->async_cancel_all_goals();
+
         }
 
         rclcpp_action::CancelResponse handle_cancel(
@@ -81,107 +107,147 @@ namespace find_person_request {
             RCLCPP_INFO(this->get_logger(), "Received request to cancel goal");
             (void) goal_handle;
 
-            if (navigation_goal_) {
-                navigation_action_client_->async_cancel_goal(navigation_goal_);
-            }
-            if (rotate_goal_) {
-                rotate_client_->async_cancel_goal(rotate_goal_);
-            }
-            if (recognize_face_goal_) {
-                recognize_face_client_->async_cancel_goal(recognize_face_goal_);
-            }
+            cancel_all_goals();
 
+//            cancelled_ = true;
             return rclcpp_action::CancelResponse::ACCEPT;
         }
 
         void handle_accepted(const std::shared_ptr<GoalHandleFindPersonRequest> goal_handle) {
             using namespace std::placeholders;
             // this needs to return quickly to avoid blocking the executor, so spin up a new thread
+//            cancelled_ = false;
             std::thread{std::bind(&FindPersonRequestActionServer::execute, this, _1), goal_handle}.detach();
         }
 
 
-
         void execute(const std::shared_ptr<GoalHandleFindPersonRequest> goal_handle) {
+
+
+
+
             RCLCPP_INFO(this->get_logger(), "Executing goal");
-            rclcpp::Rate loop_rate(1);
+
+            auto result = std::make_shared<FindPersonRequest::Result>();
             auto goal = goal_handle->get_goal();
             auto feedback = std::make_shared<FindPersonRequest::Feedback>();
 
-            found_person_ = false;
-            navigating_ = false;
-            rotating_ = false;
-            recognizing_ = false;
-            location_ind_ = shr_utils::get_nearest_location(*tf_buffer_, goal->locations);
-            while (!found_person_) {
-                if (!navigating_ && !rotating_) {
-                    rotate_360(goal);
+            bool found_person = false;
+            bool moving = false;
+//            bool rotating = false;
+            bool recognizing = false;
+            bool cancelled = false;
+            int i = 0;
+
+            int location_ind = shr_utils::get_nearest_location(*tf_buffer_, goal->locations);
+            rclcpp::Rate loop_rate(10);
+            while (!found_person) {
+                if (goal_handle->is_canceling()) {
+                    cancelled = true;
+                    goal_handle->canceled(result);
+                    RCLCPP_INFO(this->get_logger(), "find person goal canceled");
+                    return;
+                }
+                if (!moving && !found_person && (i % 2) == 0) {
+                    rotate_360(goal, &moving);
+                    i++;
+                } else if (!moving && !found_person) {
+                    navigate(goal, &moving, &location_ind);
+                    i++;
                 }
 
-                if (!recognizing_) {
-                    recognize_patient(goal);
+                if (!recognizing && !found_person) {
+                    bool rotating = moving && (i % 2) == 1;
+                    recognize_patient(goal, &rotating, &recognizing, &found_person);
                 }
-
+                loop_rate.sleep();
             }
-            rclcpp::Rate rate(5);
-            while (navigating_ || rotating_) {
-                rate.sleep();
-            }
-            rclcpp::Rate rate2(1);
-            rate2.sleep();
 
-            auto result = std::make_shared<FindPersonRequest::Result>();
-            result->location = goal->locations[location_ind_];
-            result->ind = location_ind_;
+            cancel_all_goals();
+
+            result->location = goal->locations[location_ind];
+            result->ind = location_ind;
             goal_handle->succeed(result);
 
         }
 
-        void rotate_360(const std::shared_ptr<const FindPersonRequest::Goal> &goal) {
+        void rotate_360(const std::shared_ptr<const FindPersonRequest::Goal> &goal, bool *moving) {
             auto goal_msg = shr_msgs::action::RotateRequest::Goal();
             goal_msg.angle = 2 * M_PI;
             goal_msg.total_time = 10.0;
             auto send_goal_options = rclcpp_action::Client<shr_msgs::action::RotateRequest>::SendGoalOptions();
-            auto result_callback = [this, goal](auto) {
-                if (!found_person_){
-                    navigate(goal);
-                }
-                rotating_ = false;
+            auto result_callback = [this, goal, moving](auto) {
+                *moving = false;
             };
             send_goal_options.result_callback = result_callback;
-            rotate_client_->async_send_goal(goal_msg, send_goal_options);
-            rotating_ = true;
-        }
-
-        void navigate(const std::shared_ptr<const FindPersonRequest::Goal> &goal)  {
-            auto result_callback = [this](auto) {
-                navigating_ = false;
+            send_goal_options.goal_response_callback = [this, moving](auto future) {
+                auto goal_handle = future.get();
+                if (!goal_handle) {
+                    RCLCPP_ERROR(this->get_logger(), "rotate goal was rejected by server");
+                    *moving = false;
+                } else {
+                    RCLCPP_INFO(this->get_logger(), "rotate accepted by server, waiting for result");
+                    *moving = true;
+                }
             };
-            location_ind_ = (location_ind_ + 1) % goal->locations.size();
-            shr_utils::send_nav_request(*tf_buffer_, goal->locations[location_ind_], now(),
-                                        navigation_action_client_,
-                                        std::nullopt, result_callback);
-            navigating_ = true;
+
+            rotate_client_->async_send_goal(goal_msg, send_goal_options);
+
+            *moving = true;
+        }
+
+        void navigate(const std::shared_ptr<const FindPersonRequest::Goal> &goal, bool *moving, int* location_ind) {
+            auto result_callback = [this, moving](auto) {
+                *moving = false;
+            };
+            auto goal_response_callback = [this, moving](auto future) {
+                auto goal_handle = future.get();
+                if (!goal_handle) {
+                    RCLCPP_ERROR(this->get_logger(), "navigating goal was rejected by server");
+                    *moving = false;
+                } else {
+                    RCLCPP_INFO(this->get_logger(), "navigating goal accepted by server, waiting for result");
+                    *moving = true;
+                }
+            };
+            *location_ind = (*location_ind + 1) % goal->locations.size();
+            shr_utils::send_nav_request(*tf_buffer_, goal->locations[*location_ind], now(),
+                                                           navigation_action_client_,
+                                                           goal_response_callback, std::nullopt, result_callback);
+            *moving = true;
         }
 
 
-        void recognize_patient(const std::shared_ptr<const FindPersonRequest::Goal> &goal) {
+        void
+        recognize_patient(const std::shared_ptr<const FindPersonRequest::Goal> &goal, bool *rotating, bool *recognizing,
+                          bool *found_person) {
             auto goal_msg = shr_msgs::action::RecognizeRequest::Goal();
             auto send_goal_options = rclcpp_action::Client<shr_msgs::action::RecognizeRequest>::SendGoalOptions();
-            auto result_callback = [this, goal](
+            auto result_callback = [this, goal, rotating, recognizing, found_person](
                     const rclcpp_action::ClientGoalHandle<shr_msgs::action::RecognizeRequest>::WrappedResult &response) {
-                if (rotating_) {
+                if (*rotating) {
                     for (const auto &name: response.result->names) {
                         if (name == goal->name) {
-                            found_person_ = true;
+                            *found_person = true;
                         }
                     }
                 }
-                recognizing_ = false;
+                *recognizing = false;
             };
             send_goal_options.result_callback = result_callback;
+
+            send_goal_options.goal_response_callback = [this, recognizing](auto future) {
+                auto goal_handle = future.get();
+                if (!goal_handle) {
+                    RCLCPP_ERROR(this->get_logger(), "recognize goal was rejected by server");
+                    *recognizing = false;
+                } else {
+                    RCLCPP_INFO(this->get_logger(), "recognize goal accepted by server, waiting for result");
+                    *recognizing = true;
+                }
+            };
             recognize_face_client_->async_send_goal(goal_msg, send_goal_options);
-            recognizing_ = true;
+            *recognizing = true;
         }
     };  // class FindPersonRequestActionServer
 
@@ -189,8 +255,7 @@ namespace find_person_request {
 
 
 
-int main(int argc, char ** argv)
-{
+int main(int argc, char **argv) {
     rclcpp::init(argc, argv);
 
     auto action_server = std::make_shared<find_person_request::FindPersonRequestActionServer>();

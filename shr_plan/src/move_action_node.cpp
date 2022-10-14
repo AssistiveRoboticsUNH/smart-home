@@ -65,16 +65,19 @@ namespace move_action {
 
             navigation_action_client_ =
                     rclcpp_action::create_client<nav2_msgs::action::NavigateToPose>(
-                            shared_from_this(),
+                            this,
                             "navigate_to_pose");
 
-            bool is_action_server_ready = false;
-            do {
-                RCLCPP_INFO(get_logger(), "Waiting for navigation action server...");
-
-                is_action_server_ready =
-                        navigation_action_client_->wait_for_action_server(std::chrono::seconds(5));
-            } while (!is_action_server_ready);
+            if (!navigation_action_client_->wait_for_action_server()) {
+                RCLCPP_ERROR(get_logger(), "Action server not available after waiting");
+            }
+//            bool is_action_server_ready = false;
+//            do {
+//                RCLCPP_INFO(get_logger(), "Waiting for navigation action server...");
+//
+//                is_action_server_ready =
+//                        navigation_action_client_->wait_for_action_server();//std::chrono::seconds(5)
+//            } while (!is_action_server_ready);
 
             RCLCPP_INFO(get_logger(), "Navigation action server ready");
 
@@ -94,7 +97,7 @@ namespace move_action {
             };
 
             shr_utils::send_nav_request(*tf_buffer_, wp_to_navigate, now(),
-            navigation_action_client_, feedback_callback, result_callback);
+            navigation_action_client_, std::nullopt, feedback_callback, result_callback);
 
             return ActionExecutorClient::on_activate(previous_state);
         }
