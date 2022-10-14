@@ -24,7 +24,7 @@ class PlayAudioActionServer(Node):
             goal_handle.abort()
             return result
 
-        command = 'mpg321 ' + file_path + ' &'
+        command = 'mpg321 ' + file_path
         os.system(command)
         result.status = "success"
         goal_handle.succeed()
