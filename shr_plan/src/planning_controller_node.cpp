@@ -66,9 +66,14 @@ namespace planning_controller {
                     std::bind(&PlanningControllerSpin::action_hub_callback, this, _1));
         }
 
-        shr_msgs::msg::WorldState get_world_state() const {
+        shr_msgs::msg::WorldState get_world_state() {
             std::lock_guard<std::mutex> lock(mutex_);
+            new_world_ = false;
             return world_state_;
+        }
+
+        bool has_new_world_state() {
+            return new_world_;
         }
 
 
@@ -76,7 +81,10 @@ namespace planning_controller {
 
         void update_world_state_callback(const shr_msgs::msg::WorldState::SharedPtr msg) {
             std::lock_guard<std::mutex> lock(mutex_);
-            world_state_ = *msg;
+            if (world_state_ != *msg){
+                world_state_ = *msg;
+                new_world_ = true;
+            }
         }
 
 
@@ -88,6 +96,7 @@ namespace planning_controller {
         }
 
         shr_msgs::msg::WorldState world_state_;
+        bool new_world_;
         rclcpp::Subscription<shr_msgs::msg::WorldState>::SharedPtr world_state_sub_;
         rclcpp::Subscription<plansys2_msgs::msg::ActionExecution>::SharedPtr action_hub_sub_;
         std::shared_ptr<shr_plan_parameters::ParamListener> param_listener_;
@@ -175,13 +184,18 @@ namespace planning_controller {
                     break;
                 }
                 case GATHERING_INFO: {
+                    state_ = get_transition();
+                    if (state_ != GATHERING_INFO){
+                        gathering_info_client_->async_cancel_all_goals();
+                    }
 
                     if (!gathering_info) {
                         auto result_callback = [this](
                                 const rclcpp_action::ClientGoalHandle<shr_msgs::action::GatherInformationRequest>::WrappedResult &res) {
                             gathering_info = false;
-                            world_state_ = res.result->world_state;
-                            state_ = IDLE;
+                            if (res.code == rclcpp_action::ResultCode::SUCCEEDED){
+                                world_state_ = res.result->world_state;
+                            }
                         };
                         auto send_goal_options = rclcpp_action::Client<shr_msgs::action::GatherInformationRequest>::SendGoalOptions();
                         send_goal_options.result_callback = result_callback;
@@ -373,14 +387,14 @@ int main(int argc, char **argv) {
 
     std::thread thread(
             [spin_node](){
-                rclcpp::Rate rate2(5);
-                rclcpp::spin_some(spin_node->get_node_base_interface());
-                rate2.sleep();
+                rclcpp::spin(spin_node->get_node_base_interface());
             }
     );
 
     while (rclcpp::ok()) {
-        node->set_world_state(spin_node->get_world_state());
+        if (spin_node->has_new_world_state()){
+            node->set_world_state(spin_node->get_world_state());
+        }
         node->step();
         rclcpp::spin_some(node->get_node_base_interface());
         rate.sleep();

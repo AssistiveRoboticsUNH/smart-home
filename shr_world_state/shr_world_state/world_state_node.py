@@ -5,6 +5,7 @@ from shr_msgs.action import FindPersonRequest, GatherInformationRequest
 from rclpy.action import ActionServer, ActionClient
 from rclpy.action import CancelResponse
 from rclpy.node import Node
+from rclpy.executors import MultiThreadedExecutor
 import rclpy
 
 from std_msgs.msg import Bool
@@ -28,6 +29,7 @@ class WorldStateNode(Node):
         self.patient_located_time = None
         self._send_goal_future = None
         self._get_result_future = None
+        self.goal_handle = None
         self.running_action = False
         self.sensor_data = SensorData()
         self.world_state = WorldState()
@@ -49,7 +51,7 @@ class WorldStateNode(Node):
         self.world_state.outside_location = self.get_parameter('outside_location').value
         self.world_state.medicine_location = self.get_parameter('medicine_location').value
         tmp = self.get_parameter('take_medication_time').value
-        self.take_medication_time = 60*int(tmp.split('h')[0]) + int(tmp.split('h')[1][:-1])
+        self.take_medication_time = 60 * int(tmp.split('h')[0]) + int(tmp.split('h')[1][:-1])
 
         self.subscriber_motion_door = self.create_subscription(Bool, 'smartthings_sensors_motion_door',
                                                                self.door_motion_callback, 10)
@@ -60,9 +62,13 @@ class WorldStateNode(Node):
         self.world_state_pub = self.create_publisher(WorldState, 'world_state', 10)
 
         self.gather_information_action_server = ActionServer(self, GatherInformationRequest, 'gather_information',
-                                                             self.gather_information_callback) #, cancel_callback=self.cancel_callback)
+                                                             self.gather_information_callback,
+                                                             cancel_callback=self.cancel_callback)
         self.find_person_action_client = ActionClient(self, FindPersonRequest, 'find_person')
 
+        self.timer = self.create_timer(1, self.timer_callback)
+
+    def timer_callback(self):
         self.publish_world_state()
 
     def pill_motion_callback(self, msg):
@@ -106,10 +112,10 @@ class WorldStateNode(Node):
         if self.patient_located_time is None or time.time() - self.patient_located_time > 15:
             self.world_state.patient_location = ""
 
-        self.world_state.time_to_take_medicine = datetime.datetime.now().hour*60 + datetime.datetime.now().minute > self.take_medication_time
+        self.world_state.time_to_take_medicine = datetime.datetime.now().hour * 60 + datetime.datetime.now().minute > self.take_medication_time
 
-        self.world_state.too_late_to_leave = True # DEBUG
-        self.world_state.time_to_take_medicine = False # DEBUG
+        self.world_state.too_late_to_leave = True  # DEBUG
+        self.world_state.time_to_take_medicine = False  # DEBUG
         self.world_state_pub.publish(self.world_state)
 
     def gather_information_callback(self, goal_handle):
@@ -128,7 +134,11 @@ class WorldStateNode(Node):
                 self._send_goal_future = self.find_person_action_client.send_goal_async(goal_msg)
                 self._send_goal_future.add_done_callback(self.goal_response_callback)
                 while self.running_action:
-                    rclpy.spin_once(self)
+                    rclpy.spin_once(self, timeout_sec=0)
+                    if goal_handle.is_cancel_requested:
+                        goal_handle.canceled()
+                        self.get_logger().info('Goal canceled')
+                        return GatherInformationRequest.Result()
 
         result.world_state = self.world_state
         goal_handle.succeed()
@@ -136,15 +146,15 @@ class WorldStateNode(Node):
         return result
 
     def goal_response_callback(self, future):
-        goal_handle = future.result()
-        if not goal_handle.accepted:
+        self.goal_handle = future.result()
+        if not self.goal_handle.accepted:
             self.get_logger().info('Goal rejected :(')
             self.running_action = False
             return
 
         self.get_logger().info('Goal accepted :)')
 
-        self._get_result_future = goal_handle.get_result_async()
+        self._get_result_future = self.goal_handle.get_result_async()
         self._get_result_future.add_done_callback(self.get_result_callback)
 
     def get_result_callback(self, future):
@@ -155,20 +165,22 @@ class WorldStateNode(Node):
         self.patient_located_time = time.time()
         self.publish_world_state()
 
-    # def cancel_callback(self, goal_handle):
-    #     # Accepts or rejects a client request to cancel an action
-    #     self.get_logger().info('Received cancel request')
-    #     if self._send_goal_future:
-    #         self._send_goal_future.cancel_goal_async()
-    #
-    #     self.running_action = False
-    #     return CancelResponse.ACCEPT
+    def cancel_callback(self, goal_handle):
+        # Accepts or rejects a client request to cancel an action
+        self.get_logger().info('Received cancel request')
+        if self.goal_handle:
+            self.goal_handle.cancel_goal_async()
+
+        self.running_action = False
+        return CancelResponse.ACCEPT
 
 
 def main(args=None):
     rclpy.init(args=args)
 
     world_state_node = WorldStateNode()
+    executor = MultiThreadedExecutor()
+    executor.add_node(world_state_node)
 
     while True:
         rclpy.spin_once(world_state_node)
