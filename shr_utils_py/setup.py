@@ -1,8 +1,6 @@
 from setuptools import setup
-import os
-from glob import glob
 
-package_name = 'yolostate'
+package_name = 'shr_utils_py'
 
 setup(
     name=package_name,
@@ -12,20 +10,17 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
-        (os.path.join('share', package_name, 'yolodata'), glob('yolodata/*')),
-        (os.path.join('share', package_name, 'launch'), glob('launch/*.py')),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
     maintainer='ns',
-    maintainer_email='ns@todo.todo',
+    maintainer_email='noushad.sust@gmail.com',
     description='TODO: Package description',
     license='TODO: License declaration',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'detecthuman = yolostate.detecthuman:main',
-            'downloadyolo = yolostate.downloadyolo:main',
+            'download = shr_utils_py.download:main',
         ],
     },
 )

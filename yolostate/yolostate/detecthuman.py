@@ -19,6 +19,20 @@ class YoloHuman:
         fn_class_names=yolo_data_dir+'/'+'yolov3.txt'
         fn_cfg=yolo_data_dir+'/'+'yolov3.cfg'
         fn_weights=yolo_data_dir+'/'+'yolov3.weights'
+
+
+        #load data from /home/user/.yolo directory
+        home_path = os.path.expanduser('~') 
+        yolo_dir=os.path.join(home_path, '.yolo')  
+        fn_weights= yolo_dir+'/'+'yolov3.weights'
+        installed = os.path.exists(fn_weights)
+        print('yolo weights path: ', fn_weights, 'installed?', installed)
+        if not installed:
+            print('yolov3.weights not found')
+            print('please run: ros2 run yolostate downloadyolo')
+            print('aborted')
+            return
+
  
         with open(fn_class_names, 'r') as f:
             classes = [line.strip() for line in f.readlines()]
@@ -102,6 +116,10 @@ class DetectHuman(Node):
         self.listener_callback, 
         10)
         self.subscription # prevent unused variable warning
+
+
+        self.declare_parameter('view_camera', False)  #TODO
+
         
         # Used to convert between ROS and OpenCV images
         self.br = CvBridge()
@@ -146,6 +164,14 @@ class DetectHuman(Node):
         if len(names)>0:
             print(f'Human detected. total={len(names)}')  
             self.on_human_data(boxes[0]) 
+
+        param_view_camera = rclpy.parameter.Parameter(
+            'view_camera',
+            rclpy.Parameter.Type.BOOL,
+            False
+        )
+ 
+        # self.get_logger().info('param_view_camera=: "%s"' % param_view_camera)
         
         if self.view_camera:
             for name, conf, box in zip(names, confidences, boxes):
