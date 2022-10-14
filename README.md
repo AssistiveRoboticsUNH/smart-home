@@ -93,6 +93,7 @@ ffmpeg
 **Speech module**  
 `sudo apt-get install ros-kinetic-sound-play`
 Better TTS voice: https://ubuntuforums.org/archive/index.php/t-751169.html
+Download the new voice from [here](https://universitysystemnh-my.sharepoint.com/:u:/g/personal/pac48_usnh_edu/ERrsvRkJHx1Fve_Uv4RBRQ0BOGGKMvEZCGmGE4-R7GwuyQ?e=9730gE) then extract and copy it into `/usr/share/festival/voices/english`
 
 **primesense camera drive**  
 `sudo apt install libopenni2-dev`  
