@@ -65,16 +65,15 @@ class HelloMCL(Node):
         self.create_subscription(OccupancyGrid, '/map',
                                  self.map_callback, 1)
 
-        self._last_odom: Pose = None
-        self._current_pose: Pose = None  
-        self._last_scan: LaserScan = None 
+        self.last_odom= None
+        self.last_scan = None 
 
 
         # self.subscription = self.create_subscription(
         # ParticleCloud,  '/particle_cloud',  self.listener_callback, qos_profile=qos_profile_system_default)
         # self.subscription # prevent unused variable warning
 
-        self._particles= []
+        self.particles= []
         self.num_of_particles=100
         self._initialize_pose()
         self._initialize_particles_gaussian()
@@ -119,6 +118,12 @@ class HelloMCL(Node):
         self._map_publisher.publish(msg)
 
     def timer_callback(self): 
+            # robot_pos=self.last_odom.pose.pose.position
+            # rx=robot_pos.x
+            # ry=robot_pos.y
+            if self.last_odom!=None:
+                self._initialize_particles_gaussian(pose=self.last_odom)
+
             self.pub_particles()
 
 
@@ -137,15 +142,19 @@ class HelloMCL(Node):
         data=np.rot90(data)
         image = cv2.flip(data, 1)
 
+        # image[np.where(image==100)]=1
+        image[np.where(image==0)]=0
+
         cv2.imshow("map_data", image)
         cv2.waitKey(0) 
 
 
     def odometry_callback(self, msg: Odometry):
-        self._last_odom = msg.pose.pose
+        self.last_odom = msg.pose.pose
+
 
     def scan_callback(self, msg: LaserScan):
-        self._last_scan = msg
+        self.last_scan = msg
 
     def listener_callback(self, data):
         header=data.header
@@ -159,7 +168,7 @@ class HelloMCL(Node):
         msg=ParticleCloud()
         msg.header.frame_id = 'map'
         msg.header.stamp = self.get_clock().now().to_msg()
-        for particle in self._particles:
+        for particle in self.particles:
             msg.particles.append(particle)
         self._particle_pub.publish(msg)
 
@@ -169,14 +178,13 @@ class HelloMCL(Node):
                          y=0.0,
                          z=0.0)
         orientation = Quaternion(x=0.0, y=0.0, z=0.0, w=0.0)
-        self._current_pose = Pose(position=position,
-                                  orientation=orientation)
-        self._last_used_odom = self._current_pose
-        self._last_odom = self._current_pose
+        self.current_pose = Pose(position=position,orientation=orientation)
+        self.last_odom = self.current_pose
 
     def _initialize_particles_gaussian(self, pose= None, scale= 0.05):
+        self.particles=[]
         if pose is None:
-            pose = self._current_pose
+            pose = self.current_pose
 
         x_list = list(np.random.normal(loc=pose.position.x, scale=scale, size=self.num_of_particles - 1))
         y_list = list(np.random.normal(loc=pose.position.y, scale=scale, size=self.num_of_particles - 1))
@@ -192,12 +200,12 @@ class HelloMCL(Node):
             p=Particle()
             p.pose=temp_pose
             p.weight=initial_weight
-            self._particles.append(p) 
+            self.particles.append(p) 
 
         p=Particle()
         p.pose= pose
         p.weight=initial_weight
-        self._particles.append(p)
+        self.particles.append(p)
         
 
 
