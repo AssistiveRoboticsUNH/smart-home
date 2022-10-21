@@ -7,7 +7,6 @@ from rclpy.node import Node
 import rclpy
 
 
-
 class PlayVideoActionServer(Node):
     def __init__(self):
         super().__init__('play_video_action')
@@ -26,7 +25,7 @@ class PlayVideoActionServer(Node):
             goal_handle.abort()
             return result
 
-        command = 'vlc ' + file_path + ' --fullscreen vlc://quit &'
+        command = 'vlc ' + file_path + ' --fullscreen vlc://quit'
         os.system(command)
         result.status = "success"
         goal_handle.succeed()
