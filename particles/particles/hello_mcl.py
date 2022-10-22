@@ -87,17 +87,17 @@ class HelloMCL(Node):
         self._map = Map("pioneer_navigation2", 'map/map.yaml', self.get_logger())
         print('map size: ',self._map.width, self._map.height)   #w=225, h=178 using service load
  
-        self._map_publisher = self.create_publisher(
-            OccupancyGrid,
-            '/map2',
-            qos_profile=QoSProfile(
-                depth=1,
-                durability=DurabilityPolicy.TRANSIENT_LOCAL,
-                history=HistoryPolicy.KEEP_LAST,
-            )
-        )
+        # self._map_publisher = self.create_publisher(
+        #     OccupancyGrid,
+        #     '/map2',
+        #     qos_profile=QoSProfile(
+        #         depth=1,
+        #         durability=DurabilityPolicy.TRANSIENT_LOCAL,
+        #         history=HistoryPolicy.KEEP_LAST,
+        #     )
+        # )
 
-        self._publish_map()
+        # self._publish_map()
 
     def _publish_map(self):
         map = [-1] * self._map.width * self._map.height
@@ -136,14 +136,25 @@ class HelloMCL(Node):
         print('new map: ', info.width, info.height)
         print('origin:', origin.x, origin.y)
 
+        print('robot pos:', self.last_odom.position.x, self.last_odom.position.x)
+
         data=np.array(data).reshape(info.height, info.width)
         print('data shape: ', data.shape)
 
         data=np.rot90(data)
         image = cv2.flip(data, 1)
+        ts=set( image.ravel().tolist())
+        print('ts=', ts)
 
-        # image[np.where(image==100)]=1
-        image[np.where(image==0)]=0
+
+        floodval=200
+        # cv2.floodFill(image, None, (0,0), floodval) 
+        # cv2.floodFill(image, None)
+        # arena = ((image==floodval) * 255).astype(np.uint8) 
+
+        # ts2=set( arena.ravel().tolist())
+        # print('ts2=', ts2)
+        cv2.imwrite("problemfile.jpg", image)
 
         cv2.imshow("map_data", image)
         cv2.waitKey(0) 
@@ -151,7 +162,7 @@ class HelloMCL(Node):
 
     def odometry_callback(self, msg: Odometry):
         self.last_odom = msg.pose.pose
-
+         
 
     def scan_callback(self, msg: LaserScan):
         self.last_scan = msg
