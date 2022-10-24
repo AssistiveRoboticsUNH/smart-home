@@ -20,83 +20,84 @@
 #include "plansys2_executor/ActionExecutorClient.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_action/rclcpp_action.hpp"
-
 #include "shr_msgs/action/read_script_request.hpp"
+
+#include <shr_plan_parameters.hpp>
+
 
 using namespace std::chrono_literals;
 
 class NotifyAutomated : public plansys2::ActionExecutorClient {
 public:
-    NotifyAutomated()
-            : plansys2::ActionExecutorClient("notifyautomatedat", 500ms) {
-
-    }
-
-
-    rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
-    on_activate(const rclcpp_lifecycle::State &previous_state) {
-        send_feedback(0.0, "Begin audio");
-
-        navigation_action_client_ =
-                rclcpp_action::create_client<shr_msgs::action::ReadScriptRequest>(shared_from_this(), "read_script");
-
-        bool is_action_server_ready = false;
-        do {
-            RCLCPP_INFO(get_logger(), "Waiting for /read_script action server...");
-
-            is_action_server_ready =
-                    navigation_action_client_->wait_for_action_server(std::chrono::seconds(5));
-        } while (!is_action_server_ready);
-
-        RCLCPP_INFO(get_logger(), "/read_script action server ready");
-
-        auto message = get_arguments()[3];  // The goal is in the 3rd argument of the action
-        auto location = get_arguments()[2];  // The goal is in the 3rd argument of the action
-        RCLCPP_INFO(get_logger(), "Saying message [%s] at [%s]", message.c_str(), location.c_str());
+  NotifyAutomated(const std::string &action, const std::string & script_names)
+      : plansys2::ActionExecutorClient(action, 500ms) {
+    set_parameter(rclcpp::Parameter("action_name", action));
+    script_names_ = script_names;
+  }
 
 
-        auto send_goal_options = rclcpp_action::Client<shr_msgs::action::ReadScriptRequest>::SendGoalOptions();
+  rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
+  on_activate(const rclcpp_lifecycle::State &previous_state) {
+    send_feedback(0.0, "Begin audio");
 
-        send_goal_options.result_callback = [this](auto) {
-            finish(true, 1.0, "Message completed");
-        };
+    read_action_client_ =
+        rclcpp_action::create_client<shr_msgs::action::ReadScriptRequest>(shared_from_this(), "read_script");
 
-        if (message =="midnight_warning"){
-            navigation_goal_.script_name = "midnight_warning.txt";
-        }
+    bool is_action_server_ready = false;
+    do {
+      RCLCPP_INFO(get_logger(), "Waiting for /read_script action server...");
 
-        future_navigation_goal_handle_ = navigation_action_client_->async_send_goal(navigation_goal_, send_goal_options);
+      is_action_server_ready =
+          read_action_client_->wait_for_action_server(std::chrono::seconds(5));
+    } while (!is_action_server_ready);
+
+    RCLCPP_INFO(get_logger(), "/read_script action server ready");
+
+    auto send_goal_options = rclcpp_action::Client<shr_msgs::action::ReadScriptRequest>::SendGoalOptions();
+
+    send_goal_options.result_callback = [this](auto) {
+      finish(true, 1.0, "Message completed");
+    };
+
+    read_goal_.script_name = script_names_;
+    future_read_goal_handle_ = read_action_client_->async_send_goal(read_goal_, send_goal_options);
 
 
-        return ActionExecutorClient::on_activate(previous_state);
-    }
+    return ActionExecutorClient::on_activate(previous_state);
+  }
 
 private:
 
-    void do_work() {
-    }
+  void do_work() {
+  }
 
-    using AudioGoalHandle =
-            rclcpp_action::ClientGoalHandle<shr_msgs::action::ReadScriptRequest>;
+  using AudioGoalHandle = rclcpp_action::ClientGoalHandle<shr_msgs::action::ReadScriptRequest>;
+  rclcpp_action::Client<shr_msgs::action::ReadScriptRequest>::SharedPtr read_action_client_;
+  std::shared_future<AudioGoalHandle::SharedPtr> future_read_goal_handle_;
+  AudioGoalHandle::SharedPtr read_goal_handle_;
+  shr_msgs::action::ReadScriptRequest::Goal read_goal_;
 
-    rclcpp_action::Client<shr_msgs::action::ReadScriptRequest>::SharedPtr navigation_action_client_;
-    std::shared_future<AudioGoalHandle::SharedPtr> future_navigation_goal_handle_;
-    AudioGoalHandle::SharedPtr navigation_goal_handle_;
-
-    shr_msgs::action::ReadScriptRequest::Goal navigation_goal_;
-
+  std::string script_names_;
 };
 
 int main(int argc, char **argv) {
-    rclcpp::init(argc, argv);
-    auto node = std::make_shared<NotifyAutomated>();
+  rclcpp::init(argc, argv);
+  rclcpp::executors::MultiThreadedExecutor exe(rclcpp::ExecutorOptions(), 2);
 
-    node->set_parameter(rclcpp::Parameter("action_name", "notifyautomatedat"));
-    node->trigger_transition(lifecycle_msgs::msg::Transition::TRANSITION_CONFIGURE);
+  auto parameter_node = std::make_shared<rclcpp::Node>("notify_automated_parameter_node");
+  auto param_listener = std::make_shared<shr_plan_parameters::ParamListener>(parameter_node);
+  auto params = param_listener->get_params();
 
-    rclcpp::spin(node->get_node_base_interface());
+  for (auto i = 0ul ; i < params.notify_automated_actions.actions.size(); i++){
+    auto action = params.notify_automated_actions.actions[i];
+    auto script_names = params.notify_automated_actions.script_names[i];
+    auto none_node = std::make_shared<NotifyAutomated>(action, script_names);
+    none_node->trigger_transition(lifecycle_msgs::msg::Transition::TRANSITION_CONFIGURE);
+    exe.add_node(none_node->get_node_base_interface());
+  }
 
-    rclcpp::shutdown();
+  exe.spin();
+  rclcpp::shutdown();
 
-    return 0;
+  return 0;
 }
