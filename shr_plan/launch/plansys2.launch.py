@@ -1,10 +1,11 @@
+import os
+
 from ament_index_python import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node
-from launch.conditions import IfCondition
 
 
 def generate_launch_description():
@@ -88,12 +89,6 @@ def generate_launch_description():
         name='detect_person_action',
         output='screen')
 
-    world_state_cmd = Node(
-        package='shr_world_state',
-        executable='world_state_node',
-        name='world_state_node',
-        output='screen')
-
     # plansys2 actions
     moveto_landmark_cmd = Node(
         package='shr_plan',
@@ -144,7 +139,7 @@ def generate_launch_description():
     ld.add_action(make_call_node_cmd)
     ld.add_action(rotate_node_cmd)
     ld.add_action(find_person_cmd)
-    ld.add_action(world_state_cmd)
+    ld.add_action(detect_person_cmd)
 
     ld.add_action(moveto_landmark_cmd)
     ld.add_action(notify_automated_cmd)
@@ -153,5 +148,9 @@ def generate_launch_description():
     ld.add_action(node_action_node_cmd)
 
     ld.add_action(planning_controller_node_cmd)
+
+    world_state_path = get_package_share_directory('shr_world_state')
+    ld.add_action(IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(os.path.join(world_state_path, 'launch', 'world_state.launch.py'))))
 
     return ld

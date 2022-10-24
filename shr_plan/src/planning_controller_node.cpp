@@ -45,89 +45,89 @@
 
 namespace planning_controller {
 
-    typedef enum {
-        IDLE, GATHERING_INFO, PLANNING, EXECUTING
-    } StateType;
+  typedef enum {
+    IDLE, GATHERING_INFO, PLANNING, EXECUTING
+  } StateType;
 
 
-    class PlanningControllerSpin : public rclcpp::Node {
-    public:
-        PlanningControllerSpin()
-                : rclcpp::Node("planing_controller_spin") {
-            using std::placeholders::_1;
-            param_listener_ = std::make_shared<shr_plan_parameters::ParamListener>(get_node_parameters_interface());
-            params_ = param_listener_->get_params();
+  class PlanningControllerSpin : public rclcpp::Node {
+  public:
+    PlanningControllerSpin()
+        : rclcpp::Node("planing_controller_spin") {
+      using std::placeholders::_1;
+      param_listener_ = std::make_shared<shr_plan_parameters::ParamListener>(get_node_parameters_interface());
+      params_ = param_listener_->get_params();
 
-            world_state_sub_ = this->create_subscription<shr_msgs::msg::WorldState>(
-                    params_.world_state_topic, 10,
-                    std::bind(&PlanningControllerSpin::update_world_state_callback, this, _1));
+      world_state_sub_ = this->create_subscription<shr_msgs::msg::WorldState>(
+          params_.world_state_topic, 10,
+          std::bind(&PlanningControllerSpin::update_world_state_callback, this, _1));
 
-            action_hub_sub_ = create_subscription<plansys2_msgs::msg::ActionExecution>(
-                    "actions_hub", rclcpp::QoS(100).reliable(),
-                    std::bind(&PlanningControllerSpin::action_hub_callback, this, _1));
-        }
+      action_hub_sub_ = create_subscription<plansys2_msgs::msg::ActionExecution>(
+          "actions_hub", rclcpp::QoS(100).reliable(),
+          std::bind(&PlanningControllerSpin::action_hub_callback, this, _1));
+    }
 
-        shr_msgs::msg::WorldState get_world_state() {
-            std::lock_guard<std::mutex> lock(mutex_);
-            new_world_ = false;
-            return world_state_;
-        }
+    shr_msgs::msg::WorldState get_world_state() {
+      std::lock_guard<std::mutex> lock(mutex_);
+      new_world_ = false;
+      return world_state_;
+    }
 
-        std::vector<std::string> get_completed_actions() {
-            std::lock_guard<std::mutex> lock(mutex_);
-            auto tmp = completed_actions_;
-            completed_actions_.clear();
-            return tmp;
-        }
+    std::vector<std::string> get_completed_actions() {
+      std::lock_guard<std::mutex> lock(mutex_);
+      auto tmp = completed_actions_;
+      completed_actions_.clear();
+      return tmp;
+    }
 
-        bool has_new_world_state() {
-            return new_world_;
-        }
+    bool has_new_world_state() {
+      return new_world_;
+    }
 
-        bool has_new_completed_actions() {
-            return !completed_actions_.empty();
-        }
-
-
-    private:
-
-        void update_world_state_callback(const shr_msgs::msg::WorldState::SharedPtr msg) {
-            std::lock_guard<std::mutex> lock(mutex_);
-            if (world_state_ != *msg) {
-                world_state_ = *msg;
-                new_world_ = true;
-            }
-        }
+    bool has_new_completed_actions() {
+      return !completed_actions_.empty();
+    }
 
 
-        void action_hub_callback(const plansys2_msgs::msg::ActionExecution::SharedPtr msg) {
-            if (msg->type == plansys2_msgs::msg::ActionExecution::FINISH) {
-                std::cout << "Action: " << msg->action << " has completed!!!!!!!!!!" << std::endl;
-                completed_actions_.push_back(msg->action);
-            }
-        }
+  private:
 
-        shr_msgs::msg::WorldState world_state_;
-        std::vector<std::string> completed_actions_;
-        bool new_world_;
-        rclcpp::Subscription<shr_msgs::msg::WorldState>::SharedPtr world_state_sub_;
-        rclcpp::Subscription<plansys2_msgs::msg::ActionExecution>::SharedPtr action_hub_sub_;
-        std::shared_ptr<shr_plan_parameters::ParamListener> param_listener_;
-        shr_plan_parameters::Params params_;
-        std::mutex mutable mutex_;
-
-    };
+    void update_world_state_callback(const shr_msgs::msg::WorldState::SharedPtr msg) {
+      std::lock_guard<std::mutex> lock(mutex_);
+      if (world_state_ != *msg) {
+        world_state_ = *msg;
+        new_world_ = true;
+      }
+    }
 
 
-    class PlanningController : public rclcpp::Node {
-    public:
-        PlanningController()
-                : rclcpp::Node("planing_controller"), state_(IDLE) {
+    void action_hub_callback(const plansys2_msgs::msg::ActionExecution::SharedPtr msg) {
+      if (msg->type == plansys2_msgs::msg::ActionExecution::FINISH) {
+        std::cout << "Action: " << msg->action << " has completed!!!!!!!!!!" << std::endl;
+        completed_actions_.push_back(msg->action);
+      }
+    }
 
-            param_listener_ = std::make_shared<shr_plan_parameters::ParamListener>(get_node_parameters_interface());
-            params_ = param_listener_->get_params();
+    shr_msgs::msg::WorldState world_state_;
+    std::vector<std::string> completed_actions_;
+    bool new_world_;
+    rclcpp::Subscription<shr_msgs::msg::WorldState>::SharedPtr world_state_sub_;
+    rclcpp::Subscription<plansys2_msgs::msg::ActionExecution>::SharedPtr action_hub_sub_;
+    std::shared_ptr<shr_plan_parameters::ParamListener> param_listener_;
+    shr_plan_parameters::Params params_;
+    std::mutex mutable mutex_;
 
-            using std::placeholders::_1;
+  };
+
+
+  class PlanningController : public rclcpp::Node {
+  public:
+    PlanningController()
+        : rclcpp::Node("planing_controller"), state_(IDLE) {
+
+      param_listener_ = std::make_shared<shr_plan_parameters::ParamListener>(get_node_parameters_interface());
+      params_ = param_listener_->get_params();
+
+      using std::placeholders::_1;
 
 //            world_state_sub_ = this->create_subscription<shr_msgs::msg::WorldState>(
 //                    params_.world_state_topic, 10,
@@ -135,8 +135,8 @@ namespace planning_controller {
 //
 ////            navigation_action_client_ = rclcpp_action::create_client<nav2_msgs::action::NavigateToPose>(
 ////                    spin_node, "navigate_to_pose");
-            gathering_info_client_ = rclcpp_action::create_client<shr_msgs::action::GatherInformationRequest>(
-                    this, "gather_information");
+      gathering_info_client_ = rclcpp_action::create_client<shr_msgs::action::GatherInformationRequest>(
+          this, "gather_information");
 //
 //
 //            action_hub_sub_ = create_subscription<plansys2_msgs::msg::ActionExecution>(
@@ -152,241 +152,170 @@ namespace planning_controller {
 
 
 
+    }
+
+    void set_world_state(const shr_msgs::msg::WorldState &world_state) {
+      world_state_ = world_state;
+    }
+
+    void init() {
+      domain_expert_ = std::make_shared<plansys2::DomainExpertClient>();
+      planner_client_ = std::make_shared<plansys2::PlannerClient>();
+      problem_expert_ = std::make_shared<plansys2::ProblemExpertClient>();
+      executor_client_ = std::make_shared<plansys2::ExecutorClient>();
+    }
+
+    void reset_protocol_state() {
+      active_protocol = "";
+      midnight_warning_state_.reset();
+      medicine_reminder_state.reset();
+    }
+
+    StateType get_transition() {
+      if (active_protocol.empty()) {
+        return IDLE;
+      }
+      if (state_ == IDLE) {
+        if (!active_protocol.empty()) {
+          return PLANNING;
         }
+      }
 
-        void set_world_state(const shr_msgs::msg::WorldState &world_state) {
-            world_state_ = world_state;
+      return state_;
+    }
+
+    void step() {
+
+      switch (state_) {
+        state_ = get_transition();
+        case IDLE: {
+          break;
         }
+        case GATHERING_INFO: {
+          state_ = get_transition();
+          if (state_ != GATHERING_INFO) {
+            gathering_info_client_->async_cancel_all_goals();
+            break;
+          }
 
-        void set_completed_actions(const std::vector<std::string> &completed_actions) {
-            for (const auto &action: completed_actions) {
-                if (midnight_warning_state_) {
-                    if (action == "notifyautomatedat") {
-                        midnight_warning_state_->automated_message_given.time_stamp = now();
-                        midnight_warning_state_->automated_message_given.number_runs++;
-                    } else if (action == "notifyrecordedat") {
-                        midnight_warning_state_->recorded_message_given.time_stamp = now();
-                        midnight_warning_state_->recorded_message_given.number_runs++;
-                    } else if (action == "alertcaregiver") {
-                        midnight_warning_state_->care_giver_called.time_stamp = now();
-                        midnight_warning_state_->care_giver_called.number_runs++;
-                    } else if (action == "callemergency") {
-                        midnight_warning_state_->emergency_called.time_stamp = now();
-                        midnight_warning_state_->emergency_called.number_runs++;
-                    }
-
-                } else if (medicine_reminder_state) {
-
-                }
-            }
-
-
+          if (!gathering_info) {
+            auto result_callback = [this](
+                const rclcpp_action::ClientGoalHandle<shr_msgs::action::GatherInformationRequest>::WrappedResult &res) {
+              gathering_info = false;
+              if (res.code == rclcpp_action::ResultCode::SUCCEEDED) {
+                world_state_ = res.result->world_state;
+              }
+              state_ = IDLE;
+            };
+            auto send_goal_options = rclcpp_action::Client<shr_msgs::action::GatherInformationRequest>::SendGoalOptions();
+            send_goal_options.result_callback = result_callback;
+            auto request = shr_msgs::action::GatherInformationRequest::Goal();
+            request.states = requested_states;
+            gathering_info_client_->async_send_goal(request, send_goal_options);
+            gathering_info = true;
+          }
+          break;
         }
+        case PLANNING: {
+          if (!init_plan()) {
+            state_ = IDLE;
+            break;
+          }
 
-        void init() {
-            domain_expert_ = std::make_shared<plansys2::DomainExpertClient>();
-            planner_client_ = std::make_shared<plansys2::PlannerClient>();
-            problem_expert_ = std::make_shared<plansys2::ProblemExpertClient>();
-            executor_client_ = std::make_shared<plansys2::ExecutorClient>();
+          // Compute the plan
+          auto domain = domain_expert_->getDomain();
+          auto problem = problem_expert_->getProblem();
+          auto plan = planner_client_->getPlan(domain, problem);
+
+          if (!plan.has_value()) {
+            std::cout << "Could not find plan to reach goal " <<
+                      parser::pddl::toString(problem_expert_->getGoal()) << std::endl;
+            break;
+          }
+
+          // Execute the plan
+          if (executor_client_->start_plan_execution(plan.value())) {
+            state_ = EXECUTING;
+          }
+
+          break;
         }
+        case EXECUTING: {
+          state_ = get_transition();
+          if (state_ != EXECUTING) {
+            executor_client_->cancel_plan_execution();
+            break;
+          }
 
-        void reset_protocol_state() {
-            active_protocol = "";
-            midnight_warning_state_.reset();
-            medicine_reminder_state.reset();
+          auto feedback = executor_client_->getFeedBack();
 
-        }
+          for (const auto &action_feedback: feedback.action_execution_status) {
+            std::cout << "[" << action_feedback.action << " " <<
+                      action_feedback.completion * 100.0 << "%]";
+          }
+          std::cout << std::endl;
 
-        StateType get_transition() {
-//            if (state_ == IDLE) {
-//                reset_protocol_state();
-//            }
-
-            if (world_state_.too_late_to_leave == 1 &&
-                (world_state_.patient_location == world_state_.door_location ||
-                 (world_state_.patient_location.empty() && world_state_.door_open)
-                )) {
-
-                if (active_protocol == "midnight_warning" && state_ == EXECUTING) {
-                    return EXECUTING;
-                }
-
-                active_protocol = "midnight_warning";
-                if (!midnight_warning_state_) {
-                    *midnight_warning_state_ = shr_msgs::msg::MidnightWarningProtocol();
-                }
-
-                if (world_state_.patient_location == world_state_.door_location ||
-                    world_state_.patient_location == world_state_.outside_location) {
-                    return PLANNING;
-                }
-//                if (world_state_.patient_location.empty() && world_state_.door_open) {
-//                    requested_states = {"patient_location"};
-//                    return GATHERING_INFO;
-//                }
+          if (!executor_client_->execute_and_check_plan() && executor_client_->getResult()) {
+            if (executor_client_->getResult().value().success) {
+              std::cout << "Successful finished " << std::endl;
+              state_ = IDLE;
+              active_protocol = "";
             } else {
-                active_protocol = "";
-                midnight_warning_state_.reset();
-                return IDLE;
+              state_ = PLANNING;
             }
+          }
 
-//            if (world_state_.took_medicine == 0 && world_state_.time_to_take_medicine == 1) {
-//                active_protocol = "medicine_reminder";
-//                *medicine_reminder_state = shr_msgs::msg::MedicineReminderProtocol();
-//                if (world_state_.patient_location.empty()) {
-//                    requested_states = {"patient_location"};
-//                    return GATHERING_INFO;
-//                } else {
-//                    return PLANNING;
-//                }
-//            }
-
-            return IDLE;
+          break;
         }
 
-        void step() {
+      }
+    }
 
-            switch (state_) {
-                state_ = get_transition();
-                case IDLE: {
-                    break;
-                }
-                case GATHERING_INFO: {
-                    state_ = get_transition();
-                    if (state_ != GATHERING_INFO) {
-                        gathering_info_client_->async_cancel_all_goals();
-                        break;
-                    }
-
-                    if (!gathering_info) {
-                        auto result_callback = [this](
-                                const rclcpp_action::ClientGoalHandle<shr_msgs::action::GatherInformationRequest>::WrappedResult &res) {
-                            gathering_info = false;
-                            if (res.code == rclcpp_action::ResultCode::SUCCEEDED) {
-                                world_state_ = res.result->world_state;
-                            }
-                        };
-                        auto send_goal_options = rclcpp_action::Client<shr_msgs::action::GatherInformationRequest>::SendGoalOptions();
-                        send_goal_options.result_callback = result_callback;
-                        auto request = shr_msgs::action::GatherInformationRequest::Goal();
-                        request.states = requested_states;
-                        gathering_info_client_->async_send_goal(request, send_goal_options);
-                        gathering_info = true;
-                    }
-                    break;
-                }
-                case PLANNING: {
-
-//                    init_knowledge();
-//                    init_predicates();
-//                    set_goal();
-                    if (!init_plan()){
-                        state_ = IDLE;
-                        break;
-                    }
-
-                    world_changed_ = false;
-
-                    // Compute the plan
-                    auto domain = domain_expert_->getDomain();
-                    auto problem = problem_expert_->getProblem();
-                    auto plan = planner_client_->getPlan(domain, problem);
-
-                    if (!plan.has_value()) {
-                        std::cout << "Could not find plan to reach goal " <<
-                                  parser::pddl::toString(problem_expert_->getGoal()) << std::endl;
-                        break;
-                    }
-
-                    // Execute the plan
-                    if (executor_client_->start_plan_execution(plan.value())) {
-                        state_ = EXECUTING;
-                    }
-
-                    break;
-                }
-                case EXECUTING: {
-                    state_ = get_transition();
-                    if (state_ != EXECUTING) {
-                        executor_client_->cancel_plan_execution();
-                        break;
-                    }
-
-                    auto feedback = executor_client_->getFeedBack();
-
-                    for (const auto &action_feedback: feedback.action_execution_status) {
-                        std::cout << "[" << action_feedback.action << " " <<
-                                  action_feedback.completion * 100.0 << "%]";
-                    }
-                    std::cout << std::endl;
-
-//                    if (world_changed_) {
-//                        executor_client_->cancel_plan_execution();
-//                    }
-
-                    if (!executor_client_->execute_and_check_plan() && executor_client_->getResult()) {
-                        if (executor_client_->getResult().value().success) {
-                            std::cout << "Successful finished " << std::endl;
-                            state_ = IDLE;
-                            active_protocol = "";
-                        } else {
-                            state_ = PLANNING;
-                        }
-                    }
-
-                    break;
-                }
-
-            }
-        }
-
-        bool world_changed_ = false;
-
-    private:
+  private:
 
 //        void update_protocol_callback(const std_msgs::msg::String::SharedPtr msg) {
 //            active_protocol = msg->data;
 //        }
 
 
-        bool init_plan() {
-            for (const auto &instance: problem_expert_->getInstances()) {
-                problem_expert_->removeInstance(instance);
-            }
-            for (const auto &pred: problem_expert_->getPredicates()) {
-                problem_expert_->removePredicate(pred);
-            }
+    bool init_plan() {
+      for (const auto &instance: problem_expert_->getInstances()) {
+        problem_expert_->removeInstance(instance);
+      }
+      for (const auto &pred: problem_expert_->getPredicates()) {
+        problem_expert_->removePredicate(pred);
+      }
 
-            if (active_protocol == "midnight_warning") {
-                problem_expert_->addInstance(plansys2::Instance{world_state_.door_location, "landmark"});
-                problem_expert_->addInstance(plansys2::Instance{"home", "landmark"});
-                problem_expert_->addInstance(plansys2::Instance{"pioneer", "robot"});
-                problem_expert_->addInstance(plansys2::Instance{params_.patient_name, "person"});
-                problem_expert_->addInstance(plansys2::Instance{"midnight_warning", "automated_message"});
-                problem_expert_->addInstance(plansys2::Instance{"midnight_warning_video", "recorded_message"});
-
-
-                problem_expert_->addPredicate(plansys2::Predicate("(robot_at pioneer home)"));
-                problem_expert_->addPredicate(plansys2::Predicate(
-                        "(person_at " + params_.patient_name + " " + world_state_.door_location + ")"));
-                problem_expert_->addPredicate(
-                        plansys2::Predicate("(give_message_location " + world_state_.door_location + ")"));
-                if (world_state_.door_open == 1) {
-                    problem_expert_->addPredicate(plansys2::Predicate("(automated_message_given midnight_warning)"));
-                }
+      if (active_protocol == "midnight_warning") {
+        problem_expert_->addInstance(plansys2::Instance{world_state_.door_location, "landmark"});
+        problem_expert_->addInstance(plansys2::Instance{"home", "landmark"});
+        problem_expert_->addInstance(plansys2::Instance{"pioneer", "robot"});
+        problem_expert_->addInstance(plansys2::Instance{params_.patient_name, "person"});
+        problem_expert_->addInstance(plansys2::Instance{"midnight_warning", "automated_message"});
+        problem_expert_->addInstance(plansys2::Instance{"midnight_warning_video", "recorded_message"});
 
 
-                if (world_state_.door_open == 1) {
-                    problem_expert_->setGoal(plansys2::Goal(
-                            "(and(robot_at pioneer " + world_state_.door_location +
-                            ")(recorded_message_given midnight_warning_video))"));
-                } else {
-                    problem_expert_->setGoal(
-                            plansys2::Goal("(and(robot_at pioneer " + world_state_.door_location +
-                                           ")(automated_message_given midnight_warning))"));
-                }
-            }
+        problem_expert_->addPredicate(plansys2::Predicate("(robot_at pioneer home)"));
+        problem_expert_->addPredicate(plansys2::Predicate(
+            "(person_at " + params_.patient_name + " " + world_state_.door_location + ")"));
+        problem_expert_->addPredicate(
+            plansys2::Predicate("(give_message_location " + world_state_.door_location + ")"));
+        if (world_state_.door_open == 1) {
+          problem_expert_->addPredicate(plansys2::Predicate("(automated_message_given midnight_warning)"));
         }
+
+
+        if (world_state_.door_open == 1) {
+          problem_expert_->setGoal(plansys2::Goal(
+              "(and(robot_at pioneer " + world_state_.door_location +
+              ")(recorded_message_given midnight_warning_video))"));
+        } else {
+          problem_expert_->setGoal(
+              plansys2::Goal("(and(robot_at pioneer " + world_state_.door_location +
+                             ")(automated_message_given midnight_warning))"));
+        }
+      }
+    }
 
 //        void init_knowledge() {
 //            for (const auto &instance: problem_expert_->getInstances()) {
@@ -461,69 +390,66 @@ namespace planning_controller {
 //        }
 
 
-        StateType state_;
+    StateType state_;
 
-        std::shared_ptr<plansys2::DomainExpertClient> domain_expert_;
-        std::shared_ptr<plansys2::PlannerClient> planner_client_;
-        std::shared_ptr<plansys2::ProblemExpertClient> problem_expert_;
-        std::shared_ptr<plansys2::ExecutorClient> executor_client_;
+    std::shared_ptr<plansys2::DomainExpertClient> domain_expert_;
+    std::shared_ptr<plansys2::PlannerClient> planner_client_;
+    std::shared_ptr<plansys2::ProblemExpertClient> problem_expert_;
+    std::shared_ptr<plansys2::ExecutorClient> executor_client_;
 
-        std::shared_ptr<shr_plan_parameters::ParamListener> param_listener_;
-        shr_plan_parameters::Params params_;
+    std::shared_ptr<shr_plan_parameters::ParamListener> param_listener_;
+    shr_plan_parameters::Params params_;
 
 
-        rclcpp_action::Client<nav2_msgs::action::NavigateToPose>::SharedPtr navigation_action_client_;
-        rclcpp_action::Client<shr_msgs::action::GatherInformationRequest>::SharedPtr gathering_info_client_;
+    rclcpp_action::Client<nav2_msgs::action::NavigateToPose>::SharedPtr navigation_action_client_;
+    rclcpp_action::Client<shr_msgs::action::GatherInformationRequest>::SharedPtr gathering_info_client_;
 
 //        std::shared_ptr<tf2_ros::TransformListener> tf_listener_;
 //        std::unique_ptr<tf2_ros::Buffer> tf_buffer_;
 
 //        std::shared_ptr<PlanningControllerSpin> spin_node;
 
-        shr_msgs::msg::WorldState world_state_;
-        std::shared_ptr<shr_msgs::msg::MidnightWarningProtocol> midnight_warning_state_;
-        std::shared_ptr<shr_msgs::msg::MedicineReminderProtocol> medicine_reminder_state;
-        bool gathering_info = false;
-        std::string active_protocol;
-        std::vector<std::string> requested_states;
-    };
+    shr_msgs::msg::WorldState world_state_;
+    std::shared_ptr<shr_msgs::msg::MidnightWarningProtocol> midnight_warning_state_;
+    std::shared_ptr<shr_msgs::msg::MedicineReminderProtocol> medicine_reminder_state;
+    bool gathering_info = false;
+    std::string active_protocol;
+    std::vector<std::string> requested_states;
+  };
 
 }
 
 int main(int argc, char **argv) {
-    rclcpp::init(argc, argv);
-    auto node = std::make_shared<planning_controller::PlanningController>();
-    auto spin_node = std::make_shared<planning_controller::PlanningControllerSpin>();
-    node->init();
+  rclcpp::init(argc, argv);
+  auto node = std::make_shared<planning_controller::PlanningController>();
+  auto spin_node = std::make_shared<planning_controller::PlanningControllerSpin>();
+  node->init();
 
-    rclcpp::Rate rate(5);
-    while (spin_node->get_world_state() == shr_msgs::msg::WorldState()) {
-        std::cout << "Waiting for world update" << std::endl;
-        rate.sleep();
-        rclcpp::spin_some(spin_node->get_node_base_interface());
+  rclcpp::Rate rate(5);
+  while (spin_node->get_world_state() == shr_msgs::msg::WorldState()) {
+    std::cout << "Waiting for world update" << std::endl;
+    rate.sleep();
+    rclcpp::spin_some(spin_node->get_node_base_interface());
+  }
+
+  std::thread thread(
+      [spin_node]() {
+        rclcpp::spin(spin_node->get_node_base_interface());
+      }
+  );
+
+  while (rclcpp::ok()) {
+    if (spin_node->has_new_world_state()) {
+      node->set_world_state(spin_node->get_world_state());
     }
+    node->step();
+    rclcpp::spin_some(node->get_node_base_interface());
+    rate.sleep();
+  }
 
-    std::thread thread(
-            [spin_node]() {
-                rclcpp::spin(spin_node->get_node_base_interface());
-            }
-    );
+  thread.join();
 
-    while (rclcpp::ok()) {
-        if (spin_node->has_new_world_state()) {
-            node->set_world_state(spin_node->get_world_state());
-        }
-        if (spin_node->has_new_completed_actions()) {
-            node->set_completed_actions(spin_node->get_completed_actions());
-        }
-        node->step();
-        rclcpp::spin_some(node->get_node_base_interface());
-        rate.sleep();
-    }
+  rclcpp::shutdown();
 
-    thread.join();
-
-    rclcpp::shutdown();
-
-    return 0;
+  return 0;
 }
