@@ -43,7 +43,8 @@ class ReadScriptActionServer(Node):
     def create_wav_from_text(self, file_path):
         (wavfile, wavfilename) = tempfile.mkstemp(
             prefix='sound_play', suffix='.wav')
-        os.system("text2wave -eval '(" + self.voice + ")' " + file_path + " -o " + wavfilename)
+        # os.system("text2wave -eval '(" + self.voice + ")' " + file_path + " -o " + wavfilename)
+        os.system("text2wave " + file_path + " -o " + wavfilename)
         # os.system("pico2wave -l en-US -w" + wavfilename + f' "{data.arg}"')
         wavfilename_new = wavfilename.replace('.wav', '')
         wavfilename_new += '_new.wav'
