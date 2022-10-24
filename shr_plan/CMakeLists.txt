@@ -53,17 +53,41 @@ target_link_libraries(planning_controller_node
 
 add_executable(notify_automated_action_node src/actions/notify_automated_action_node.cpp)
 ament_target_dependencies(notify_automated_action_node ${dependencies})
+target_link_libraries(notify_automated_action_node
+        shr_plan_parameters
+        )
 
 add_executable(notify_recorded_video_node src/actions/notify_recorded_action_node.cpp)
 ament_target_dependencies(notify_recorded_video_node ${dependencies})
+target_link_libraries(notify_recorded_video_node
+        shr_plan_parameters
+        )
 
 
 add_executable(move_action_node src/actions/move_action_node.cpp)
 ament_target_dependencies(move_action_node ${dependencies})
+target_link_libraries(move_action_node
+        shr_plan_parameters
+        )
 
-add_executable(call_emergency_node src/actions/call_emergency_action_node.cpp)
-ament_target_dependencies(call_emergency_node ${dependencies})
+add_executable(guide_action_node src/actions/guide_action_node.cpp)
+ament_target_dependencies(guide_action_node ${dependencies})
+target_link_libraries(guide_action_node
+        shr_plan_parameters
+        )
 
+
+add_executable(call_action_node src/actions/call_action_node.cpp)
+ament_target_dependencies(call_action_node ${dependencies})
+target_link_libraries(call_action_node
+        shr_plan_parameters
+)
+
+add_executable(none_action_node src/actions/none_action_node.cpp)
+ament_target_dependencies(none_action_node ${dependencies})
+target_link_libraries(none_action_node
+        shr_plan_parameters
+        )
 
 
 include_directories(
@@ -75,7 +99,9 @@ install(TARGETS
         notify_automated_action_node
         notify_recorded_video_node
         move_action_node
-        call_emergency_node
+        guide_action_node
+        call_action_node
+        none_action_node
         ARCHIVE DESTINATION lib
         LIBRARY DESTINATION lib
         RUNTIME DESTINATION lib/${PROJECT_NAME}

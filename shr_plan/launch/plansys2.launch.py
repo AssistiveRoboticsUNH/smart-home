@@ -23,9 +23,9 @@ def generate_launch_description():
             'plansys2_bringup_launch_distributed.py'])),
         # 'plansys2_bringup_launch_monolithic.py' 'plansys2_bringup_launch_distributed.py'
         launch_arguments={
-            'model_file': PathJoinSubstitution([shr_dir, 'pddl', 'paul_domain_shr.pddl']),
-            # 'paul_domain_shr.pddl'   'domain_shr.pddl'
-            'namespace': namespace
+            'model_file': PathJoinSubstitution([shr_dir, 'pddl', 'paul_domain_shr_conditional.pddl']),
+            'namespace': namespace,
+            'bt_builder_plugin': 'ContingentBTBuilder',
         }.items())
 
     sound_node_cmd = Node(
@@ -113,6 +113,18 @@ def generate_launch_description():
         name='planning_controller_node',
         output='screen')
 
+    call_node_cmd = Node(
+        package='shr_plan',
+        executable='call_action_node',
+        name='call_action_node',
+        output='screen')
+
+    node_action_node_cmd = Node(
+        package='shr_plan',
+        executable='none_action_node',
+        name='none_action_node',
+        output='screen')
+
     ld = LaunchDescription()
     ld.add_action(declare_namespace_cmd)
 
@@ -131,6 +143,8 @@ def generate_launch_description():
     ld.add_action(moveto_landmark_cmd)
     ld.add_action(notify_automated_cmd)
     ld.add_action(notify_recorded_video_cmd)
+    ld.add_action(call_node_cmd)
+    ld.add_action(node_action_node_cmd)
 
     ld.add_action(planning_controller_node_cmd)
 
