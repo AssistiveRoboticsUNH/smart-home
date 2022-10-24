@@ -7,8 +7,10 @@ from shr_utils_py.download import download
 
 #TODO: check if saved file is in correct size
  
+# fast download link
 def main():
     url=URL = "https://pjreddie.com/media/files/yolov3.weights" 
+    url="https://universitysystemnh-my.sharepoint.com/:u:/g/personal/ns1254_usnh_edu/EWN4VNfezfNIiN4B-So8jBIByxuaI5ZaxBj-X1I6wAiBcg?download=1"
     home_path = os.path.expanduser('~')
     filename  = URL.split("/")[-1]
     yolo_dir=os.path.join(home_path, '.yolo')
