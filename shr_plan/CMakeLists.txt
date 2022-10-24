@@ -89,19 +89,26 @@ target_link_libraries(none_action_node
         shr_plan_parameters
         )
 
+add_executable(detect_person_action_node src/actions/detect_person_action_node.cpp)
+ament_target_dependencies(detect_person_action_node ${dependencies})
+target_link_libraries(detect_person_action_node
+        shr_plan_parameters
+        )
+
 
 include_directories(
         include
 )
 
 install(TARGETS
-        planning_controller_node
+        call_action_node
+        detect_person_action_node
+        guide_action_node
+        move_action_node
+        none_action_node
         notify_automated_action_node
         notify_recorded_video_node
-        move_action_node
-        guide_action_node
-        call_action_node
-        none_action_node
+        planning_controller_node
         ARCHIVE DESTINATION lib
         LIBRARY DESTINATION lib
         RUNTIME DESTINATION lib/${PROJECT_NAME}

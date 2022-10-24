@@ -24,6 +24,7 @@ set(msg_files
 
 set(action_files
         action/CallRequest.action
+        action/DetectPersonRequest.action
         action/EmptyRequest.action
         action/FindPersonRequest.action
         action/GatherInformationRequest.action

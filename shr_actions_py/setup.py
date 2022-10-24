@@ -26,6 +26,7 @@ setup(
                             'play_video_action = shr_actions_py.play_video_action:main',
                             'open_image_action = shr_actions_py.open_image_action:main',
                             'rotate_action = shr_actions_py.rotate_action:main',
+                            'detect_person_action = shr_actions_py.detect_person_action:main',
                             ],
     },
 )
