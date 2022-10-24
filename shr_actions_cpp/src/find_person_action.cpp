@@ -225,7 +225,7 @@ namespace find_person_request {
             auto send_goal_options = rclcpp_action::Client<shr_msgs::action::RecognizeRequest>::SendGoalOptions();
             auto result_callback = [this, goal, rotating, recognizing, found_person](
                     const rclcpp_action::ClientGoalHandle<shr_msgs::action::RecognizeRequest>::WrappedResult &response) {
-                if (*rotating) {
+              if (*rotating) {
                     for (const auto &name: response.result->names) {
                         if (name == goal->name) {
                             *found_person = true;

@@ -83,6 +83,18 @@ shr_plan_parameters:
       description: "list of pddl guide to actions",
     }
 
+  detect_person_actions:
+    actions: {
+      type: string_array,
+      default_value: [ "checkGuideToSucceeded1", "checkGuideToSucceeded2", ],
+      description: "list of pddl detect person actions",
+    }
+    timeouts: {
+      type: double_array,
+      default_value: [ 10.0, 10.0 ],
+      description: "list of detect person timeout values",
+    }
+
   none_actions:
     actions: {
       type: string_array,

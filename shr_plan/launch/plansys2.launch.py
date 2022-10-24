@@ -82,6 +82,12 @@ def generate_launch_description():
         name='find_person_node',
         output='screen')
 
+    detect_person_cmd = Node(
+        package='shr_actions_py',
+        executable='detect_person_action',
+        name='detect_person_action',
+        output='screen')
+
     world_state_cmd = Node(
         package='shr_world_state',
         executable='world_state_node',
