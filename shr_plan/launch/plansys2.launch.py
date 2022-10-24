@@ -1,10 +1,11 @@
+import os
+
 from ament_index_python import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node
-from launch.conditions import IfCondition
 
 
 def generate_launch_description():
@@ -23,9 +24,9 @@ def generate_launch_description():
             'plansys2_bringup_launch_distributed.py'])),
         # 'plansys2_bringup_launch_monolithic.py' 'plansys2_bringup_launch_distributed.py'
         launch_arguments={
-            'model_file': PathJoinSubstitution([shr_dir, 'pddl', 'paul_domain_shr.pddl']),
-            # 'paul_domain_shr.pddl'   'domain_shr.pddl'
-            'namespace': namespace
+            'model_file': PathJoinSubstitution([shr_dir, 'pddl', 'paul_domain_shr_conditional.pddl']),
+            'namespace': namespace,
+            'bt_builder_plugin': 'ContingentBTBuilder',
         }.items())
 
     sound_node_cmd = Node(
@@ -82,10 +83,10 @@ def generate_launch_description():
         name='find_person_node',
         output='screen')
 
-    world_state_cmd = Node(
-        package='shr_world_state',
-        executable='world_state_node',
-        name='world_state_node',
+    detect_person_cmd = Node(
+        package='shr_actions_py',
+        executable='detect_person_action',
+        name='detect_person_action',
         output='screen')
 
     # plansys2 actions
@@ -113,6 +114,18 @@ def generate_launch_description():
         name='planning_controller_node',
         output='screen')
 
+    call_node_cmd = Node(
+        package='shr_plan',
+        executable='call_action_node',
+        name='call_action_node',
+        output='screen')
+
+    node_action_node_cmd = Node(
+        package='shr_plan',
+        executable='none_action_node',
+        name='none_action_node',
+        output='screen')
+
     ld = LaunchDescription()
     ld.add_action(declare_namespace_cmd)
 
@@ -126,12 +139,18 @@ def generate_launch_description():
     ld.add_action(make_call_node_cmd)
     ld.add_action(rotate_node_cmd)
     ld.add_action(find_person_cmd)
-    ld.add_action(world_state_cmd)
+    ld.add_action(detect_person_cmd)
 
     ld.add_action(moveto_landmark_cmd)
     ld.add_action(notify_automated_cmd)
     ld.add_action(notify_recorded_video_cmd)
+    ld.add_action(call_node_cmd)
+    ld.add_action(node_action_node_cmd)
 
     ld.add_action(planning_controller_node_cmd)
+
+    world_state_path = get_package_share_directory('shr_world_state')
+    ld.add_action(IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(os.path.join(world_state_path, 'launch', 'world_state.launch.py'))))
 
     return ld

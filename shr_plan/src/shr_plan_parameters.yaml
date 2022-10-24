@@ -26,26 +26,90 @@ shr_plan_parameters:
   }
   locations: {
     type: string_array,
-    default_value: ["bedroom_robot_pos", "door_robot_pos", "kitchen_robot_pos", "couch_robot_pos", "outside"],
+    default_value: [ "bedroom_robot_pos", "door_robot_pos", "kitchen_robot_pos", "couch_robot_pos", "outside" ],
     description: "list of tf frame locations that the robot can visit",
-  }
-  door_location_ind: {
-    type: int,
-    default_value: 1,
-    description: "index of door location in the 'locations' parameter vector",
-  }
-  outside_location_ind: {
-    type: int,
-    default_value: 4,
-    description: "index of outside location in the 'locations' parameter vector",
   }
   patient_name: {
     type: string,
     default_value: "nathan",
     description: "name of patient",
   }
-  return_wait_time: {
-    type: int,
-    default_value: 1,
-    description: "number of minutes to wait for the patient to return once they leave the house when its too late",
+
+  call_actions:
+    actions: {
+      type: string_array,
+      default_value: [ "callEmergencyWondering", "alertCaregiverWondering", "askCaregiverHelpMedicine1", "askCaregiverHelpMedicine2" ],
+      description: "list of pddl call actions",
+    }
+    phone_numbers: {
+      type: string_array,
+      default_value: [ "603514204", "603514204", "603514204", "603514204" ],
+      description: "list of phone numbers for each call action",
+    }
+    script_names: {
+      type: string_array,
+      default_value: [ "call_msg_911.xml", "call_msg_leaving_house.xml", "call_msg_medical.xml", "call_msg_medical.xml" ],
+      description: "list of pddl call actions",
+    }
+
+  notify_recorded_actions:
+    actions: {
+      type: string_array,
+      default_value: [ "notifyRecordedMedicineAt", ],
+      description: "list of pddl notify recorded actions",
+    }
+    file_names: {
+      type: string_array,
+      default_value: [ "medicine_reminder.mp3", ],
+      description: "list of file names",
+    }
+
+  notify_automated_actions:
+    actions: {
+      type: string_array,
+      default_value: [ "notifyAutomatedMedicineAt", ],
+      description: "list of pddl notify recorded actions",
+    }
+    script_names: {
+      type: string_array,
+      default_value: [ "medicine_reminder.txt", ],
+      description: "list of script names",
+    }
+
+  guide_to_actions:
+    actions: {
+      type: string_array,
+      default_value: [ "guidePersonToLandmarkAttempt1", "guidePersonToLandmarkAttempt2", ],
+      description: "list of pddl guide to actions",
+    }
+
+  detect_person_actions:
+    actions: {
+      type: string_array,
+      default_value: [ "checkGuideToSucceeded1", "checkGuideToSucceeded2", ],
+      description: "list of pddl detect person actions",
+    }
+    timeouts: {
+      type: double_array,
+      default_value: [ 10.0, 10.0 ],
+      description: "list of detect person timeout values",
+    }
+
+  none_actions:
+    actions: {
+      type: string_array,
+      default_value: [ "updateSuccess1", "updateSuccess2", "updateSuccess3","updatePersonLoc1", "updatePersonLoc2" ],
+      description: "list of pddl actions that do not have a corresponding action",
+    }
+
+  move_robot_action: {
+    type: string,
+    default_value: "moveToLandmark",
+    description: "pddl action to move robot",
+  }
+
+  guide_person_action: {
+    type: string,
+    default_value: "moveToLandmark",
+    description: "pddl action to move robot",
   }
