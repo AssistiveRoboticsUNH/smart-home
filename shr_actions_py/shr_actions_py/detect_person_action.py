@@ -10,17 +10,19 @@ from std_msgs.msg import String
 from rclpy.executors import MultiThreadedExecutor
 
 
-class RotateActionServer(Node):
+class DetectPersonActionServer(Node):
     def __init__(self):
         super().__init__('detect_person_action')
         self.action_server = ActionServer(self, DetectPersonRequest, 'detect_person',
                                           self.callback, cancel_callback=self.cancel_callback)
         self.vel_pub = self.create_publisher(Twist, 'cmd_vel', 10)
-        self.yolo_sub = self.create_subscription(String, 'detecthuman', 10, self.yolo_sub_callback)
+        self.yolo_sub = self.create_subscription(String, '/detecthuman', self.yolo_sub_callback, 10)
         self.human_coords = ""
 
     def yolo_sub_callback(self, msg):
-        self.human_coords = msg.data
+        print(msg.data)
+        if len(msg.data) > 0 and msg.data != '[0, 0, 0, 0]':
+            self.human_coords = msg.data
 
     def cancel_callback(self, goal_handle):
         self.get_logger().info('Received cancel request')
@@ -63,12 +65,13 @@ class RotateActionServer(Node):
 def main(args=None):
     rclpy.init(args=args)
 
-    rotate_action_server = RotateActionServer()
+    action_server = DetectPersonActionServer()
     executor = MultiThreadedExecutor()
-    executor.add_node(rotate_action_server)
+    executor.add_node(action_server)
 
-    while True:
-        executor.spin_once()
+    executor.spin()
+    # while True:
+    #     executor.spin_once()
 
 
 if __name__ == '__main__':
