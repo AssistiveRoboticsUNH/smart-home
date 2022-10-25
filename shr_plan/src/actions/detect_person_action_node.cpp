@@ -18,6 +18,7 @@
 #include <map>
 
 #include "plansys2_executor/ActionExecutorClient.hpp"
+#include "plansys2_problem_expert/Utils.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_action/rclcpp_action.hpp"
 
@@ -29,7 +30,7 @@ using namespace std::chrono_literals;
 
 class DetectPersonAction : public plansys2::ActionExecutorClient {
 public:
-  DetectPersonAction(const std::string& action_name, double timeout)
+  DetectPersonAction(const std::string &action_name, double timeout)
       : plansys2::ActionExecutorClient(action_name, 500ms) {
     set_parameter(rclcpp::Parameter("action_name", action_name));
     timeout_ = timeout;
@@ -40,7 +41,8 @@ public:
   on_activate(const rclcpp_lifecycle::State &previous_state) {
     send_feedback(0.0, "Begin call");
 
-    action_client_ = rclcpp_action::create_client<shr_msgs::action::DetectPersonRequest>(shared_from_this(), "make_call");
+    action_client_ = rclcpp_action::create_client<shr_msgs::action::DetectPersonRequest>(shared_from_this(),
+                                                                                         "make_call");
 
     bool is_action_server_ready = false;
     do {
@@ -55,16 +57,15 @@ public:
     auto person = get_arguments()[1];
     RCLCPP_INFO(get_logger(), "call emergency for [%s]", person.c_str());
 
-
     send_goal_options_ = rclcpp_action::Client<shr_msgs::action::DetectPersonRequest>::SendGoalOptions();
 
-    send_goal_options_.result_callback = [this](const rclcpp_action::ClientGoalHandle<shr_msgs::action::DetectPersonRequest>::WrappedResult &response) {
+    send_goal_options_.result_callback = [this](
+        const rclcpp_action::ClientGoalHandle<shr_msgs::action::DetectPersonRequest>::WrappedResult &response) {
       if (response.code == rclcpp_action::ResultCode::SUCCEEDED) {
-        finish(true, 1.0, "Message completed");
-      } else{
-        finish(false, 1.0, "Message completed and failed");
+        finish(true, 1.0, "Detected person!");
+      } else {
+        finish(false, 1.0, "Failed to detect person");
       }
-
     };
 
     goal_.timeout = timeout_;
@@ -86,7 +87,6 @@ protected:
   rclcpp_action::Client<shr_msgs::action::DetectPersonRequest>::SendGoalOptions send_goal_options_;
 
   double timeout_;
-
 };
 
 int main(int argc, char **argv) {
@@ -97,7 +97,7 @@ int main(int argc, char **argv) {
   auto param_listener = std::make_shared<shr_plan_parameters::ParamListener>(parameter_node);
   auto params = param_listener->get_params();
 
-  for (auto i = 0ul ; i < params.detect_person_actions.actions.size(); i++){
+  for (auto i = 0ul; i < params.detect_person_actions.actions.size(); i++) {
     auto action = params.detect_person_actions.actions[i];
     auto timeout = params.detect_person_actions.timeouts[i];
     auto call_node = std::make_shared<DetectPersonAction>(action, timeout);
