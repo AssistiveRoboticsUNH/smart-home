@@ -20,7 +20,6 @@ class DetectPersonActionServer(Node):
         self.human_coords = ""
 
     def yolo_sub_callback(self, msg):
-        print(msg.data)
         if len(msg.data) > 0 and msg.data != '[0, 0, 0, 0]':
             self.human_coords = msg.data
 

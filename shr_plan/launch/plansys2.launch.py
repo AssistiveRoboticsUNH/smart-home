@@ -17,6 +17,8 @@ def generate_launch_description():
         description='Namespace')
 
     shr_dir = get_package_share_directory('shr_plan')
+    params_file = os.path.join(shr_dir, 'params', 'plansys2_params.yaml')
+
     plansys2_cmd = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(PathJoinSubstitution([
             get_package_share_directory('plansys2_bringup'),
@@ -27,6 +29,7 @@ def generate_launch_description():
             'model_file': PathJoinSubstitution([shr_dir, 'pddl', 'paul_domain_shr_conditional.pddl']),
             'namespace': namespace,
             'bt_builder_plugin': 'ContingentBTBuilder',
+            'params_file': params_file,
         }.items())
 
     sound_node_cmd = Node(
