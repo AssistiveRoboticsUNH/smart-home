@@ -1,0 +1,9 @@
+planner:
+  ros__parameters:
+    plan_solver_plugins: ["CFF"]
+    POPF:
+      plugin: "plansys2/POPFPlanSolver"
+    TFD:
+      plugin: "plansys2/TFDPlanSolver"
+    CFF:
+      plugin: "plansys2/CFFPlanSolver"

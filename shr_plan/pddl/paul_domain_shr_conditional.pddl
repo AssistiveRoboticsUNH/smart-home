@@ -32,6 +32,12 @@
 
 )
 
+(:action detect_person
+    :parameters (?r - robot ?p - person ?loc - landmark)
+    :precondition (and (robot_at ?r ?loc))
+    :observe (person_at ?p ?loc)
+)
+
 ;; Move to any landmark, avoiding terrain
 (:action moveToLandmark
 	:parameters (?r - robot ?from ?to - landmark)
@@ -44,11 +50,6 @@
             )
 )
 
-(:action detect_person
-    :parameters (?r - robot ?p - person ?loc - landmark)
-    :precondition (and (robot_at ?r ?loc))
-    :observe (person_at ?p ?loc)
-)
 
 ;; Guide person from one landmark to another
 (:action guidePersonToLandmarkAttempt1

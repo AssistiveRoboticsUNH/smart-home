@@ -114,8 +114,8 @@ class WorldStateNode(Node):
 
         self.world_state.time_to_take_medicine = datetime.datetime.now().hour * 60 + datetime.datetime.now().minute > self.take_medication_time
 
-        self.world_state.too_late_to_leave = True  # DEBUG
-        self.world_state.time_to_take_medicine = False  # DEBUG
+        self.world_state.too_late_to_leave = False  # DEBUG
+        self.world_state.time_to_take_medicine = True  # DEBUG
         self.world_state_pub.publish(self.world_state)
 
     def gather_information_callback(self, goal_handle):
