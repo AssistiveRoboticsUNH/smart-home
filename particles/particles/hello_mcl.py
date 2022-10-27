@@ -16,6 +16,8 @@ from sensor_msgs.msg import LaserScan
 from ament_index_python.packages import get_package_share_directory
 from particles import util
 # from particles.sensor_model import Map
+from sensor_msgs.msg import Image
+from cv_bridge import CvBridge
 
 import cv2 
 import yaml
@@ -65,10 +67,22 @@ class HelloMCL(Node):
         self.create_subscription(OccupancyGrid, '/map',
                                  self.map_callback, 1)
 
+
+        self.br = CvBridge()
+        self.sub_camera= self.create_subscription(
+            Image,
+            '/smart_home/camera/depth/image_raw',
+            self.depth_callback,
+            10)
+
+
         self.last_odom= None
         self.last_scan = None 
 
         self.map_origin=(-8.28 , -6.33)
+        self.map_resolution=0.05
+        self.map_width=225
+        self.map_height=178
 
 
         # self.subscription = self.create_subscription(
@@ -100,6 +114,15 @@ class HelloMCL(Node):
         # )
 
         # self._publish_map()
+ 
+    def depth_callback(self, ros_image):
+        # ros_image.step *=2  #solve unity issue
+        img = self.br.imgmsg_to_cv2(ros_image ,desired_encoding='passthrough')
+
+      
+        cv2.imshow("depth camera " , img)
+        cv2.waitKey(1)
+
 
     def _publish_map(self):
         map = [-1] * self._map.width * self._map.height
@@ -125,8 +148,7 @@ class HelloMCL(Node):
             # ry=robot_pos.y
             if self.last_odom!=None:
                 self._initialize_particles_gaussian(pose=self.last_odom)
-                # self.create_uniform_particles()
-
+                
             self.pub_particles()
              
 
@@ -167,44 +189,22 @@ class HelloMCL(Node):
 
         # cv2.imshow("map_data", image)
         # cv2.waitKey(0) 
-
-
-    def create_uniform_particles(self):
-        self.particles=[]
-        dx,dy=178, 225
-        pose = self.last_odom
-        scale=1
-        xs=list( np.random.uniform(0, dx, scale=scale, size=self.num_of_particles) )
-        ys=list( np.random.uniform(0, dy, scale=scale, size=self.num_of_particles) )
-  
-        # xs= list(np.random.normal(loc=pose.position.x, scale=scale, size=self.num_of_particles - 1))
-        # ys= list(np.random.normal(loc=pose.position.y, scale=scale, size=self.num_of_particles - 1))
-
-        current_yaw = util.yaw_from_quaternion(pose.orientation)
-        yaw_list = list(np.random.normal(loc=current_yaw, scale=0.01, size=self.num_of_particles- 1))
-    
-        initial_weight = 1.0 / float(self.num_of_particles)
-
-        for x, y, yaw in zip(xs, ys, yaw_list):
-            position = Point(x=x, y=y, z=0.0)
-            orientation = util.euler_to_quaternion(yaw, 0.0, 0.0)
-            temp_pose = Pose(position=position, orientation=orientation)
-            p=Particle()
-            p.pose=temp_pose
-            p.weight=initial_weight
-            self.particles.append(p) 
-
-        p=Particle()
-        p.pose= pose
-        p.weight=initial_weight
-        self.particles.append(p)
-
+ 
     def odometry_callback(self, msg: Odometry):
         self.last_odom = msg.pose.pose
          
 
     def scan_callback(self, msg: LaserScan):
         self.last_scan = msg
+        # self.get_logger().info(f'scan total: {len(msg.ranges)}')
+        dist_back = format(msg.ranges[180], '.2f')
+        dist_left = format(msg.ranges[90], '.2f')
+        dist_right = format(msg.ranges[270], '.2f')
+        dist_head = format(msg.ranges[0], '.2f')
+        self.get_logger().info(f'scan: {len(msg.ranges)} {dist_back} {dist_left} {dist_right} {dist_head}')
+
+
+
 
     def listener_callback(self, data):
         header=data.header
@@ -236,21 +236,17 @@ class HelloMCL(Node):
         if pose is None:
             pose = self.current_pose
 
-        dx,dy=178, 225
-        dx=pose.position.x+5
-        dy=pose.position.y+5
+        
+        x_min=self.map_origin[0]+0
+        x_max=self.map_origin[0]+self.map_width*self.map_resolution
 
-        x_min=self.map_origin[0]-5
-        x_max=self.map_origin[0]+1
-        y_min=self.map_origin[1]-5
-        y_max=self.map_origin[1]+5
+        y_min=self.map_origin[1]+0
+        y_max=self.map_origin[1]+self.map_height*self.map_resolution
 
         x_list=list( np.random.uniform(x_min, x_max,  size=self.num_of_particles) )
         y_list=list( np.random.uniform(y_min, y_max,  size=self.num_of_particles) )
         scale=1
-
-        # x_list = list(np.random.normal(loc=pose.position.x, scale=scale, size=self.num_of_particles - 1))
-        # y_list = list(np.random.normal(loc=pose.position.y, scale=scale, size=self.num_of_particles - 1))
+ 
         current_yaw = util.yaw_from_quaternion(pose.orientation)
         yaw_list = list(np.random.normal(loc=current_yaw, scale=0.01, size=self.num_of_particles- 1))
 
