@@ -318,7 +318,8 @@ namespace planning_controller {
       if (active_protocol == "medicine_reminder") {
         problem_expert_->addInstance(plansys2::Instance{"pioneer", "robot"});
         problem_expert_->addInstance(plansys2::Instance{"home", "landmark"});
-        for (const auto& loc : world_state_.locations){
+        std::vector<std::string> search_locations = {"bedroom_robot_pos", "kitchen_robot_pos", "couch_robot_pos"};
+        for (const auto& loc : search_locations){
           problem_expert_->addInstance(plansys2::Instance{loc, "landmark"});
         }
         problem_expert_->addInstance(plansys2::Instance{world_state_.patient_name, "person"});
@@ -329,7 +330,6 @@ namespace planning_controller {
           problem_expert_->addPredicate(plansys2::Predicate("(person_at " + world_state_.patient_name + " " + world_state_.patient_location + ")"));
         } else{
           std::string oneof_pred = "(oneof ";
-          std::vector<std::string> search_locations = {"bedroom_robot_pos", "kitchen_robot_pos", "couch_robot_pos"};
           for (const auto& loc : search_locations){
             auto pred = "(person_at " + world_state_.patient_name + " " + loc + ")";
             oneof_pred += pred;

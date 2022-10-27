@@ -38,12 +38,12 @@ shr_plan_parameters:
   call_actions:
     actions: {
       type: string_array,
-      default_value: [ "callEmergencyWondering", "alertCaregiverWondering", "askCaregiverHelpMedicine1", "askCaregiverHelpMedicine2" ],
+      default_value: [ "callemergencywondering", "alertcaregiverwondering", "askcaregiverhelpmedicine1", "askcaregiverhelpmedicine2" ],
       description: "list of pddl call actions",
     }
     phone_numbers: {
       type: string_array,
-      default_value: [ "603514204", "603514204", "603514204", "603514204" ],
+      default_value: [ "6038514204", "6038514204", "6038514204", "6038514204" ],
       description: "list of phone numbers for each call action",
     }
     script_names: {
@@ -55,7 +55,7 @@ shr_plan_parameters:
   notify_recorded_actions:
     actions: {
       type: string_array,
-      default_value: [ "notifyRecordedMedicineAt", ],
+      default_value: [ "notifyrecordedmedicineat", ],
       description: "list of pddl notify recorded actions",
     }
     file_names: {
@@ -67,7 +67,7 @@ shr_plan_parameters:
   notify_automated_actions:
     actions: {
       type: string_array,
-      default_value: [ "notifyAutomatedMedicineAt", ],
+      default_value: [ "notifyautomatedmedicineat", ],
       description: "list of pddl notify recorded actions",
     }
     script_names: {
@@ -86,19 +86,19 @@ shr_plan_parameters:
   detect_person_actions:
     actions: {
       type: string_array,
-      default_value: [ "checkGuideToSucceeded1", "checkGuideToSucceeded2", "detectPerson"],
+      default_value: [ "checkguidetosucceeded1", "checkguidetosucceeded2", "detectperson"],
       description: "list of pddl detect person actions",
     }
     timeouts: {
       type: double_array,
-      default_value: [ 10.0, 10.0 ],
+      default_value: [ 10.0, 10.0, 10.0 ],
       description: "list of detect person timeout values",
     }
 
   none_actions:
     actions: {
       type: string_array,
-      default_value: [ "updateSuccess1", "updateSuccess2", "updateSuccess3","updatePersonLoc1", "updatePersonLoc2", "initguidepersontolandmarkattempt", "initmovetolandmark"],
+      default_value: [ "updatesuccess1", "updatesuccess2", "updatesuccess3","updatepersonloc1", "updatepersonloc2", "initguidepersontolandmarkattempt", "initmovetolandmark"],
       description: "list of pddl actions that do not have a corresponding action",
     }
 

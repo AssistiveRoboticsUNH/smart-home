@@ -36,16 +36,22 @@ public:
 
   rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
   on_activate(const rclcpp_lifecycle::State &previous_state) {
-
-    finish(true, 1.0, "None completed");
-
+    start_time_ = now();
     return ActionExecutorClient::on_activate(previous_state);
   }
 
 
 protected:
-  void do_work() {}
+  void do_work() {
+    auto time_diff = now() - start_time_;
+    if (now() - start_time_ > rclcpp::Duration(1,0)){
+      finish(true, 1.0, "None completed");
+    } else {
+      send_feedback(1.0 - time_diff.seconds(), "waiting for none action");
+    }
+  }
 
+  rclcpp::Time start_time_;
 
 };
 

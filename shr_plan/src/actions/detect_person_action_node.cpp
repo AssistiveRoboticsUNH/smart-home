@@ -39,23 +39,21 @@ public:
 
   rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
   on_activate(const rclcpp_lifecycle::State &previous_state) {
-    send_feedback(0.0, "Begin call");
+    send_feedback(0.0, "Begin detect person");
 
     action_client_ = rclcpp_action::create_client<shr_msgs::action::DetectPersonRequest>(shared_from_this(),
-                                                                                         "make_call");
+                                                                                         "detect_person");
 
     bool is_action_server_ready = false;
     do {
-      RCLCPP_INFO(get_logger(), "Waiting for /make_call action server...");
+      RCLCPP_INFO(get_logger(), "Waiting for /detect_person action server...");
 
       is_action_server_ready =
           action_client_->wait_for_action_server(std::chrono::seconds(5));
     } while (!is_action_server_ready);
 
-    RCLCPP_INFO(get_logger(), "/make_call action server ready");
+    RCLCPP_INFO(get_logger(), "/detect_person action server ready");
 
-    auto person = get_arguments()[1];
-    RCLCPP_INFO(get_logger(), "call emergency for [%s]", person.c_str());
 
     send_goal_options_ = rclcpp_action::Client<shr_msgs::action::DetectPersonRequest>::SendGoalOptions();
 

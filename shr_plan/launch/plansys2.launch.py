@@ -23,7 +23,7 @@ def generate_launch_description():
         PythonLaunchDescriptionSource(PathJoinSubstitution([
             get_package_share_directory('plansys2_bringup'),
             'launch',
-            'plansys2_bringup_launch_distributed.py'])),
+            'plansys2_bringup_launch_monolithic.py'])),
         # 'plansys2_bringup_launch_monolithic.py' 'plansys2_bringup_launch_distributed.py'
         launch_arguments={
             'model_file': PathJoinSubstitution([shr_dir, 'pddl', 'paul_domain_shr_conditional.pddl']),
@@ -93,16 +93,16 @@ def generate_launch_description():
         output='screen')
 
     # plansys2 actions
-    guideto_landmark_cmd = Node(
-        package='shr_plan',
-        executable='guide_action_node',
-        name='guide_action_node',
-        output='screen')
-
     moveto_landmark_cmd = Node(
         package='shr_plan',
         executable='move_action_node',
         name='move_action_node',
+        output='screen')
+
+    guideto_landmark_cmd = Node(
+        package='shr_plan',
+        executable='guide_action_node',
+        name='guide_action_node',
         output='screen')
 
     notify_automated_cmd = Node(
@@ -117,22 +117,29 @@ def generate_launch_description():
         name='notify_recorded_video_node',
         output='screen')
 
-    planning_controller_node_cmd = Node(
-        package='shr_plan',
-        executable='planning_controller_node',
-        name='planning_controller_node',
-        output='screen')
-
     call_node_cmd = Node(
         package='shr_plan',
         executable='call_action_node',
         name='call_action_node',
         output='screen')
 
-    node_action_node_cmd = Node(
+    none_action_node_cmd = Node(
         package='shr_plan',
         executable='none_action_node',
         name='none_action_node',
+        output='screen')
+
+    detect_person_action_node_cmd = Node(
+        package='shr_plan',
+        executable='detect_person_action_node',
+        name='detect_person_action_node',
+        output='screen')
+
+    # planning manager
+    planning_controller_node_cmd = Node(
+        package='shr_plan',
+        executable='planning_controller_node',
+        name='planning_controller_node',
         output='screen')
 
     ld = LaunchDescription()
@@ -155,7 +162,8 @@ def generate_launch_description():
     ld.add_action(notify_automated_cmd)
     ld.add_action(notify_recorded_video_cmd)
     ld.add_action(call_node_cmd)
-    ld.add_action(node_action_node_cmd)
+    ld.add_action(none_action_node_cmd)
+    ld.add_action(detect_person_action_node_cmd)
 
     ld.add_action(planning_controller_node_cmd)
 
