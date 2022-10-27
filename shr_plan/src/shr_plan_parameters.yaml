@@ -79,14 +79,14 @@ shr_plan_parameters:
   guide_to_actions:
     actions: {
       type: string_array,
-      default_value: [ "guidePersonToLandmarkAttempt1", "guidePersonToLandmarkAttempt2", ],
+      default_value: [ "guidepersontolandmarkattempt1", "guidepersontolandmarkattempt2", ],
       description: "list of pddl guide to actions",
     }
 
   detect_person_actions:
     actions: {
       type: string_array,
-      default_value: [ "checkGuideToSucceeded1", "checkGuideToSucceeded2", ],
+      default_value: [ "checkGuideToSucceeded1", "checkGuideToSucceeded2", "detectPerson"],
       description: "list of pddl detect person actions",
     }
     timeouts: {
@@ -98,18 +98,13 @@ shr_plan_parameters:
   none_actions:
     actions: {
       type: string_array,
-      default_value: [ "updateSuccess1", "updateSuccess2", "updateSuccess3","updatePersonLoc1", "updatePersonLoc2" ],
+      default_value: [ "updateSuccess1", "updateSuccess2", "updateSuccess3","updatePersonLoc1", "updatePersonLoc2", "initguidepersontolandmarkattempt", "initmovetolandmark"],
       description: "list of pddl actions that do not have a corresponding action",
     }
 
   move_robot_action: {
     type: string,
-    default_value: "moveToLandmark",
+    default_value: "movetolandmark",
     description: "pddl action to move robot",
   }
 
-  guide_person_action: {
-    type: string,
-    default_value: "moveToLandmark",
-    description: "pddl action to move robot",
-  }

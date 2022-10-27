@@ -91,20 +91,29 @@ protected:
 
 int main(int argc, char **argv) {
   rclcpp::init(argc, argv);
-  rclcpp::executors::MultiThreadedExecutor exe(rclcpp::ExecutorOptions(), 2);
+  rclcpp::executors::MultiThreadedExecutor exe(rclcpp::ExecutorOptions(), 4);
 
   auto parameter_node = std::make_shared<rclcpp::Node>("detect_person_parameter_node");
   auto param_listener = std::make_shared<shr_plan_parameters::ParamListener>(parameter_node);
   auto params = param_listener->get_params();
 
+//  for (auto i = 0ul; i < params.detect_person_actions.actions.size(); i++) {
+//    auto action = params.detect_person_actions.actions[i];
+//    auto timeout = params.detect_person_actions.timeouts[i];
+//    auto call_node = std::make_shared<DetectPersonAction>(action, timeout);
+//    call_node->trigger_transition(lifecycle_msgs::msg::Transition::TRANSITION_CONFIGURE);
+//
+//    exe.add_node(call_node->get_node_base_interface());
+//  }
+
+  std::vector<std::shared_ptr<DetectPersonAction>> all_nodes;
   for (auto i = 0ul; i < params.detect_person_actions.actions.size(); i++) {
     auto action = params.detect_person_actions.actions[i];
     auto timeout = params.detect_person_actions.timeouts[i];
-    auto call_node = std::make_shared<DetectPersonAction>(action, timeout);
-    call_node->trigger_transition(lifecycle_msgs::msg::Transition::TRANSITION_CONFIGURE);
-
-    exe.add_node(call_node->get_node_base_interface());
-
+    auto ind = all_nodes.size();
+    all_nodes.push_back(std::make_shared<DetectPersonAction>(action, timeout));
+    all_nodes[ind]->trigger_transition(lifecycle_msgs::msg::Transition::TRANSITION_CONFIGURE);
+    exe.add_node(all_nodes[ind]->get_node_base_interface());
   }
 
   exe.spin();

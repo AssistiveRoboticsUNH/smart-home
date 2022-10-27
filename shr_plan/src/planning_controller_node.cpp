@@ -329,7 +329,8 @@ namespace planning_controller {
           problem_expert_->addPredicate(plansys2::Predicate("(person_at " + world_state_.patient_name + " " + world_state_.patient_location + ")"));
         } else{
           std::string oneof_pred = "(oneof ";
-          for (const auto& loc : world_state_.locations){
+          std::vector<std::string> search_locations = {"bedroom_robot_pos", "kitchen_robot_pos", "couch_robot_pos"};
+          for (const auto& loc : search_locations){
             auto pred = "(person_at " + world_state_.patient_name + " " + loc + ")";
             oneof_pred += pred;
             problem_expert_->addConditional(plansys2::Unknown("(unknown " + pred + ")"));

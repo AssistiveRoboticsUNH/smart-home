@@ -159,22 +159,29 @@ namespace guide_action {
 
 int main(int argc, char **argv) {
   rclcpp::init(argc, argv);
-  rclcpp::executors::MultiThreadedExecutor exe(rclcpp::ExecutorOptions(), 2);
+  rclcpp::executors::MultiThreadedExecutor exe(rclcpp::ExecutorOptions(), 4);
 
   auto parameter_node = std::make_shared<rclcpp::Node>("guide_parameter_node");
   auto param_listener = std::make_shared<shr_plan_parameters::ParamListener>(parameter_node);
   auto params = param_listener->get_params();
 
-  for (auto i = 0ul; i < params.guide_to_actions.actions.size(); i++) {
-    auto action = params.notify_recorded_actions.actions[i];
-    auto none_node = std::make_shared<guide_action::GuideAction>(action);
-    none_node->trigger_transition(lifecycle_msgs::msg::Transition::TRANSITION_CONFIGURE);
-    exe.add_node(none_node->get_node_base_interface());
+//  for (auto i = 0ul; i < params.guide_to_actions.actions.size(); i++) {
+//    auto action = params.notify_recorded_actions.actions[i];
+//    auto none_node = std::make_shared<guide_action::GuideAction>(action);
+//    none_node->trigger_transition(lifecycle_msgs::msg::Transition::TRANSITION_CONFIGURE);
+//    exe.add_node(none_node->get_node_base_interface());
+//  }
+
+  std::vector<std::shared_ptr<guide_action::GuideAction>> all_nodes;
+  for (const auto & action : params.guide_to_actions.actions){
+    auto ind = all_nodes.size();
+    all_nodes.push_back(std::make_shared<guide_action::GuideAction>(action));
+    all_nodes[ind]->trigger_transition(lifecycle_msgs::msg::Transition::TRANSITION_CONFIGURE);
+    exe.add_node(all_nodes[ind]->get_node_base_interface());
   }
 
   exe.spin();
   rclcpp::shutdown();
-
 
   return 0;
 }

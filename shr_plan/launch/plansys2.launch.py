@@ -93,6 +93,12 @@ def generate_launch_description():
         output='screen')
 
     # plansys2 actions
+    guideto_landmark_cmd = Node(
+        package='shr_plan',
+        executable='guide_action_node',
+        name='guide_action_node',
+        output='screen')
+
     moveto_landmark_cmd = Node(
         package='shr_plan',
         executable='move_action_node',
@@ -145,6 +151,7 @@ def generate_launch_description():
     ld.add_action(detect_person_cmd)
 
     ld.add_action(moveto_landmark_cmd)
+    ld.add_action(guideto_landmark_cmd)
     ld.add_action(notify_automated_cmd)
     ld.add_action(notify_recorded_video_cmd)
     ld.add_action(call_node_cmd)
