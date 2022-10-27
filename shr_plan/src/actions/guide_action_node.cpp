@@ -79,7 +79,7 @@ namespace guide_action {
       auto send_goal_options = rclcpp_action::Client<shr_msgs::action::ReadScriptRequest>::SendGoalOptions();
 
       send_goal_options.result_callback = [this](auto) {
-        finish(true, 1.0, "Message completed");
+        send_feedback(0.0, "Prompting person completed");
       };
 
       read_goal_.script_name = "follow_me.txt";
