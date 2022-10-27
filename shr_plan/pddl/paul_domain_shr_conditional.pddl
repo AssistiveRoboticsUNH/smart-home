@@ -35,7 +35,7 @@
 
 )
 
-(:action detect_person
+(:action detectPerson
     :parameters (?r - robot ?p - person ?loc - landmark)
     :precondition (and
     			(robot_at ?r ?loc)
@@ -78,10 +78,10 @@
 
  ;; Init Guide
 (:action InitguidePersonToLandmarkAttempt
-	:parameters (?r - robot ?p - person ?loc - landmark)
+	:parameters (?r - robot ?p - person ?to - landmark)
 	:precondition (and
-			(robot_at ?r ?loc)
-			(person_at ?p ?loc)
+			(robot_at ?r ?to)
+			(person_at ?p ?to)
 			(not (init_move_to_landmark))
 			(not (init_guide_person_to_landmark_attempt))
 		      )

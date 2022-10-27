@@ -76,7 +76,7 @@ namespace move_action {
 
       RCLCPP_INFO(get_logger(), "Navigation action server ready");
 
-      auto wp_to_navigate = get_arguments()[2];  // The goal is in the 3rd argument of the action
+      auto wp_to_navigate = get_arguments()[1];  // The goal is in the 3rd argument of the action
       RCLCPP_INFO(get_logger(), "Start navigation to [%s]", wp_to_navigate.c_str());
 
       auto point = shr_utils::get_tf_as_point(*tf_buffer_, "map", wp_to_navigate);
