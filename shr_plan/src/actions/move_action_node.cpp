@@ -66,13 +66,13 @@ namespace move_action {
               this,
               "navigate_to_pose");
 
-      bool is_action_server_ready = false;
-      do {
-        RCLCPP_INFO(get_logger(), "Waiting for /navigate_to_pose action server...");
-
-        is_action_server_ready =
-            navigation_action_client_->wait_for_action_server(std::chrono::seconds(5));
-      } while (!is_action_server_ready);
+//      bool is_action_server_ready = false;
+//      do {
+//        RCLCPP_INFO(get_logger(), "Waiting for /navigate_to_pose action server...");
+//
+//        is_action_server_ready =
+//            navigation_action_client_->wait_for_action_server(std::chrono::seconds(5));
+//      } while (!is_action_server_ready);
 
       RCLCPP_INFO(get_logger(), "Navigation action server ready");
 

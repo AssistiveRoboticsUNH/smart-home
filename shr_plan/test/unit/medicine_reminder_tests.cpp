@@ -22,7 +22,7 @@
 #include <set>
 #include <list>
 #include <tuple>
-#include <plansys2_executor/ExecutorNode.hpp>
+#include <plansys2_executor/ExecutorNodeContingent.hpp>
 #include <plansys2_executor/ExecutorClient.hpp>
 #include <plansys2_executor/ActionExecutorClient.hpp>
 
@@ -65,14 +65,12 @@ protected:
   void do_work() {
     std::cout << "executing: " << action_ << std::endl;
     auto time_diff = now() - start_time_;
-    if (now() - start_time_ > rclcpp::Duration(1, 0)) {
+    if (now() - start_time_ > rclcpp::Duration(0, 2E8)) {
       if (succeed_) {
         finish(true, 1.0, "Complete action: " + action_);
       } else {
         finish(false, 1.0, "Failed action: " + action_);
       }
-    } else {
-      send_feedback(1.0 - time_diff.seconds(), "waiting for " + action_ + " none action");
     }
   }
 
@@ -99,7 +97,7 @@ TEST(medicine_reminder_tests, all_success) {
   planner_node->declare_parameter("CFF.plugin", "");
   planner_node->set_parameter({"CFF.plugin", "plansys2/CFFPlanSolver"});
 
-  auto executor_node = std::make_shared<plansys2::ExecutorNode>();
+  auto executor_node = std::make_shared<plansys2::ExecutorNodeContingent>();
   executor_node->set_parameter({"bt_builder_plugin", "ContingentBTBuilder"});
 
   auto parameter_node = std::make_shared<rclcpp::Node>("parameter_node");
@@ -238,7 +236,7 @@ TEST(medicine_reminder_tests, patient_wont_move) {
   planner_node->declare_parameter("CFF.plugin", "");
   planner_node->set_parameter({"CFF.plugin", "plansys2/CFFPlanSolver"});
 
-  auto executor_node = std::make_shared<plansys2::ExecutorNode>();
+  auto executor_node = std::make_shared<plansys2::ExecutorNodeContingent>();
   executor_node->set_parameter({"bt_builder_plugin", "ContingentBTBuilder"});
 
   auto parameter_node = std::make_shared<rclcpp::Node>("parameter_node");
@@ -381,7 +379,7 @@ TEST(medicine_reminder_tests, patient_already_at_kitchen) {
   planner_node->declare_parameter("CFF.plugin", "");
   planner_node->set_parameter({"CFF.plugin", "plansys2/CFFPlanSolver"});
 
-  auto executor_node = std::make_shared<plansys2::ExecutorNode>();
+  auto executor_node = std::make_shared<plansys2::ExecutorNodeContingent>();
   executor_node->set_parameter({"bt_builder_plugin", "ContingentBTBuilder"});
 
   auto parameter_node = std::make_shared<rclcpp::Node>("parameter_node");
