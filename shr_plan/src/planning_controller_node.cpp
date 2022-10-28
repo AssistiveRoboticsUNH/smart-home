@@ -251,11 +251,11 @@ namespace planning_controller {
 
           auto feedback = executor_client_->getFeedBack();
 
-          for (const auto &action_feedback: feedback.action_execution_status) {
-            std::cout << "[" << action_feedback.action << " " <<
-                      action_feedback.completion * 100.0 << "%]";
-          }
-          std::cout << std::endl;
+//          for (const auto &action_feedback: feedback.action_execution_status) {
+//            std::cout << "[" << action_feedback.action << " " <<
+//                      action_feedback.completion * 100.0 << "%]";
+//          }
+//          if (!feedback.action_execution_status.empty()) std::cout << std::endl;
 
           if (!executor_client_->execute_and_check_plan() && executor_client_->getResult()) {
             if (executor_client_->getResult().value().success) {
@@ -277,12 +277,12 @@ namespace planning_controller {
 
 
     bool init_plan() {
-      for (const auto &instance: problem_expert_->getInstances()) {
-        problem_expert_->removeInstance(instance);
-      }
-      for (const auto &pred: problem_expert_->getPredicates()) {
-        problem_expert_->removePredicate(pred);
-      }
+//      for (const auto &instance: problem_expert_->getInstances()) {
+//        problem_expert_->removeInstance(instance);
+//      }
+//      for (const auto &pred: problem_expert_->getPredicates()) {
+//        problem_expert_->removePredicate(pred);
+//      }
 
 //      if (active_protocol == "midnight_warning") {
 //        problem_expert_->addInstance(plansys2::Instance{world_state_.door_location, "landmark"});
@@ -316,6 +316,7 @@ namespace planning_controller {
 
 
       if (active_protocol == "medicine_reminder") {
+        problem_expert_->clearKnowledge();
         problem_expert_->addInstance(plansys2::Instance{"pioneer", "robot"});
         problem_expert_->addInstance(plansys2::Instance{"home", "landmark"});
         std::vector<std::string> search_locations = {"bedroom_robot_pos", "kitchen_robot_pos", "couch_robot_pos"};

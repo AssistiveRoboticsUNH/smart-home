@@ -44,10 +44,10 @@ public:
 protected:
   void do_work() {
     auto time_diff = now() - start_time_;
-    if (now() - start_time_ > rclcpp::Duration(1,0)){
+    if (now() - start_time_ > rclcpp::Duration(3,0)){
       finish(true, 1.0, "None completed");
     } else {
-      send_feedback(1.0 - time_diff.seconds(), "waiting for none action");
+      send_feedback((3.0 - time_diff.seconds())/3.0, "waiting for none action");
     }
   }
 
@@ -60,7 +60,7 @@ protected:
 
 int main(int argc, char **argv) {
   rclcpp::init(argc, argv);
-  rclcpp::executors::MultiThreadedExecutor exe(rclcpp::ExecutorOptions(), 4);
+  rclcpp::executors::SingleThreadedExecutor exe;
 
   auto parameter_node = std::make_shared<rclcpp::Node>("none_parameter_node");
   auto param_listener = std::make_shared<shr_plan_parameters::ParamListener>(parameter_node);

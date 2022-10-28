@@ -7,3 +7,7 @@ planner:
       plugin: "plansys2/TFDPlanSolver"
     CFF:
       plugin: "plansys2/CFFPlanSolver"
+
+executor:
+  ros__parameters:
+    executor_type: "contingent_executor"

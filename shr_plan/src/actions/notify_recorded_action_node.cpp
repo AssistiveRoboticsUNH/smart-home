@@ -83,7 +83,7 @@ private:
 int main(int argc, char **argv) {
 
   rclcpp::init(argc, argv);
-  rclcpp::executors::MultiThreadedExecutor exe(rclcpp::ExecutorOptions(), 4);
+  rclcpp::executors::SingleThreadedExecutor exe;
 
   auto parameter_node = std::make_shared<rclcpp::Node>("notify_recorded_parameter_node");
   auto param_listener = std::make_shared<shr_plan_parameters::ParamListener>(parameter_node);

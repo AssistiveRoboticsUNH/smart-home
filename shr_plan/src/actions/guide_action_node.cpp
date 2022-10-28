@@ -94,13 +94,13 @@ namespace guide_action {
               this,
               "navigate_to_pose");
 
-      is_action_server_ready = false;
-      do {
-        RCLCPP_INFO(get_logger(), "Waiting for /navigate_to_pose action server...");
-
-        is_action_server_ready =
-            navigation_action_client_->wait_for_action_server(std::chrono::seconds(5));
-      } while (!is_action_server_ready);
+//      is_action_server_ready = false;
+//      do {
+//        RCLCPP_INFO(get_logger(), "Waiting for /navigate_to_pose action server...");
+//
+//        is_action_server_ready =
+//            navigation_action_client_->wait_for_action_server(std::chrono::seconds(5));
+//      } while (!is_action_server_ready);
 
       RCLCPP_INFO(get_logger(), "Navigation action server ready");
 
@@ -159,7 +159,7 @@ namespace guide_action {
 
 int main(int argc, char **argv) {
   rclcpp::init(argc, argv);
-  rclcpp::executors::MultiThreadedExecutor exe(rclcpp::ExecutorOptions(), 4);
+  rclcpp::executors::SingleThreadedExecutor exe;
 
   auto parameter_node = std::make_shared<rclcpp::Node>("guide_parameter_node");
   auto param_listener = std::make_shared<shr_plan_parameters::ParamListener>(parameter_node);
