@@ -143,7 +143,7 @@ TEST(medicine_reminder_tests, all_success) {
     exe.add_node(all_nodes[ind]->get_node_base_interface());
   }
   auto ind = all_nodes.size();
-  all_nodes.push_back(std::make_shared<FakeAction>(params.move_robot_action));
+  all_nodes.push_back(std::make_shared<FakeAction>(params.move_robot_actions.actions[0]));
   all_nodes[ind]->trigger_transition(lifecycle_msgs::msg::Transition::TRANSITION_CONFIGURE);
   exe.add_node(all_nodes[ind]->get_node_base_interface());
 
@@ -285,7 +285,7 @@ TEST(medicine_reminder_tests, patient_wont_move) {
     exe.add_node(all_nodes[ind]->get_node_base_interface());
   }
   auto ind = all_nodes.size();
-  all_nodes.push_back(std::make_shared<FakeAction>(params.move_robot_action));
+  all_nodes.push_back(std::make_shared<FakeAction>(params.move_robot_actions.actions[0]));
   all_nodes[ind]->trigger_transition(lifecycle_msgs::msg::Transition::TRANSITION_CONFIGURE);
   exe.add_node(all_nodes[ind]->get_node_base_interface());
 
@@ -426,7 +426,7 @@ TEST(medicine_reminder_tests, patient_already_at_kitchen) {
     exe.add_node(all_nodes[ind]->get_node_base_interface());
   }
   auto ind = all_nodes.size();
-  all_nodes.push_back(std::make_shared<FakeAction>(params.move_robot_action));
+  all_nodes.push_back(std::make_shared<FakeAction>(params.move_robot_actions.actions[0]));
   all_nodes[ind]->trigger_transition(lifecycle_msgs::msg::Transition::TRANSITION_CONFIGURE);
   exe.add_node(all_nodes[ind]->get_node_base_interface());
 

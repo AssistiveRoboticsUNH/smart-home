@@ -35,6 +35,13 @@ shr_plan_parameters:
     description: "name of patient",
   }
 
+  topics:
+    medicine_sensor: {
+      type: string,
+      default_value: "/smartthings_sensors_motion_pills",
+      description: "topic for sensor that detect if medication is taken",
+    }
+
   call_actions:
     actions: {
       type: string_array,
@@ -63,6 +70,11 @@ shr_plan_parameters:
       default_value: [ "medicine_reminder.mp3", ],
       description: "list of file names",
     }
+    wait_times: {
+      type: double_array,
+      default_value: [ 10.0, ],
+      description: "list wait times after prompting",
+    }
 
   notify_automated_actions:
     actions: {
@@ -75,6 +87,11 @@ shr_plan_parameters:
       default_value: [ "medicine_reminder.txt", ],
       description: "list of script names",
     }
+    wait_times: {
+      type: double_array,
+      default_value: [ 10.0, ],
+      description: "list wait times after prompting",
+    }
 
   guide_to_actions:
     actions: {
@@ -86,7 +103,7 @@ shr_plan_parameters:
   detect_person_actions:
     actions: {
       type: string_array,
-      default_value: [ "checkguidetosucceeded1", "checkguidetosucceeded2", "detectperson"],
+      default_value: [ "checkguidetosucceeded1", "checkguidetosucceeded2", "detectperson" ],
       description: "list of pddl detect person actions",
     }
     timeouts: {
@@ -98,13 +115,15 @@ shr_plan_parameters:
   none_actions:
     actions: {
       type: string_array,
-      default_value: [ "updatesuccess1", "updatesuccess2", "updatesuccess3","updatepersonloc1", "updatepersonloc2", "initguidepersontolandmarkattempt", "initmovetolandmark"],
+      default_value: [ "updatesuccess1", "updatesuccess2", "updatesuccess3","updatepersonloc1", "updatepersonloc2", "initguidepersontolandmarkattempt", "initmovetolandmark" ],
       description: "list of pddl actions that do not have a corresponding action",
     }
 
-  move_robot_action: {
-    type: string,
-    default_value: "movetolandmark",
-    description: "pddl action to move robot",
+  move_robot_actions: {
+    actions: {
+      type: string_array,
+      default_value: [ "movetolandmark" ],
+      description: "pddl action to move robot",
+    }
   }
 

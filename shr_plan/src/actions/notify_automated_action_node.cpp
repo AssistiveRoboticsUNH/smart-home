@@ -23,18 +23,29 @@
 #include "shr_msgs/action/read_script_request.hpp"
 
 #include <shr_plan_parameters.hpp>
+#include <std_msgs/msg/bool.hpp>
 
 
 using namespace std::chrono_literals;
 
 class NotifyAutomated : public plansys2::ActionExecutorClient {
 public:
-  NotifyAutomated(const std::string &action, const std::string & script_names)
+  NotifyAutomated(const std::string &action, const std::string &script_name, int wait_time,
+                  const std::string &medicine_sensor_topic)
       : plansys2::ActionExecutorClient(action, 500ms) {
     set_parameter(rclcpp::Parameter("action_name", action));
-    script_names_ = script_names;
+    script_name_ = script_name;
+    wait_time_ = wait_time;
+    medicine_sensor_topic_ = medicine_sensor_topic;
+    medicine_sensor_sub_ = create_subscription<std_msgs::msg::Bool>(medicine_sensor_topic, 10,
+                                                                    std::bind(&NotifyAutomated::callback, this,
+                                                                              std::placeholders::_1));
+
   }
 
+  void callback(const std_msgs::msg::Bool::SharedPtr msg) {
+    medicine_sensor_ = msg->data;
+  }
 
   rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
   on_activate(const rclcpp_lifecycle::State &previous_state) {
@@ -56,10 +67,15 @@ public:
     auto send_goal_options = rclcpp_action::Client<shr_msgs::action::ReadScriptRequest>::SendGoalOptions();
 
     send_goal_options.result_callback = [this](auto) {
-      finish(true, 1.0, "Message completed");
+      waiting_for_response_ = false;
+      start_time_ = now();
     };
 
-    read_goal_.script_name = script_names_;
+    start_time_ = now();
+
+    waiting_for_response_ = true;
+    medicine_sensor_ = false;
+    read_goal_.script_name = script_name_;
     future_read_goal_handle_ = read_action_client_->async_send_goal(read_goal_, send_goal_options);
 
 
@@ -69,6 +85,19 @@ public:
 private:
 
   void do_work() {
+    rclcpp::Time cur_time;
+    cur_time = now();
+    auto time_diff = cur_time - start_time_;
+    send_feedback(time_diff.seconds() / wait_time_, "waiting for response");
+
+    if (medicine_sensor_) {
+      finish(true, 1.0, "Person took medicine");
+    }
+
+    if (time_diff.seconds() > wait_time_ && !waiting_for_response_) {
+      finish(false, 1.0, "Person failed to respond to prompt");
+    }
+
   }
 
   using AudioGoalHandle = rclcpp_action::ClientGoalHandle<shr_msgs::action::ReadScriptRequest>;
@@ -77,7 +106,13 @@ private:
   AudioGoalHandle::SharedPtr read_goal_handle_;
   shr_msgs::action::ReadScriptRequest::Goal read_goal_;
 
-  std::string script_names_;
+  std::shared_ptr<rclcpp::Subscription<std_msgs::msg::Bool>> medicine_sensor_sub_;
+  std::string script_name_;
+  std::string medicine_sensor_topic_;
+  int wait_time_;
+  rclcpp::Time start_time_;
+  bool waiting_for_response_;
+  bool medicine_sensor_;
 };
 
 int main(int argc, char **argv) {
@@ -88,20 +123,14 @@ int main(int argc, char **argv) {
   auto param_listener = std::make_shared<shr_plan_parameters::ParamListener>(parameter_node);
   auto params = param_listener->get_params();
 
-//  for (auto i = 0ul ; i < params.notify_automated_actions.actions.size(); i++){
-//    auto action = params.notify_automated_actions.actions[i];
-//    auto script_names = params.notify_automated_actions.script_names[i];
-//    auto none_node = std::make_shared<NotifyAutomated>(action, script_names);
-//    none_node->trigger_transition(lifecycle_msgs::msg::Transition::TRANSITION_CONFIGURE);
-//    exe.add_node(none_node->get_node_base_interface());
-//  }
-
   std::vector<std::shared_ptr<NotifyAutomated>> all_nodes;
-  for (auto i = 0ul ; i < params.notify_automated_actions.actions.size(); i++){
+  for (auto i = 0ul; i < params.notify_automated_actions.actions.size(); i++) {
     auto action = params.notify_automated_actions.actions[i];
-    auto script_names = params.notify_automated_actions.script_names[i];
+    auto script_name = params.notify_automated_actions.script_names[i];
+    auto wait_time = params.notify_automated_actions.wait_times[i];
+    auto medicine_sensor_topic = params.topics.medicine_sensor;
     auto ind = all_nodes.size();
-    all_nodes.push_back(std::make_shared<NotifyAutomated>(action, script_names));
+    all_nodes.push_back(std::make_shared<NotifyAutomated>(action, script_name, wait_time, medicine_sensor_topic));
     all_nodes[ind]->trigger_transition(lifecycle_msgs::msg::Transition::TRANSITION_CONFIGURE);
     exe.add_node(all_nodes[ind]->get_node_base_interface());
   }
