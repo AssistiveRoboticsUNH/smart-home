@@ -129,7 +129,7 @@ int main(int argc, char **argv) {
   auto param_listener = std::make_shared<shr_plan_parameters::ParamListener>(parameter_node);
   auto params = param_listener->get_params();
 
-  auto node = std::make_shared<move_action::MoveAction>(params.move_robot_action);
+  auto node = std::make_shared<move_action::MoveAction>(params.move_robot_actions.actions[0]);
   node->trigger_transition(lifecycle_msgs::msg::Transition::TRANSITION_CONFIGURE);
 
   rclcpp::spin(node->get_node_base_interface());

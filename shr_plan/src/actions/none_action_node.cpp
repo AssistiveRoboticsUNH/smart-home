@@ -29,7 +29,7 @@ using namespace std::chrono_literals;
 
 class NoneAction : public plansys2::ActionExecutorClient {
 public:
-  NoneAction(const std::string& action_name)
+  NoneAction(const std::string &action_name)
       : plansys2::ActionExecutorClient(action_name, 500ms) {
     set_parameter(rclcpp::Parameter("action_name", action_name));
   }
@@ -43,19 +43,19 @@ public:
 
 protected:
   void do_work() {
-    auto time_diff = now() - start_time_;
-    if (now() - start_time_ > rclcpp::Duration(3,0)){
+    rclcpp::Time cur_time;
+    cur_time = now();
+    auto time_diff = cur_time - start_time_;
+    if (cur_time - start_time_ > rclcpp::Duration(1, 0)) {
       finish(true, 1.0, "None completed");
     } else {
-      send_feedback((3.0 - time_diff.seconds())/3.0, "waiting for none action");
+      send_feedback((1.0 - time_diff.seconds()) / 1.0, "waiting for none action");
     }
   }
 
   rclcpp::Time start_time_;
 
 };
-
-
 
 
 int main(int argc, char **argv) {
@@ -67,7 +67,7 @@ int main(int argc, char **argv) {
   auto params = param_listener->get_params();
 
   std::vector<std::shared_ptr<NoneAction>> all_nodes;
-  for (const auto & action : params.none_actions.actions){
+  for (const auto &action: params.none_actions.actions) {
     auto ind = all_nodes.size();
     all_nodes.push_back(std::make_shared<NoneAction>(action));
     all_nodes[ind]->trigger_transition(lifecycle_msgs::msg::Transition::TRANSITION_CONFIGURE);

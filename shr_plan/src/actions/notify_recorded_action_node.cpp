@@ -23,18 +23,29 @@
 #include "shr_msgs/action/play_video_request.hpp"
 
 #include <shr_plan_parameters.hpp>
+#include <std_msgs/msg/bool.hpp>
 
 using namespace std::chrono_literals;
 
 class NotifyVideo : public plansys2::ActionExecutorClient {
 public:
-  NotifyVideo(const std::string & action ,const std::string & file_name)
+  NotifyVideo(const std::string &action, const std::string &file_name, int wait_time,
+              const std::string &medicine_sensor_topic)
       : plansys2::ActionExecutorClient(action, 500ms) {
 
     set_parameter(rclcpp::Parameter("action_name", action));
     file_name_ = file_name;
+    wait_time_ = wait_time;
+    medicine_sensor_topic_ = medicine_sensor_topic;
+    medicine_sensor_sub_ = create_subscription<std_msgs::msg::Bool>(medicine_sensor_topic, 10,
+                                                                    std::bind(&NotifyVideo::callback, this,
+                                                                              std::placeholders::_1));
+
   }
 
+  void callback(const std_msgs::msg::Bool::SharedPtr msg) {
+    medicine_sensor_ = msg->data;
+  }
 
   rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
   on_activate(const rclcpp_lifecycle::State &previous_state) {
@@ -55,8 +66,13 @@ public:
 
     auto send_goal_options = rclcpp_action::Client<shr_msgs::action::PlayVideoRequest>::SendGoalOptions();
     send_goal_options.result_callback = [this](auto) {
-      finish(true, 1.0, "Message completed");
+      waiting_for_response_ = false;
+      start_time_ = now();
     };
+
+    start_time_ = now();
+    waiting_for_response_ = true;
+    medicine_sensor_ = false;
     navigation_goal_.file_name = file_name_;
     future_navigation_goal_handle_ = navigation_action_client_->async_send_goal(navigation_goal_, send_goal_options);
 
@@ -66,6 +82,19 @@ public:
 private:
 
   void do_work() {
+    rclcpp::Time cur_time;
+    cur_time = now();
+    auto time_diff = cur_time - start_time_;
+    send_feedback(time_diff.seconds() / wait_time_, "waiting for response");
+
+    if (medicine_sensor_) {
+      finish(true, 1.0, "Person took medicine");
+    }
+
+    if (time_diff.seconds() > wait_time_ && !waiting_for_response_) {
+      finish(false, 1.0, "Person failed to respond to prompt");
+    }
+
   }
 
   using AudioGoalHandle =
@@ -76,7 +105,14 @@ private:
   AudioGoalHandle::SharedPtr navigation_goal_handle_;
   shr_msgs::action::PlayVideoRequest::Goal navigation_goal_;
 
+
+  std::shared_ptr<rclcpp::Subscription<std_msgs::msg::Bool>> medicine_sensor_sub_;
   std::string file_name_;
+  std::string medicine_sensor_topic_;
+  int wait_time_;
+  rclcpp::Time start_time_;
+  bool waiting_for_response_;
+  bool medicine_sensor_;
 
 };
 
@@ -89,20 +125,14 @@ int main(int argc, char **argv) {
   auto param_listener = std::make_shared<shr_plan_parameters::ParamListener>(parameter_node);
   auto params = param_listener->get_params();
 
-//  for (auto i = 0ul; i < params.notify_recorded_actions.actions.size(); i++) {
-//    auto action = params.notify_recorded_actions.actions[i];
-//    auto file_names = params.notify_recorded_actions.file_names[i];
-//    auto none_node = std::make_shared<NotifyVideo>(action, file_names);
-//    none_node->trigger_transition(lifecycle_msgs::msg::Transition::TRANSITION_CONFIGURE);
-//    exe.add_node(none_node->get_node_base_interface());
-//  }
-
   std::vector<std::shared_ptr<NotifyVideo>> all_nodes;
   for (auto i = 0ul; i < params.notify_recorded_actions.actions.size(); i++) {
     auto action = params.notify_recorded_actions.actions[i];
-    auto file_names = params.notify_recorded_actions.file_names[i];
+    auto file_name = params.notify_recorded_actions.file_names[i];
+    auto wait_time = params.notify_recorded_actions.wait_times[i];
+    auto medicine_sensor_topic = params.topics.medicine_sensor;
     auto ind = all_nodes.size();
-    all_nodes.push_back(std::make_shared<NotifyVideo>(action, file_names));
+    all_nodes.push_back(std::make_shared<NotifyVideo>(action, file_name, wait_time, medicine_sensor_topic));
     all_nodes[ind]->trigger_transition(lifecycle_msgs::msg::Transition::TRANSITION_CONFIGURE);
     exe.add_node(all_nodes[ind]->get_node_base_interface());
   }
