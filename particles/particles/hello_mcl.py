@@ -1,3 +1,4 @@
+import imp
 import rclpy  
 from rclpy.node import Node  
 from nav2_msgs.msg import ParticleCloud, Particle
@@ -18,9 +19,15 @@ from particles import util
 # from particles.sensor_model import Map
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
-
+from std_msgs.msg import Int32MultiArray
+from copy import deepcopy
+import geometry_msgs.msg as gm
 import cv2 
 import yaml
+
+from geometry_msgs.msg import TransformStamped
+from tf2_ros import TransformBroadcaster
+
 
 class Map:
     def __init__(self, pkg_name, cfg_file, logger):
@@ -67,6 +74,13 @@ class HelloMCL(Node):
         self.create_subscription(OccupancyGrid, '/map',
                                  self.map_callback, 1)
 
+        self.detecthuman_sub= self.create_subscription(
+                    Int32MultiArray,
+                    '/detecthuman',
+                    self.detect_human_callback,
+                    10)
+
+        self.tf_broadcaster = TransformBroadcaster(self)
 
         self.br = CvBridge()
         self.sub_camera= self.create_subscription(
@@ -76,8 +90,10 @@ class HelloMCL(Node):
             10)
 
 
-        self.last_odom= None
+        self.last_odom2=None  #real odom
+        self.last_odom= None  #only Pose
         self.last_scan = None 
+        self.last_rect=[0, 0, 0, 0]  #last detected human bounding box
 
         self.map_origin=(-8.28 , -6.33)
         self.map_resolution=0.05
@@ -94,6 +110,8 @@ class HelloMCL(Node):
         self._initialize_pose()
         self._initialize_particles_gaussian()
 
+        self.pub_pose=self.create_publisher(gm.Pose, '/humanpose2', 10)
+        self.pub_human=self.create_publisher(Odometry, '/humanpose', 10)
         self._particle_pub = self.create_publisher(ParticleCloud, '/particlecloud', 10)
         timer_period = 0.5  # seconds
         self.create_timer(timer_period, self.timer_callback)
@@ -115,10 +133,69 @@ class HelloMCL(Node):
 
         # self._publish_map()
  
+    def detect_human_callback(self, msg): 
+        self.get_logger().info(f'box: {msg.data} ') 
+        x,y,xd,yd=msg.data
+        self.last_rect=[x,y,xd,yd]
+
+    def draw_box(self, img, name, box):
+        x, y, w, h = box
+        x, y, xd, yd = round(x), round(y), round(x + w), round(y + h)
+        color = (np.random.randint(255), np.random.randint(255), np.random.randint(255))
+        color = [(255, 0, 0), (0, 255, 0), (0, 0, 255)][np.random.randint(3)]
+        cv2.rectangle(img, (x, y), (xd, yd), color, 2)
+        cv2.putText(img, name, (x - 10, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+        return img
+
+    #TODO: need help positioning the  human w.r.t the robot
     def depth_callback(self, ros_image):
         # ros_image.step *=2  #solve unity issue
-        img = self.br.imgmsg_to_cv2(ros_image ,desired_encoding='passthrough')
 
+        pose=gm.Pose()
+        pose.position.x=2.3
+        pose.position.y=1.2
+        pose.position.z=0.0
+        self.pub_pose.publish(pose)
+
+
+        distance=2  #temp
+        x_offset=0
+        img = self.br.imgmsg_to_cv2(ros_image ,desired_encoding='passthrough')
+        if(self.last_rect[2]>5):
+            # img=self.draw_box(img, "bbox", self.last_rect) 
+            cx=int( self.last_rect[0]+self.last_rect[2]/2 )#center of the box
+            cy=int( self.last_rect[1]+self.last_rect[3]/2 ) #center of the box
+            distance = img[cy,cx]
+
+            #480,640
+            x_offset=320-self.last_rect[0]
+
+            x,y,xd,yd=self.last_rect
+            if x<0: x=0
+            if y<0: y=0
+             
+            y=y+int(yd*0.2) 
+            yd=int(yd*0.4)  #top 40%
+            # img=img[y:y+yd, x:x+xd]
+
+            distance=np.mean(img)*10
+ 
+        if self.last_odom2!=None: 
+            od=deepcopy(self.last_odom2)
+            # od.header.stamp=self.get_clock().now().to_msg()
+            # od.header.frame_id="human" 
+            od.child_frame_id='human' 
+            # od.pose.pose.position.x +=2.0
+            od.pose.pose.orientation.x=0.0
+            od.pose.pose.orientation.y=0.0
+            od.pose.pose.orientation.z=0.0
+            od.pose.pose.orientation.w=1.0
+
+            od.pose.pose.position.x+= distance 
+            od.pose.pose.position.y+=x_offset*0.01 #z=sqrt(x**2+y**2)
+            # od.pose.pose.position.y+=np.sqrt(x_offset**2+)
+            self.pub_human.publish(od)
+  
       
         cv2.imshow("depth camera " , img)
         cv2.waitKey(1)
@@ -192,6 +269,7 @@ class HelloMCL(Node):
  
     def odometry_callback(self, msg: Odometry):
         self.last_odom = msg.pose.pose
+        self.last_odom2=msg
          
 
     def scan_callback(self, msg: LaserScan):

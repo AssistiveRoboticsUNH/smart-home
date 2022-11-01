@@ -6,6 +6,7 @@ import cv2
 import numpy as np
 import os
 from std_msgs.msg import String
+from std_msgs.msg import Int32MultiArray
 
 from ament_index_python.packages import get_package_share_directory
 
@@ -72,7 +73,7 @@ class YoloHuman:
                     y = center_y - h / 2
                     class_ids.append(class_id)
                     confidences.append(float(confidence))
-                    boxes.append([x, y, w, h])
+                    boxes.append([int(x), int(y), int(w), int(h)])
 
         # apply non-max suppression
         indices = cv2.dnn.NMSBoxes(boxes, confidences, conf_threshold, nms_threshold)
@@ -128,13 +129,14 @@ class DetectHuman(Node):
         self.yh = YoloHuman(data_path)
         self.human_pos = [0, 0, 0, 0]
 
-        self.publisher_ = self.create_publisher(String, '/detecthuman', 10)
+        self.publisher_ = self.create_publisher(Int32MultiArray, '/detecthuman', 10)
         timer_period = 0.5  # seconds
         self.timer = self.create_timer(timer_period, self.timer_human_pub_callback)
 
     def timer_human_pub_callback(self):
-        msg = String()
-        msg.data = str(self.human_pos)
+        msg = Int32MultiArray()
+        msg.data = [int(self.human_pos[0]), int(self.human_pos[1]), int(self.human_pos[2]), int(self.human_pos[3])]
+       
         self.publisher_.publish(msg)
         self.get_logger().info('Publishing: "%s"' % msg.data)
 
