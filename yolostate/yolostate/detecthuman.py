@@ -138,7 +138,7 @@ class DetectHuman(Node):
         msg.data = [int(self.human_pos[0]), int(self.human_pos[1]), int(self.human_pos[2]), int(self.human_pos[3])]
        
         self.publisher_.publish(msg)
-        self.get_logger().info('Publishing: "%s"' % msg.data)
+        # self.get_logger().info('Publishing: "%s"' % msg.data)
 
         # reset data
         self.human_pos = [0, 0, 0, 0]

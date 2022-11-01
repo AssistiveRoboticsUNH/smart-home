@@ -66,17 +66,17 @@ namespace move_action {
               this,
               "navigate_to_pose");
 
-      bool is_action_server_ready = false;
-      do {
-        RCLCPP_INFO(get_logger(), "Waiting for /navigate_to_pose action server...");
-
-        is_action_server_ready =
-            navigation_action_client_->wait_for_action_server(std::chrono::seconds(5));
-      } while (!is_action_server_ready);
+//      bool is_action_server_ready = false;
+//      do {
+//        RCLCPP_INFO(get_logger(), "Waiting for /navigate_to_pose action server...");
+//
+//        is_action_server_ready =
+//            navigation_action_client_->wait_for_action_server(std::chrono::seconds(5));
+//      } while (!is_action_server_ready);
 
       RCLCPP_INFO(get_logger(), "Navigation action server ready");
 
-      auto wp_to_navigate = get_arguments()[2];  // The goal is in the 3rd argument of the action
+      auto wp_to_navigate = get_arguments()[1];  // The goal is in the 3rd argument of the action
       RCLCPP_INFO(get_logger(), "Start navigation to [%s]", wp_to_navigate.c_str());
 
       auto point = shr_utils::get_tf_as_point(*tf_buffer_, "map", wp_to_navigate);
@@ -129,7 +129,7 @@ int main(int argc, char **argv) {
   auto param_listener = std::make_shared<shr_plan_parameters::ParamListener>(parameter_node);
   auto params = param_listener->get_params();
 
-  auto node = std::make_shared<move_action::MoveAction>(params.move_robot_action);
+  auto node = std::make_shared<move_action::MoveAction>(params.move_robot_actions.actions[0]);
   node->trigger_transition(lifecycle_msgs::msg::Transition::TRANSITION_CONFIGURE);
 
   rclcpp::spin(node->get_node_base_interface());

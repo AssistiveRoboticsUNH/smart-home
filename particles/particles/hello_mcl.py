@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 import imp
+=======
+>>>>>>> bfd14b673dc210c019bbc0334e9f44bc611604e1
 import rclpy  
 from rclpy.node import Node  
 from nav2_msgs.msg import ParticleCloud, Particle
@@ -17,6 +20,7 @@ from sensor_msgs.msg import LaserScan
 from ament_index_python.packages import get_package_share_directory
 from particles import util
 # from particles.sensor_model import Map
+<<<<<<< HEAD
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
 from std_msgs.msg import Int32MultiArray
@@ -29,6 +33,12 @@ from geometry_msgs.msg import TransformStamped
 from tf2_ros import TransformBroadcaster
 
 
+=======
+
+import cv2 
+import yaml
+
+>>>>>>> bfd14b673dc210c019bbc0334e9f44bc611604e1
 class Map:
     def __init__(self, pkg_name, cfg_file, logger):
         package_dir = get_package_share_directory(pkg_name)
@@ -74,6 +84,7 @@ class HelloMCL(Node):
         self.create_subscription(OccupancyGrid, '/map',
                                  self.map_callback, 1)
 
+<<<<<<< HEAD
         self.detecthuman_sub= self.create_subscription(
                     Int32MultiArray,
                     '/detecthuman',
@@ -99,6 +110,12 @@ class HelloMCL(Node):
         self.map_resolution=0.05
         self.map_width=225
         self.map_height=178
+=======
+        self.last_odom= None
+        self.last_scan = None 
+
+        self.map_origin=(-8.28 , -6.33)
+>>>>>>> bfd14b673dc210c019bbc0334e9f44bc611604e1
 
 
         # self.subscription = self.create_subscription(
@@ -110,8 +127,11 @@ class HelloMCL(Node):
         self._initialize_pose()
         self._initialize_particles_gaussian()
 
+<<<<<<< HEAD
         self.pub_pose=self.create_publisher(gm.Pose, '/humanpose2', 10)
         self.pub_human=self.create_publisher(Odometry, '/humanpose', 10)
+=======
+>>>>>>> bfd14b673dc210c019bbc0334e9f44bc611604e1
         self._particle_pub = self.create_publisher(ParticleCloud, '/particlecloud', 10)
         timer_period = 0.5  # seconds
         self.create_timer(timer_period, self.timer_callback)
@@ -132,6 +152,7 @@ class HelloMCL(Node):
         # )
 
         # self._publish_map()
+<<<<<<< HEAD
  
     def detect_human_callback(self, msg): 
         self.get_logger().info(f'box: {msg.data} ') 
@@ -200,6 +221,8 @@ class HelloMCL(Node):
         cv2.imshow("depth camera " , img)
         cv2.waitKey(1)
 
+=======
+>>>>>>> bfd14b673dc210c019bbc0334e9f44bc611604e1
 
     def _publish_map(self):
         map = [-1] * self._map.width * self._map.height
@@ -225,7 +248,12 @@ class HelloMCL(Node):
             # ry=robot_pos.y
             if self.last_odom!=None:
                 self._initialize_particles_gaussian(pose=self.last_odom)
+<<<<<<< HEAD
                 
+=======
+                # self.create_uniform_particles()
+
+>>>>>>> bfd14b673dc210c019bbc0334e9f44bc611604e1
             self.pub_particles()
              
 
@@ -266,14 +294,52 @@ class HelloMCL(Node):
 
         # cv2.imshow("map_data", image)
         # cv2.waitKey(0) 
+<<<<<<< HEAD
  
     def odometry_callback(self, msg: Odometry):
         self.last_odom = msg.pose.pose
         self.last_odom2=msg
+=======
+
+
+    def create_uniform_particles(self):
+        self.particles=[]
+        dx,dy=178, 225
+        pose = self.last_odom
+        scale=1
+        xs=list( np.random.uniform(0, dx, scale=scale, size=self.num_of_particles) )
+        ys=list( np.random.uniform(0, dy, scale=scale, size=self.num_of_particles) )
+  
+        # xs= list(np.random.normal(loc=pose.position.x, scale=scale, size=self.num_of_particles - 1))
+        # ys= list(np.random.normal(loc=pose.position.y, scale=scale, size=self.num_of_particles - 1))
+
+        current_yaw = util.yaw_from_quaternion(pose.orientation)
+        yaw_list = list(np.random.normal(loc=current_yaw, scale=0.01, size=self.num_of_particles- 1))
+    
+        initial_weight = 1.0 / float(self.num_of_particles)
+
+        for x, y, yaw in zip(xs, ys, yaw_list):
+            position = Point(x=x, y=y, z=0.0)
+            orientation = util.euler_to_quaternion(yaw, 0.0, 0.0)
+            temp_pose = Pose(position=position, orientation=orientation)
+            p=Particle()
+            p.pose=temp_pose
+            p.weight=initial_weight
+            self.particles.append(p) 
+
+        p=Particle()
+        p.pose= pose
+        p.weight=initial_weight
+        self.particles.append(p)
+
+    def odometry_callback(self, msg: Odometry):
+        self.last_odom = msg.pose.pose
+>>>>>>> bfd14b673dc210c019bbc0334e9f44bc611604e1
          
 
     def scan_callback(self, msg: LaserScan):
         self.last_scan = msg
+<<<<<<< HEAD
         # self.get_logger().info(f'scan total: {len(msg.ranges)}')
         dist_back = format(msg.ranges[180], '.2f')
         dist_left = format(msg.ranges[90], '.2f')
@@ -283,6 +349,8 @@ class HelloMCL(Node):
 
 
 
+=======
+>>>>>>> bfd14b673dc210c019bbc0334e9f44bc611604e1
 
     def listener_callback(self, data):
         header=data.header
@@ -314,17 +382,34 @@ class HelloMCL(Node):
         if pose is None:
             pose = self.current_pose
 
+<<<<<<< HEAD
         
         x_min=self.map_origin[0]+0
         x_max=self.map_origin[0]+self.map_width*self.map_resolution
 
         y_min=self.map_origin[1]+0
         y_max=self.map_origin[1]+self.map_height*self.map_resolution
+=======
+        dx,dy=178, 225
+        dx=pose.position.x+5
+        dy=pose.position.y+5
+
+        x_min=self.map_origin[0]-5
+        x_max=self.map_origin[0]+1
+        y_min=self.map_origin[1]-5
+        y_max=self.map_origin[1]+5
+>>>>>>> bfd14b673dc210c019bbc0334e9f44bc611604e1
 
         x_list=list( np.random.uniform(x_min, x_max,  size=self.num_of_particles) )
         y_list=list( np.random.uniform(y_min, y_max,  size=self.num_of_particles) )
         scale=1
+<<<<<<< HEAD
  
+=======
+
+        # x_list = list(np.random.normal(loc=pose.position.x, scale=scale, size=self.num_of_particles - 1))
+        # y_list = list(np.random.normal(loc=pose.position.y, scale=scale, size=self.num_of_particles - 1))
+>>>>>>> bfd14b673dc210c019bbc0334e9f44bc611604e1
         current_yaw = util.yaw_from_quaternion(pose.orientation)
         yaw_list = list(np.random.normal(loc=current_yaw, scale=0.01, size=self.num_of_particles- 1))
 

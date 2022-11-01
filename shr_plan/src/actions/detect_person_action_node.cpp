@@ -18,6 +18,7 @@
 #include <map>
 
 #include "plansys2_executor/ActionExecutorClient.hpp"
+#include "plansys2_problem_expert/Utils.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_action/rclcpp_action.hpp"
 
@@ -29,7 +30,7 @@ using namespace std::chrono_literals;
 
 class DetectPersonAction : public plansys2::ActionExecutorClient {
 public:
-  DetectPersonAction(const std::string& action_name, double timeout)
+  DetectPersonAction(const std::string &action_name, double timeout)
       : plansys2::ActionExecutorClient(action_name, 500ms) {
     set_parameter(rclcpp::Parameter("action_name", action_name));
     timeout_ = timeout;
@@ -38,33 +39,31 @@ public:
 
   rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
   on_activate(const rclcpp_lifecycle::State &previous_state) {
-    send_feedback(0.0, "Begin call");
+    send_feedback(0.0, "Begin detect person");
 
-    action_client_ = rclcpp_action::create_client<shr_msgs::action::DetectPersonRequest>(shared_from_this(), "make_call");
+    action_client_ = rclcpp_action::create_client<shr_msgs::action::DetectPersonRequest>(shared_from_this(),
+                                                                                         "detect_person");
 
     bool is_action_server_ready = false;
     do {
-      RCLCPP_INFO(get_logger(), "Waiting for /make_call action server...");
+      RCLCPP_INFO(get_logger(), "Waiting for /detect_person action server...");
 
       is_action_server_ready =
           action_client_->wait_for_action_server(std::chrono::seconds(5));
     } while (!is_action_server_ready);
 
-    RCLCPP_INFO(get_logger(), "/make_call action server ready");
-
-    auto person = get_arguments()[1];
-    RCLCPP_INFO(get_logger(), "call emergency for [%s]", person.c_str());
+    RCLCPP_INFO(get_logger(), "/detect_person action server ready");
 
 
     send_goal_options_ = rclcpp_action::Client<shr_msgs::action::DetectPersonRequest>::SendGoalOptions();
 
-    send_goal_options_.result_callback = [this](const rclcpp_action::ClientGoalHandle<shr_msgs::action::DetectPersonRequest>::WrappedResult &response) {
+    send_goal_options_.result_callback = [this](
+        const rclcpp_action::ClientGoalHandle<shr_msgs::action::DetectPersonRequest>::WrappedResult &response) {
       if (response.code == rclcpp_action::ResultCode::SUCCEEDED) {
-        finish(true, 1.0, "Message completed");
-      } else{
-        finish(false, 1.0, "Message completed and failed");
+        finish(true, 1.0, "Detected person!");
+      } else {
+        finish(false, 1.0, "Failed to detect person");
       }
-
     };
 
     goal_.timeout = timeout_;
@@ -86,25 +85,33 @@ protected:
   rclcpp_action::Client<shr_msgs::action::DetectPersonRequest>::SendGoalOptions send_goal_options_;
 
   double timeout_;
-
 };
 
 int main(int argc, char **argv) {
   rclcpp::init(argc, argv);
-  rclcpp::executors::MultiThreadedExecutor exe(rclcpp::ExecutorOptions(), 2);
+  rclcpp::executors::SingleThreadedExecutor exe;
 
   auto parameter_node = std::make_shared<rclcpp::Node>("detect_person_parameter_node");
   auto param_listener = std::make_shared<shr_plan_parameters::ParamListener>(parameter_node);
   auto params = param_listener->get_params();
 
-  for (auto i = 0ul ; i < params.detect_person_actions.actions.size(); i++){
+//  for (auto i = 0ul; i < params.detect_person_actions.actions.size(); i++) {
+//    auto action = params.detect_person_actions.actions[i];
+//    auto timeout = params.detect_person_actions.timeouts[i];
+//    auto call_node = std::make_shared<DetectPersonAction>(action, timeout);
+//    call_node->trigger_transition(lifecycle_msgs::msg::Transition::TRANSITION_CONFIGURE);
+//
+//    exe.add_node(call_node->get_node_base_interface());
+//  }
+
+  std::vector<std::shared_ptr<DetectPersonAction>> all_nodes;
+  for (auto i = 0ul; i < params.detect_person_actions.actions.size(); i++) {
     auto action = params.detect_person_actions.actions[i];
     auto timeout = params.detect_person_actions.timeouts[i];
-    auto call_node = std::make_shared<DetectPersonAction>(action, timeout);
-    call_node->trigger_transition(lifecycle_msgs::msg::Transition::TRANSITION_CONFIGURE);
-
-    exe.add_node(call_node->get_node_base_interface());
-
+    auto ind = all_nodes.size();
+    all_nodes.push_back(std::make_shared<DetectPersonAction>(action, timeout));
+    all_nodes[ind]->trigger_transition(lifecycle_msgs::msg::Transition::TRANSITION_CONFIGURE);
+    exe.add_node(all_nodes[ind]->get_node_base_interface());
   }
 
   exe.spin();

@@ -89,21 +89,33 @@ protected:
 
 int main(int argc, char **argv) {
   rclcpp::init(argc, argv);
-  rclcpp::executors::MultiThreadedExecutor exe(rclcpp::ExecutorOptions(), 2);
+  rclcpp::executors::SingleThreadedExecutor exe;
 
   auto parameter_node = std::make_shared<rclcpp::Node>("call_parameter_node");
   auto param_listener = std::make_shared<shr_plan_parameters::ParamListener>(parameter_node);
   auto params = param_listener->get_params();
 
+//  for (auto i = 0ul ; i < params.call_actions.actions.size(); i++){
+//    auto action = params.call_actions.actions[i];
+//    auto phone_number = params.call_actions.phone_numbers[i];
+//    auto script_name = params.call_actions.script_names[i];
+//    auto call_node = std::make_shared<CallAction>(action, phone_number, script_name);
+//    call_node->trigger_transition(lifecycle_msgs::msg::Transition::TRANSITION_CONFIGURE);
+//
+//    exe.add_node(call_node->get_node_base_interface());
+//
+//  }
+
+
+  std::vector<std::shared_ptr<CallAction>> all_nodes;
   for (auto i = 0ul ; i < params.call_actions.actions.size(); i++){
     auto action = params.call_actions.actions[i];
     auto phone_number = params.call_actions.phone_numbers[i];
     auto script_name = params.call_actions.script_names[i];
-    auto call_node = std::make_shared<CallAction>(action, phone_number, script_name);
-    call_node->trigger_transition(lifecycle_msgs::msg::Transition::TRANSITION_CONFIGURE);
-
-    exe.add_node(call_node->get_node_base_interface());
-
+    auto ind = all_nodes.size();
+    all_nodes.push_back(std::make_shared<CallAction>(action, phone_number, script_name));
+    all_nodes[ind]->trigger_transition(lifecycle_msgs::msg::Transition::TRANSITION_CONFIGURE);
+    exe.add_node(all_nodes[ind]->get_node_base_interface());
   }
 
   exe.spin();

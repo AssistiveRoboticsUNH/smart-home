@@ -80,10 +80,6 @@ namespace planning_controller {
       return tmp;
     }
 
-    bool has_new_world_state() {
-      return new_world_;
-    }
-
     bool has_new_completed_actions() {
       return !completed_actions_.empty();
     }
@@ -155,7 +151,9 @@ namespace planning_controller {
     }
 
     void set_world_state(const shr_msgs::msg::WorldState &world_state) {
-      world_state_ = world_state;
+      if (world_state_ != world_state) {
+        world_state_ = world_state;
+      }
     }
 
     void init() {
@@ -172,6 +170,10 @@ namespace planning_controller {
     }
 
     StateType get_transition() {
+      if (world_state_.time_to_take_medicine && !world_state_.took_medicine) {
+        active_protocol = "medicine_reminder";
+      }
+
       if (active_protocol.empty()) {
         return IDLE;
       }
@@ -187,8 +189,8 @@ namespace planning_controller {
     void step() {
 
       switch (state_) {
-        state_ = get_transition();
         case IDLE: {
+          state_ = get_transition();
           break;
         }
         case GATHERING_INFO: {
@@ -249,11 +251,11 @@ namespace planning_controller {
 
           auto feedback = executor_client_->getFeedBack();
 
-          for (const auto &action_feedback: feedback.action_execution_status) {
-            std::cout << "[" << action_feedback.action << " " <<
-                      action_feedback.completion * 100.0 << "%]";
-          }
-          std::cout << std::endl;
+//          for (const auto &action_feedback: feedback.action_execution_status) {
+//            std::cout << "[" << action_feedback.action << " " <<
+//                      action_feedback.completion * 100.0 << "%]";
+//          }
+//          if (!feedback.action_execution_status.empty()) std::cout << std::endl;
 
           if (!executor_client_->execute_and_check_plan() && executor_client_->getResult()) {
             if (executor_client_->getResult().value().success) {
@@ -273,48 +275,85 @@ namespace planning_controller {
 
   private:
 
-//        void update_protocol_callback(const std_msgs::msg::String::SharedPtr msg) {
-//            active_protocol = msg->data;
-//        }
-
 
     bool init_plan() {
-      for (const auto &instance: problem_expert_->getInstances()) {
-        problem_expert_->removeInstance(instance);
-      }
-      for (const auto &pred: problem_expert_->getPredicates()) {
-        problem_expert_->removePredicate(pred);
-      }
+//      for (const auto &instance: problem_expert_->getInstances()) {
+//        problem_expert_->removeInstance(instance);
+//      }
+//      for (const auto &pred: problem_expert_->getPredicates()) {
+//        problem_expert_->removePredicate(pred);
+//      }
 
-      if (active_protocol == "midnight_warning") {
-        problem_expert_->addInstance(plansys2::Instance{world_state_.door_location, "landmark"});
-        problem_expert_->addInstance(plansys2::Instance{"home", "landmark"});
+//      if (active_protocol == "midnight_warning") {
+//        problem_expert_->addInstance(plansys2::Instance{world_state_.door_location, "landmark"});
+//        problem_expert_->addInstance(plansys2::Instance{"home", "landmark"});
+//        problem_expert_->addInstance(plansys2::Instance{"pioneer", "robot"});
+//        problem_expert_->addInstance(plansys2::Instance{params_.patient_name, "person"});
+//        problem_expert_->addInstance(plansys2::Instance{"midnight_warning", "automated_message"});
+//        problem_expert_->addInstance(plansys2::Instance{"midnight_warning_video", "recorded_message"});
+//
+//
+//        problem_expert_->addPredicate(plansys2::Predicate("(robot_at pioneer home)"));
+//        problem_expert_->addPredicate(plansys2::Predicate(
+//            "(person_at " + params_.patient_name + " " + world_state_.door_location + ")"));
+//        problem_expert_->addPredicate(
+//            plansys2::Predicate("(give_message_location " + world_state_.door_location + ")"));
+//        if (world_state_.door_open == 1) {
+//          problem_expert_->addPredicate(plansys2::Predicate("(automated_message_given midnight_warning)"));
+//        }
+//
+//
+//        if (world_state_.door_open == 1) {
+//          problem_expert_->setGoal(plansys2::Goal(
+//              "(and(robot_at pioneer " + world_state_.door_location +
+//              ")(recorded_message_given midnight_warning_video))"));
+//        } else {
+//          problem_expert_->setGoal(
+//              plansys2::Goal("(and(robot_at pioneer " + world_state_.door_location +
+//                             ")(automated_message_given midnight_warning))"));
+//        }
+//      }
+
+
+      if (active_protocol == "medicine_reminder") {
+        problem_expert_->clearKnowledge();
         problem_expert_->addInstance(plansys2::Instance{"pioneer", "robot"});
-        problem_expert_->addInstance(plansys2::Instance{params_.patient_name, "person"});
-        problem_expert_->addInstance(plansys2::Instance{"midnight_warning", "automated_message"});
-        problem_expert_->addInstance(plansys2::Instance{"midnight_warning_video", "recorded_message"});
-
+        problem_expert_->addInstance(plansys2::Instance{"home", "landmark"});
+        std::vector<std::string> search_locations = {"bedroom_robot_pos", "kitchen_robot_pos", "couch_robot_pos"};
+        for (const auto& loc : search_locations){
+          problem_expert_->addInstance(plansys2::Instance{loc, "landmark"});
+        }
+        problem_expert_->addInstance(plansys2::Instance{world_state_.patient_name, "person"});
 
         problem_expert_->addPredicate(plansys2::Predicate("(robot_at pioneer home)"));
-        problem_expert_->addPredicate(plansys2::Predicate(
-            "(person_at " + params_.patient_name + " " + world_state_.door_location + ")"));
-        problem_expert_->addPredicate(
-            plansys2::Predicate("(give_message_location " + world_state_.door_location + ")"));
-        if (world_state_.door_open == 1) {
-          problem_expert_->addPredicate(plansys2::Predicate("(automated_message_given midnight_warning)"));
+        problem_expert_->addPredicate(plansys2::Predicate("(medicine_location " + world_state_.medicine_location + ")"));
+        if (!world_state_.patient_location.empty()){
+          problem_expert_->addPredicate(plansys2::Predicate("(person_at " + world_state_.patient_name + " " + world_state_.patient_location + ")"));
+        } else{
+          std::string oneof_pred = "(oneof ";
+          for (const auto& loc : search_locations){
+            auto pred = "(person_at " + world_state_.patient_name + " " + loc + ")";
+            oneof_pred += pred;
+            problem_expert_->addConditional(plansys2::Unknown("(unknown " + pred + ")"));
+          }
+          oneof_pred += ")";
+          problem_expert_->addConditional(plansys2::OneOf(oneof_pred));
         }
 
+        problem_expert_->addConditional(plansys2::Unknown("(unknown (guide_to_succeeded_attempt_1 ))"));
+        problem_expert_->addConditional(plansys2::Unknown("(unknown (guide_to_succeeded_attempt_2 ))"));
+        problem_expert_->addConditional(plansys2::Unknown("(unknown (notify_automated_succeeded ))"));
+        problem_expert_->addConditional(plansys2::Unknown("(unknown (notify_recorded_succeeded ))"));
 
-        if (world_state_.door_open == 1) {
-          problem_expert_->setGoal(plansys2::Goal(
-              "(and(robot_at pioneer " + world_state_.door_location +
-              ")(recorded_message_given midnight_warning_video))"));
-        } else {
-          problem_expert_->setGoal(
-              plansys2::Goal("(and(robot_at pioneer " + world_state_.door_location +
-                             ")(automated_message_given midnight_warning))"));
-        }
+
+        problem_expert_->setGoal(plansys2::Goal("(and (success) )"));
+
+        return true;
       }
+
+
+      return false;
+
     }
 
 //        void init_knowledge() {
@@ -439,9 +478,7 @@ int main(int argc, char **argv) {
   );
 
   while (rclcpp::ok()) {
-    if (spin_node->has_new_world_state()) {
-      node->set_world_state(spin_node->get_world_state());
-    }
+    node->set_world_state(spin_node->get_world_state());
     node->step();
     rclcpp::spin_some(node->get_node_base_interface());
     rate.sleep();

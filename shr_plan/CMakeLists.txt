@@ -100,6 +100,13 @@ include_directories(
         include
 )
 
+if(BUILD_TESTING)
+    find_package(ament_cmake_gtest REQUIRED)
+    find_package(ament_index_cpp REQUIRED)
+    set(dependencies ${dependencies} ament_index_cpp)
+    add_subdirectory(test)
+endif()
+
 install(TARGETS
         call_action_node
         detect_person_action_node
@@ -115,7 +122,7 @@ install(TARGETS
         )
 
 install(
-        DIRECTORY launch pddl
+        DIRECTORY launch pddl params
         DESTINATION share/shr_plan
 )
 

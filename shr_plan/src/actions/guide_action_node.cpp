@@ -79,7 +79,7 @@ namespace guide_action {
       auto send_goal_options = rclcpp_action::Client<shr_msgs::action::ReadScriptRequest>::SendGoalOptions();
 
       send_goal_options.result_callback = [this](auto) {
-        finish(true, 1.0, "Message completed");
+        send_feedback(0.0, "Prompting person completed");
       };
 
       read_goal_.script_name = "follow_me.txt";
@@ -94,13 +94,13 @@ namespace guide_action {
               this,
               "navigate_to_pose");
 
-      is_action_server_ready = false;
-      do {
-        RCLCPP_INFO(get_logger(), "Waiting for /navigate_to_pose action server...");
-
-        is_action_server_ready =
-            navigation_action_client_->wait_for_action_server(std::chrono::seconds(5));
-      } while (!is_action_server_ready);
+//      is_action_server_ready = false;
+//      do {
+//        RCLCPP_INFO(get_logger(), "Waiting for /navigate_to_pose action server...");
+//
+//        is_action_server_ready =
+//            navigation_action_client_->wait_for_action_server(std::chrono::seconds(5));
+//      } while (!is_action_server_ready);
 
       RCLCPP_INFO(get_logger(), "Navigation action server ready");
 
@@ -159,22 +159,29 @@ namespace guide_action {
 
 int main(int argc, char **argv) {
   rclcpp::init(argc, argv);
-  rclcpp::executors::MultiThreadedExecutor exe(rclcpp::ExecutorOptions(), 2);
+  rclcpp::executors::SingleThreadedExecutor exe;
 
   auto parameter_node = std::make_shared<rclcpp::Node>("guide_parameter_node");
   auto param_listener = std::make_shared<shr_plan_parameters::ParamListener>(parameter_node);
   auto params = param_listener->get_params();
 
-  for (auto i = 0ul; i < params.guide_to_actions.actions.size(); i++) {
-    auto action = params.notify_recorded_actions.actions[i];
-    auto none_node = std::make_shared<guide_action::GuideAction>(action);
-    none_node->trigger_transition(lifecycle_msgs::msg::Transition::TRANSITION_CONFIGURE);
-    exe.add_node(none_node->get_node_base_interface());
+//  for (auto i = 0ul; i < params.guide_to_actions.actions.size(); i++) {
+//    auto action = params.notify_recorded_actions.actions[i];
+//    auto none_node = std::make_shared<guide_action::GuideAction>(action);
+//    none_node->trigger_transition(lifecycle_msgs::msg::Transition::TRANSITION_CONFIGURE);
+//    exe.add_node(none_node->get_node_base_interface());
+//  }
+
+  std::vector<std::shared_ptr<guide_action::GuideAction>> all_nodes;
+  for (const auto & action : params.guide_to_actions.actions){
+    auto ind = all_nodes.size();
+    all_nodes.push_back(std::make_shared<guide_action::GuideAction>(action));
+    all_nodes[ind]->trigger_transition(lifecycle_msgs::msg::Transition::TRANSITION_CONFIGURE);
+    exe.add_node(all_nodes[ind]->get_node_base_interface());
   }
 
   exe.spin();
   rclcpp::shutdown();
-
 
   return 0;
 }
