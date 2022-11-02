@@ -1,7 +1,4 @@
-<<<<<<< HEAD
 import imp
-=======
->>>>>>> bfd14b673dc210c019bbc0334e9f44bc611604e1
 import rclpy  
 from rclpy.node import Node  
 from nav2_msgs.msg import ParticleCloud, Particle
@@ -20,8 +17,7 @@ from sensor_msgs.msg import LaserScan
 from ament_index_python.packages import get_package_share_directory
 from particles import util
 # from particles.sensor_model import Map
-<<<<<<< HEAD
-from sensor_msgs.msg import Image
+from sensor_msgs.msg import Image, CameraInfo
 from cv_bridge import CvBridge
 from std_msgs.msg import Int32MultiArray
 from copy import deepcopy
@@ -33,12 +29,6 @@ from geometry_msgs.msg import TransformStamped
 from tf2_ros import TransformBroadcaster
 
 
-=======
-
-import cv2 
-import yaml
-
->>>>>>> bfd14b673dc210c019bbc0334e9f44bc611604e1
 class Map:
     def __init__(self, pkg_name, cfg_file, logger):
         package_dir = get_package_share_directory(pkg_name)
@@ -75,8 +65,10 @@ class Map:
 class HelloMCL(Node):
     def __init__(self):
         super().__init__('hello_mcl')
- 
-        self.create_subscription(Odometry, '/odom',
+        self.declare_parameter('odom', '/wheel/odometry') # '/odom')
+        param_odom_topic = self.get_parameter('odom').value
+
+        self.create_subscription(Odometry, param_odom_topic,
                                  self.odometry_callback, 1)
         self.create_subscription(LaserScan, '/scan',
                                  self.scan_callback, 1)
@@ -84,7 +76,6 @@ class HelloMCL(Node):
         self.create_subscription(OccupancyGrid, '/map',
                                  self.map_callback, 1)
 
-<<<<<<< HEAD
         self.detecthuman_sub= self.create_subscription(
                     Int32MultiArray,
                     '/detecthuman',
@@ -96,10 +87,19 @@ class HelloMCL(Node):
         self.br = CvBridge()
         self.sub_camera= self.create_subscription(
             Image,
-            '/smart_home/camera/depth/image_raw',
+            '/depth_camera/depth/image_raw',
+            # '/smart_home/camera/depth/image_raw',
             self.depth_callback,
             10)
-
+        self.sub_camera_info= self.create_subscription(
+            CameraInfo,
+            '/depth_camera/depth/camera_info',
+            # '/smart_home/camera/depth/camera_info',
+            self.depth_info_callback,
+            10)
+        self.fxy=[None, None]   #focal lengths 
+        self.cxy=[None, None]
+        self.pxyz=[0,0,0]        #person position
 
         self.last_odom2=None  #real odom
         self.last_odom= None  #only Pose
@@ -110,12 +110,6 @@ class HelloMCL(Node):
         self.map_resolution=0.05
         self.map_width=225
         self.map_height=178
-=======
-        self.last_odom= None
-        self.last_scan = None 
-
-        self.map_origin=(-8.28 , -6.33)
->>>>>>> bfd14b673dc210c019bbc0334e9f44bc611604e1
 
 
         # self.subscription = self.create_subscription(
@@ -127,11 +121,8 @@ class HelloMCL(Node):
         self._initialize_pose()
         self._initialize_particles_gaussian()
 
-<<<<<<< HEAD
         self.pub_pose=self.create_publisher(gm.Pose, '/humanpose2', 10)
         self.pub_human=self.create_publisher(Odometry, '/humanpose', 10)
-=======
->>>>>>> bfd14b673dc210c019bbc0334e9f44bc611604e1
         self._particle_pub = self.create_publisher(ParticleCloud, '/particlecloud', 10)
         timer_period = 0.5  # seconds
         self.create_timer(timer_period, self.timer_callback)
@@ -152,7 +143,6 @@ class HelloMCL(Node):
         # )
 
         # self._publish_map()
-<<<<<<< HEAD
  
     def detect_human_callback(self, msg): 
         self.get_logger().info(f'box: {msg.data} ') 
@@ -167,6 +157,22 @@ class HelloMCL(Node):
         cv2.rectangle(img, (x, y), (xd, yd), color, 2)
         cv2.putText(img, name, (x - 10, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
         return img
+
+
+    def depth_info_callback(self, msg):
+        """
+        depth camera info
+        """
+        K=msg.k 
+        fx=msg.k[0]
+        cx=msg.k[2]
+        fy=msg.k[4]
+        cy=msg.k[5] 
+
+        self.fxy=[fx, fy]
+        self.cxy=[cx, cy]
+        self.get_logger().info(f'depth info: fxy: {fx:.2f},{fy:.2f} cxy:{cx},{cy}')
+
 
     #TODO: need help positioning the  human w.r.t the robot
     def depth_callback(self, ros_image):
@@ -186,7 +192,15 @@ class HelloMCL(Node):
             # img=self.draw_box(img, "bbox", self.last_rect) 
             cx=int( self.last_rect[0]+self.last_rect[2]/2 )#center of the box
             cy=int( self.last_rect[1]+self.last_rect[3]/2 ) #center of the box
-            distance = img[cy,cx]
+            depth = img[cy,cx]  #center pixel value
+
+            if self.fxy[0] != None:
+                constant_x=1/self.fxy[0]
+                constant_y=1/self.fxy[1]
+                px= (cx - self.cxy[0]) * depth * constant_x
+                py = (cy - self.cxy[1]) * depth * constant_y
+                pz=depth
+                self.pxyz=[pz, -px, -py]
 
             #480,640
             x_offset=320-self.last_rect[0]
@@ -197,9 +211,12 @@ class HelloMCL(Node):
              
             y=y+int(yd*0.2) 
             yd=int(yd*0.4)  #top 40%
-            # img=img[y:y+yd, x:x+xd]
+            img=img[y:y+yd, x:x+xd]       #crop the center of the person.
 
             distance=np.mean(img)*10
+
+
+
  
         if self.last_odom2!=None: 
             od=deepcopy(self.last_odom2)
@@ -212,17 +229,44 @@ class HelloMCL(Node):
             od.pose.pose.orientation.z=0.0
             od.pose.pose.orientation.w=1.0
 
-            od.pose.pose.position.x+= distance 
-            od.pose.pose.position.y+=x_offset*0.01 #z=sqrt(x**2+y**2)
+            od.pose.pose.position.x+= self.pxyz[0]
+            od.pose.pose.position.y+=self.pxyz[1]
+            od.pose.pose.position.z+=self.pxyz[2]
             # od.pose.pose.position.y+=np.sqrt(x_offset**2+)
             self.pub_human.publish(od)
+
+            t = TransformStamped()
+
+            # Read message content and assign it to
+            # corresponding tf variables
+            t.header.stamp = ros_image.header.stamp
+            t.header.frame_id = ros_image.header.frame_id
+            t.child_frame_id = 'human_tf'
+
+            # Turtle only exists in 2D, thus we get x and y translation
+            # coordinates from the message and set the z coordinate to 0
+            t.transform.translation.x = float(self.pxyz[0] )
+            t.transform.translation.y = float(self.pxyz[1])
+            t.transform.translation.z = float(self.pxyz[2])
+
+            # For the same reason, turtle can only rotate around one axis
+            # and this why we set rotation in x and y to 0 and obtain
+            # rotation in z axis from the message
+            # q = quaternion_from_euler(0, 0, msg.theta)
+            t.transform.rotation.x = 0.
+            t.transform.rotation.y = 0.
+            t.transform.rotation.z = 0.
+            t.transform.rotation.w = 1.0
+
+            # Send the transformation
+            self.tf_broadcaster.sendTransform(t)
+
+
   
-      
+
+        img=(img-img.min() )    /(img.max()-img.min())  #correction vis for gazebo depth cam
         cv2.imshow("depth camera " , img)
         cv2.waitKey(1)
-
-=======
->>>>>>> bfd14b673dc210c019bbc0334e9f44bc611604e1
 
     def _publish_map(self):
         map = [-1] * self._map.width * self._map.height
@@ -248,12 +292,7 @@ class HelloMCL(Node):
             # ry=robot_pos.y
             if self.last_odom!=None:
                 self._initialize_particles_gaussian(pose=self.last_odom)
-<<<<<<< HEAD
                 
-=======
-                # self.create_uniform_particles()
-
->>>>>>> bfd14b673dc210c019bbc0334e9f44bc611604e1
             self.pub_particles()
              
 
@@ -294,52 +333,14 @@ class HelloMCL(Node):
 
         # cv2.imshow("map_data", image)
         # cv2.waitKey(0) 
-<<<<<<< HEAD
  
     def odometry_callback(self, msg: Odometry):
         self.last_odom = msg.pose.pose
         self.last_odom2=msg
-=======
-
-
-    def create_uniform_particles(self):
-        self.particles=[]
-        dx,dy=178, 225
-        pose = self.last_odom
-        scale=1
-        xs=list( np.random.uniform(0, dx, scale=scale, size=self.num_of_particles) )
-        ys=list( np.random.uniform(0, dy, scale=scale, size=self.num_of_particles) )
-  
-        # xs= list(np.random.normal(loc=pose.position.x, scale=scale, size=self.num_of_particles - 1))
-        # ys= list(np.random.normal(loc=pose.position.y, scale=scale, size=self.num_of_particles - 1))
-
-        current_yaw = util.yaw_from_quaternion(pose.orientation)
-        yaw_list = list(np.random.normal(loc=current_yaw, scale=0.01, size=self.num_of_particles- 1))
-    
-        initial_weight = 1.0 / float(self.num_of_particles)
-
-        for x, y, yaw in zip(xs, ys, yaw_list):
-            position = Point(x=x, y=y, z=0.0)
-            orientation = util.euler_to_quaternion(yaw, 0.0, 0.0)
-            temp_pose = Pose(position=position, orientation=orientation)
-            p=Particle()
-            p.pose=temp_pose
-            p.weight=initial_weight
-            self.particles.append(p) 
-
-        p=Particle()
-        p.pose= pose
-        p.weight=initial_weight
-        self.particles.append(p)
-
-    def odometry_callback(self, msg: Odometry):
-        self.last_odom = msg.pose.pose
->>>>>>> bfd14b673dc210c019bbc0334e9f44bc611604e1
          
 
     def scan_callback(self, msg: LaserScan):
         self.last_scan = msg
-<<<<<<< HEAD
         # self.get_logger().info(f'scan total: {len(msg.ranges)}')
         dist_back = format(msg.ranges[180], '.2f')
         dist_left = format(msg.ranges[90], '.2f')
@@ -349,8 +350,6 @@ class HelloMCL(Node):
 
 
 
-=======
->>>>>>> bfd14b673dc210c019bbc0334e9f44bc611604e1
 
     def listener_callback(self, data):
         header=data.header
@@ -367,7 +366,7 @@ class HelloMCL(Node):
         for particle in self.particles:
             msg.particles.append(particle)
         self._particle_pub.publish(msg)
-
+ 
 
     def _initialize_pose(self):
         position = Point(x=0.0,
@@ -382,34 +381,17 @@ class HelloMCL(Node):
         if pose is None:
             pose = self.current_pose
 
-<<<<<<< HEAD
         
         x_min=self.map_origin[0]+0
         x_max=self.map_origin[0]+self.map_width*self.map_resolution
 
         y_min=self.map_origin[1]+0
         y_max=self.map_origin[1]+self.map_height*self.map_resolution
-=======
-        dx,dy=178, 225
-        dx=pose.position.x+5
-        dy=pose.position.y+5
-
-        x_min=self.map_origin[0]-5
-        x_max=self.map_origin[0]+1
-        y_min=self.map_origin[1]-5
-        y_max=self.map_origin[1]+5
->>>>>>> bfd14b673dc210c019bbc0334e9f44bc611604e1
 
         x_list=list( np.random.uniform(x_min, x_max,  size=self.num_of_particles) )
         y_list=list( np.random.uniform(y_min, y_max,  size=self.num_of_particles) )
         scale=1
-<<<<<<< HEAD
  
-=======
-
-        # x_list = list(np.random.normal(loc=pose.position.x, scale=scale, size=self.num_of_particles - 1))
-        # y_list = list(np.random.normal(loc=pose.position.y, scale=scale, size=self.num_of_particles - 1))
->>>>>>> bfd14b673dc210c019bbc0334e9f44bc611604e1
         current_yaw = util.yaw_from_quaternion(pose.orientation)
         yaw_list = list(np.random.normal(loc=current_yaw, scale=0.01, size=self.num_of_particles- 1))
 

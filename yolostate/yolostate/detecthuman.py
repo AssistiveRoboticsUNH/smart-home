@@ -101,22 +101,27 @@ class YoloHuman:
         cv2.putText(img, name, (x - 10, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
         return img
 
-
+'''
+ros2 run yolostate detecthuman --ros-args -p camera:=/depth_camera/image_raw -p view_camera:=true
+'''
 class DetectHuman(Node):
     def __init__(self):
         super().__init__('detect_human')
 
         self.view_camera = True
-        # self.view_camera=False
+        
+        self.declare_parameter('view_camera', False)
+        self.declare_parameter('camera', '/smart_home/camera/color/image_raw')
+        param_camera_topic = self.get_parameter('camera').value
+        self.view_camera=self.get_parameter('view_camera').value
 
         self.subscription = self.create_subscription(
-            Image,
-            '/smart_home/camera/color/image_raw',
+            Image, 
+            param_camera_topic,
             self.listener_callback,
             10)
         self.subscription  # prevent unused variable warning
-
-        self.declare_parameter('view_camera', False)  # TODO
+ 
 
         # Used to convert between ROS and OpenCV images
         self.br = CvBridge()
@@ -147,8 +152,7 @@ class DetectHuman(Node):
         x, y, xd, yd = box
         self.human_pos = box
 
-    def listener_callback(self, data):
-
+    def listener_callback(self, data): 
         # Convert ROS Image message to OpenCV image
         current_frame = self.br.imgmsg_to_cv2(data)
         current_frame = current_frame[:, :, :3]  # channel 4 to 3
@@ -163,22 +167,14 @@ class DetectHuman(Node):
         names, confidences, boxes = self.yh.detect_human(current_frame)
         if len(names) > 0:
             print(f'Human detected. total={len(names)}')
-            self.on_human_data(boxes[0])
-
-        param_view_camera = rclpy.parameter.Parameter(
-            'view_camera',
-            rclpy.Parameter.Type.BOOL,
-            False
-        )
-
-        # self.get_logger().info('param_view_camera=: "%s"' % param_view_camera)
-
+            self.on_human_data(boxes[0])                   #set human detected data for timer publisher.
+ 
         if self.view_camera:
             for name, conf, box in zip(names, confidences, boxes):
                 org = self.yh.draw_box(org, name, conf, box)
 
             # cv2.imshow("camera", current_frame)
-            cv2.imshow("camera", org)
+            cv2.imshow("human detection", org)
             cv2.waitKey(1)
 
 
