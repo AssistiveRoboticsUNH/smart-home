@@ -26,11 +26,11 @@ repositories:
   external/ros2_planning_system:
     type: git
     url: https://github.com/pac48/ros2_planning_system.git
-    version: master
+    version: add-cff-planner-ament-format
   external/plansys2_cff_plan_solver:
     type: git
     url: https://github.com/pac48/plansys2_cff_plan_solver.git
-    version: master
+    version: main
   external/smartthings_ros:
     type: git
     url: https://github.com/AssistiveRoboticsUNH/smartthings_ros.git
