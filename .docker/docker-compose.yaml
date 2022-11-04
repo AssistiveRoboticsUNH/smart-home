@@ -1,0 +1,26 @@
+version: '2'
+
+services:
+    smart_home:
+       # networks:
+       #     appnet:
+       #         ipv4_address: 192.168.1.5
+        image: "smart_home"
+        privileged: true
+        network_mode: host
+        #ipc: host
+        environment:
+            - ROS_DOMAIN_ID=26
+        command: ros2 launch yumi_control yumi_control.launch.py
+        
+#networks:
+#    host:
+#        name: host
+#        external: true
+#    appnet:
+#        driver: bridge
+#        ipam:
+#            driver: default
+#            config:
+#                - subnet: "192.168.1.0/24"
+
