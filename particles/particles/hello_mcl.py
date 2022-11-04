@@ -65,7 +65,7 @@ class Map:
 class HelloMCL(Node):
     def __init__(self):
         super().__init__('hello_mcl')
-        self.declare_parameter('odom', '/wheel/odometry') # '/odom')
+        self.declare_parameter('odom', '/odom') 
         param_odom_topic = self.get_parameter('odom').value
 
         self.create_subscription(Odometry, param_odom_topic,
@@ -75,37 +75,11 @@ class HelloMCL(Node):
 
         self.create_subscription(OccupancyGrid, '/map',
                                  self.map_callback, 1)
-
-        self.detecthuman_sub= self.create_subscription(
-                    Int32MultiArray,
-                    '/detecthuman',
-                    self.detect_human_callback,
-                    10)
-
-        self.tf_broadcaster = TransformBroadcaster(self)
-
-        self.br = CvBridge()
-        self.sub_camera= self.create_subscription(
-            Image,
-            '/depth_camera/depth/image_raw',
-            # '/smart_home/camera/depth/image_raw',
-            self.depth_callback,
-            10)
-        self.sub_camera_info= self.create_subscription(
-            CameraInfo,
-            '/depth_camera/depth/camera_info',
-            # '/smart_home/camera/depth/camera_info',
-            self.depth_info_callback,
-            10)
-        self.fxy=[None, None]   #focal lengths 
-        self.cxy=[None, None]
-        self.pxyz=[0,0,0]        #person position
-
+   
         self.last_odom2=None  #real odom
         self.last_odom= None  #only Pose
         self.last_scan = None 
-        self.last_rect=[0, 0, 0, 0]  #last detected human bounding box
-
+ 
         self.map_origin=(-8.28 , -6.33)
         self.map_resolution=0.05
         self.map_width=225
@@ -120,9 +94,7 @@ class HelloMCL(Node):
         self.num_of_particles=200
         self._initialize_pose()
         self._initialize_particles_gaussian()
-
-        self.pub_pose=self.create_publisher(gm.Pose, '/humanpose2', 10)
-        self.pub_human=self.create_publisher(Odometry, '/humanpose', 10)
+ 
         self._particle_pub = self.create_publisher(ParticleCloud, '/particlecloud', 10)
         timer_period = 0.5  # seconds
         self.create_timer(timer_period, self.timer_callback)
@@ -143,130 +115,7 @@ class HelloMCL(Node):
         # )
 
         # self._publish_map()
- 
-    def detect_human_callback(self, msg): 
-        self.get_logger().info(f'box: {msg.data} ') 
-        x,y,xd,yd=msg.data
-        self.last_rect=[x,y,xd,yd]
-
-    def draw_box(self, img, name, box):
-        x, y, w, h = box
-        x, y, xd, yd = round(x), round(y), round(x + w), round(y + h)
-        color = (np.random.randint(255), np.random.randint(255), np.random.randint(255))
-        color = [(255, 0, 0), (0, 255, 0), (0, 0, 255)][np.random.randint(3)]
-        cv2.rectangle(img, (x, y), (xd, yd), color, 2)
-        cv2.putText(img, name, (x - 10, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
-        return img
-
-
-    def depth_info_callback(self, msg):
-        """
-        depth camera info
-        """
-        K=msg.k 
-        fx=msg.k[0]
-        cx=msg.k[2]
-        fy=msg.k[4]
-        cy=msg.k[5] 
-
-        self.fxy=[fx, fy]
-        self.cxy=[cx, cy]
-        self.get_logger().info(f'depth info: fxy: {fx:.2f},{fy:.2f} cxy:{cx},{cy}')
-
-
-    #TODO: need help positioning the  human w.r.t the robot
-    def depth_callback(self, ros_image):
-        # ros_image.step *=2  #solve unity issue
-
-        pose=gm.Pose()
-        pose.position.x=2.3
-        pose.position.y=1.2
-        pose.position.z=0.0
-        self.pub_pose.publish(pose)
-
-
-        distance=2  #temp
-        x_offset=0
-        img = self.br.imgmsg_to_cv2(ros_image ,desired_encoding='passthrough')
-        if(self.last_rect[2]>5):
-            # img=self.draw_box(img, "bbox", self.last_rect) 
-            cx=int( self.last_rect[0]+self.last_rect[2]/2 )#center of the box
-            cy=int( self.last_rect[1]+self.last_rect[3]/2 ) #center of the box
-            depth = img[cy,cx]  #center pixel value
-
-            if self.fxy[0] != None:
-                constant_x=1/self.fxy[0]
-                constant_y=1/self.fxy[1]
-                px= (cx - self.cxy[0]) * depth * constant_x
-                py = (cy - self.cxy[1]) * depth * constant_y
-                pz=depth
-                self.pxyz=[pz, -px, -py]
-
-            #480,640
-            x_offset=320-self.last_rect[0]
-
-            x,y,xd,yd=self.last_rect
-            if x<0: x=0
-            if y<0: y=0
-             
-            y=y+int(yd*0.2) 
-            yd=int(yd*0.4)  #top 40%
-            img=img[y:y+yd, x:x+xd]       #crop the center of the person.
-
-            distance=np.mean(img)*10
-
-
-
- 
-        if self.last_odom2!=None: 
-            od=deepcopy(self.last_odom2)
-            # od.header.stamp=self.get_clock().now().to_msg()
-            # od.header.frame_id="human" 
-            od.child_frame_id='human' 
-            # od.pose.pose.position.x +=2.0
-            od.pose.pose.orientation.x=0.0
-            od.pose.pose.orientation.y=0.0
-            od.pose.pose.orientation.z=0.0
-            od.pose.pose.orientation.w=1.0
-
-            od.pose.pose.position.x+= self.pxyz[0]
-            od.pose.pose.position.y+=self.pxyz[1]
-            od.pose.pose.position.z+=self.pxyz[2]
-            # od.pose.pose.position.y+=np.sqrt(x_offset**2+)
-            self.pub_human.publish(od)
-
-            t = TransformStamped()
-
-            # Read message content and assign it to
-            # corresponding tf variables
-            t.header.stamp = ros_image.header.stamp
-            t.header.frame_id = ros_image.header.frame_id
-            t.child_frame_id = 'human_tf'
-
-            # Turtle only exists in 2D, thus we get x and y translation
-            # coordinates from the message and set the z coordinate to 0
-            t.transform.translation.x = float(self.pxyz[0] )
-            t.transform.translation.y = float(self.pxyz[1])
-            t.transform.translation.z = float(self.pxyz[2])
-
-            # For the same reason, turtle can only rotate around one axis
-            # and this why we set rotation in x and y to 0 and obtain
-            # rotation in z axis from the message
-            # q = quaternion_from_euler(0, 0, msg.theta)
-            t.transform.rotation.x = 0.
-            t.transform.rotation.y = 0.
-            t.transform.rotation.z = 0.
-            t.transform.rotation.w = 1.0
-
-            # Send the transformation
-            self.tf_broadcaster.sendTransform(t)
-
-
   
-
-        img=(img-img.min() )    /(img.max()-img.min())  #correction vis for gazebo depth cam
-        cv2.imshow("depth camera " , img)
-        cv2.waitKey(1)
 
     def _publish_map(self):
         map = [-1] * self._map.width * self._map.height
@@ -348,8 +197,7 @@ class HelloMCL(Node):
         dist_head = format(msg.ranges[0], '.2f')
         self.get_logger().info(f'scan: {len(msg.ranges)} {dist_back} {dist_left} {dist_right} {dist_head}')
 
-
-
+ 
 
     def listener_callback(self, data):
         header=data.header
