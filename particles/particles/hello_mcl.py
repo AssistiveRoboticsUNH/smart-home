@@ -27,7 +27,9 @@ import yaml
 
 from geometry_msgs.msg import TransformStamped
 from tf2_ros import TransformBroadcaster
-
+from tf2_ros import TransformException
+from tf2_ros.buffer import Buffer
+from tf2_ros.transform_listener import TransformListener
 
 class Map:
     def __init__(self, pkg_name, cfg_file, logger):
@@ -75,6 +77,15 @@ class HelloMCL(Node):
 
         self.create_subscription(OccupancyGrid, '/map',
                                  self.map_callback, 1)
+
+
+        # Declare and acquire `target_frame` parameter
+        # self.target_frame = self.declare_parameter(
+        #   'target_frame', 'human_tf').get_parameter_value().string_value
+        self.tf_buffer = Buffer()
+        self.tf_listener = TransformListener(self.tf_buffer, self)
+
+        self.last_human_xy=[None, None]
    
         self.last_odom2=None  #real odom
         self.last_odom= None  #only Pose
@@ -84,20 +95,19 @@ class HelloMCL(Node):
         self.map_resolution=0.05
         self.map_width=225
         self.map_height=178
-
-
-        # self.subscription = self.create_subscription(
-        # ParticleCloud,  '/particle_cloud',  self.listener_callback, qos_profile=qos_profile_system_default)
-        # self.subscription # prevent unused variable warning
-
-        self.particles= []
-        self.num_of_particles=200
-        self._initialize_pose()
-        self._initialize_particles_gaussian()
+        
+        
  
         self._particle_pub = self.create_publisher(ParticleCloud, '/particlecloud', 10)
         timer_period = 0.5  # seconds
         self.create_timer(timer_period, self.timer_callback)
+
+        self.particles_xy=np.zeros((200, 3))
+        self.particles= []
+        self.num_of_particles=200
+        self._initialize_pose()
+        self._initialize_particles_gaussian()
+        self.pub_particles()  #pub initial
 
         
         print('loading map...')
@@ -115,7 +125,9 @@ class HelloMCL(Node):
         # )
 
         # self._publish_map()
-  
+        self.time_stamp=None 
+
+ 
 
     def _publish_map(self):
         map = [-1] * self._map.width * self._map.height
@@ -135,14 +147,79 @@ class HelloMCL(Node):
         msg.data = map
         self._map_publisher.publish(msg)
 
+    def parse_human_xy(self, timestamp=None):
+        to_frame_rel = 'map'
+        # from_frame_rel = 'depth_camera'
+        from_frame_rel = 'human_tf'
+        try: 
+            timestamp=rclpy.time.Time()
+            # if self.time_stamp!=None:
+            #     timestamp=self.time_stamp
+
+            t = self.tf_buffer.lookup_transform(
+                to_frame_rel,
+                from_frame_rel,
+                timestamp)
+            x=t.transform.translation.x
+            y=t.transform.translation.y
+            d=np.sqrt(x**2 +  y**2)
+            return (x, y, d)
+        except TransformException as ex:
+            self.get_logger().info(
+                f'Could not transform {to_frame_rel} to {from_frame_rel}: {ex}')
+            return (None, None, 0)
+
+    def pdf(self, x, mu, sigma):
+        scaling=1/(sigma**2 * 2 * np.pi)**0.5
+        v=np.exp(-0.5* ( (x-mu)/sigma)**2 )
+        return scaling*v
+
     def timer_callback(self): 
-            # robot_pos=self.last_odom.pose.pose.position
-            # rx=robot_pos.x
-            # ry=robot_pos.y
-            if self.last_odom!=None:
-                self._initialize_particles_gaussian(pose=self.last_odom)
-                
-            self.pub_particles()
+
+        #adding some noise to each particles
+        # noise =np.random.normal(0, 0.1, len(self.particles)) 
+        # for i in range(len(self.particles)):
+        #     self.particles[i].pose.position.x+=noise[i]
+        #     self.particles[i].pose.position.y+=noise[i]
+        #end of adding noise. 
+
+        x,y,d=self.parse_human_xy()
+        if d>0:  
+            self.last_human_xy=[x,y]
+            self.get_logger().info(f"human_tf: {x}, {y} :: {d} ")
+
+            pd=[]
+            for i in range(len(self.particles_xy)):
+                px=self.particles_xy[i,0]
+                py=self.particles_xy[i,1]
+                d=(x-px)**2 + (y-py)**2   #distance from the human to particle_i
+                d=self.pdf(d, 0, 0.5)
+                pd.append(d)
+
+            pr=np.array( pd) +0.0001       #to prevent sum(pr)=0
+            pr = pr / np.sum(pr)      #proba dist
+
+            ni=np.random.choice(range(len(pr)), len(pr), p=pr)  #getting the indexes
+
+   
+            si=[]
+            for i in ni:
+                si.append(self.particles_xy[i])
+
+            self.particles_xy=np.array( si )   #update  
+
+
+ 
+
+        noise =np.random.normal(0, 0.1, len(self.particles_xy)) 
+        noise2 =np.random.normal(0, 0.1, len(self.particles_xy)) 
+        for i in range(len(self.particles_xy)):
+            self.particles_xy[i,0]+=noise[i]
+            self.particles_xy[i,1]+=noise2[i]
+
+
+        self.check_boundary()
+        self.pub_particles()
              
 
 
@@ -186,6 +263,7 @@ class HelloMCL(Node):
     def odometry_callback(self, msg: Odometry):
         self.last_odom = msg.pose.pose
         self.last_odom2=msg
+        self.time_stamp=msg.header.stamp
          
 
     def scan_callback(self, msg: LaserScan):
@@ -195,7 +273,7 @@ class HelloMCL(Node):
         dist_left = format(msg.ranges[90], '.2f')
         dist_right = format(msg.ranges[270], '.2f')
         dist_head = format(msg.ranges[0], '.2f')
-        self.get_logger().info(f'scan: {len(msg.ranges)} {dist_back} {dist_left} {dist_right} {dist_head}')
+        # self.get_logger().info(f'scan: {len(msg.ranges)} {dist_back} {dist_left} {dist_right} {dist_head}')
 
  
 
@@ -208,10 +286,23 @@ class HelloMCL(Node):
         print('pos=', pos)
 
     def pub_particles(self): 
+        num_particles=200
+        initial_weight = 1.0 / float(num_particles)
+        particles=[]
+        for x, y, yaw in self.particles_xy: 
+            position = Point(x=x, y=y, z=0.0)
+            orientation = util.euler_to_quaternion(yaw, 0.0, 0.0)
+            temp_pose = Pose(position=position, orientation=orientation)
+            p=Particle()
+            p.pose=temp_pose
+            p.weight=initial_weight
+            particles.append(p)  
+        #created Particle from x,y position
+
         msg=ParticleCloud()
         msg.header.frame_id = 'map'
         msg.header.stamp = self.get_clock().now().to_msg()
-        for particle in self.particles:
+        for particle in particles:
             msg.particles.append(particle)
         self._particle_pub.publish(msg)
  
@@ -223,6 +314,22 @@ class HelloMCL(Node):
         orientation = Quaternion(x=0.0, y=0.0, z=0.0, w=0.0)
         self.current_pose = Pose(position=position,orientation=orientation)
         self.last_odom = self.current_pose
+
+
+    def check_boundary(self):
+        x_min=self.map_origin[0]+0
+        x_max=self.map_origin[0]+self.map_width*self.map_resolution
+        y_min=self.map_origin[1]+0
+        y_max=self.map_origin[1]+self.map_height*self.map_resolution
+
+        for i in range(len(self.particles_xy)):
+
+            if self.particles_xy[i,0] <x_min or self.particles_xy[i,0] >x_max:
+                self.particles_xy[i,0 ] =np.random.uniform(x_min, x_max,  size=1)[0]
+
+            if self.particles_xy[i,1]<y_min or self.particles_xy[i,1] >y_max:
+                self.particles_xy[i,1] =np.random.uniform(y_min, y_max,  size=1)[0]
+
 
     def _initialize_particles_gaussian(self, pose= None, scale= 0.05):
         self.particles=[]
@@ -245,21 +352,13 @@ class HelloMCL(Node):
 
         initial_weight = 1.0 / float(self.num_of_particles)
 
-        for x, y, yaw in zip(x_list, y_list, yaw_list):
-            position = Point(x=x, y=y, z=0.0)
-            orientation = util.euler_to_quaternion(yaw, 0.0, 0.0)
-            temp_pose = Pose(position=position, orientation=orientation)
-            p=Particle()
-            p.pose=temp_pose
-            p.weight=initial_weight
-            self.particles.append(p) 
+        i=0
+        for x, y, yaw in zip(x_list, y_list, yaw_list): 
+            self.particles_xy[i,:]=[x,y,yaw]    #add x,y,z
+            i+=1
+ 
 
-        p=Particle()
-        p.pose= pose
-        p.weight=initial_weight
-        self.particles.append(p)
-        
-
+    
 
 def main(args=None):
     rclpy.init(args=args)

@@ -6,7 +6,7 @@ import cv2
 import numpy as np
 import os
 from std_msgs.msg import String
-from std_msgs.msg import Int32MultiArray
+from std_msgs.msg import Int32MultiArray, Float32MultiArray
 from geometry_msgs.msg import TransformStamped
 from tf2_ros import TransformBroadcaster
 
@@ -33,6 +33,7 @@ class DetectHumanAndDepth(Node):
         self.declare_parameter('depth_camera_info', '/smart_home/camera/depth/camera_info')
 
         self.declare_parameter('pub_human', '/detecthuman')
+        self.declare_parameter('pub_human_depth', '/detecthumandepth')
 
 
         param_camera_topic = self.get_parameter('camera').value
@@ -41,6 +42,7 @@ class DetectHumanAndDepth(Node):
         self.view_camera=self.get_parameter('view_camera').value
         self.view_depth_camera=self.get_parameter('view_depth_camera').value
         self.pub_human_topic=self.get_parameter('pub_human').value 
+        self.pub_human_depth_topic=self.get_parameter('pub_human_depth').value 
  
         self.subscription = self.create_subscription(
             Image, 
@@ -63,6 +65,7 @@ class DetectHumanAndDepth(Node):
             10)
 
         self.publisher_ = self.create_publisher(Int32MultiArray, self.pub_human_topic, 10)
+        self.pub_hd= self.create_publisher(Float32MultiArray, self.pub_human_depth_topic, 10)
         self.tf_broadcaster = TransformBroadcaster(self)
 
 
@@ -131,11 +134,12 @@ class DetectHumanAndDepth(Node):
             img = self.br.imgmsg_to_cv2(ros_image ,desired_encoding='passthrough')
             org=img.copy()
             org=(org-org.min() )    /(org.max()-org.min())  #correction vis for gazebo depth cam
-            img=(img-img.min() )  #  /(img.max()-img.min())  #correction vis for gazebo depth cam
+            # img=(img-img.min() ) #/ (img.max()-img.min())  #correction vis for gazebo depth cam
+            # img=(img-img.min() ) / (img.max() )  #correction vis for gazebo depth cam
 
             if(xd>5):   #if width of the box is >5
                 # org=self.draw_box(org, "bbox", self.last_rect) 
-
+        
                 #crop middle
                 if x<0: x=0
                 if y<0: y=0 
@@ -148,6 +152,8 @@ class DetectHumanAndDepth(Node):
                 cy=int( y+yd/2 ) #center of the box
                 pv=img[cy,cx]     #center pixel value 
                 depth =pv*10      #unity depth image give 1 for 10 meter.
+
+                # depth -=3  #TODO: play
 
                 org[cy,cx]=0  #drawing
                 org[cy,cx+1]=0  #drawing
@@ -164,6 +170,11 @@ class DetectHumanAndDepth(Node):
 
                 if self.fxy[0] != None: 
                     self.pxyz=self.calculate_xyz(cx, cy, depth)
+                    msg = Float32MultiArray()
+                    # msg.data=self.pxyz 
+                    msg.data = [float(self.pxyz[0]), float(self.pxyz[1]), float(self.pxyz[2]) ]  #TODO: find problemj
+                    self.pub_hd.publish(msg)
+
 
                 
                 # #cropping.
