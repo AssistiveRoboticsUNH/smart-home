@@ -134,7 +134,7 @@ class DetectHumanAndDepth(Node):
             img = self.br.imgmsg_to_cv2(ros_image ,desired_encoding='passthrough')
             org=img.copy()
             org=(org-org.min() )    /(org.max()-org.min())  #correction vis for gazebo depth cam
-            # img=(img-img.min() ) #/ (img.max()-img.min())  #correction vis for gazebo depth cam
+            #img=(img-img.min() ) #/ (img.max()-img.min())  #correction vis for gazebo depth cam
             # img=(img-img.min() ) / (img.max() )  #correction vis for gazebo depth cam
 
             if(xd>5):   #if width of the box is >5
@@ -151,9 +151,11 @@ class DetectHumanAndDepth(Node):
                 cx=int( x+xd/2 ) #center of the box
                 cy=int( y+yd/2 ) #center of the box
                 pv=img[cy,cx]     #center pixel value 
-                depth =pv*10      #unity depth image give 1 for 10 meter.
+                # depth =pv*10      #unity depth image give 1 for 10 meter.
+                depth=(pv -0.28 ) *10   #TODO: hack
+                # depth=pv *10.0
 
-                # depth -=3  #TODO: play
+                # depth -=None   #TODO: play
 
                 org[cy,cx]=0  #drawing
                 org[cy,cx+1]=0  #drawing

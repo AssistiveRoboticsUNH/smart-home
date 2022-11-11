@@ -184,7 +184,10 @@ class HelloMCL(Node):
         #end of adding noise. 
 
         x,y,d=self.parse_human_xy()
-        if d>0:  
+        
+        noise_std=0.2
+        if d>0:  #human detected
+            noise_std=0.05
             self.last_human_xy=[x,y]
             self.get_logger().info(f"human_tf: {x}, {y} :: {d} ")
 
@@ -211,8 +214,8 @@ class HelloMCL(Node):
 
  
 
-        noise =np.random.normal(0, 0.1, len(self.particles_xy)) 
-        noise2 =np.random.normal(0, 0.1, len(self.particles_xy)) 
+        noise =np.random.normal(0, noise_std, len(self.particles_xy)) 
+        noise2 =np.random.normal(0, noise_std, len(self.particles_xy)) 
         for i in range(len(self.particles_xy)):
             self.particles_xy[i,0]+=noise[i]
             self.particles_xy[i,1]+=noise2[i]
