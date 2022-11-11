@@ -25,7 +25,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'hello= particles.hello_mcl:main',
+            'hello_mcl= particles.hello_mcl:main',
         ],
     },
 )

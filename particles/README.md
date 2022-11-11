@@ -17,5 +17,5 @@ ros2 run particles hello
     * rviz with trackhuman.rviz
 
 * trackhuman.launch.py will run the following node.
-    * hello
+    * hello_mcl
     

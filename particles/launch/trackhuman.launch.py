@@ -18,8 +18,8 @@ def generate_launch_description():
 
     run_hello_particles = Node(
         package="particles",
-        executable="hello",
-        name="hello", 
+        executable="hello_mcl",
+        name="hello_mcl", 
         output="log"
     )
 
