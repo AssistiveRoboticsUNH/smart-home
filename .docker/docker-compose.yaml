@@ -1,18 +1,23 @@
 version: '2'
 
 services:
-    smart_home:
+    smarthome:
        # networks:
        #     appnet:
        #         ipv4_address: 192.168.1.5
-        image: "smart_home"
+        image: "smarthome:latest"
         privileged: true
         network_mode: host
         #ipc: host
         environment:
             - ROS_DOMAIN_ID=26
-        command: ros2 launch yumi_control yumi_control.launch.py
-        
+        tty: true
+
+        devices:
+  # your usb device forwarding to the docker image
+        - /dev/ttyUSB0:/dev/ttyUSB0
+# command: ros2 launch yumi_control yumi_control.launch.py
+       
 #networks:
 #    host:
 #        name: host
@@ -23,4 +28,3 @@ services:
 #            driver: default
 #            config:
 #                - subnet: "192.168.1.0/24"
-
