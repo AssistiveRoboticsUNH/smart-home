@@ -15,13 +15,19 @@ def generate_launch_description():
 
     p2os_cmd = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(PathJoinSubstitution([
-            get_package_share_directory('p2os_driver'), 'launch', 'p2os_driver.launch.py']))
+            get_package_share_directory('p2os_driver'), 'launch', 'p2os_driver.launch.py'])),
+        remappings=[
+            ('/pose', '/odom'),
+        ]
     )
     ld.add_action(p2os_cmd)
 
     sick_cmd = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(PathJoinSubstitution([
-            get_package_share_directory('sick_scan'), 'launch', 'sick_lms_5xx.launch.py']))
+            get_package_share_directory('sick_scan'), 'launch', 'sick_lms_5xx.launch.py'])),
+        remappings=[
+            ('/sick_lms_5xx/scan', '/scan'),
+        ]
     )
     ld.add_action(sick_cmd)
 
