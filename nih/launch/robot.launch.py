@@ -12,24 +12,31 @@ import os
 def generate_launch_description():
     ld = LaunchDescription()
 
-
-    p2os_cmd = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(PathJoinSubstitution([
-            get_package_share_directory('p2os_driver'), 'launch', 'p2os_driver.launch.py'])),
+    parameters = [{"usb_port": "/dev/ttyUSB0"}]
+    p2os_node= Node(
+        package='p2os_driver',
+        executable='p2os_driver',
+        parameters=parameters,
         remappings=[
             ('/pose', '/odom'),
         ]
     )
-    ld.add_action(p2os_cmd)
+    ld.add_action(p2os_node)
 
-    sick_cmd = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(PathJoinSubstitution([
-            get_package_share_directory('sick_scan'), 'launch', 'sick_lms_5xx.launch.py'])),
-        remappings=[
-            ('/sick_lms_5xx/scan', '/scan'),
-        ]
-    )
-    ld.add_action(sick_cmd)
+    # p2os_cmd = IncludeLaunchDescription(
+    #     PythonLaunchDescriptionSource(PathJoinSubstitution([
+    #         get_package_share_directory('p2os_driver'), 'launch', 'p2os_driver.launch.py'])),
+    # )
+    # ld.add_action(p2os_cmd)
+
+    # sick_cmd = IncludeLaunchDescription(
+    #     PythonLaunchDescriptionSource(PathJoinSubstitution([
+    #         get_package_share_directory('sick_scan'), 'launch', 'sick_lms_5xx.launch.py'])),
+    #     # remappings=[
+    #     #     ('/sick_lms_5xx/scan', '/scan'),
+    #     # ]
+    # )
+    # ld.add_action(sick_cmd)
 
     pub_motor_cmd= Node(
         package="nih",
