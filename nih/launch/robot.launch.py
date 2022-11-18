@@ -25,13 +25,13 @@ def generate_launch_description():
     )
     ld.add_action(sick_cmd)
 
-    # pub_motor_cmd= Node(
-    #     package="unity_binary",
-    #     executable="download_and_run_binary",
-    #     name="download_and_run_binary",
-    #     output="log"
-    # )
-    # ld.add_action(pub_motor_cmd)
+    pub_motor_cmd= Node(
+        package="nih",
+        executable="pub_motor",
+        name="pub_motor",
+        output="log"
+    )
+    ld.add_action(pub_motor_cmd)
 
 
     return ld
