@@ -23,11 +23,26 @@ def generate_launch_description():
     )
     ld.add_action(p2os_node)
 
-    # p2os_cmd = IncludeLaunchDescription(
-    #     PythonLaunchDescriptionSource(PathJoinSubstitution([
-    #         get_package_share_directory('p2os_driver'), 'launch', 'p2os_driver.launch.py'])),
-    # )
-    # ld.add_action(p2os_cmd)
+    # node_arguments=['launch/sick_lms_5xx.launch']  #TODO: check if works.
+    #
+    # ROS_DISTRO = os.environ.get('ROS_DISTRO') # i.e. 'eloquent', 'foxy', etc.
+    # if ROS_DISTRO[0] <= "e": # ROS versions eloquent and earlier require "node_executable", ROS foxy and later use "executable"
+    #     node = Node(
+    #         package='sick_scan',
+    #         node_executable='sick_generic_caller',
+    #         output='screen',
+    #         arguments=node_arguments
+    #     )
+    # else: # ROS versions eloquent and earlier require "node_executable", ROS foxy and later use "executable"
+    #     node = Node(
+    #         package='sick_scan',
+    #         executable='sick_generic_caller',
+    #         output='screen',
+    #         arguments=node_arguments
+    #     )
+    #
+    # ld.add_action(node)
+    # return ld
 
     # sick_cmd = IncludeLaunchDescription(
     #     PythonLaunchDescriptionSource(PathJoinSubstitution([
