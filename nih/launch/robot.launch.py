@@ -12,6 +12,7 @@ import os
 def generate_launch_description():
     ld = LaunchDescription()
 
+    #run the pioneer driver
     parameters = [{"usb_port": "/dev/ttyUSB0"}]
     p2os_node= Node(
         package='p2os_driver',
@@ -23,36 +24,8 @@ def generate_launch_description():
     )
     ld.add_action(p2os_node)
 
-    # node_arguments=['launch/sick_lms_5xx.launch']  #TODO: check if works.
-    #
-    # ROS_DISTRO = os.environ.get('ROS_DISTRO') # i.e. 'eloquent', 'foxy', etc.
-    # if ROS_DISTRO[0] <= "e": # ROS versions eloquent and earlier require "node_executable", ROS foxy and later use "executable"
-    #     node = Node(
-    #         package='sick_scan',
-    #         node_executable='sick_generic_caller',
-    #         output='screen',
-    #         arguments=node_arguments
-    #     )
-    # else: # ROS versions eloquent and earlier require "node_executable", ROS foxy and later use "executable"
-    #     node = Node(
-    #         package='sick_scan',
-    #         executable='sick_generic_caller',
-    #         output='screen',
-    #         arguments=node_arguments
-    #     )
-    #
-    # ld.add_action(node)
-    # return ld
 
-    # sick_cmd = IncludeLaunchDescription(
-    #     PythonLaunchDescriptionSource(PathJoinSubstitution([
-    #         get_package_share_directory('sick_scan'), 'launch', 'sick_lms_5xx.launch.py'])),
-    #     # remappings=[
-    #     #     ('/sick_lms_5xx/scan', '/scan'),
-    #     # ]
-    # )
-    # ld.add_action(sick_cmd)
-
+    #publish motor state 1 so that the robot doesn't beep
     pub_motor_cmd= Node(
         package="nih",
         executable="pub_motor",
@@ -60,6 +33,13 @@ def generate_launch_description():
         output="log"
     )
     ld.add_action(pub_motor_cmd)
+
+    #Important: without it rviz can't show robot model and laser data
+    robot_state_cmd = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(PathJoinSubstitution([
+            get_package_share_directory('pioneer_description'), 'launch', 'robot_state_publisher.launch.py'])),
+    )
+    ld.add_action(robot_state_cmd)
 
 
     return ld
