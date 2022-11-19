@@ -14,7 +14,7 @@ WORKDIR $ROS_WS
 
 # get dependencies
 RUN apt update
-RUN rosdep update 
+RUN rosdep update
 RUN rosdep install --from-paths src --ignore-src -y
 
 RUN cd ${ROS_WS} \
@@ -24,7 +24,9 @@ RUN cd ${ROS_WS} \
 
 # copy entry pointer script
 RUN apt install net-tools -y
+RUN apt install tmux -y
 RUN apt-get install iputils-ping -y
+RUN adduser root dialout
 COPY ros_entrypoint.sh /
 ENTRYPOINT ["/ros_entrypoint.sh"]
 
