@@ -16,7 +16,8 @@ except :
 class PioneerPub(Node):
 
     def __init__(self):
-        super().__init__('pioneer_remote_websocket')
+        super().__init__('pioneer_pub_nih')
+        print('pub motor')
         self.motor_state_pub= self.create_publisher(MotorState, '/cmd_motor_state', 10)
 
         timer_period = 0.5  # seconds
