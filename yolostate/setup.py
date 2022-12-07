@@ -24,7 +24,9 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+            'yolo_human_detect=yolostate.yolo_human_detect:main',  #no use, just to copy this file
             'detecthuman = yolostate.detecthuman:main',
+            'detect_human_depth = yolostate.detect_human_depth:main',
             'downloadyolo = yolostate.downloadyolo:main',
         ],
     },
