@@ -2,7 +2,7 @@ from setuptools import setup
 import os
 from glob import glob
 
-package_name = 'particles'
+package_name = 'nih'
 
 setup(
     name=package_name,
@@ -12,7 +12,6 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
-        # ('share/' + package_name + '/launch', ['launch/simulation.launch.py']),
         (os.path.join('share', package_name, 'launch'), glob('launch/*')),
         (os.path.join('share', package_name, 'rviz'), glob('rviz/*')),
     ],
@@ -25,7 +24,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'hello_mcl= particles.hello_mcl:main',
+            'pub_motor = nih.pub_motor:main'
         ],
     },
 )
