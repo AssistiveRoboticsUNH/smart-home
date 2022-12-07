@@ -1,7 +1,7 @@
 version: '2'
 
 services:
-    smart_home:
+    smarthome:
        # networks:
        #     appnet:
        #         ipv4_address: 192.168.1.5
@@ -16,7 +16,7 @@ services:
         devices:
   # your usb device forwarding to the docker image
         - /dev/ttyUSB0:/dev/ttyUSB0
-#        - /dev/input/js0:/dev/input/js0
+#       - /dev/input/js0:/dev/input/js0
 # command: ros2 launch yumi_control yumi_control.launch.py
        
 #networks:
