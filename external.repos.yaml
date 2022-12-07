@@ -35,8 +35,3 @@ repositories:
     type: git
     url: https://github.com/AssistiveRoboticsUNH/smartthings_ros.git
     version: main
-  external/depthimage_to_laserscan:
-    type: git
-    url: https://github.com/AssistiveRoboticsUNH/depthimage_to_laserscan.git
-    version: ros2
-
