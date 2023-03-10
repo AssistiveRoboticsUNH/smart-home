@@ -71,19 +71,6 @@ Additional voices can be found here: http://www.festvox.org/packed/festival/2.5/
 **ffmpeg**
 ffmpeg
 
-**ROS Kinetic**  
-`sudo apt-get install ros-kinetic-desktop-full`
-
-**Gmapping package**  
-`sudo apt-get install ros-kinetic-slam-gmapping`
-
-**Navigation package (move_base, amcl)**  
-`sudo apt-get install ros-kinetic-navigation`
-
-**Teleop package**  
-`sudo apt-get install ros-kinetic-teleop-twist-joy`  
-`sudo apt-get install ros-kinetic-teleop-twist-keyboard` 
-
 **face module package**  
 `sudo apt-get install ros-kinetic-people-msgs`  
 `sudo apt-get install ros-kinetic-jsk-rviz-plugin`   
