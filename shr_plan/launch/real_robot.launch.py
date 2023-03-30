@@ -13,11 +13,11 @@ def generate_launch_description():
         output='screen'
     )
 
-    # nav_bridge = Node(
-    #     package='nav_goal_bridge',
-    #     executable='nav_goal_bridge_node',
-    #     output='screen'
-    # )
+    nav_bridge = Node(
+        package='nav_goal_bridge',
+        executable='nav_goal_bridge_node',
+        output='screen'
+    )
 
     yolo_cmd = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(PathJoinSubstitution([
@@ -35,6 +35,6 @@ def generate_launch_description():
     ld.add_action(tf_broadcast)
     ld.add_action(smartthings_node)
     ld.add_action(yolo_cmd)
-    # ld.add_action(nav_bridge)
+    ld.add_action(nav_bridge)
 
     return ld
