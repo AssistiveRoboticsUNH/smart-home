@@ -39,7 +39,6 @@ class ReadScriptActionServer(Node):
 
         return result
 
-    @functools.cache
     def create_wav_from_text(self, file_path):
         (wavfile, wavfilename) = tempfile.mkstemp(
             prefix='sound_play', suffix='.wav')
@@ -54,8 +53,8 @@ class ReadScriptActionServer(Node):
 
     def thread_function(self):
         files = glob.glob(os.path.join(get_package_share_directory('shr_resources'), 'resources', '*.txt'))
-        for file in files:
-            wavfilename = self.create_wav_from_text(file)
+        # for file in files:
+        #     wavfilename = self.create_wav_from_text(file)
 
 
 def main(args=None):

@@ -13,7 +13,6 @@
 
 #include "shr_utils/utils.hpp"
 
-
 namespace find_person_request {
     using namespace std::placeholders;
 

@@ -46,11 +46,6 @@ namespace move_action {
       tf_listener_ =
           std::make_shared<tf2_ros::TransformListener>(*tf_buffer_);
 
-      using namespace std::placeholders;
-      pos_sub_ = create_subscription<geometry_msgs::msg::PoseWithCovarianceStamped>("/amcl_pose", 10,
-                                                                                    std::bind(
-                                                                                        &MoveAction::current_pos_callback,
-                                                                                        this, _1));
     }
 
     void current_pos_callback(const geometry_msgs::msg::PoseWithCovarianceStamped::SharedPtr msg) {
@@ -66,13 +61,13 @@ namespace move_action {
               this,
               "navigate_to_pose");
 
-//      bool is_action_server_ready = false;
-//      do {
-//        RCLCPP_INFO(get_logger(), "Waiting for /navigate_to_pose action server...");
-//
-//        is_action_server_ready =
-//            navigation_action_client_->wait_for_action_server(std::chrono::seconds(5));
-//      } while (!is_action_server_ready);
+      bool is_action_server_ready = false;
+      do {
+        RCLCPP_INFO(get_logger(), "Waiting for /navigate_to_pose action server...");
+
+        is_action_server_ready =
+            navigation_action_client_->wait_for_action_server(std::chrono::seconds(5));
+      } while (!is_action_server_ready);
 
       RCLCPP_INFO(get_logger(), "Navigation action server ready");
 
@@ -87,7 +82,8 @@ namespace move_action {
         send_feedback(std::min(1.0, std::max(0.0, 1.0 - (feedback->distance_remaining / dist_to_move))),
                       "Move running");
       };
-      auto result_callback = [this](auto) {
+      auto result_callback = [this](auto r) {
+      
         finish(true, 1.0, "Move completed");
       };
 

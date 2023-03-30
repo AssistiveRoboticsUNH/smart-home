@@ -95,6 +95,11 @@ target_link_libraries(detect_person_action_node
         shr_plan_parameters
         )
 
+add_executable(tf_broadcaster_node src/tf_broadcaster.cpp)
+ament_target_dependencies(tf_broadcaster_node ${dependencies})
+target_link_libraries(tf_broadcaster_node
+        shr_plan_parameters
+        )
 
 include_directories(
         include
@@ -116,6 +121,7 @@ install(TARGETS
         notify_automated_action_node
         notify_recorded_video_node
         planning_controller_node
+        tf_broadcaster_node
         ARCHIVE DESTINATION lib
         LIBRARY DESTINATION lib
         RUNTIME DESTINATION lib/${PROJECT_NAME}
@@ -125,6 +131,7 @@ install(
         DIRECTORY launch pddl params
         DESTINATION share/shr_plan
 )
+
 
 ament_export_dependencies(${dependencies})
 

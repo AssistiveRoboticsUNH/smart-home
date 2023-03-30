@@ -17,7 +17,7 @@ def generate_launch_description():
         package="yolostate",
         executable="detect_human_depth",
         name="detect_human_depth",
-        parameters=[{"view_camera": False, "view_depth_camera": True}], 
+        parameters=[{"view_camera": True, "view_depth_camera": True}],
         output="log"
     )
 
