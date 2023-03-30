@@ -35,3 +35,7 @@ repositories:
     type: git
     url: https://github.com/AssistiveRoboticsUNH/smartthings_ros.git
     version: main
+  external/realsense:
+    type: git
+    url: https://github.com/IntelRealSense/realsense-ros.git
+    version: ros2-development
