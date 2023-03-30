@@ -6,7 +6,7 @@ from rclpy.action import ActionServer, ActionClient, CancelResponse
 from rclpy.node import Node
 import rclpy
 from geometry_msgs.msg import Twist
-from std_msgs.msg import String
+from std_msgs.msg import Int32MultiArray
 from rclpy.executors import MultiThreadedExecutor
 
 
@@ -16,11 +16,11 @@ class DetectPersonActionServer(Node):
         self.action_server = ActionServer(self, DetectPersonRequest, 'detect_person',
                                           self.callback, cancel_callback=self.cancel_callback)
         self.vel_pub = self.create_publisher(Twist, 'cmd_vel', 10)
-        self.yolo_sub = self.create_subscription(String, '/detecthuman', self.yolo_sub_callback, 10)
+        self.yolo_sub = self.create_subscription(Int32MultiArray, '/detecthuman', self.yolo_sub_callback, 10)
         self.human_coords = ""
 
     def yolo_sub_callback(self, msg):
-        if len(msg.data) > 0 and msg.data != '[0, 0, 0, 0]':
+        if len(msg.data) > 0 and sum(msg.data) != 0:
             self.human_coords = msg.data
 
     def cancel_callback(self, goal_handle):

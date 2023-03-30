@@ -123,6 +123,7 @@ int main(int argc, char **argv) {
   auto param_listener = std::make_shared<shr_plan_parameters::ParamListener>(parameter_node);
   auto params = param_listener->get_params();
 
+
   std::vector<std::shared_ptr<NotifyAutomated>> all_nodes;
   for (auto i = 0ul; i < params.notify_automated_actions.actions.size(); i++) {
     auto action = params.notify_automated_actions.actions[i];

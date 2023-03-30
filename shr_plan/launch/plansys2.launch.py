@@ -23,7 +23,7 @@ def generate_launch_description():
         PythonLaunchDescriptionSource(PathJoinSubstitution([
             get_package_share_directory('plansys2_bringup'),
             'launch',
-            'plansys2_bringup_launch_distributed.py'])),
+            'plansys2_bringup_launch_monolithic.py'])),
         # 'plansys2_bringup_launch_monolithic.py' 'plansys2_bringup_launch_distributed.py'
         launch_arguments={
             'model_file': PathJoinSubstitution([shr_dir, 'pddl', 'medicine_domain.pddl']),
