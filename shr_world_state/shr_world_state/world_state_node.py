@@ -1,5 +1,4 @@
 import os
-import time
 
 from shr_msgs.action import FindPersonRequest, GatherInformationRequest
 from rclpy.action import ActionServer, ActionClient
@@ -20,12 +19,13 @@ class SensorData:
         self.pills_motion_sensor = False
         self.door_motion_sensor = False
         self.door_sensor = False
-
+        self.eat_motion_sensor = False
 
 class WorldStateNode(Node):
     def __init__(self):
         super().__init__('world_state_node')
         self.took_medicine_time = None
+        self.ate_time = None
         self.patient_located_time = None
         self._send_goal_future = None
         self._get_result_future = None
@@ -33,6 +33,7 @@ class WorldStateNode(Node):
         self.running_action = False
         self.sensor_data = SensorData()
         self.world_state = WorldState()
+        self.world_state.ate = -1
         self.world_state.took_medicine = -1
         self.world_state.too_late_to_leave = -1
         self.world_state.door_open = -1
@@ -44,14 +45,23 @@ class WorldStateNode(Node):
         self.declare_parameter('door_location', "door_robot_pos")
         self.declare_parameter('outside_location', "outside")
         self.declare_parameter('medicine_location', "kitchen_robot_pos")
+        self.declare_parameter('eat_location', "kitchen_robot_pos")
+
         self.declare_parameter('take_medication_time', "8h15m")
+        self.declare_parameter('eat_time', "4h30m")
+
         self.world_state.patient_name = self.get_parameter('patient_name').value
         self.world_state.locations = self.get_parameter('locations').value
         self.world_state.door_location = self.get_parameter('door_location').value
         self.world_state.outside_location = self.get_parameter('outside_location').value
         self.world_state.medicine_location = self.get_parameter('medicine_location').value
+        self.world_state.eat_location = self.get_parameter('eat_location').value
+
         tmp = self.get_parameter('take_medication_time').value
         self.take_medication_time = 60 * int(tmp.split('h')[0]) + int(tmp.split('h')[1][:-1])
+
+        tmp_eat = self.get_parameter('eat_time').value
+        self.eat_time = 60 * int(tmp_eat.split('h')[0]) + int(tmp_eat.split('h')[1][:-1])
 
         self.subscriber_motion_door = self.create_subscription(Bool, 'smartthings_sensors_motion_door',
                                                                self.door_motion_callback, 10)
@@ -59,6 +69,8 @@ class WorldStateNode(Node):
                                                                 self.pill_motion_callback, 10)
         self.subscriber_sensor_door = self.create_subscription(Bool, 'smartthings_sensors_door',
                                                                self.door_open_callback, 10)
+        self.subscriber_motion_eat = self.create_subscription(Bool, 'smartthings_sensors_motion_eat',
+                                                               self.eat_motion_callback, 10)
         self.world_state_pub = self.create_publisher(WorldState, 'world_state', 10)
 
         self.gather_information_action_server = ActionServer(self, GatherInformationRequest, 'gather_information',
@@ -78,6 +90,15 @@ class WorldStateNode(Node):
 
         if self.sensor_data.pills_motion_sensor != msg.data:
             self.sensor_data.pills_motion_sensor = msg.data
+            self.publish_world_state(sensor_data=self.sensor_data)
+
+    def eat_motion_callback(self, msg):
+        if msg.data:
+            self.world_state.patient_location = self.world_state.eat_location
+            self.patient_located_time = time.time()
+
+        if self.sensor_data.eat_motion_sensor != msg.data:
+            self.sensor_data.eat_motion_sensor = msg.data
             self.publish_world_state(sensor_data=self.sensor_data)
 
     def door_motion_callback(self, msg):
@@ -100,22 +121,32 @@ class WorldStateNode(Node):
             self.world_state.patient_location = patient_location
         if sensor_data:
             self.world_state.door_open = sensor_data.door_sensor
+
             if self.sensor_data.pills_motion_sensor:
                 self.took_medicine_time = datetime.datetime.now().day
             self.world_state.took_medicine = self.world_state.took_medicine or sensor_data.pills_motion_sensor
+
+            if self.sensor_data.eat_motion_sensor:
+                self.ate_time = datetime.datetime.now().day
+            self.world_state.ate = self.world_state.ate or sensor_data.eat_motion_sensor
 
         self.world_state.too_late_to_leave = datetime.datetime.now().hour <= 6
 
         if self.took_medicine_time is None or self.took_medicine_time != datetime.datetime.now().day:
             self.world_state.took_medicine = False
 
+        if self.ate_time is None or self.ate_time != datetime.datetime.now().day:
+            self.world_state.ate = False
+
         if self.patient_located_time is None or time.time() - self.patient_located_time > 15:
             self.world_state.patient_location = ""
 
         self.world_state.time_to_take_medicine = datetime.datetime.now().hour * 60 + datetime.datetime.now().minute > self.take_medication_time
+        self.world_state.time_to_eat = datetime.datetime.now().hour * 60 + datetime.datetime.now().minute > self.eat_time
 
         self.world_state.too_late_to_leave = False  # DEBUG
-        self.world_state.time_to_take_medicine = True  # DEBUG
+        self.world_state.time_to_take_medicine = False  # True  # DEBUG
+        self.world_state.time_to_eat = True  # DEBUG
         self.world_state_pub.publish(self.world_state)
 
     def gather_information_callback(self, goal_handle):

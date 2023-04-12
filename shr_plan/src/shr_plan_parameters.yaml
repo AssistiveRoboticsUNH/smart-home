@@ -1,8 +1,13 @@
 shr_plan_parameters:
-  senor_pills_motion_topic: {
+  sensor_pills_motion_topic: {
     type: string,
     default_value: "smartthings_sensors_motion_pills",
     description: "topic for detecting pills being taken",
+  }
+  sensor_eat_motion_topic: {
+    type: string,
+    default_value: "smartthings_sensors_motion_eat",
+    description: "topic for detecting person is eating",
   }
   sensors_door_motion_topic: {
     type: string,
@@ -63,62 +68,77 @@ shr_plan_parameters:
       default_value: "/smartthings_sensors_motion_pills",
       description: "topic for sensor that detect if medication is taken",
     }
+    food_sensor: {
+      type: string,
+      default_value: "/smartthings_sensors_motion_food",
+      description: "topic for sensor that detect if patient is eating",
+    }
 
   call_actions:
     actions: {
       type: string_array,
-      default_value: [ "callemergencywondering", "alertcaregiverwondering", "askcaregiverhelpmedicine1", "askcaregiverhelpmedicine2" ],
+      default_value: [ "callemergencywondering", "alertcaregiverwondering", "askcaregiverhelpmedicine1", "askcaregiverhelpmedicine2", "askcaregiverhelpfood1", "askcaregiverhelpfood2" ],
       description: "list of pddl call actions",
     }
     phone_numbers: {
       type: string_array,
-      default_value: [ "6038514204", "6038514204", "6038514204", "6038514204" ],
+      default_value: [  "6038514204", "6038514204",  "6038514204", "6038514204",  "6038514204", "6038514204"],
       description: "list of phone numbers for each call action",
     }
     script_names: {
       type: string_array,
-      default_value: [ "call_msg_911.xml", "call_msg_leaving_house.xml", "call_msg_medical.xml", "call_msg_medical.xml" ],
+      default_value: [ "call_msg_911.xml", "call_msg_leaving_house.xml", "call_msg_medical.xml", "call_msg_medical.xml", "call_msg_food.xml", "call_msg_food.xml" ],
       description: "list of pddl call actions",
     }
 
   notify_recorded_actions:
     actions: {
       type: string_array,
-      default_value: [ "notifyrecordedmedicineat", ],
+      default_value: [ "notifyrecordedmedicineat", "remindautomatedfoodat2"],
       description: "list of pddl notify recorded actions",
     }
     file_names: {
       type: string_array,
-      default_value: [ "medicine_reminder.mp3", ],
+      default_value: [ "medicine_reminder.mp3", "food_reminder.mp3"],
       description: "list of file names",
     }
     wait_times: {
       type: double_array,
-      default_value: [ 10.0, ],
+      default_value: [ 10.0, 10.0 ],
       description: "list wait times after prompting",
+    }
+    topics: {
+      type: string_array,
+      default_value: [ "/smartthings_sensors_motion_pills","/smartthings_sensors_motion_food" ],
+      description: "topic for sensor ",
     }
 
   notify_automated_actions:
     actions: {
       type: string_array,
-      default_value: [ "notifyautomatedmedicineat", ],
+      default_value: [ "notifyautomatedmedicineat", "remindautomatedfoodat"],
       description: "list of pddl notify recorded actions",
     }
     script_names: {
       type: string_array,
-      default_value: [ "medicine_reminder.txt", ],
+      default_value: [ "medicine_reminder.txt", "food_reminder.txt" ],
       description: "list of script names",
     }
     wait_times: {
       type: double_array,
-      default_value: [ 10.0, ],
+      default_value: [ 10.0, 10.0 ],
       description: "list wait times after prompting",
+    }
+    topics: {
+      type: string_array,
+      default_value: ["/smartthings_sensors_motion_pills", "/smartthings_sensors_motion_food"],
+      description: "topic for sensor ",
     }
 
   guide_to_actions:
     actions: {
       type: string_array,
-      default_value: [ "guidepersontolandmarkattempt1", "guidepersontolandmarkattempt2", ],
+      default_value: [ "guidepersontolandmarkattempt1", "guidepersontolandmarkattempt2"],
       description: "list of pddl guide to actions",
     }
 

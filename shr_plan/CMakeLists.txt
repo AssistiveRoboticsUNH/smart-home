@@ -51,13 +51,13 @@ target_link_libraries(planning_controller_node
         )
 
 
-add_executable(notify_automated_action_node src/actions/notify_automated_action_node.cpp)
+add_executable(notify_automated_action_node src/actions/notify_automated_action_node_.cpp)
 ament_target_dependencies(notify_automated_action_node ${dependencies})
 target_link_libraries(notify_automated_action_node
         shr_plan_parameters
         )
 
-add_executable(notify_recorded_video_node src/actions/notify_recorded_action_node.cpp)
+add_executable(notify_recorded_video_node src/actions/notify_recorded_action_node__.cpp)
 ament_target_dependencies(notify_recorded_video_node ${dependencies})
 target_link_libraries(notify_recorded_video_node
         shr_plan_parameters
@@ -134,5 +134,4 @@ install(
 
 
 ament_export_dependencies(${dependencies})
-
 ament_package()

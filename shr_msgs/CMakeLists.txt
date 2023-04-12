@@ -19,6 +19,7 @@ include_directories(${geometry_msgs_INCLUDE_DIRS})
 set(msg_files
         msg/MidnightWarningProtocol.msg
         msg/MedicineReminderProtocol.msg
+        msg/FoodReminderProtocol.msg
         msg/ActionRecord.msg
         msg/WorldState.msg
         )

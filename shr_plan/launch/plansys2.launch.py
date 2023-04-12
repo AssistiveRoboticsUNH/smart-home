@@ -26,7 +26,7 @@ def generate_launch_description():
             'plansys2_bringup_launch_monolithic.py'])),
         # 'plansys2_bringup_launch_monolithic.py' 'plansys2_bringup_launch_distributed.py'
         launch_arguments={
-            'model_file': PathJoinSubstitution([shr_dir, 'pddl', 'medicine_domain.pddl']),
+            'model_file': PathJoinSubstitution([shr_dir, 'pddl', 'food_domain.pddl']),
             'namespace': namespace,
             'bt_builder_plugin': 'ContingentBTBuilder',
             'params_file': params_file,

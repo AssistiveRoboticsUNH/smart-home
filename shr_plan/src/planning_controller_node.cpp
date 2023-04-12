@@ -32,6 +32,7 @@
 #include "shr_msgs/action/gather_information_request.hpp"
 #include "shr_msgs/msg/midnight_warning_protocol.hpp"
 #include "shr_msgs/msg/medicine_reminder_protocol.hpp"
+#include "shr_msgs/msg/food_reminder_protocol.hpp"
 #include "shr_msgs/msg/world_state.hpp"
 #include "plansys2_msgs/msg/action_execution.hpp"
 
@@ -167,13 +168,16 @@ namespace planning_controller {
       active_protocol = "";
       midnight_warning_state_.reset();
       medicine_reminder_state.reset();
+      food_reminder_state.reset();
     }
 
     StateType get_transition() {
       if (world_state_.time_to_take_medicine && !world_state_.took_medicine) {
         active_protocol = "medicine_reminder";
       }
-
+      if (world_state_.time_to_eat   && !world_state_.ate) {
+          active_protocol = "food_reminder";
+      }
       if (active_protocol.empty()) {
         return IDLE;
       }
@@ -351,11 +355,45 @@ namespace planning_controller {
         return true;
       }
 
+        if (active_protocol == "food_reminder") {
+            problem_expert_->clearKnowledge();
+            problem_expert_->addInstance(plansys2::Instance{"pioneer", "robot"});
+            problem_expert_->addInstance(plansys2::Instance{"home", "landmark"});
+            std::vector<std::string> search_locations = {"bedroom_robot_pos", "kitchen_robot_pos", "couch_robot_pos"};
+            for (const auto& loc : search_locations){
+                problem_expert_->addInstance(plansys2::Instance{loc, "landmark"});
+            }
+            problem_expert_->addInstance(plansys2::Instance{world_state_.patient_name, "person"});
 
-      return false;
+            problem_expert_->addPredicate(plansys2::Predicate("(robot_at pioneer home)"));
+            problem_expert_->addPredicate(plansys2::Predicate("(food_location " + world_state_.eat_location + ")"));
+            if (!world_state_.patient_location.empty()){
+                problem_expert_->addPredicate(plansys2::Predicate("(person_at " + world_state_.patient_name + " " + world_state_.patient_location + ")"));
+            } else{
+                std::string oneof_pred = "(oneof ";
+                for (const auto& loc : search_locations){
+                    auto pred = "(person_at " + world_state_.patient_name + " " + loc + ")";
+                    oneof_pred += pred;
+                    problem_expert_->addConditional(plansys2::Unknown("(unknown " + pred + ")"));
+                }
+                oneof_pred += ")";
+                problem_expert_->addConditional(plansys2::OneOf(oneof_pred));
+            }
+
+            problem_expert_->addConditional(plansys2::Unknown("(unknown (guide_to_succeeded_attempt_1 ))"));
+            problem_expert_->addConditional(plansys2::Unknown("(unknown (guide_to_succeeded_attempt_2 ))"));
+            problem_expert_->addConditional(plansys2::Unknown("(unknown (remind_food_succeeded ))"));
+            problem_expert_->addConditional(plansys2::Unknown("(unknown (remind_food_succeeded2 ))"));
+
+
+            problem_expert_->setGoal(plansys2::Goal("(and (success) )"));
+
+            return true;
+        }
+
+        return false;
 
     }
-
 //        void init_knowledge() {
 //            for (const auto &instance: problem_expert_->getInstances()) {
 //                problem_expert_->removeInstance(instance);
@@ -451,6 +489,7 @@ namespace planning_controller {
     shr_msgs::msg::WorldState world_state_;
     std::shared_ptr<shr_msgs::msg::MidnightWarningProtocol> midnight_warning_state_;
     std::shared_ptr<shr_msgs::msg::MedicineReminderProtocol> medicine_reminder_state;
+    std::shared_ptr<shr_msgs::msg::FoodReminderProtocol> food_reminder_state;
     bool gathering_info = false;
     std::string active_protocol;
     std::vector<std::string> requested_states;

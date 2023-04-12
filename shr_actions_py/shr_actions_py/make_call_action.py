@@ -42,7 +42,6 @@ class MakeCallActionServer(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-
     make_call_action_server = MakeCallActionServer()
 
     while True:
