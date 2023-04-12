@@ -30,21 +30,21 @@ using namespace std::chrono_literals;
 class NotifyVideo : public plansys2::ActionExecutorClient {
 public:
   NotifyVideo(const std::string &action, const std::string &file_name, int wait_time,
-              const std::string &medicine_sensor_topic)
+              const std::string &sensor_topic)
       : plansys2::ActionExecutorClient(action, 500ms) {
 
     set_parameter(rclcpp::Parameter("action_name", action));
     file_name_ = file_name;
     wait_time_ = wait_time;
-    medicine_sensor_topic_ = medicine_sensor_topic;
-    medicine_sensor_sub_ = create_subscription<std_msgs::msg::Bool>(medicine_sensor_topic, 10,
+    sensor_topic_ = sensor_topic;
+    sensor_sub_ = create_subscription<std_msgs::msg::Bool>(sensor_topic, 10,
                                                                     std::bind(&NotifyVideo::callback, this,
                                                                               std::placeholders::_1));
 
   }
 
   void callback(const std_msgs::msg::Bool::SharedPtr msg) {
-    medicine_sensor_ = msg->data;
+    sensor_ = msg->data;
   }
 
   rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
@@ -72,7 +72,7 @@ public:
 
     start_time_ = now();
     waiting_for_response_ = true;
-    medicine_sensor_ = false;
+    sensor_ = false;
     navigation_goal_.file_name = file_name_;
     future_navigation_goal_handle_ = navigation_action_client_->async_send_goal(navigation_goal_, send_goal_options);
 
@@ -87,8 +87,13 @@ private:
     auto time_diff = cur_time - start_time_;
     send_feedback(time_diff.seconds() / wait_time_, "waiting for response");
 
-    if (medicine_sensor_) {
-      finish(true, 1.0, "Person took medicine");
+    if (sensor_) {
+        if (sensor_topic_ == "/smartthings_sensors_motion_pills"){
+            finish(true, 1.0, "Person took medicine");
+        }
+        else if (sensor_topic_ == "/smartthings_sensors_motion_food"){
+            finish(true, 1.0, "Person ate food");
+        }
     }
 
     if (time_diff.seconds() > wait_time_ && !waiting_for_response_) {
@@ -106,13 +111,13 @@ private:
   shr_msgs::action::PlayVideoRequest::Goal navigation_goal_;
 
 
-  std::shared_ptr<rclcpp::Subscription<std_msgs::msg::Bool>> medicine_sensor_sub_;
+  std::shared_ptr<rclcpp::Subscription<std_msgs::msg::Bool>> sensor_sub_;
   std::string file_name_;
-  std::string medicine_sensor_topic_;
+  std::string sensor_topic_;
   int wait_time_;
   rclcpp::Time start_time_;
   bool waiting_for_response_;
-  bool medicine_sensor_;
+  bool sensor_;
 
 };
 
@@ -130,9 +135,9 @@ int main(int argc, char **argv) {
     auto action = params.notify_recorded_actions.actions[i];
     auto file_name = params.notify_recorded_actions.file_names[i];
     auto wait_time = params.notify_recorded_actions.wait_times[i];
-    auto medicine_sensor_topic = params.topics.medicine_sensor;
+    auto sensor_topic = params.notify_recorded_actions.topics[i];
     auto ind = all_nodes.size();
-    all_nodes.push_back(std::make_shared<NotifyVideo>(action, file_name, wait_time, medicine_sensor_topic));
+    all_nodes.push_back(std::make_shared<NotifyVideo>(action, file_name, wait_time, sensor_topic));
     all_nodes[ind]->trigger_transition(lifecycle_msgs::msg::Transition::TRANSITION_CONFIGURE);
     exe.add_node(all_nodes[ind]->get_node_base_interface());
   }

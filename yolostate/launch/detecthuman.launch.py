@@ -17,7 +17,7 @@ def generate_launch_description():
         package="yolostate",
         executable="detecthuman",
         name="detecthuman",
-        parameters=[{"view_camera": False}],
+        parameters=[{"view_camera": True}],
         output="log"
     )
 
