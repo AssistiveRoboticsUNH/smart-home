@@ -21,7 +21,7 @@ class MakeCallActionServer(Node):
         result = CallRequest.Result()
 
         account_sid = os.environ['TWILIO_ACCOUNT_SID']
-        token = os.environ['TWIO_TOKEN']
+        token = os.environ['TWILIO_TOKEN']
 
         client = Client(account_sid, token)
         try:

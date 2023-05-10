@@ -7,6 +7,7 @@ import json
 import time
 import zmq
 
+
 class Nav2ActionServer(Node):
     def __init__(self):
         super().__init__('nav2_action_server')
@@ -15,7 +16,7 @@ class Nav2ActionServer(Node):
             NavigateToPose,
             'navigate_to_pose',
             self.execute_callback)
-        
+
         print('server initiated')
 
         self.nav_goal_json = None
@@ -23,9 +24,9 @@ class Nav2ActionServer(Node):
         context = zmq.Context()
         print("Connecting to Server on port 5555")
         self.socket = context.socket(zmq.REQ)
-        self.socket.connect("tcp://192.168.1.14:5555") 
+        self.socket.connect("tcp://192.168.1.14:5555")
 
-    # to convert msg to json
+        # to convert msg to json
 
     def serialize_goal(self, goal):
         return {
@@ -53,7 +54,7 @@ class Nav2ActionServer(Node):
 
     def execute_callback(self, goal_handle):
         self.get_logger().info('Executing goal...')
-        print('goal_handle',goal_handle.request)
+        print('goal_handle', goal_handle.request)
         if not self.msg_in_work:
             self.msg_in_work = True
             # Convert the goal object to a JSON string
@@ -67,16 +68,16 @@ class Nav2ActionServer(Node):
 
                 message = self.socket.recv()  # block until a message is received
                 print('##########message recieved', message)
-                if message.decode() == '1': #True
+                if message.decode() == '1':  # True
                     self.nav_goal_json = None
                     print('ffffffffffffffff')
                 else:
                     self.nav_goal_json = None
                     print('Goal aborted')
                     print('cccccccccccccccc')
-            
+
             self.msg_in_work = False
-            
+
         else:
             goal_handle.abort()
 
@@ -84,11 +85,12 @@ class Nav2ActionServer(Node):
         # result.error_code = result.NONE
         return result
 
+
 def main(args=None):
     rclpy.init(args=None)
     nav2_action_server = Nav2ActionServer()
     rclpy.spin(nav2_action_server)
 
+
 if __name__ == '__main__':
     main()
-

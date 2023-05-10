@@ -95,6 +95,24 @@ target_link_libraries(detect_person_action_node
         shr_plan_parameters
         )
 
+add_executable(check_if_person_went_to_bed_action_node src/actions/check_if_person_went_to_bed_action_node.cpp)
+ament_target_dependencies(check_if_person_went_to_bed_action_node ${dependencies})
+target_link_libraries(check_if_person_went_to_bed_action_node
+        shr_plan_parameters
+        )
+
+add_executable(wait_for_person_to_return src/actions/wait_for_person_to_return.cpp)
+ament_target_dependencies(wait_for_person_to_return ${dependencies})
+target_link_libraries(wait_for_person_to_return
+        shr_plan_parameters
+        )
+
+add_executable(detect_person_left_house_action_node src/actions/detect_person_left_house_action_node.cpp)
+ament_target_dependencies(detect_person_left_house_action_node ${dependencies})
+target_link_libraries(detect_person_left_house_action_node
+        shr_plan_parameters
+        )
+
 add_executable(tf_broadcaster_node src/tf_broadcaster.cpp)
 ament_target_dependencies(tf_broadcaster_node ${dependencies})
 target_link_libraries(tf_broadcaster_node
@@ -122,6 +140,9 @@ install(TARGETS
         notify_recorded_video_node
         planning_controller_node
         tf_broadcaster_node
+        detect_person_left_house_action_node
+        check_if_person_went_to_bed_action_node
+        wait_for_person_to_return
         ARCHIVE DESTINATION lib
         LIBRARY DESTINATION lib
         RUNTIME DESTINATION lib/${PROJECT_NAME}

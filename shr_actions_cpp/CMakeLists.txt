@@ -28,7 +28,7 @@ set(dependencies
         shr_utils
         tf2_ros
         )
-add_executable(find_person_node src/find_person_action.cpp)
+add_executable(find_person_node src/find_person_action_mod.cpp)
 ament_target_dependencies(find_person_node ${dependencies})
 
 include_directories(
