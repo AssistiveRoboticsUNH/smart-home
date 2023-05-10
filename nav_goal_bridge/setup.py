@@ -21,6 +21,7 @@ setup(
     entry_points={
         'console_scripts': [
             'nav_goal_bridge_node = nav_goal_bridge.nav2_action_zmq:main'
+            'detect_eating_node = nav_goal_bridge.detect_eating:main'
         ],
     },
 )

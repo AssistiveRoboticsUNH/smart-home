@@ -13,6 +13,7 @@
 
 #include "shr_utils/utils.hpp"
 
+
 namespace find_person_request {
     using namespace std::placeholders;
 
@@ -123,8 +124,6 @@ namespace find_person_request {
         void execute(const std::shared_ptr<GoalHandleFindPersonRequest> goal_handle) {
 
 
-
-
             RCLCPP_INFO(this->get_logger(), "Executing goal");
 
             auto result = std::make_shared<FindPersonRequest::Result>();
@@ -195,7 +194,7 @@ namespace find_person_request {
             *moving = true;
         }
 
-        void navigate(const std::shared_ptr<const FindPersonRequest::Goal> &goal, bool *moving, int* location_ind) {
+        void navigate(const std::shared_ptr<const FindPersonRequest::Goal> &goal, bool *moving, int *location_ind) {
             auto result_callback = [this, moving](auto) {
                 *moving = false;
             };
@@ -211,8 +210,8 @@ namespace find_person_request {
             };
             *location_ind = (*location_ind + 1) % goal->locations.size();
             shr_utils::send_nav_request(*tf_buffer_, goal->locations[*location_ind], now(),
-                                                           navigation_action_client_,
-                                                           goal_response_callback, std::nullopt, result_callback);
+                                        navigation_action_client_,
+                                        goal_response_callback, std::nullopt, result_callback);
             *moving = true;
         }
 
@@ -224,7 +223,7 @@ namespace find_person_request {
             auto send_goal_options = rclcpp_action::Client<shr_msgs::action::RecognizeRequest>::SendGoalOptions();
             auto result_callback = [this, goal, rotating, recognizing, found_person](
                     const rclcpp_action::ClientGoalHandle<shr_msgs::action::RecognizeRequest>::WrappedResult &response) {
-              if (*rotating) {
+                if (*rotating) {
                     for (const auto &name: response.result->names) {
                         if (name == goal->name) {
                             *found_person = true;

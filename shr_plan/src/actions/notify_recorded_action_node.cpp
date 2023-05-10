@@ -94,6 +94,9 @@ private:
         else if (sensor_topic_ == "/smartthings_sensors_motion_food"){
             finish(true, 1.0, "Person ate food");
         }
+        else if (sensor_topic_ == "/decided_to_go_back_to_sleep"){
+            finish(true, 1.0, "Person returned back to sleep after wandering");
+        }
     }
 
     if (time_diff.seconds() > wait_time_ && !waiting_for_response_) {

@@ -1,0 +1,5 @@
+float32 timeout # seconds
+---
+string status
+---
+bool running # returns true if running

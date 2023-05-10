@@ -22,6 +22,7 @@ set(msg_files
         msg/FoodReminderProtocol.msg
         msg/ActionRecord.msg
         msg/WorldState.msg
+        msg/LocationFromCamera.msg
         )
 
 set(action_files
@@ -38,6 +39,11 @@ set(action_files
         action/RecognizeTrainRequest.action
         action/RotateRequest.action
         action/SkillRequest.action
+        action/NavigateToGoal.action
+        action/DeepFakeRequest.action
+        action/DetectLeftHouseRequest.action
+        action/WaitForPersonToReturnRequest.action
+        action/CheckPersonInBedRequest.action
         )
 
 rosidl_generate_interfaces(shr_msgs

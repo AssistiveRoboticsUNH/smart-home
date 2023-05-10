@@ -326,10 +326,6 @@
     :effect (success)
 )
 
-
-
-
-
 ;; Init move
 (:action initMoveToLandmark
 	:parameters (?r - robot)

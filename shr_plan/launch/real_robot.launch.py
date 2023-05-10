@@ -24,7 +24,6 @@ def generate_launch_description():
             get_package_share_directory('yolostate'), 'launch', 'detect_human_depth.launch.py']))
     )
 
-
     tf_broadcast = Node(
         package='shr_plan',
         executable='tf_broadcaster_node',

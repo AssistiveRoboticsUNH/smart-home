@@ -15,7 +15,6 @@ import os
 def generate_launch_description():
     ld = LaunchDescription()
 
-
     run_hello_particles = Node(
         package="particles",
         executable="hello_mcl",

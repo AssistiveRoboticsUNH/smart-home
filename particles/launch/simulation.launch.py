@@ -23,7 +23,6 @@ def generate_launch_description():
             get_package_share_directory('yolostate'), 'launch', 'detect_human_depth.launch.py']))
     )
 
-    
 
 
     rviz_config_file = PathJoinSubstitution(

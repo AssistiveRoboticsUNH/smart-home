@@ -58,7 +58,7 @@ class DetectHumanAndDepth(Node):
             self.depth_callback,
             10)
 
-        self.sub_depth_camera_info= self.create_subscription(
+        self.sub_depth_camera_infoHumanDetector = self.create_subscription(
             CameraInfo,
             param_depth_camera_info_topic,
             self.depth_info_callback,
@@ -69,7 +69,7 @@ class DetectHumanAndDepth(Node):
         self.tf_broadcaster = TransformBroadcaster(self)
 
 
-        self.last_depth_ros_image=None   #store the depth camera ros image
+        self.last_depth_ros_image = None   #store the depth camera ros image
         # Used to convert between ROS and OpenCV images
         self.br = CvBridge()
 

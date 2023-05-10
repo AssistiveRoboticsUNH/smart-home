@@ -21,4 +21,3 @@
 
 (:goal (success))
 )
-
