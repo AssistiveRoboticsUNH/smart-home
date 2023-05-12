@@ -13,6 +13,9 @@ from shr_msgs.msg import WorldState
 import datetime
 import time
 
+from shr_world_state_parameters import parameters
+
+
 
 class SensorData:
     def __init__(self):
@@ -39,29 +42,20 @@ class WorldStateNode(Node):
         self.world_state.too_late_to_leave = -1
         self.world_state.door_open = -1
 
-        self.declare_parameter('patient_name', "nathan")
-        self.declare_parameter('locations',
-                               ["bedroom_robot_pos", "door_robot_pos", "kitchen_robot_pos", "couch_robot_pos",
-                                "outside"])
-        self.declare_parameter('door_location', "door_robot_pos")
-        self.declare_parameter('outside_location', "outside")
-        self.declare_parameter('medicine_location', "kitchen_robot_pos")
-        self.declare_parameter('eat_location', "kitchen_robot_pos")
+        self.param_listener = parameters.ParamListener(self)
+        self.params = self.param_listener.get_params()
 
-        self.declare_parameter('take_medication_time', "8h15m")
-        self.declare_parameter('eat_time', "4h30m")
+        self.world_state.patient_name = self.params.patient_name
+        self.world_state.locations = self.params.locations
+        self.world_state.door_location = self.params.door_location
+        self.world_state.outside_location = self.params.outside_location
+        self.world_state.medicine_location = self.params.medicine_location
+        self.world_state.eat_location = self.params.eat_location
 
-        self.world_state.patient_name = self.get_parameter('patient_name').value
-        self.world_state.locations = self.get_parameter('locations').value
-        self.world_state.door_location = self.get_parameter('door_location').value
-        self.world_state.outside_location = self.get_parameter('outside_location').value
-        self.world_state.medicine_location = self.get_parameter('medicine_location').value
-        self.world_state.eat_location = self.get_parameter('eat_location').value
-
-        tmp = self.get_parameter('take_medication_time').value
+        tmp = self.params.take_medication_time
         self.take_medication_time = 60 * int(tmp.split('h')[0]) + int(tmp.split('h')[1][:-1])
 
-        tmp_eat = self.get_parameter('eat_time').value
+        tmp_eat = self.params.eat_time
         self.eat_time = 60 * int(tmp_eat.split('h')[0]) + int(tmp_eat.split('h')[1][:-1])
 
         self.subscriber_motion_door = self.create_subscription(Bool, '/smartthings_sensors_motion_door',

@@ -16,16 +16,17 @@ class PersonReturnedToHouseActionServer(Node):
         super().__init__('returned_to_house_action')
         self.action_server = ActionServer(self, WaitForPersonToReturnRequest, 'returned_to_house',
                                           self.callback, cancel_callback=self.cancel_callback)
-        # self.vel_pub = self.create_publisher(Twist, 'cmd_vel', 10)
         #     self.yolo_sub = self.create_subscription(Int32MultiArray, '/detect_human', self.yolo_sub_callback, 10)
+        # self.human_loc = self.create_subscription(Bool, '/human_loc_from_cams', self.hum_loc_callback, 10)
+        # self.human_outside = False
         self.human_loc = self.create_subscription(Bool, '/human_loc_from_cams', self.hum_loc_callback, 10)
-        self.human_outside = False
-
+        self.human_back = False
 
     def yolo_sub_callback(self, msg):
-        if msg.data:
-            self.human_coords = msg.data
-
+        # if msg.data:
+        #     self.human_coords = msg.data
+        if msg.data != 'outside':
+            self.human_back = True
     #
     # def yolo_sub_callback(self, msg):
     #     if len(msg.data) > 0 and sum(msg.data) != 0:
@@ -36,7 +37,7 @@ class PersonReturnedToHouseActionServer(Node):
         return CancelResponse.ACCEPT
 
     def callback(self, goal_handle):
-        self.human_coords = ""
+        # self.human_coords = ""
         result = WaitForPersonToReturnRequest.Result()
         timeout = goal_handle.request.timeout
 
@@ -47,7 +48,7 @@ class PersonReturnedToHouseActionServer(Node):
 
                 self.get_logger().info('Goal canceled')
                 return WaitForPersonToReturnRequest.Result()
-            if self.human_coords != "":
+            if self.human_back:
                 result.status = "success"
                 goal_handle.succeed()
                 return result

@@ -108,7 +108,7 @@ shr_plan_parameters:
   call_actions:
     actions: {
       type: string_array,
-      default_value: [ "callemergencywondering", "alertcaregiverwondering", "askcaregiverhelpmedicine1", "askcaregiverhelpmedicine2", "askcaregiverhelpfood1", "askcaregiverhelpfood2", "callcaregiverasktogotobed", "callcaregiverwondering", "callEmergency" ],
+      default_value: [ "callemergencywondering", "alertcaregiverwondering", "askcaregiverhelpmedicine1", "askcaregiverhelpmedicine2", "askcaregiverhelpfood1", "askcaregiverhelpfood2", "callcaregiverasktogotobed", "callcaregiverwondering", "callemergency" ],
       description: "list of pddl call actions",
     }
     phone_numbers: {
@@ -143,6 +143,8 @@ shr_plan_parameters:
       default_value: [ "/smartthings_sensors_motion_pills","/smartthings_sensors_motion_food",  "/decided_to_go_back_to_sleep" ],
       description: "topic for sensor ",
     }
+
+
 
   notify_automated_actions:
     actions: {

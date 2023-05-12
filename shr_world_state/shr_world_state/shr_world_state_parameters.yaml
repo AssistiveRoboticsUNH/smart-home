@@ -1,0 +1,42 @@
+parameters:
+  patient_name: {
+    type: string,
+    default_value: "nathan",
+    description: "topic for detecting pills being taken",
+  }
+  locations: {
+    type: string_array,
+    default_value: ["bedroom_robot_pos", "door_robot_pos", "kitchen_robot_pos", "couch_robot_pos",
+               "outside"],
+    description: "topic for detecting pills being taken",
+  }
+  outside_location: {
+    type: string,
+    default_value: "outside",
+    description: "topic for detecting pills being taken",
+  }
+  medicine_location: {
+    type: string,
+    default_value: "kitchen_robot_pos",
+    description: "topic for detecting pills being taken",
+  }
+  door_location: {
+    type: string,
+    default_value: "door_robot_pos",
+    description: "topic for detecting pills being taken",
+  }
+  eat_location: {
+    type: string,
+    default_value: "kitchen_robot_pos",
+    description: "topic for detecting pills being taken",
+  }
+  take_medication_time: {
+    type: string,
+    default_value: "8h15m",
+    description: "topic for detecting pills being taken",
+  }
+  eat_time: {
+    type: string,
+    default_value: "4h30m",
+    description: "topic for detecting pills being taken",
+  }
