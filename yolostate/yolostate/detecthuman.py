@@ -7,7 +7,7 @@ import numpy as np
 import os
 from std_msgs.msg import String
 from std_msgs.msg import Int32MultiArray
-from yolo_human_detect import HumanDetector
+from yolostate.yolo_human_detect import HumanDetector
 from ament_index_python.packages import get_package_share_directory
 
 '''

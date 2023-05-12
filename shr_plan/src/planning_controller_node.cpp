@@ -284,25 +284,37 @@ namespace planning_controller {
                 std::cout << "Failed to set midnight problem" << std::endl;
             }
 
-            problem_expert_->addInstance(plansys2::Instance{world_state_.door_location, "landmark"});
+//            problem_expert_->addInstance(plansys2::Instance{world_state_.door_location, "landmark"});
+            std::vector<std::string> search_locations = {"bedroom_robot_pos", "kitchen_robot_pos", "couch_robot_pos", "door_robot_pos"};
+            for (const auto& loc : search_locations){
+                problem_expert_->addInstance(plansys2::Instance{loc, "landmark"});
+            }
+
             problem_expert_->addInstance(plansys2::Instance{"home", "landmark"});
             problem_expert_->addInstance(plansys2::Instance{"pioneer", "robot"});
 
             problem_expert_->addInstance(plansys2::Instance{params_.patient_name, "person"});
-            problem_expert_->addInstance(plansys2::Instance{"midnight_warning", "automated_message"});
-            problem_expert_->addInstance(plansys2::Instance{"midnight_warning_video", "recorded_message"});
+//            problem_expert_->addInstance(plansys2::Instance{"midnight_warning", "automated_message"});
+//            problem_expert_->addInstance(plansys2::Instance{"midnight_warning_video", "recorded_message"});
 
 
             problem_expert_->addPredicate(plansys2::Predicate("(robot_at pioneer home)"));
             problem_expert_->addPredicate(plansys2::Predicate(
-                    "(person_at " + params_.patient_name + " " + world_state_.door_location + ")"));
+                    "(person_at " + params_.patient_name + " " + "door_robot_pos" + ")"));
             problem_expert_->addPredicate(
-                    plansys2::Predicate("(give_message_location " + world_state_.door_location + ")"));
-            if (world_state_.door_open == 1) {
-                problem_expert_->addPredicate(plansys2::Predicate("(automated_message_given midnight_warning)"));
-            }
+                    plansys2::Predicate("(door_location " + world_state_.door_location + ")"));
+//            if (world_state_.door_open == 1) {
+//                problem_expert_->addPredicate(plansys2::Predicate("(automated_message_given midnight_warning)"));
+//            }
 
+            problem_expert_->addConditional(plansys2::Unknown("(unknown (person_decides_to_go_outside_1 ))"));
+            problem_expert_->addConditional(plansys2::Unknown("(unknown (person_decides_to_go_outside_2))"));
+            problem_expert_->addConditional(plansys2::Unknown("(unknown (person_decides_to_return_1))"));
+            problem_expert_->addConditional(plansys2::Unknown("(unknown (person_decides_to_return_2))"));
+            problem_expert_->addConditional(plansys2::Unknown("(unknown (person_decides_to_go_to_bed_1))"));
+            problem_expert_->addConditional(plansys2::Unknown("(unknown (person_decides_to_go_to_bed_2))"));
 
+            
             problem_expert_->setGoal(plansys2::Goal("(and (success) )"));
 
             return true;

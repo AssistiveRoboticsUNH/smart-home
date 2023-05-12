@@ -39,7 +39,6 @@ set(action_files
         action/RecognizeTrainRequest.action
         action/RotateRequest.action
         action/SkillRequest.action
-        action/NavigateToGoal.action
         action/DeepFakeRequest.action
         action/DetectLeftHouseRequest.action
         action/WaitForPersonToReturnRequest.action

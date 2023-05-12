@@ -1,6 +1,13 @@
 from setuptools import setup
+from generate_parameter_library_py.setup_helper import generate_parameter_module
 
 package_name = 'shr_world_state'
+
+# set module_name and yaml file
+module_name = "shr_world_state_parameters"
+yaml_file = "shr_world_state/shr_world_state_parameters.yaml"
+generate_parameter_module(module_name, yaml_file, "")
+
 
 setup(
     name=package_name,

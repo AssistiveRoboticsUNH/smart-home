@@ -91,41 +91,42 @@ namespace shr_utils {
 //        return navigation_goal_handle;
 
     }
-    void send_nav_request_custom(tf2_ros::Buffer &tf_buffer, const std::string &goal_tf, const rclcpp::Time &cur_time,
-                          rclcpp_action::Client<shr_msgs::action::NavigateToGoal>::SharedPtr navigation_action_client,
-                          std::optional<const std::function<void(
-                                  std::shared_ptr<rclcpp_action::ClientGoalHandle<shr_msgs::action::NavigateToGoal>>)>> goal_response_callback,
-                          std::optional<std::function<void(NavigationGoalHandle_custom::SharedPtr,
-                                                           NavigationFeedback_custom)>> feedback_callback,
-                          std::optional<std::function<void(
-                                  const rclcpp_action::ClientGoalHandle<shr_msgs::action::NavigateToGoal>::WrappedResult &)>> result_callback) {
-        shr_msgs::action::NavigateToGoal::Goal navigation_goal_;
-        navigation_goal_.pose.header.frame_id = "map";
-        navigation_goal_.pose.header.stamp = cur_time;
-        auto goal_point = get_tf_as_point(tf_buffer, "map", goal_tf);
-        auto current_point = get_tf_as_point(tf_buffer, "map", "base_link");
 
-        navigation_goal_.pose.pose = goal_point;
-
-        auto send_goal_options = rclcpp_action::Client<shr_msgs::action::NavigateToGoal>::SendGoalOptions();
-
-        if (goal_response_callback.has_value()) {
-            send_goal_options.goal_response_callback = goal_response_callback.value();
-        }
-        if (feedback_callback.has_value()) {
-            send_goal_options.feedback_callback = feedback_callback.value();
-        }
-        if (result_callback.has_value()) {
-            send_goal_options.result_callback = result_callback.value();
-
-        }
-        if (!navigation_action_client->wait_for_action_server()) {
-            RCLCPP_ERROR(rclcpp::get_logger("shr_utils"), "Action server not available after waiting");
-        }
-        auto navigation_goal_handle = navigation_action_client->async_send_goal(navigation_goal_,
-                                                                                send_goal_options);
-//        return navigation_goal_handle;
-
-    }
+//    void send_nav_request_custom(tf2_ros::Buffer &tf_buffer, const std::string &goal_tf, const rclcpp::Time &cur_time,
+//                          rclcpp_action::Client<shr_msgs::action::NavigateToGoal>::SharedPtr navigation_action_client,
+//                          std::optional<const std::function<void(
+//                                  std::shared_ptr<rclcpp_action::ClientGoalHandle<shr_msgs::action::NavigateToGoal>>)>> goal_response_callback,
+//                          std::optional<std::function<void(NavigationGoalHandle_custom::SharedPtr,
+//                                                           NavigationFeedback_custom)>> feedback_callback,
+//                          std::optional<std::function<void(
+//                                  const rclcpp_action::ClientGoalHandle<shr_msgs::action::NavigateToGoal>::WrappedResult &)>> result_callback) {
+//        shr_msgs::action::NavigateToGoal::Goal navigation_goal_;
+//        navigation_goal_.pose.header.frame_id = "map";
+//        navigation_goal_.pose.header.stamp = cur_time;
+//        auto goal_point = get_tf_as_point(tf_buffer, "map", goal_tf);
+//        auto current_point = get_tf_as_point(tf_buffer, "map", "base_link");
+//
+//        navigation_goal_.pose.pose = goal_point;
+//
+//        auto send_goal_options = rclcpp_action::Client<shr_msgs::action::NavigateToGoal>::SendGoalOptions();
+//
+//        if (goal_response_callback.has_value()) {
+//            send_goal_options.goal_response_callback = goal_response_callback.value();
+//        }
+//        if (feedback_callback.has_value()) {
+//            send_goal_options.feedback_callback = feedback_callback.value();
+//        }
+//        if (result_callback.has_value()) {
+//            send_goal_options.result_callback = result_callback.value();
+//
+//        }
+//        if (!navigation_action_client->wait_for_action_server()) {
+//            RCLCPP_ERROR(rclcpp::get_logger("shr_utils"), "Action server not available after waiting");
+//        }
+//        auto navigation_goal_handle = navigation_action_client->async_send_goal(navigation_goal_,
+//                                                                                send_goal_options);
+////        return navigation_goal_handle;
+//
+//    }
 
 }
