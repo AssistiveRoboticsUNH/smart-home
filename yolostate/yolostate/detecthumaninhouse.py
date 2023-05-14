@@ -7,7 +7,7 @@ import numpy as np
 import os
 from shr_msgs.msg import LocationFromCamera
 from std_msgs.msg import Float32MultiArray, String
-from yolo_human_detect import HumanDetector
+from yolostate.yolo_human_detect import HumanDetector
 from ament_index_python.packages import get_package_share_directory
 from rclpy.executors import MultiThreadedExecutor
 
@@ -24,7 +24,7 @@ ros2 run yolostate detecthuman --ros-args -p camera:=/smart_home/camera/color/im
 #### ASSUMES ONLY ONE PERSON IS IN THE HOUSE WILL GENERALIZE LATER
 
 class DetectHumanLoc(Node):
-    def __init__(self, yh, node_name, sub_topic_name):
+    def __init__(self, node_name, sub_topic_name):
         super().__init__('detect_human')
 
         self.node = rclpy.create_node(node_name)
@@ -46,7 +46,12 @@ class DetectHumanLoc(Node):
 
 
         self.human_pos = [0, 0, 0, 0]
-        self.yh = yh
+
+        current_dir = get_package_share_directory('yolostate')
+        data_path = os.path.join(current_dir, 'yolodata')
+        self.yh = HumanDetector(data_path)
+
+        # self.yh = yh
 
         timer_period = 1  # seconds
         # self.timer = self.create_timer(timer_period, self.timer_human_loc_callback)
@@ -165,17 +170,17 @@ class GetLoc(Node):
 def main(args=None):
     rclpy.init(args=args)
 
-    current_dir = get_package_share_directory('yolostate')
-    data_path = os.path.join(current_dir, 'yolodata')
-    yh = HumanDetector(data_path)
+    # current_dir = get_package_share_directory('yolostate')
+    # data_path = os.path.join(current_dir, 'yolodata')
+    # yh = HumanDetector(data_path)
 
-    node_living_room = DetectHumanLoc(yh, 'living_room_cam', '/unity_camera_living_room/color/image_raw')
+    node_living_room = DetectHumanLoc('living_room_cam', '/unity_camera_living_room/color/image_raw')
 
-    node_kitchen = DetectHumanLoc(yh, 'kitchen_cam', '/unity_camera_kitchen/color/image_raw')
+    node_kitchen = DetectHumanLoc('kitchen_cam', '/unity_camera_kitchen/color/image_raw')
 
-    node_bedroom = DetectHumanLoc(yh, 'bedroom_cam', '/unity_camera_bedroom/color/image_raw')
+    node_bedroom = DetectHumanLoc('bedroom_cam', '/unity_camera_bedroom/color/image_raw')
 
-    node_dining_room = DetectHumanLoc(yh, 'dining_room_cam', '/unity_camera_dining_room/color/image_raw')
+    node_dining_room = DetectHumanLoc('dining_room_cam', '/unity_camera_dining_room/color/image_raw')
 
     node_hum_loc = GetLoc('loc', 'human_loc_from_cams')
 
