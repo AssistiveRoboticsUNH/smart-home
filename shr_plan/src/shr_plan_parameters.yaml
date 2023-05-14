@@ -144,8 +144,6 @@ shr_plan_parameters:
       description: "topic for sensor ",
     }
 
-
-
   notify_automated_actions:
     actions: {
       type: string_array,
