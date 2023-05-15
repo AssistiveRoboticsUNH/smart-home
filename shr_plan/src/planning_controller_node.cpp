@@ -293,14 +293,12 @@ namespace planning_controller {
             problem_expert_->addInstance(plansys2::Instance{"home", "landmark"});
             problem_expert_->addInstance(plansys2::Instance{"pioneer", "robot"});
 
-            problem_expert_->addInstance(plansys2::Instance{params_.patient_name, "person"});
-//            problem_expert_->addInstance(plansys2::Instance{"midnight_warning", "automated_message"});
-//            problem_expert_->addInstance(plansys2::Instance{"midnight_warning_video", "recorded_message"});
+            problem_expert_->addInstance(plansys2::Instance{world_state_.patient_name, "person"});
 
 
             problem_expert_->addPredicate(plansys2::Predicate("(robot_at pioneer home)"));
             problem_expert_->addPredicate(plansys2::Predicate(
-                    "(person_at " + params_.patient_name + " " + "door_robot_pos" + ")"));
+                    "(person_at " + world_state_.patient_name + " " + world_state_.door_location + ")"));
             problem_expert_->addPredicate(
                     plansys2::Predicate("(door_location " + world_state_.door_location + ")"));
 //            if (world_state_.door_open == 1) {
