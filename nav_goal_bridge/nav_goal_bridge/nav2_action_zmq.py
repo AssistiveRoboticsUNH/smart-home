@@ -13,8 +13,8 @@ class Nav2ActionServer(Node):
         super().__init__('nav2_action_server')
         self._action_server = ActionServer(
             self,
-            NavigateToPose,
-            'navigate_to_pose',
+            NavToGoal,
+            'navigate_to_goal',
             self.execute_callback)
 
         print('server initiated')
