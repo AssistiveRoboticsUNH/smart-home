@@ -43,6 +43,7 @@ set(action_files
         action/DetectLeftHouseRequest.action
         action/WaitForPersonToReturnRequest.action
         action/CheckPersonInBedRequest.action
+        action/NavigateToGoalRequest.action
         )
 
 rosidl_generate_interfaces(shr_msgs
@@ -54,7 +55,6 @@ rosidl_generate_interfaces(shr_msgs
         geometry_msgs
         builtin_interfaces
         )
-
 
 ament_export_dependencies(rosidl_default_runtime)
 
