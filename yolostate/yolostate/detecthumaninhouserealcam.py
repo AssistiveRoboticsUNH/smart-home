@@ -1,7 +1,5 @@
 import rclpy
 from rclpy.node import Node
-from sensor_msgs.msg import Image
-from cv_bridge import CvBridge
 import cv2
 import numpy as np
 import os
@@ -10,7 +8,6 @@ from std_msgs.msg import Float32MultiArray, String
 from yolostate.yolo_human_detect import HumanDetector
 from ament_index_python.packages import get_package_share_directory
 from rclpy.executors import MultiThreadedExecutor, SingleThreadedExecutor
-
 '''
 ROS2 node, 
 subscribe to RGB image, 
@@ -24,7 +21,7 @@ ros2 run yolostate detecthuman --ros-args -p camera:=/smart_home/camera/color/im
 #### ASSUMES ONLY ONE PERSON IS IN THE HOUSE WILL GENERALIZE LATER
 
 class DetectHumanLoc(Node):
-    def __init__(self, yh, node_name, sub_topic_name):
+    def __init__(self, yh, node_name, link):
         super().__init__('detect_human')
 
         self.node = rclpy.create_node(node_name)
@@ -35,27 +32,22 @@ class DetectHumanLoc(Node):
 
         self.view_camera = self.get_parameter('view_camera').value
 
-        self.subscription = self.create_subscription(
-            Image,
-            sub_topic_name,
-            self.camera_callback,
-            10)
-
         # Used to convert between ROS and OpenCV images
-        self.br = CvBridge()
-
 
         self.human_pos = [0, 0, 0, 0]
-
 
         self.yh = yh
 
         timer_period = 1  # seconds
         # self.timer = self.create_timer(timer_period, self.timer_human_loc_callback)
+        self.link = link
 
-        self.sub_topic_name = sub_topic_name
         # self.pub_topic_name = pub_topic_name
         self.node_name = node_name
+
+        timer_period = 0.01
+        self.timer = self.create_timer(timer_period, self.camera_callback)
+
 
     def timer_human_loc_callback(self):
         # reset data
@@ -65,15 +57,16 @@ class DetectHumanLoc(Node):
         x, y, xd, yd = box
         self.human_pos = box
 
-    def camera_callback(self, data):
+    def camera_callback(self):
+        cap = cv2.VideoCapture(self.link, cv2.CAP_FFMPEG)
         print('camera_callback', self.node_name)
         # Convert ROS Image message to OpenCV image
-        current_frame = self.br.imgmsg_to_cv2(data)
+        ret, current_frame = cap.read()
         current_frame = current_frame[:, :, :3]  # channel 4 to 3
-        image_r = current_frame[:, :, 0]
-        image_g = current_frame[:, :, 1]
-        image_b = current_frame[:, :, 2]
-        current_frame = np.dstack((image_b, image_g, image_r))
+        # image_r = current_frame[:, :, 0]
+        # image_g = current_frame[:, :, 1]
+        # image_b = current_frame[:, :, 2]
+        # current_frame = np.dstack((image_b, image_g, image_r))
 
         org = current_frame.copy()
 
@@ -147,7 +140,7 @@ class GetLoc(Node):
         self.loc['livingroom'] = msg.confidence
 
     def timer_human_loc_callback(self):
-        print('locval', self.loc.values())
+        # print('locval', self.loc.values())
         message = String()
         print('sum', sum(self.loc.values()))
         if sum(self.loc.values()) == 0:
@@ -158,7 +151,7 @@ class GetLoc(Node):
                 if value == max_conf:
                     message.data = key
 
-        print('aaaaaxxxxxxxxxxxxxxxxaaaaaa', message)
+        # print('aaaaaxxxxxxxxxxxxxxxxaaaaaa', message)
         self.publisher_.publish(message)
         # self.loc = []
         # self.conf = []
@@ -171,13 +164,27 @@ def main(args=None):
     data_path = os.path.join(current_dir, 'yolodata')
     yh = HumanDetector(data_path)
 
-    node_living_room = DetectHumanLoc(yh, 'living_room_cam', '/unity_camera_living_room/color/image_raw')
+    password = os.environ['TAPO_CAMERA_PASS']
 
-    node_kitchen = DetectHumanLoc(yh, 'kitchen_cam', '/unity_camera_kitchen/color/image_raw')
+    ip_address_living = "192.168.1.35"
+    username_living = 'Living_room'
+    link_living = "rtsp://" + username_living + ":" + password + "@" + ip_address_living + "/stream2"
+    node_living_room = DetectHumanLoc(yh, 'living_room_cam', link_living)
 
-    node_bedroom = DetectHumanLoc(yh, 'bedroom_cam', '/unity_camera_bedroom/color/image_raw')
+    ip_address_bedroom = "192.168.1.38"
+    username_bedroom = 'Bedroom'
+    link_bedroom = "rtsp://" + username_bedroom + ":" + password + "@" + ip_address_bedroom + "/stream2"
+    node_bedroom = DetectHumanLoc(yh, 'bedroom_cam', link_bedroom)
 
-    node_dining_room = DetectHumanLoc(yh, 'dining_room_cam', '/unity_camera_dining_room/color/image_raw')
+    ip_address_dining = "192.168.1.34"
+    username_dining = 'Dining'
+    link_dining = "rtsp://" + username_dining + ":" + password + "@" + ip_address_dining + "/stream2"
+    node_dining_room = DetectHumanLoc(yh, 'dining_room_cam', link_dining)
+
+    ip_address_kitchen = "192.168.1.37"
+    username_kitchen = 'Kitchen'
+    link_kitchen = "rtsp://" + username_kitchen + ":" + password + "@" + ip_address_kitchen + "/stream2"
+    node_kitchen = DetectHumanLoc(yh, 'kitchen_cam', link_kitchen)
 
     node_hum_loc = GetLoc('loc', 'human_loc_from_cams')
 

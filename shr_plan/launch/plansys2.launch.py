@@ -32,6 +32,24 @@ def generate_launch_description():
             'params_file': params_file,
         }.items())
 
+    wait_for_person_to_return_action_cmd = Node(
+        package='shr_actions_py',
+        executable='wait_for_person_to_return_action',
+        name='wait_for_person_to_return_action_node',
+        output='screen')
+
+    check_person_bed_action_cmd = Node(
+        package='shr_actions_py',
+        executable='check_person_bed_action',
+        name='check_person_bed_action_node',
+        output='screen')
+
+    detect_person_left_house_action_cmd = Node(
+        package='shr_actions_py',
+        executable='detect_person_left_house_action',
+        name='detect_person_left_house_action_node',
+        output='screen')
+
     sound_node_cmd = Node(
         package='sound_play',
         executable='soundplay_node.py',
@@ -135,6 +153,24 @@ def generate_launch_description():
         name='detect_person_action_node',
         output='screen')
 
+    check_if_person_went_to_bed_action_node_cmd = Node(
+        package='shr_plan',
+        executable='check_if_person_went_to_bed_action_node',
+        name='check_if_person_went_to_bed_action_node',
+        output='screen')
+
+    detect_person_left_house_action_node_cmd = Node(
+        package='shr_plan',
+        executable='detect_person_left_house_action_node',
+        name='detect_person_left_house_action_node',
+        output='screen')
+
+    wait_for_person_to_return_cmd = Node(
+        package='shr_plan',
+        executable='wait_for_person_to_return_node',
+        name='wait_for_person_to_return_node',
+        output='screen')
+
     # planning manager
     planning_controller_node_cmd = Node(
         package='shr_plan',
@@ -145,6 +181,9 @@ def generate_launch_description():
     ld = LaunchDescription()
     ld.add_action(declare_namespace_cmd)
 
+    ld.add_action(wait_for_person_to_return_action_cmd)
+    ld.add_action(check_person_bed_action_cmd)
+    ld.add_action(detect_person_left_house_action_cmd)
     ld.add_action(plansys2_cmd)
     ld.add_action(sound_node_cmd)
     ld.add_action(face_node_cmd)
@@ -157,6 +196,9 @@ def generate_launch_description():
     ld.add_action(find_person_cmd)
     ld.add_action(detect_person_cmd)
 
+    ld.add_action(wait_for_person_to_return_cmd)
+    ld.add_action(detect_person_left_house_action_node_cmd)
+    ld.add_action(check_if_person_went_to_bed_action_node_cmd)
     ld.add_action(moveto_landmark_cmd)
     ld.add_action(guideto_landmark_cmd)
     ld.add_action(notify_automated_cmd)

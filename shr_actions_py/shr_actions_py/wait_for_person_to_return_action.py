@@ -8,7 +8,7 @@ import rclpy
 from geometry_msgs.msg import Twist
 from std_msgs.msg import Int32MultiArray
 from rclpy.executors import MultiThreadedExecutor
-from std_msgs.msg import Bool
+from std_msgs.msg import String
 
 
 class PersonReturnedToHouseActionServer(Node):
@@ -19,14 +19,15 @@ class PersonReturnedToHouseActionServer(Node):
         #     self.yolo_sub = self.create_subscription(Int32MultiArray, '/detect_human', self.yolo_sub_callback, 10)
         # self.human_loc = self.create_subscription(Bool, '/human_loc_from_cams', self.hum_loc_callback, 10)
         # self.human_outside = False
-        self.human_loc = self.create_subscription(Bool, '/human_loc_from_cams', self.hum_loc_callback, 10)
+        self.human_loc = self.create_subscription(String, '/human_loc_from_cams', self.hum_loc_callback, 10)
         self.human_back = False
 
-    def yolo_sub_callback(self, msg):
+    def hum_loc_callback(self, msg):
         # if msg.data:
         #     self.human_coords = msg.data
         if msg.data != 'outside':
             self.human_back = True
+            print("person_vack")
     #
     # def yolo_sub_callback(self, msg):
     #     if len(msg.data) > 0 and sum(msg.data) != 0:
@@ -45,10 +46,11 @@ class PersonReturnedToHouseActionServer(Node):
         while time.time() - start_time < timeout:
             if goal_handle.is_cancel_requested:
                 goal_handle.canceled()
-
+                print("person not back")
                 self.get_logger().info('Goal canceled')
                 return WaitForPersonToReturnRequest.Result()
             if self.human_back:
+                print("person back")
                 result.status = "success"
                 goal_handle.succeed()
                 return result
