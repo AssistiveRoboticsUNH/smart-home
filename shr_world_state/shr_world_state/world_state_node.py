@@ -16,28 +16,32 @@ import time
 from shr_world_state_parameters import parameters
 
 
-
 class SensorData:
     def __init__(self):
         self.pills_motion_sensor = False
         self.door_motion_sensor = False
         self.door_sensor = False
-        self.eat_motion_sensor = False
+        self.eat_sensor = False
+        self.bedside_motion_sensor = False
 
 
 class WorldStateNode(Node):
     def __init__(self):
         super().__init__('world_state_node')
         self.took_medicine_time = None
-        self.ate_time = None
         self.patient_located_time = None
         self._send_goal_future = None
         self._get_result_future = None
         self.goal_handle = None
         self.running_action = False
+
         self.sensor_data = SensorData()
+
         self.world_state = WorldState()
-        self.world_state.ate = -1
+        self.world_state.ate_breakfast = 0
+        self.world_state.ate_lunch = 0
+        self.world_state.ate_dinner = 0
+
         self.world_state.took_medicine = -1
         self.world_state.too_late_to_leave = -1
         self.world_state.door_open = -1
@@ -51,12 +55,19 @@ class WorldStateNode(Node):
         self.world_state.outside_location = self.params.outside_location
         self.world_state.medicine_location = self.params.medicine_location
         self.world_state.eat_location = self.params.eat_location
+        self.world_state.bedroom_location = self.params.bedroom_location
 
         tmp = self.params.take_medication_time
         self.take_medication_time = 60 * int(tmp.split('h')[0]) + int(tmp.split('h')[1][:-1])
 
-        tmp_eat = self.params.eat_time
-        self.eat_time = 60 * int(tmp_eat.split('h')[0]) + int(tmp_eat.split('h')[1][:-1])
+        tmp_eat_breakfast = self.params.eat_time[0]
+        self.eat_time_breakfast = 60 * int(tmp_eat_breakfast.split('h')[0]) + int(tmp_eat_breakfast.split('h')[1][:-1])
+
+        tmp_eat_lunch = self.params.eat_time[1]
+        self.eat_time_lunch = 60 * int(tmp_eat_lunch.split('h')[0]) + int(tmp_eat_lunch.split('h')[1][:-1])
+
+        tmp_eat_dinner = self.params.eat_time[2]
+        self.eat_time_dinner = 60 * int(tmp_eat_dinner.split('h')[0]) + int(tmp_eat_dinner.split('h')[1][:-1])
 
         self.subscriber_motion_door = self.create_subscription(Bool, '/smartthings_sensors_motion_door',
                                                                self.door_motion_callback, 10)
@@ -64,8 +75,11 @@ class WorldStateNode(Node):
                                                                 self.pill_motion_callback, 10)
         self.subscriber_sensor_door = self.create_subscription(Bool, '/smartthings_sensors_door',
                                                                self.door_open_callback, 10)
-        self.subscriber_motion_eat = self.create_subscription(Bool, '/smartthings_sensors_motion_eat',
-                                                              self.eat_motion_callback, 10)
+        self.subscriber_eat = self.create_subscription(Bool, '/eating_sensor',
+                                                       self.eat_callback, 10)
+        self.subscriber_motion_bedside = self.create_subscription(Bool, '/smartthings_sensors_motion_bed_side',
+                                                                  self.bedside_motion_callback, 10)
+
         self.world_state_pub = self.create_publisher(WorldState, '/world_state', 10)
 
         self.gather_information_action_server = ActionServer(self, GatherInformationRequest, '/gather_information',
@@ -78,12 +92,17 @@ class WorldStateNode(Node):
         # Debugging
         self.subscriber_debug_too_late_to_leave = self.create_subscription(Bool, '/too_late_to_leave',
                                                                            self.debug_too_late_to_leave_callback, 10)
+
         self.subscriber_debug_time_to_take_medicine = self.create_subscription(Bool, '/time_to_take_medicine',
                                                                                self.debug_time_to_take_medicine_callback,
                                                                                10)
 
-        self.subscriber_debug_time_to_eat = self.create_subscription(Bool, '/time_to_eat',
-                                                                     self.debug_time_to_eat_callback, 10)
+        self.subscriber_debug_time_to_eat_breakfast = self.create_subscription(Bool, '/time_to_eat_breakfast',
+                                                                     self.debug_time_to_eat_breakfast_callback, 10)
+        self.subscriber_debug_time_to_eat_lunch = self.create_subscription(Bool, '/time_to_eat_lunch',
+                                                                     self.debug_time_to_eat_lunch_callback, 10)
+        self.subscriber_debug_time_to_eat_dinner = self.create_subscription(Bool, '/time_to_eat_dinner',
+                                                                     self.debug_time_to_eat_dinner_callback, 10)
 
         self.subscriber_debug_too_late_to_leave = 0
 
@@ -92,20 +111,29 @@ class WorldStateNode(Node):
 
     def pill_motion_callback(self, msg):
         if msg.data:
-            self.world_state.patient_location = self.world_state.medicine_location
+            self.world_state.patient_location = self.world_state.kitchen_location
             self.patient_located_time = time.time()
 
         if self.sensor_data.pills_motion_sensor != msg.data:
             self.sensor_data.pills_motion_sensor = msg.data
             self.publish_world_state(sensor_data=self.sensor_data)
 
-    def eat_motion_callback(self, msg):
+    def bedside_motion_callback(self, msg):
+        if msg.data:
+            self.world_state.patient_location = self.world_state.bedroom_location
+            self.patient_located_time = time.time()
+
+        if self.sensor_data.bedside_motion_sensor != msg.data:
+            self.sensor_data.bedside_motion_sensor = msg.data
+            self.publish_world_state(sensor_data=self.sensor_data)
+
+    def eat_callback(self, msg):
         if msg.data:
             self.world_state.patient_location = self.world_state.eat_location
             self.patient_located_time = time.time()
 
-        if self.sensor_data.eat_motion_sensor != msg.data:
-            self.sensor_data.eat_motion_sensor = msg.data
+        if self.sensor_data.eat_sensor != msg.data:
+            self.sensor_data.eat_sensor = msg.data
             self.publish_world_state(sensor_data=self.sensor_data)
 
     def door_motion_callback(self, msg):
@@ -142,10 +170,20 @@ class WorldStateNode(Node):
             self.world_state.time_to_take_medicine = msg.data
             print(self.world_state.time_to_take_medicine)
 
-    def debug_time_to_eat_callback(self, msg):
-        print('time_to_eat', msg.data)
+    def debug_time_to_eat_breakfast_callback(self, msg):
+        print('time_to_eat_breakfast', msg.data)
         if msg:
-            self.world_state.time_to_eat = msg.data
+            self.world_state.time_to_eat_breakfast = msg.data
+
+    def debug_time_to_eat_lunch_callback(self, msg):
+        print('time_to_eat_lunch', msg.data)
+        if msg:
+            self.world_state.time_to_eat_lunch = msg.data
+
+    def debug_time_to_eat_dinner_callback(self, msg):
+        print('time_to_eat_dinner', msg.data)
+        if msg:
+            self.world_state.time_to_eat_dinner = msg.data
 
     def publish_world_state(self, sensor_data=None, patient_location=None):
         if patient_location:
@@ -157,23 +195,29 @@ class WorldStateNode(Node):
                 self.took_medicine_time = datetime.datetime.now().day
             self.world_state.took_medicine = self.world_state.took_medicine or sensor_data.pills_motion_sensor
 
-            if self.sensor_data.eat_motion_sensor:
-                self.ate_time = datetime.datetime.now().day
-            self.world_state.ate = self.world_state.ate or sensor_data.eat_motion_sensor
+            if self.sensor_data.eat_sensor:
+                time_per_ate = datetime.datetime.now().hour * 60 + datetime.datetime.now().minute
+                if time_per_ate < self.eat_time_breakfast and time_per_ate < self.eat_time_lunch:
+                    self.world_state.ate_breakfast = True
+                elif time_per_ate < self.eat_time_dinner and time_per_ate > self.eat_time_lunch:
+                    self.world_state.ate_lunch = True
+                else:
+                    self.world_state.ate_lunch = True
 
         # self.world_state.too_late_to_leave = datetime.datetime.now().hour <= 6 # uncomment after debugging
 
         if self.took_medicine_time is None or self.took_medicine_time != datetime.datetime.now().day:
             self.world_state.took_medicine = False
 
-        if self.ate_time is None or self.ate_time != datetime.datetime.now().day:
-            self.world_state.ate = False
+        ### add a stopper (condifiton) for wandering problem
 
         if self.patient_located_time is None or time.time() - self.patient_located_time > 15:
             self.world_state.patient_location = ""
 
         # self.world_state.time_to_take_medicine = datetime.datetime.now().hour * 60 + datetime.datetime.now().minute > self.take_medication_time
-        # self.world_state.time_to_eat = datetime.datetime.now().hour * 60 + datetime.datetime.now().minute > self.eat_time
+        # self.world_state.time_to_eat_breakfast = datetime.datetime.now().hour * 60 + datetime.datetime.now().minute > self.eat_time_breakfast
+        # self.world_state.time_to_eat_lunch = datetime.datetime.now().hour * 60 + datetime.datetime.now().minute > self.eat_time_lunch
+        # self.world_state.time_to_eat_dinner = datetime.datetime.now().hour * 60 + datetime.datetime.now().minute > self.eat_time_dinner
 
         # self.world_state.too_late_to_leave = True  # DEBUG
         # self.world_state.time_to_take_medicine = False  # True  # DEBUG

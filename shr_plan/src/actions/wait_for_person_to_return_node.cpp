@@ -97,9 +97,9 @@ int main(int argc, char **argv) {
 
 
     std::vector<std::shared_ptr<WaitForReturnAction>> all_nodes;
-    for (auto i = 0ul; i < params.call_actions.actions.size(); i++) {
-        auto action = params.detect_person_left_house.actions[i];
-        auto timeouts = params.detect_person_left_house.timeouts[i];
+    for (auto i = 0ul; i < params.wait_for_person_to_return.actions.size(); i++) {
+        auto action = params.wait_for_person_to_return.actions[i];
+        auto timeouts = params.wait_for_person_to_return.timeouts[i];
         auto ind = all_nodes.size();
         all_nodes.push_back(std::make_shared<WaitForReturnAction>(action, timeouts));
         all_nodes[ind]->trigger_transition(lifecycle_msgs::msg::Transition::TRANSITION_CONFIGURE);

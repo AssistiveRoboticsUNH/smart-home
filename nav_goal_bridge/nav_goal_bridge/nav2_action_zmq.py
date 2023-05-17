@@ -1,8 +1,8 @@
 import rclpy
 from rclpy.action import ActionServer
 from rclpy.node import Node
-# from shr_msgs.action import NavToGoal
-from nav2_msgs.action import NavigateToPose
+from shr_msgs.action import NavToGoal
+# from nav2_msgs.action import NavigateToPose
 import json
 import time
 import zmq

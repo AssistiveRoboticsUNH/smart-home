@@ -108,12 +108,12 @@ shr_plan_parameters:
   call_actions:
     actions: {
       type: string_array,
-      default_value: [ "callemergencywondering", "alertcaregiverwondering", "askcaregiverhelpmedicine1", "askcaregiverhelpmedicine2", "askcaregiverhelpfood1", "askcaregiverhelpfood2", "callcaregiverasktogotobed", "callcaregiverwondering", "callemergency" ],
+      default_value: [ "askcaregiverhelpmedicine1", "askcaregiverhelpmedicine2", "askcaregiverhelpfood1", "askcaregiverhelpfood2", "callcaregiverasktogotobed", "callcaregiverwondering", "callemergency" ],
       description: "list of pddl call actions",
     }
     phone_numbers: {
       type: string_array,
-      default_value: [  "7742257735", "7742257735",  "7742257735", "7742257735",  "7742257735", "7742257735",  "7742257735", "7742257735", "7742257735"],
+      default_value: [ "6038514204", "6038514204", "6038514204", "6038514204",  "6038514204", "6038514204", "6038514204"],
       description: "list of phone numbers for each call action",
     }
     script_names: {

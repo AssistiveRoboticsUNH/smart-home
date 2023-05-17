@@ -11,8 +11,7 @@
   <depend>cv_bridge</depend>
   <depend>sensor_msgs</depend>
   <depend>std_msgs</depend>
-  <depend>mediapipe</depend>
-  <depend>cv2</depend>
+
 
 
   <test_depend>ament_copyright</test_depend>

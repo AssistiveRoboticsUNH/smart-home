@@ -6,8 +6,8 @@ parameters:
   }
   locations: {
     type: string_array,
-    default_value: ["bedroom_robot_pos", "door_robot_pos", "kitchen_robot_pos", "couch_robot_pos",
-               "outside"],
+    default_value: [ "bedroom_robot_pos", "door_robot_pos", "kitchen_robot_pos", "couch_robot_pos",
+                     "outside" ],
     description: "topic for detecting pills being taken",
   }
   outside_location: {
@@ -35,8 +35,27 @@ parameters:
     default_value: "8h15m",
     description: "topic for detecting pills being taken",
   }
+
   eat_time: {
-    type: string,
-    default_value: "4h30m",
+    type: string_array,
+    default_value: [ "9h30m", "14h30m", "16h30m"],
     description: "topic for detecting pills being taken",
   }
+
+  bedroom_location: {
+    type: string,
+    default_value: "bedroom_robot_pos",
+    description: "topic for detecting pills being taken",
+  }
+
+
+
+
+
+
+
+
+
+
+
+

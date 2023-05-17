@@ -97,7 +97,7 @@ int main(int argc, char **argv) {
 
 
     std::vector<std::shared_ptr<DetectLeftHouseAction>> all_nodes;
-    for (auto i = 0ul; i < params.call_actions.actions.size(); i++) {
+    for (auto i = 0ul; i < params.detect_person_left_house.actions.size(); i++) {
         auto action = params.detect_person_left_house.actions[i];
         auto timeouts = params.detect_person_left_house.timeouts[i];
         auto ind = all_nodes.size();
