@@ -117,11 +117,19 @@ def generate_launch_description():
         name='move_action_node',
         output='screen')
 
-    guideto_landmark_cmd = Node(
-        package='shr_plan',
-        executable='guide_action_node',
-        name='guide_action_node',
-        output='screen')
+    sim = True
+    if sim:
+        guideto_landmark_cmd = Node(
+            package='shr_plan',
+            executable='guide_action_node_sim',
+            name='guide_action_node',
+            output='screen')
+    else:
+        guideto_landmark_cmd = Node(
+            package='shr_plan',
+            executable='guide_action_node',
+            name='guide_action_node',
+            output='screen')
 
     notify_automated_cmd = Node(
         package='shr_plan',
