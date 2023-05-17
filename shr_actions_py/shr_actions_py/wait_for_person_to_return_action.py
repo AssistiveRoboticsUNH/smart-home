@@ -13,7 +13,7 @@ from std_msgs.msg import String
 
 class PersonReturnedToHouseActionServer(Node):
     def __init__(self):
-        super().__init__('returned_to_house_action')
+        super().__init__('wait_for_person_to_return_action')
         self.action_server = ActionServer(self, WaitForPersonToReturnRequest, 'returned_to_house',
                                           self.callback, cancel_callback=self.cancel_callback)
         #     self.yolo_sub = self.create_subscription(Int32MultiArray, '/detect_human', self.yolo_sub_callback, 10)

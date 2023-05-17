@@ -39,7 +39,8 @@
 #include "plansys2_msgs/msg/action_execution.hpp"
 
 #include <rclcpp_action/client.hpp>
-#include "nav2_msgs/action/navigate_to_pose.hpp"
+#include "shr_msgs/action/navigate_to_pose.hpp"
+//#include "nav2_msgs/action/navigate_to_pose.hpp"
 #include "tf2_ros/transform_listener.h"
 #include "tf2_ros/buffer.h"
 
@@ -451,7 +452,7 @@ namespace planning_controller {
         shr_plan_parameters::Params params_;
 
 
-        rclcpp_action::Client<nav2_msgs::action::NavigateToPose>::SharedPtr navigation_action_client_;
+        rclcpp_action::Client<shr_msgs::action::NavigateToPose>::SharedPtr navigation_action_client_;
         rclcpp_action::Client<shr_msgs::action::GatherInformationRequest>::SharedPtr gathering_info_client_;
 
 

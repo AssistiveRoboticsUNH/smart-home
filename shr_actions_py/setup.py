@@ -31,7 +31,7 @@ setup(
                             'check_person_bed_action = shr_actions_py.check_person_bed_action:main',
                             'detect_person_left_house_action = shr_actions_py.detect_person_left_house_action:main',
                             'wait_for_person_to_return_action = shr_actions_py.wait_for_person_to_return_action:main',
-                            'nav_to_goal_action = shr_actions_py.nav_to_goal_action:main'
+                            'nav2_zmq_action = shr_actions_py.nav2_zmq_action:main'
                             ],
     },
 )

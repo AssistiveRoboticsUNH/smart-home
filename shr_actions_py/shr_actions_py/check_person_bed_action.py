@@ -13,7 +13,7 @@ from std_msgs.msg import Bool
 
 class CheckPersonInBedActionServer(Node):
     def __init__(self):
-        super().__init__('detect_person_action')
+        super().__init__('check_person_bed_action')
         self.action_server = ActionServer(self, CheckPersonInBedRequest, 'in_bed',
                                           self.callback, cancel_callback=self.cancel_callback)
         self.create_subscription(Bool, 'smartthings_sensors_bed_side',

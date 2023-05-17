@@ -1,3 +1,4 @@
+
 cmake_minimum_required(VERSION 3.5)
 project(shr_msgs)
 
@@ -43,7 +44,7 @@ set(action_files
         action/DetectLeftHouseRequest.action
         action/WaitForPersonToReturnRequest.action
         action/CheckPersonInBedRequest.action
-        action/NavigateToGoalRequest.action
+        action/NavigateToPose.action
         )
 
 rosidl_generate_interfaces(shr_msgs
