@@ -25,7 +25,7 @@ ros2 run yolostate detecthuman --ros-args -p camera:=/smart_home/camera/color/im
 
 class DetectHumanLoc(Node):
     def __init__(self, yh, node_name, sub_topic_name):
-        super().__init__('detect_human')
+        super().__init__('detecthumaninhouse')
 
         self.node = rclpy.create_node(node_name)
 

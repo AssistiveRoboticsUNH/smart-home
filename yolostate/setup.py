@@ -29,7 +29,8 @@ setup(
             'detecthuman = yolostate.detecthuman:main',
             'detect_human_depth = yolostate.detect_human_depth:main',
             'downloadyolo = yolostate.downloadyolo:main',
-            'detecthumaninhouse = yolostate.detecthumaninhouse:main'
+            'detecthumaninhouse = yolostate.detecthumaninhouse:main',
+            'detecthumaninhouserealcam = yolostate.detecthumaninhouserealcam:main'
         ],
     },
 )

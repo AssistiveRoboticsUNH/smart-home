@@ -13,7 +13,7 @@ from std_msgs.msg import String
 
 class DetectLeftHouseActionServer(Node):
     def __init__(self):
-        super().__init__('detect_person_action')
+        super().__init__('detect_person_left_house_action')
         self.action_server = ActionServer(self, DetectLeftHouseRequest, 'left_house',
                                           self.callback, cancel_callback=self.cancel_callback)
 

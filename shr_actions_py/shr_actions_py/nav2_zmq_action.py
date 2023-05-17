@@ -1,7 +1,7 @@
 import rclpy
 from rclpy.action import ActionServer
 from rclpy.node import Node
-from shr_msgs.action import NavToGoal
+from shr_msgs.action import NavigateToPose
 # from nav2_msgs.action import NavigateToPose
 import json
 import time
@@ -10,11 +10,11 @@ import zmq
 
 class Nav2ActionServer(Node):
     def __init__(self):
-        super().__init__('nav2_action_server')
+        super().__init__('nav2_zmq_action')
         self._action_server = ActionServer(
             self,
-            NavToGoal,
-            'navigate_to_goal',
+            NavigateToPose,
+            'navigate_to_pose',
             self.execute_callback)
 
         print('server initiated')
@@ -81,7 +81,7 @@ class Nav2ActionServer(Node):
         else:
             goal_handle.abort()
 
-        result = NavigateToPose.Result()
+        result = NavigateToGoalRequest.Result()
         # result.error_code = result.NONE
         return result
 

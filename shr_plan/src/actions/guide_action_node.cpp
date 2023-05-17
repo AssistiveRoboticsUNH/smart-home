@@ -20,7 +20,8 @@
 
 #include "geometry_msgs/msg/pose.hpp"
 #include "geometry_msgs/msg/pose_with_covariance_stamped.hpp"
-#include "nav2_msgs/action/navigate_to_pose.hpp"
+//#include "nav2_msgs/action/navigate_to_pose.hpp"
+#include "shr_msgs/action/navigate_to_pose.hpp"
 #include "plansys2_executor/ActionExecutorClient.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_action/rclcpp_action.hpp"
@@ -90,7 +91,7 @@ namespace guide_action {
       send_feedback(0.0, "Move starting");
 
       navigation_action_client_ =
-          rclcpp_action::create_client<nav2_msgs::action::NavigateToPose>(
+          rclcpp_action::create_client<shr_msgs::action::NavigateToPose>(
               this,
               "navigate_to_pose");
 
@@ -135,7 +136,7 @@ namespace guide_action {
     void do_work() {
     }
 
-    rclcpp_action::Client<nav2_msgs::action::NavigateToPose>::SharedPtr navigation_action_client_;
+    rclcpp_action::Client<shr_msgs::action::NavigateToPose>::SharedPtr navigation_action_client_;
     std::shared_future<shr_utils::NavigationGoalHandle::SharedPtr> future_navigation_goal_handle_;
     shr_utils::NavigationGoalHandle::SharedPtr navigation_goal_handle_;
 
@@ -144,7 +145,7 @@ namespace guide_action {
 
     rclcpp::Subscription<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr pos_sub_;
     geometry_msgs::msg::Pose current_pos_;
-    nav2_msgs::action::NavigateToPose::Goal navigation_goal_;
+    shr_msgs::action::NavigateToPose::Goal navigation_goal_;
 
     double dist_to_move;
 
