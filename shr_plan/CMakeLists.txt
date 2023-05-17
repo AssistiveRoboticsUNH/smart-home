@@ -76,6 +76,13 @@ target_link_libraries(guide_action_node
         shr_plan_parameters
         )
 
+add_executable(guide_action_node_sim src/actions/guide_action_node.cpp)
+add_compile_definitions(guide_action_node_sim USE_SIM)
+ament_target_dependencies(guide_action_node ${dependencies})
+target_link_libraries(guide_action_node
+        shr_plan_parameters
+        )
+
 
 add_executable(call_action_node src/actions/call_action_node.cpp)
 ament_target_dependencies(call_action_node ${dependencies})
