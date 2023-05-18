@@ -12,7 +12,7 @@ import functools
 from gtts import gTTS
 
 
-class ReadScriptActionServer(Node):
+class ReadScriptActionServecdr(Node):
     def __init__(self):
         super().__init__('read_script_action')
         self.declare_parameter('voice', 'voice_cmu_us_fem_cg')

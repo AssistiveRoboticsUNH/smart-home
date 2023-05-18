@@ -109,18 +109,36 @@ namespace guide_action {
 
             auto point = shr_utils::get_tf_as_point(*tf_buffer_, "map", wp_to_navigate);
             dist_to_move = getDistance(point, current_pos_);
-            auto feedback_callback = [this](
-                    shr_utils::NavigationGoalHandle::SharedPtr,
-                    shr_utils::NavigationFeedback feedback) {
-                send_feedback(std::min(1.0, std::max(0.0, 1.0 - (feedback->distance_remaining / dist_to_move))),
-                              "Move running");
-            };
+
+            #ifdef USE_SIM
+                        auto feedback_callback = [this](
+                                shr_utils::NavigationGoalHandle_sim::SharedPtr,
+                                shr_utils::NavigationFeedback_sim feedback) {
+                            send_feedback(std::min(1.0, std::max(0.0, 1.0 - (feedback->distance_remaining / dist_to_move))),
+                                          "Move running");
+                        };
+            #else
+                        auto feedback_callback = [this](
+                          shr_utils::NavigationGoalHandle::SharedPtr,
+                          shr_utils::NavigationFeedback feedback) {
+                        send_feedback(std::min(1.0, std::max(0.0, 1.0 - (feedback->distance_remaining / dist_to_move))),
+                                      "Move running");
+                      };
+            #endif
+
             auto result_callback = [this](auto) {
                 finish(true, 1.0, "Move completed");
             };
 
-            shr_utils::send_nav_request(*tf_buffer_, wp_to_navigate, now(),
-                                        navigation_action_client_, std::nullopt, feedback_callback, result_callback);
+            #ifdef USE_SIM
+                        shr_utils::send_nav_request_sim(*tf_buffer_, wp_to_navigate, now(),
+                                                    navigation_action_client_, std::nullopt, feedback_callback, result_callback);
+
+            #else
+                        shr_utils::send_nav_request(*tf_buffer_, wp_to_navigate, now(),
+                                                    navigation_action_client_, std::nullopt, feedback_callback, result_callback);
+
+            #endif
 
             return ActionExecutorClient::on_activate(previous_state);
         }
