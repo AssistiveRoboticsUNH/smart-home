@@ -42,11 +42,18 @@ set(dependencies
 add_executable(planning_controller_node src/planning_controller_node.cpp)
 ament_target_dependencies(planning_controller_node ${dependencies})
 
+add_executable(planning_controller_node_sim src/planning_controller_node.cpp)
+add_compile_definitions(planning_controller_node_sim USE_SIM)
+ament_target_dependencies(planning_controller_node_sim ${dependencies})
+
 generate_parameter_library(shr_plan_parameters
         src/shr_plan_parameters.yaml
         )
 
 target_link_libraries(planning_controller_node
+        shr_plan_parameters
+        )
+target_link_libraries(planning_controller_node_sim
         shr_plan_parameters
         )
 
@@ -69,6 +76,12 @@ ament_target_dependencies(move_action_node ${dependencies})
 target_link_libraries(move_action_node
         shr_plan_parameters
         )
+add_executable(move_action_node_sim src/actions/move_action_node.cpp)
+add_compile_definitions(move_action_node_sim USE_SIM)
+ament_target_dependencies(move_action_node_sim ${dependencies})
+target_link_libraries(move_action_node_sim
+        shr_plan_parameters
+        )
 
 add_executable(guide_action_node src/actions/guide_action_node.cpp)
 ament_target_dependencies(guide_action_node ${dependencies})
@@ -78,8 +91,8 @@ target_link_libraries(guide_action_node
 
 add_executable(guide_action_node_sim src/actions/guide_action_node.cpp)
 add_compile_definitions(guide_action_node_sim USE_SIM)
-ament_target_dependencies(guide_action_node ${dependencies})
-target_link_libraries(guide_action_node
+ament_target_dependencies(guide_action_node_sim ${dependencies})
+target_link_libraries(guide_action_node_sim
         shr_plan_parameters
         )
 
@@ -142,10 +155,13 @@ install(TARGETS
         detect_person_action_node
         guide_action_node
         move_action_node
+        guide_action_node_sim
+        move_action_node_sim
         none_action_node
         notify_automated_action_node
         notify_recorded_video_node
         planning_controller_node
+        planning_controller_node_sim
         tf_broadcaster_node
         detect_person_left_house_action_node
         check_if_person_went_to_bed_action_node

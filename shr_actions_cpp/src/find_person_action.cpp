@@ -9,7 +9,7 @@
 #include "shr_msgs/action/find_person_request.hpp"
 #include "shr_msgs/action/rotate_request.hpp"
 #include "shr_msgs/action/recognize_request.hpp"
-//#include "nav2_msgs/action/navigate_to_pose.hpp"
+#include "nav2_msgs/action/navigate_to_pose.hpp"
 #include "shr_msgs/action/navigate_to_pose.hpp"
 #include "shr_utils/utils.hpp"
 
@@ -38,8 +38,15 @@ namespace find_person_request {
                     std::bind(&FindPersonRequestActionServer::handle_cancel, this, _1),
                     std::bind(&FindPersonRequestActionServer::handle_accepted, this, _1));
 
-            navigation_action_client_ = rclcpp_action::create_client<shr_msgs::action::NavigateToPose>(
-                    this, "navigate_to_pose");
+
+            #ifdef USE_SIM
+                navigation_action_client_ = rclcpp_action::create_client<nav2_msgs::action::NavigateToPose>(
+                        this, "navigate_to_pose");
+            #else
+                navigation_action_client_ = rclcpp_action::create_client<shr_msgs::action::NavigateToPose>(
+                        this, "navigate_to_pose");
+            #endif
+
             rotate_client_ = rclcpp_action::create_client<shr_msgs::action::RotateRequest>(
                     this, "rotate");
             recognize_face_client_ = rclcpp_action::create_client<shr_msgs::action::RecognizeRequest>(
@@ -59,7 +66,11 @@ namespace find_person_request {
 
     private:
         rclcpp_action::Server<FindPersonRequest>::SharedPtr action_server_;
-        rclcpp_action::Client<shr_msgs::action::NavigateToPose>::SharedPtr navigation_action_client_;
+        #ifdef USE_SIM
+                rclcpp_action::Client<nav2_msgs::action::NavigateToPose>::SharedPtr navigation_action_client_;
+        #else
+                rclcpp_action::Client<shr_msgs::action::NavigateToPose>::SharedPtr navigation_action_client_;
+        #endif
         rclcpp_action::Client<shr_msgs::action::RotateRequest>::SharedPtr rotate_client_;
         rclcpp_action::Client<shr_msgs::action::RecognizeRequest>::SharedPtr recognize_face_client_;
 
@@ -209,9 +220,17 @@ namespace find_person_request {
                 }
             };
             *location_ind = (*location_ind + 1) % goal->locations.size();
-            shr_utils::send_nav_request(*tf_buffer_, goal->locations[*location_ind], now(),
+            #ifdef USE_SIM
+                        shr_utils::send_nav_request_sim(*tf_buffer_, goal->locations[*location_ind], now(),
                                         navigation_action_client_,
                                         goal_response_callback, std::nullopt, result_callback);
+
+            #else
+                        shr_utils::send_nav_request(*tf_buffer_, goal->locations[*location_ind], now(),
+                                        navigation_action_client_,
+                                        goal_response_callback, std::nullopt, result_callback);
+            #endif
+
             *moving = true;
         }
 
