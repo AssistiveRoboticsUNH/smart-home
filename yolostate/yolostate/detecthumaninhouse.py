@@ -10,6 +10,7 @@ from std_msgs.msg import Float32MultiArray, String
 from yolostate.yolo_human_detect import HumanDetector
 from ament_index_python.packages import get_package_share_directory
 from rclpy.executors import MultiThreadedExecutor, SingleThreadedExecutor
+import sys
 
 '''
 ROS2 node, 
@@ -26,6 +27,9 @@ ros2 run yolostate detecthuman --ros-args -p camera:=/smart_home/camera/color/im
 class DetectHumanLoc(Node):
     def __init__(self, yh, node_name, sub_topic_name):
         super().__init__('detecthumaninhouse')
+
+        # self.declare_parameter('sim', 'default_value')
+        # sim = self.get_parameter('sim').value
 
         self.node = rclpy.create_node(node_name)
 
@@ -171,13 +175,29 @@ def main(args=None):
     data_path = os.path.join(current_dir, 'yolodata')
     yh = HumanDetector(data_path)
 
-    node_living_room = DetectHumanLoc(yh, 'living_room_cam', '/unity_camera_living_room/color/image_raw')
+    # if len(sys.argv) > 1:
+    #     sim = sys.argv[1]
+    # else:
+    sim = True
 
-    node_kitchen = DetectHumanLoc(yh, 'kitchen_cam', '/unity_camera_kitchen/color/image_raw')
+    if sim:
+        node_living_room = DetectHumanLoc(yh, 'living_room_cam', '/unity_camera_living_room/color/image_raw')
 
-    node_bedroom = DetectHumanLoc(yh, 'bedroom_cam', '/unity_camera_bedroom/color/image_raw')
+        node_kitchen = DetectHumanLoc(yh, 'kitchen_cam', '/unity_camera_kitchen/color/image_raw')
 
-    node_dining_room = DetectHumanLoc(yh, 'dining_room_cam', '/unity_camera_dining_room/color/image_raw')
+        node_bedroom = DetectHumanLoc(yh, 'bedroom_cam', '/unity_camera_bedroom/color/image_raw')
+
+        node_dining_room = DetectHumanLoc(yh, 'dining_room_cam', '/unity_camera_dining_room/color/image_raw')
+
+    else:
+
+        node_living_room = DetectHumanLoc(yh, 'living_room_cam', '/camera_living_room/color/image_raw')
+
+        node_kitchen = DetectHumanLoc(yh, 'kitchen_cam', '/camera_kitchen/color/image_raw')
+
+        node_bedroom = DetectHumanLoc(yh, 'bedroom_cam', '/camera_bedroom/color/image_raw')
+
+        node_dining_room = DetectHumanLoc(yh, 'dining_room_cam', '/camera_dining_room/color/image_raw')
 
     node_hum_loc = GetLoc('loc', 'human_loc_from_cams')
 
