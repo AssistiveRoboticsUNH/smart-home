@@ -13,7 +13,7 @@ from shr_msgs.msg import WorldState
 import datetime
 import time
 
-from shr_world_state_parameters import parameters
+from shr_world_state.shr_world_state_parameters import parameters
 
 
 class SensorData:
@@ -111,7 +111,7 @@ class WorldStateNode(Node):
 
     def pill_motion_callback(self, msg):
         if msg.data:
-            self.world_state.patient_location = self.world_state.kitchen_location
+            self.world_state.patient_location = self.world_state.medicine_location
             self.patient_located_time = time.time()
 
         if self.sensor_data.pills_motion_sensor != msg.data:
