@@ -39,3 +39,11 @@ repositories:
     type: git
     url: https://github.com/IntelRealSense/realsense-ros.git
     version: ros2-development
+  external/tapo_cam_ros_wrapper:
+    type: git
+    url:  https://github.com/olaghattas/tapo_cam_ros_wrapper.git
+    version: master
+  external/generate_parameter_library:
+    type: git
+    url: https://github.com/PickNikRobotics/generate_parameter_library.git
+    version: main
