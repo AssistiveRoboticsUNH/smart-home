@@ -15,6 +15,8 @@
     (unknown (person_decides_to_return_2))
     (unknown (person_decides_to_go_to_bed_1))
     (unknown (person_decides_to_go_to_bed_2))
+    (unknown (person_goes_to_bed_after_return_1))
+    (unknown (person_goes_to_bed_after_return_2))
 )
 (:goal (success)
 )
