@@ -45,5 +45,5 @@ repositories:
     version: master
   external/generate_parameter_library:
     type: git
-    url: https://github.com/PickNikRobotics/generate_parameter_library.git
-    version: main
+    url: https://github.com/pac48/generate_parameter_library.git
+    version: fix-python-install
