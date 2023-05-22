@@ -23,9 +23,9 @@
   <depend>shr_msgs</depend>
 
   <exec_depend>rosidl_default_runtime</exec_depend>
-  <exec_depend>gTTS</exec_depend>
-  <exec_depend>twilio</exec_depend>
-  <exec_depend>face_recognition</exec_depend>
+  <exec_depend>python-gTTS-pip</exec_depend>
+  <exec_depend>python-twilio-pip</exec_depend>
+  <exec_depend>python-face-recognition-pip</exec_depend>
 
 
   <member_of_group>rosidl_interface_packages</member_of_group>
