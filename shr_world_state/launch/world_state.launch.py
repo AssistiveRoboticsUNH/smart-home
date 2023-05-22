@@ -23,4 +23,7 @@ def generate_launch_description():
     ld.add_action(IncludeLaunchDescription(
         PythonLaunchDescriptionSource(os.path.join(yolostate_path, 'launch', 'detecthuman.launch.py'))))
 
+    ld.add_action(IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(os.path.join(yolostate_path, 'launch', 'detecthumaninhouse.launch.py'))))
+
     return ld
