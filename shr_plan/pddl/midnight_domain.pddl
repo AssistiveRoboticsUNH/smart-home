@@ -344,7 +344,7 @@
 
 
  ;;Update success status
- (:action InitCheckBedAfterReturn
+ (:action InitCheckBedAfterReturn1
  :parameters  (?p - person ?loc - landmark)
   	:precondition (and
   		(door_location ?loc)
@@ -355,7 +355,7 @@
 )
 
  ;;notify_check
- (:action CheckBedAfterReturn
+ (:action CheckBedAfterReturn1
  :parameters ()
      :precondition (and
 		 (init_check_bed_after_return)
@@ -373,7 +373,7 @@
                  (success))
 )
 ;;call caregiver and ask person to go to sleep
-(:action callCaregiverAskToGoToBedAfterReturn
+(:action callCaregiverAskToGoToBedAfterReturn1
     :parameters (?p - person)
     :precondition (and
                 (init_check_bed_after_return)

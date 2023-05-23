@@ -319,6 +319,8 @@ namespace planning_controller {
                 problem_expert_->addConditional(plansys2::Unknown("(unknown (person_decides_to_return_2))"));
                 problem_expert_->addConditional(plansys2::Unknown("(unknown (person_decides_to_go_to_bed_1))"));
                 problem_expert_->addConditional(plansys2::Unknown("(unknown (person_decides_to_go_to_bed_2))"));
+                problem_expert_->addConditional(plansys2::Unknown("(unknown (person_goes_to_bed_after_return_1))"));
+                problem_expert_->addConditional(plansys2::Unknown("(unknown (person_goes_to_bed_after_return_2))"));
 
                 problem_expert_->setGoal(plansys2::Goal("(and (success) )"));
 
