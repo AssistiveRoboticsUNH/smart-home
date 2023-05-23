@@ -16,7 +16,7 @@ class DetectPersonaAtBedSide(Node):
     def __init__(self):
         super().__init__('detect_person_at_bed_side_node')
 
-        self.pub_ = self.create_publisher(Bool, '/observe/bed_after_returning"', 10)
+        self.pub_ = self.create_publisher(Bool, '/observe/bed_after_returning', 10)
 
         self.subscriber_eat = self.create_subscription(Bool, '/smartthings_sensors_motion_bed_side',
                                                        self.pill_callback, 10)

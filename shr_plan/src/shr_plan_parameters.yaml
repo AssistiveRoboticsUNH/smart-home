@@ -126,34 +126,34 @@ shr_plan_parameters:
   notify_recorded_actions:
     actions: {
       type: string_array,
-      default_value: [ "notifyrecordedmedicineat", "remindautomatedfoodat2", "notifyrecordedmidnightat" ],
+      default_value: [ "notifyrecordedmedicineat", "remindautomatedfoodat2", "notifyrecordedmidnightat" , "checkbedafterreturn1", "checkbedafterreturn2"],
       description: "list of pddl notify recorded actions",
     }
     file_names: {
       type: string_array,
-      default_value: [ "medicine_reminder.mp3", "food_reminder.mp3", "midnight_reminder.mp3" ],
+      default_value: [ "medicine_reminder.mp3", "food_reminder.mp3", "midnight_reminder.mp3", "midnight_reminder.mp3",  "midnight_reminder.mp3" ],
       description: "list of file names",
     }
     wait_times: {
       type: double_array,
-      default_value: [ 10.0, 10.0, 10.0 ],
+      default_value: [ 10.0, 10.0, 10.0, 10.0, 10.0 ],
       description: "list wait times after prompting",
     }
     topics: {
       type: string_array,
-      default_value: [ "/observe/pill_detection", "/observe/eat_detection",  "/decided_to_go_back_to_sleep" ],
+      default_value: [ "/observe/pill_detection", "/observe/eat_detection",  "/decided_to_go_back_to_sleep" , "/observe/bed_after_returning", "/observe/bed_after_returning"],
       description: "topic for sensor ",
     }
 
   notify_automated_actions:
     actions: {
       type: string_array,
-      default_value: [ "notifyautomatedmedicineat", "remindautomatedfoodat", "notifyautomatedmidnightat", "checkbedafterreturn1", "checkbedafterreturn2"],
+      default_value: [ "notifyautomatedmedicineat", "remindautomatedfoodat", "notifyautomatedmidnightat"],
       description: "list of pddl notify recorded actions",
     }
     script_names: {
       type: string_array,
-      default_value: [ "medicine_reminder.txt", "food_reminder.txt", "midnight_reminder.txt", "return_to_bed_reminder.txt" ],
+      default_value: [ "medicine_reminder.txt", "food_reminder.txt", "midnight_reminder.txt" ],
       description: "list of script names",
     }
     wait_times: {
@@ -163,7 +163,7 @@ shr_plan_parameters:
     }
     topics: {
       type: string_array,
-      default_value: [ "/observe/pill_detection", "/observe/eat_detection",  "/decided_to_go_back_to_sleep", "/observe/bed_after_returning", "/observe/bed_after_returning" ],
+      default_value: [ "/observe/pill_detection", "/observe/eat_detection",  "/decided_to_go_back_to_sleep" ],
       description: "topic for sensor ",
     }
 
