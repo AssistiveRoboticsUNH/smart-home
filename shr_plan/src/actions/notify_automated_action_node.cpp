@@ -94,13 +94,11 @@ private:
                 finish(true, 1.0, "Person took medicine");
             } else if (sensor_topic_ == "/observe/eat_detection") {
                 finish(true, 1.0, "Person ate food");
-            }else if (sensor_topic_ == "/observe/bed_after_returning") {
-                finish(true, 1.0, "Person went to bed after returning home");
             }
         }
 
-// because wandering is not an observed action so no need to check sensor is always true (it is not an observe action )
         if (time_diff.seconds() > wait_time_ && !waiting_for_response_) {
+// because wandering is not an observed action so no need to check sensor is always true (it is not an observe action )
             if (sensor_topic_ == "/decided_to_go_back_to_sleep") {
                 finish(true, 1.0, "Person returned back to sleep after wandering");
             } else {
