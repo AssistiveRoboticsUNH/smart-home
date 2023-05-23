@@ -12,16 +12,16 @@ import time
 # from rclpy.exceptions import ParameterNotDeclaredException
 
 
-class DetectEating(Node):
+class DetectTakingPill(Node):
     def __init__(self):
-        super().__init__('detect_eating_real_node')
+        super().__init__('detect_taking_pill_real_node')
         print('#########################################')
 
-        self.pub_ = self.create_publisher(Bool, '/observe/eat_detection', 10)
+        self.pub_ = self.create_publisher(Bool, '/observe/pill_detection', 10)
 
-        self.subscriber_eat = self.create_subscription(Bool, '/smartthings_sensors_motion_eat',
-                                                       self.eat_callback, 10)
-        self.eat_motion_sensor = False
+        self.subscriber_eat = self.create_subscription(Bool, '/smartthings_sensors_motion_pills',
+                                                       self.pill_callback, 10)
+        self.pill_motion_sensor = False
 
         ip_address = "192.168.1.34"
         username = 'Dining'
@@ -31,13 +31,13 @@ class DetectEating(Node):
         timer_period = 2
         self.timer = self.create_timer(timer_period, self.camera_real)
 
-    def eat_callback(self, msg):
+    def pill_callback(self, msg):
         print('callllbackk', msg.data)
-        self.eat_motion_sensor = msg.data
+        self.pill_motion_sensor = msg.data
 
     def camera_real(self):
-        if self.eat_motion_sensor:
-            print('here', self.eat_motion_sensor)
+        if self.pill_motion_sensor:
+            print('here', self.pill_motion_sensor)
             cap = cv2.VideoCapture(self.link, cv2.CAP_FFMPEG)
             print(2)
 
@@ -47,7 +47,7 @@ class DetectEating(Node):
 
             # frame = self.cap
 
-            # Eating counter variables
+            # Taking pill counter variables
             counter_right = 0
             counter_left = 0
 
@@ -131,7 +131,7 @@ class DetectEating(Node):
                         cv2.line(image, tuple(map(int, Left_wrist)), tuple(map(int, mid_mouth)), color=(0, 225, 255),
                                  thickness=2)
 
-                        threshold = 5
+                        threshold = 1
                         msg = Bool()
                         if counter_right > threshold or counter_right > threshold:
                             msg.data = True
@@ -151,7 +151,7 @@ class DetectEating(Node):
 
                         self.pub_.publish(msg)
 
-                    # Render eating counter
+                    # Render pill taking counter
                     # Setup status box
                     cv2.rectangle(image, (0, 0), (225, 73), (245, 117, 16), -1)
 
@@ -178,9 +178,9 @@ class DetectEating(Node):
 
 def main(args=None):
     rclpy.init(args=None)
-    detection_eating = DetectEating()
+    detection_pill_taking = DetectTakingPill()
     print('mains')
-    rclpy.spin(detection_eating)
+    rclpy.spin(detection_pill_taking)
 
 
 if __name__ == '__main__':
