@@ -18,7 +18,7 @@ class DetectTakingPill(Node):
 
         self.pub_ = self.create_publisher(Bool, '/observe/pill_detection', 10)
 
-        self.subscriber_eat = self.create_subscription(Bool, '/smartthings_sensors_motion_pills',
+        self.subscriber_pill = self.create_subscription(Bool, '/smartthings_sensors_motion_pills',
                                                        self.pill_callback, 10)
         self.pill_motion_sensor = False
 
@@ -36,12 +36,15 @@ class DetectTakingPill(Node):
 
         # Used to convert between ROS and OpenCV images
         self.br = CvBridge()
+
         self.stage_left = None
         self.stage_right = None
 
         # Eating counter variables
         self.counter_right = 0
         self.counter_left = 0
+
+
 
 
 
