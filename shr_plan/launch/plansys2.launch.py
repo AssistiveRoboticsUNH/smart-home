@@ -134,7 +134,6 @@ def generate_launch_description():
             name='find_person_node',
             output='screen')
     else:
-
         moveto_landmark_cmd = Node(
             package='shr_plan',
             executable='move_action_node',
@@ -206,7 +205,6 @@ def generate_launch_description():
         executable='wait_for_person_to_return_node',
         name='wait_for_person_to_return_node',
         output='screen')
-
 
     ld = LaunchDescription()
     ld.add_action(sim_arg)
