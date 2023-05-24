@@ -19,13 +19,8 @@ class DetectPersonaAtBedSide(Node):
         self.pub_ = self.create_publisher(Bool, '/observe/bed_after_returning', 10)
 
         self.subscriber_eat = self.create_subscription(Bool, '/smartthings_sensors_motion_bed_side',
-                                                       self.pill_callback, 10)
+                                                       self.bed_side_callback, 10)
         self.bed_side_motion_sensor = False
-
-        self.declare_parameter('camera',
-                               '/unity_camera_kitchen/color/image_raw')  # '/smart_home/camera/color/image_raw')
-
-        param_camera_topic = self.get_parameter('camera').value
 
         # Used to convert between ROS and OpenCV images
         self.br = CvBridge()

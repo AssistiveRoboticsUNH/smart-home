@@ -178,7 +178,7 @@ def main(args=None):
     # if len(sys.argv) > 1:
     #     sim = sys.argv[1]
     # else:
-    sim = True
+    sim = False
 
     if sim:
         node_living_room = DetectHumanLoc(yh, 'living_room_cam', '/unity_camera_living_room/color/image_raw')

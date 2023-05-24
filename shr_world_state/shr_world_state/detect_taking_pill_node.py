@@ -12,54 +12,51 @@ import time
 # from rclpy.exceptions import ParameterNotDeclaredException
 
 
-class DetectEating(Node):
+class DetectTakingPill(Node):
     def __init__(self):
-        super().__init__('detect_eating_sim_node')
+        super().__init__('detect_taking_pill_node')
 
-        self.pub_ = self.create_publisher(Bool, '/observe/eat_detection', 10)
+        self.pub_ = self.create_publisher(Bool, '/observe/pill_detection', 10)
 
-        self.subscriber_eat = self.create_subscription(Bool, '/smartthings_sensors_motion_eat',
-                                                       self.eat_callback, 10)
-        self.eat_motion_sensor = False
+        self.subscriber_eat = self.create_subscription(Bool, '/smartthings_sensors_motion_pills',
+                                                       self.pill_callback, 10)
+        self.pill_motion_sensor = False
 
         self.declare_parameter('camera',
-                               '/unity_camera_dining_room/color/image_raw')  # '/smart_home/camera/color/image_raw')
+                               '/camera_kitchen/color/image_raw')  # '/smart_home/camera/color/image_raw')
 
         param_camera_topic = self.get_parameter('camera').value
 
         self.subscription = self.create_subscription(
             Image,
             param_camera_topic,
-            self.camera_sim_callback,
+            self.camera_callback,
             10)
         self.subscription  # prevent unused variable warning
 
         # Used to convert between ROS and OpenCV images
         self.br = CvBridge()
+        self.stage_left = None
+        self.stage_right = None
+
+        # Eating counter variables
+        self.counter_right = 0
+        self.counter_left = 0
 
 
 
-    def eat_callback(self, msg):
+    def pill_callback(self, msg):
         print('callllbackk', msg.data)
-        self.eat_motion_sensor = msg.data
+        self.pill_motion_sensor = msg.data
 
-    def camera_sim_callback(self, data):
-        if self.eat_motion_sensor:
+    def camera_callback(self, data):
+        if self.pill_motion_sensor:
             print(2)
             frame = self.br.imgmsg_to_cv2(data)
 
             mpPose = mp.solutions.pose
             pose = mpPose.Pose()
             mpDraw = mp.solutions.drawing_utils
-
-            # frame = self.cap
-
-            # Eating counter variables
-            counter_right = 0
-            counter_left = 0
-
-            stage_left = None
-            stage_right = None
 
             # Setup mediapipe instance
             with mpPose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as pose:
@@ -102,28 +99,45 @@ class DetectEating(Node):
 
                     threshold = 0.05
                     # Curl counter logic
-                    if Left_wrist_mouth < threshold:
-                        stage_left = "near"
-                    if Left_wrist_mouth > threshold and stage_left == 'near':
-                        stage_left = "far"
-                        counter_left += 1
 
+                    if Left_wrist_mouth < threshold:
+                        self.stage_left = "near"
+                    if Left_wrist_mouth > threshold and self.stage_left == 'near':
+                        self.stage_left = "far"
+                        self.counter_left += 1
+                    print("stage", self.stage_left)
                     if Right_wrist_mouth < threshold:
-                        stage_right = "near"
-                    if Right_wrist_mouth > threshold and stage_right == 'near':
-                        stage_right = "far"
-                        counter_right += 1
-                        print(counter_right)
+                        self.stage_right = "near"
+                    if Right_wrist_mouth > threshold and self.stage_right == 'near':
+                        self.stage_right = "far"
+                        self.counter_right += 1
+                        print(self.counter_right)
 
                     # Render detections
 
-                    mpDraw.draw_landmarks(image, results.pose_landmarks, mpPose.POSE_CONNECTIONS,
-                                          mpDraw.DrawingSpec(color=(245, 117, 66), thickness=2, circle_radius=2),
-                                          mpDraw.DrawingSpec(color=(245, 66, 230), thickness=2, circle_radius=2)
-                                          )
+                    # mpDraw.draw_landmarks(image, results.pose_landmarks, mpPose.POSE_CONNECTIONS,
+                    #                       mpDraw.DrawingSpec(color=(245, 117, 66), thickness=2, circle_radius=2),
+                    #                       mpDraw.DrawingSpec(color=(245, 66, 230), thickness=2, circle_radius=2)
+                    #                       )
 
-                    cv2.line(image, tuple(map(int, Left_wrist)), tuple(map(int, mid_mouth)), color=(0, 0, 255),
-                             thickness=2)
+                    specific_landmarks = [mpPose.PoseLandmark.MOUTH_RIGHT,
+                                          mpPose.PoseLandmark.MOUTH_LEFT,
+                                          mpPose.PoseLandmark.RIGHT_WRIST,
+                                          mpPose.PoseLandmark.LEFT_WRIST,
+                                          ]
+
+                    # Render the specific landmark points
+                    mp_drawing = mp.solutions.drawing_utils
+                    drawing_spec = mp_drawing.DrawingSpec(color=(245, 117, 66), thickness=2, circle_radius=2)
+
+                    for landmark in specific_landmarks:
+                        landmark_point = results.pose_landmarks.landmark[landmark]
+                        x_px, y_px = int(landmark_point.x * image.shape[1]), int(landmark_point.y * image.shape[0])
+                        cv2.circle(image, (x_px, y_px), drawing_spec.circle_radius, drawing_spec.color, drawing_spec.thickness)
+
+
+                        cv2.line(image, tuple(map(int, Left_wrist)), tuple(map(int, mid_mouth)), color=(0, 0, 255),
+                                 thickness=2)
                     cv2.line(image, tuple(map(int, Left_wrist)), tuple(map(int, mid_mouth)), color=(0, 225, 255),
                              thickness=2)
 
@@ -135,10 +149,10 @@ class DetectEating(Node):
                 # Rep data
                 cv2.putText(image, 'REPS', (15, 12),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv2.LINE_AA)
-                cv2.putText(image, str(counter_left),
+                cv2.putText(image, str(self.counter_left),
                             (10, 60),
                             cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), 2, cv2.LINE_AA)
-                cv2.putText(image, str(counter_right),
+                cv2.putText(image, str(self.counter_right),
                             (100, 60),
                             cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), 2, cv2.LINE_AA)
 
@@ -152,11 +166,10 @@ class DetectEating(Node):
                 cv2.imshow('Mediapipe Feed', image)
                 print('media')
                 cv2.waitKey(1)
-                threshold = 5
+                threshold_rep = 1
                 msg = Bool()
-                if counter_right > threshold or counter_right > threshold:
+                if self.counter_right > threshold_rep or self.counter_right > threshold_rep:
                     msg.data = True
-
                 else:
                     msg.data = False
                 self.pub_.publish(msg)
@@ -164,9 +177,9 @@ class DetectEating(Node):
 
 def main(args=None):
     rclpy.init(args=None)
-    detection_eating = DetectEating()
+    detection_pill_taking = DetectTakingPill()
     print('mains')
-    rclpy.spin(detection_eating)
+    rclpy.spin(detection_pill_taking)
 
 
 if __name__ == '__main__':

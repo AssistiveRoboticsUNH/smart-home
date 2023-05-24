@@ -28,10 +28,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': ['world_state_node = shr_world_state.world_state_node:main',
-                            'detect_eating_sim_node = shr_world_state.detect_eating_sim_node:main',
-                            'detect_eating_real_node = shr_world_state.detect_eating_real_node:main',
-                            'detect_taking_pill_sim_node = shr_world_state.detect_taking_pill_sim_node:main',
-                            'detect_taking_pill_real_node = shr_world_state.taking_pill_real_node:main',
+                            'detect_eating_node = shr_world_state.detect_eating_node:main',
+                            'detect_taking_pill_node = shr_world_state.detect_taking_pill_node:main',
                             'detect_bed_after_returning_node = shr_world_state.detect_bed_after_returning_node:main'
                             ],
     },
