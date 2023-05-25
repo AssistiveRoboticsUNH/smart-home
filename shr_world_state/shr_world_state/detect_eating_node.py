@@ -61,6 +61,10 @@ class DetectEating(Node):
         print('callllbackk', msg.data)
         self.eat_motion_sensor = msg.data
 
+    def pill_callback(self, msg):
+        print('callllbackk', msg.data)
+        self.pill_motion_sensor = msg.data
+
     def camera_callback(self, data):
         if self.eat_motion_sensor:
             frame = self.br.imgmsg_to_cv2(data)
