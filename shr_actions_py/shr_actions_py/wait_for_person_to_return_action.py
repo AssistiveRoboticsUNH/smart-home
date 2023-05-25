@@ -27,7 +27,9 @@ class PersonReturnedToHouseActionServer(Node):
         #     self.human_coords = msg.data
         if msg.data != 'outside':
             self.human_back = True
-            print("person_vack")
+            print("person_back")
+        else:
+            self.human_back = False
     #
     # def yolo_sub_callback(self, msg):
     #     if len(msg.data) > 0 and sum(msg.data) != 0:

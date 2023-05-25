@@ -26,24 +26,27 @@ class DetectLeftHouseActionServer(Node):
         return CancelResponse.ACCEPT
 
     def hum_loc_callback(self, msg):
+        print(msg.data, msg.data)
         if msg.data == 'outside':
             self.human_outside = True
-            print('outside')
+            # print('outside')
+        else:
+            self.human_outside = False
 
     def callback(self, goal_handle):
-        print('callback')
+        # print('callback')
         result = DetectLeftHouseRequest.Result()
         timeout = goal_handle.request.timeout
 
         start_time = time.time()
         while time.time() - start_time < timeout:
             if goal_handle.is_cancel_requested:
-                print('can')
+                # print('can')
                 goal_handle.canceled()
                 self.get_logger().info('Goal canceled')
                 return DetectLeftHouseRequest.Result()
             if self.human_outside:
-                print('fail')
+                # print('fail')
                 result.status = "success"
                 goal_handle.succeed()
                 return result
