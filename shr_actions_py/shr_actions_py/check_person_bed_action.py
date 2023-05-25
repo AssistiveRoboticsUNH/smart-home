@@ -16,13 +16,13 @@ class CheckPersonInBedActionServer(Node):
         super().__init__('check_person_bed_action')
         self.action_server = ActionServer(self, CheckPersonInBedRequest, 'in_bed',
                                           self.callback, cancel_callback=self.cancel_callback)
-        self.create_subscription(Bool, 'smartthings_sensors_bed_side',
+        self.create_subscription(Bool, 'smartthings_sensors_motion_bed_side',
                                  self.bed_side_motion_callback, 10)
         self.motion_detected = False
 
     def bed_side_motion_callback(self, msg):
-        if msg.data:
-            self.motion_detected = msg.data
+        print(msg.data)
+        self.motion_detected = msg.data
 
     def cancel_callback(self, goal_handle):
         self.get_logger().info('Received cancel request')
@@ -35,11 +35,15 @@ class CheckPersonInBedActionServer(Node):
         start_time = time.time()
 
         while time.time() - start_time < timeout:
+            # print(time.time() - start_time)
+            # # print('loop')
+            # print(self.motion_detected, 'motion')
             if goal_handle.is_cancel_requested:
                 goal_handle.canceled()
                 self.get_logger().info('Goal canceled')
                 return CheckPersonInBedRequest.Result()
             if self.motion_detected:
+                # print('motion detected true')
                 result.status = "success"
                 goal_handle.succeed()
                 return result

@@ -19,13 +19,13 @@ def generate_launch_description():
 
     ld.add_action(world_state_node)
 
-    detect_eating_node = Node(
-        package="shr_world_state",
-        executable="detect_eating_node",
-        name="detect_eating_node",
-        output="log"
-    )
-    ld.add_action(detect_eating_node)
+    # detect_eating_node = Node(
+    #     package="shr_world_state",
+    #     executable="detect_eating_node",
+    #     name="detect_eating_node",
+    #     output="log"
+    #)
+    # ld.add_action(detect_eating_node)
 
     # detect_taking_pill_node = Node(
     #     package="shr_world_state",
@@ -49,7 +49,7 @@ def generate_launch_description():
     ld.add_action(IncludeLaunchDescription(
         PythonLaunchDescriptionSource(os.path.join(yolostate_path, 'launch', 'detecthuman.launch.py'))))
 
-    ld.add_action(IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(os.path.join(yolostate_path, 'launch', 'detecthumaninhouse.launch.py'))))
+    # ld.add_action(IncludeLaunchDescription(
+    #     PythonLaunchDescriptionSource(os.path.join(yolostate_path, 'launch', 'detecthumaninhouse.launch.py'))))
 
     return ld
