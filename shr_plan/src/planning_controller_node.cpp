@@ -307,6 +307,17 @@ namespace planning_controller {
                 problem_expert_->addPredicate(plansys2::Predicate("(robot_at pioneer home)"));
                 problem_expert_->addPredicate(plansys2::Predicate(
                         "(person_at " + world_state_.patient_name + " " + world_state_.door_location + ")"));
+/// kermel yamel detection aal door
+                std::string oneof_pred = "(oneof ";
+                for (const auto &loc: search_locations) {
+                    auto pred = "(person_at " + world_state_.patient_name + " " + loc + ")";
+                    oneof_pred += pred;
+                    problem_expert_->addConditional(plansys2::Unknown("(unknown " + pred + ")"));
+                }
+                oneof_pred += ")";
+                problem_expert_->addConditional(plansys2::OneOf(oneof_pred));
+
+
                 problem_expert_->addPredicate(
                         plansys2::Predicate("(door_location " + world_state_.door_location + ")"));
 //            if (world_state_.door_open == 1) {
