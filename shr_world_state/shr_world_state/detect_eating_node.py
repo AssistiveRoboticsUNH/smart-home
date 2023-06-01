@@ -21,6 +21,7 @@ class DetectEating(Node):
         self.subscriber_eat = self.create_subscription(Bool, '/smartthings_sensors_motion_eat',
                                                        self.eat_callback, 10)
 
+
         self.eat_motion_sensor = False
 
         self.subscription = self.create_subscription(

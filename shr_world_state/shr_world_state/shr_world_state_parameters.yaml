@@ -48,6 +48,11 @@ parameters:
     description: "topic for detecting pills being taken",
   }
 
+  too_late_to_leave_time: {
+    type: string,
+    default_value: "20h30m",
+    description: "topic for detecting pills being taken",
+  }
 
 
 

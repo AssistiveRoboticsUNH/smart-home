@@ -24,6 +24,7 @@ set(msg_files
         msg/ActionRecord.msg
         msg/WorldState.msg
         msg/LocationFromCamera.msg
+        msg/SuccessProtocol.msg
         )
 
 set(action_files

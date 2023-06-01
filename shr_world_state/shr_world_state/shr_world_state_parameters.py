@@ -27,6 +27,7 @@ class parameters:
         take_medication_time = "8h15m"
         eat_time = ["9h30m", "14h30m", "16h30m"]
         bedroom_location = "bedroom_robot_pos"
+        too_late_to_leave_time = "20h30m"
 
 
 
@@ -101,6 +102,10 @@ class parameters:
                     updated_params.bedroom_location = param.value
                     self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
 
+                if param.name == self.prefix_ + "too_late_to_leave_time":
+                    updated_params.too_late_to_leave_time = param.value
+                    self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
+
 
 
             updated_params.stamp_ = self.clock_.now()
@@ -158,6 +163,11 @@ class parameters:
                 parameter = updated_params.bedroom_location
                 self.node_.declare_parameter(self.prefix_ + "bedroom_location", parameter, descriptor)
 
+            if not self.node_.has_parameter(self.prefix_ + "too_late_to_leave_time"):
+                descriptor = ParameterDescriptor(description="topic for detecting pills being taken", read_only = False)
+                parameter = updated_params.too_late_to_leave_time
+                self.node_.declare_parameter(self.prefix_ + "too_late_to_leave_time", parameter, descriptor)
+
             # TODO: need validation
             # get parameters and fill struct fields
             param = self.node_.get_parameter(self.prefix_ + "patient_name")
@@ -187,6 +197,9 @@ class parameters:
             param = self.node_.get_parameter(self.prefix_ + "bedroom_location")
             self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
             updated_params.bedroom_location = param.value
+            param = self.node_.get_parameter(self.prefix_ + "too_late_to_leave_time")
+            self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
+            updated_params.too_late_to_leave_time = param.value
 
 
             self.update_internal_params(updated_params)
