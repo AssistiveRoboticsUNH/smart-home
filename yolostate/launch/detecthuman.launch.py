@@ -29,7 +29,6 @@ def generate_launch_description():
     )
 
     ld.add_action(run_detecthumaninhouse)
-
     ld.add_action(download_weights_if_necessary)
     ld.add_action(run_detecthuman)
 

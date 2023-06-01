@@ -74,19 +74,19 @@ class WorldStateNode(Node):
         tmp_eat_dinner = self.params.eat_time[2]
         self.eat_time_dinner = 60 * int(tmp_eat_dinner.split('h')[0]) + int(tmp_eat_dinner.split('h')[1][:-1])
 
-        tmp_too_late_to_leave = self.params.too_late_to_leave_time[0]
+        tmp_too_late_to_leave = self.params.too_late_to_leave_time
         self.too_late_to_leave = 60 * int(tmp_too_late_to_leave.split('h')[0]) + int(tmp_too_late_to_leave.split('h')[1][:-1])
 
 
         ## Subscribe to sensors
         self.subscriber_motion_door = self.create_subscription(Bool, '/smartthings_sensors_motion_door',
                                                                self.door_motion_callback, 10)
-        self.subscriber_motion_pills = self.create_subscription(Bool, '/smartthings_sensors_motion_pills',
-                                                                self.pill_motion_callback, 10)
+        # self.subscriber_motion_pills = self.create_subscription(Bool, '/smartthings_sensors_motion_pills',
+        #                                                         self.pill_motion_callback, 10)
         self.subscriber_sensor_door = self.create_subscription(Bool, '/smartthings_sensors_door',
                                                                self.door_open_callback, 10)
-        self.subscriber_eat = self.create_subscription(Bool, '/smartthings_sensors_motion_eat',
-                                                       self.food_callback, 10)
+        # self.subscriber_eat = self.create_subscription(Bool, '/smartthings_sensors_motion_eat',
+        #                                                self.food_callback, 10)
         self.subscriber_motion_bedside = self.create_subscription(Bool, '/smartthings_sensors_motion_bed_side',
                                                                   self.bedside_motion_callback, 10)
 
@@ -150,7 +150,7 @@ class WorldStateNode(Node):
             self.sensor_data.pill_sensor = msg.data
             self.publish_world_state(sensor_data=self.sensor_data)
 
-    def observe_eat_callback(self, msg):
+    def observe_eating_callback(self, msg):
         if msg.data:
             self.world_state.patient_location = self.world_state.eat_location
             self.patient_located_time = time.time()
