@@ -225,7 +225,7 @@
 )
 (:action updatePersonLocation1
     :parameters (?p - person ?loc - landmark)
-    :precondition (and 
+    :precondition (and
 	                (door_location ?loc)
     			(person_decides_to_return_1)
 		)
@@ -233,7 +233,7 @@
 )
 (:action updatePersonLocation2
     :parameters (?p - person ?loc - landmark)
-    :precondition (and 
+    :precondition (and
 	                (door_location ?loc)
     			(person_decides_to_return_2)
 		)
@@ -244,7 +244,7 @@
 ;; call caregiver
 (:action callCaregiverWondering
     :parameters (?p - person)
-    :precondition (and 
+    :precondition (and
     			(not (person_decides_to_return_1))
     			(not (init_detect_person_left_house_1))
                 (not (init_detect_person_left_house_2))
@@ -257,7 +257,7 @@
 
 (:action waitForPersonToReturn2
     :parameters (?p - person)
-    :precondition (and 
+    :precondition (and
     			(called_caregiver_wondering)
 			(forall (?loc - landmark) (not (person_at ?p ?loc)))
 		)
@@ -268,7 +268,7 @@
 ;; call emergency services
 (:action callEmergency
     :parameters (?p - person)
-    :precondition (and 
+    :precondition (and
     			(not (person_decides_to_return_2))
     			(not (init_detect_person_left_house_1))
                 (not (init_detect_person_left_house_2))
@@ -281,7 +281,7 @@
 ;; Update success status
 (:action UpdateSuccess2
 	:parameters ()
-	:precondition (and 
+	:precondition (and
 		(not (person_decides_to_return_2))
 		(called_emergency)
 		)
@@ -290,7 +290,7 @@
 ;; Update success status
 (:action UpdateSuccess3
 	:parameters ()
-	:precondition (and 
+	:precondition (and
 		(person_decides_to_go_to_bed_1)
 		)
     :effect (success)
@@ -299,7 +299,7 @@
 ;; Update success status
 (:action UpdateSuccess4
 	:parameters ()
-	:precondition (and 
+	:precondition (and
 		(person_decides_to_go_to_bed_2)
 		)
     :effect (success)
@@ -307,7 +307,7 @@
 ;; Update success status
 (:action UpdateSuccess5
 	:parameters ()
-	:precondition (and 
+	:precondition (and
 		(called_caregiver_ask_to_go_to_bed)
 		)
     :effect (success)

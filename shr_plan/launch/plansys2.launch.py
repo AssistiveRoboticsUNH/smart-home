@@ -9,13 +9,13 @@ from launch_ros.actions import Node
 
 
 def generate_launch_description():
-    # sim = True
+    sim = False
     # Declare the launch argument
 
-    sim_arg = DeclareLaunchArgument(
-        'sim',
-        default_value='True',
-        description='sim description')
+    # sim_arg = DeclareLaunchArgument(
+    #     'sim',
+    #     default_value='False',
+    #     description='sim description')
 
     namespace = LaunchConfiguration('namespace')
     declare_namespace_cmd = DeclareLaunchArgument(
@@ -112,7 +112,7 @@ def generate_launch_description():
         output='screen')
 
     # plansys2 actions
-    if LaunchConfiguration('sim'):
+    if sim: #LaunchConfiguration('sim'):
         moveto_landmark_cmd = Node(
             package='shr_plan',
             executable='move_action_node_sim',
@@ -207,7 +207,7 @@ def generate_launch_description():
         output='screen')
 
     ld = LaunchDescription()
-    ld.add_action(sim_arg)
+    # ld.add_action(sim_arg)
     ld.add_action(declare_namespace_cmd)
 
     ld.add_action(wait_for_person_to_return_action_cmd)

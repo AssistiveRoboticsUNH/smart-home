@@ -37,6 +37,7 @@
 #include "shr_msgs/msg/food_reminder_protocol.hpp"
 #include "shr_msgs/msg/world_state.hpp"
 #include "plansys2_msgs/msg/action_execution.hpp"
+#include "shr_msgs/msg/success_protocol.hpp"
 
 #include <rclcpp_action/client.hpp>
 #include "shr_msgs/action/navigate_to_pose.hpp"
@@ -69,7 +70,12 @@ namespace planning_controller {
             action_hub_sub_ = create_subscription<plansys2_msgs::msg::ActionExecution>(
                     "actions_hub", rclcpp::QoS(100).reliable(),
                     std::bind(&PlanningControllerSpin::action_hub_callback, this, _1));
+
+
+
+
         }
+
 
         shr_msgs::msg::WorldState get_world_state() {
             std::lock_guard<std::mutex> lock(mutex_);
@@ -87,7 +93,6 @@ namespace planning_controller {
         bool has_new_completed_actions() {
             return !completed_actions_.empty();
         }
-
 
     private:
 
@@ -131,6 +136,10 @@ namespace planning_controller {
 
             gathering_info_client_ = rclcpp_action::create_client<shr_msgs::action::GatherInformationRequest>(
                     this, "gather_information");
+
+            publisher_ = this->create_publisher<shr_msgs::msg::SuccessProtocol>("/indicates_success_protocol", 10);
+//            timer_ = this->create_wall_timer(
+//                    500ms, std::bind(&PlanningController::timer_callback, this));
 
         }
 
@@ -256,6 +265,7 @@ namespace planning_controller {
                     if (!executor_client_->execute_and_check_plan() && executor_client_->getResult()) {
                         if (executor_client_->getResult().value().success) {
                             std::cout << "Successful finished " << std::endl;
+                            publish_success_protocol(active_protocol, 1);
                             state_ = IDLE;
                             active_protocol = "";
                         } else {
@@ -271,6 +281,13 @@ namespace planning_controller {
 
     private:
 
+        void publish_success_protocol(std::string active_protocol, bool success)
+        {
+            auto message = shr_msgs::msg::SuccessProtocol();
+            message.protocol = active_protocol;
+            message.success= success;
+            publisher_->publish(message);
+        }
 
         bool init_plan() {
 
@@ -307,15 +324,16 @@ namespace planning_controller {
                 problem_expert_->addPredicate(plansys2::Predicate("(robot_at pioneer home)"));
                 problem_expert_->addPredicate(plansys2::Predicate(
                         "(person_at " + world_state_.patient_name + " " + world_state_.door_location + ")"));
-/// kermel yamel detection aal door
-                std::string oneof_pred = "(oneof ";
-                for (const auto &loc: search_locations) {
-                    auto pred = "(person_at " + world_state_.patient_name + " " + loc + ")";
-                    oneof_pred += pred;
-                    problem_expert_->addConditional(plansys2::Unknown("(unknown " + pred + ")"));
-                }
-                oneof_pred += ")";
-                problem_expert_->addConditional(plansys2::OneOf(oneof_pred));
+
+                /// for detection at door
+//                std::string oneof_pred = "(oneof ";
+//                for (const auto &loc: search_locations) {
+//                    auto pred = "(person_at " + world_state_.patient_name + " " + loc + ")";
+//                    oneof_pred += pred;
+//                    problem_expert_->addConditional(plansys2::Unknown("(unknown " + pred + ")"));
+//                }
+//                oneof_pred += ")";
+//                problem_expert_->addConditional(plansys2::OneOf(oneof_pred));
 
 
                 problem_expert_->addPredicate(
@@ -337,7 +355,6 @@ namespace planning_controller {
 
                 return true;
             }
-
 
             if (active_protocol == "medicine_reminder") {
 //          problem_expert_->clearKnowledge();
@@ -457,9 +474,7 @@ namespace planning_controller {
         std::shared_ptr<plansys2::ProblemExpertClient> problem_expert_;
         std::shared_ptr<plansys2::ExecutorClient> executor_client_;
 
-
         std::string pkgpath = ament_index_cpp::get_package_share_directory("shr_plan");
-
 
         std::shared_ptr<shr_plan_parameters::ParamListener> param_listener_;
         shr_plan_parameters::Params params_;
@@ -477,6 +492,10 @@ namespace planning_controller {
         std::shared_ptr<shr_msgs::msg::MidnightWarningProtocol> midnight_warning_state_;
         std::shared_ptr<shr_msgs::msg::MedicineReminderProtocol> medicine_reminder_state;
         std::shared_ptr<shr_msgs::msg::FoodReminderProtocol> food_reminder_state;
+        std::shared_ptr<shr_msgs::msg::SuccessProtocol> indicates_success_protocol;
+        rclcpp::Publisher<shr_msgs::msg::SuccessProtocol>::SharedPtr publisher_;
+        rclcpp::TimerBase::SharedPtr timer_;
+
         bool gathering_info = false;
         std::string active_protocol;
         std::vector<std::string> requested_states;

@@ -17,6 +17,6 @@ int32 time_to_take_medicine # -1 means value is none
 int32 time_to_eat_breakfast # -1 means value is none
 int32 time_to_eat_lunch # -1 means value is none
 int32 time_to_eat_dinner # -1 means value is none
-
+int32 stopped_wandering # -1 means value is none
 
 
