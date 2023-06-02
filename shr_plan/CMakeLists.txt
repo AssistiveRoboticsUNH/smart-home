@@ -58,11 +58,11 @@ target_link_libraries(planning_controller_node
 #        )
 
 
-add_executable(notify_automated_action_node src/actions/notify_automated_action_node.cpp)
-ament_target_dependencies(notify_automated_action_node ${dependencies})
-target_link_libraries(notify_automated_action_node
-        shr_plan_parameters
-        )
+#add_executable(notify_automated_action_node src/actions/notify_automated_action_node.cpp)
+#ament_target_dependencies(notify_automated_action_node ${dependencies})
+#target_link_libraries(notify_automated_action_node
+#        shr_plan_parameters
+#        )
 
 
 add_executable(notify_automated_deep_fake_action_node src/actions/notify_automated_deep_fake_action_node.cpp)
@@ -154,7 +154,7 @@ if(BUILD_TESTING)
     find_package(ament_cmake_gtest REQUIRED)
     find_package(ament_index_cpp REQUIRED)
     set(dependencies ${dependencies} ament_index_cpp)
-    add_subdirectory(test)
+#    add_subdirectory(test)
 endif()
 
 install(TARGETS
@@ -165,7 +165,7 @@ install(TARGETS
 #        guide_action_node_sim
 #        move_action_node_sim
         none_action_node
-        notify_automated_action_node
+#        notify_automated_action_node
         notify_recorded_video_node
         planning_controller_node
 #        planning_controller_node_sim

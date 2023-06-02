@@ -130,12 +130,12 @@ TEST(medicine_reminder_tests, all_success) {
     exe.add_node(all_nodes[ind]->get_node_base_interface());
   }
 
-  for (const auto &action: params.notify_automated_actions.actions) {
-    auto ind = all_nodes.size();
-    all_nodes.push_back(std::make_shared<FakeAction>(action));
-    all_nodes[ind]->trigger_transition(lifecycle_msgs::msg::Transition::TRANSITION_CONFIGURE);
-    exe.add_node(all_nodes[ind]->get_node_base_interface());
-  }
+//  for (const auto &action: params.notify_automated_actions.actions) {
+//    auto ind = all_nodes.size();
+//    all_nodes.push_back(std::make_shared<FakeAction>(action));
+//    all_nodes[ind]->trigger_transition(lifecycle_msgs::msg::Transition::TRANSITION_CONFIGURE);
+//    exe.add_node(all_nodes[ind]->get_node_base_interface());
+//  }
   for (const auto &action: params.notify_recorded_actions.actions) {
     auto ind = all_nodes.size();
     all_nodes.push_back(std::make_shared<FakeAction>(action));

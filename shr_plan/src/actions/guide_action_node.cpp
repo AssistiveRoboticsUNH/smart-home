@@ -25,7 +25,9 @@
 #include "plansys2_executor/ActionExecutorClient.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_action/rclcpp_action.hpp"
-#include "shr_msgs/action/read_script_request.hpp"
+//#include "shr_msgs/action/read_script_request.hpp"
+#include "shr_msgs/action/deep_fake_request.hpp"
+
 #include "shr_utils/utils.hpp"
 #include "tf2_ros/buffer.h"
 #include "tf2_ros/transform_listener.h"
@@ -65,7 +67,7 @@ namespace guide_action {
             send_feedback(0.0, "Prompting person");
 
             read_action_client_ =
-                    rclcpp_action::create_client<shr_msgs::action::ReadScriptRequest>(shared_from_this(),
+                    rclcpp_action::create_client<shr_msgs::action::DeepFakeRequest>(shared_from_this(),
                                                                                       "read_script");
 
             bool is_action_server_ready = false;
@@ -78,13 +80,14 @@ namespace guide_action {
 
             RCLCPP_INFO(get_logger(), "/read_script action server ready");
 
-            auto send_goal_options = rclcpp_action::Client<shr_msgs::action::ReadScriptRequest>::SendGoalOptions();
+            auto send_goal_options = rclcpp_action::Client<shr_msgs::action::DeepFakeRequest>::SendGoalOptions();
 
             send_goal_options.result_callback = [this](auto) {
                 send_feedback(0.0, "Prompting person completed");
             };
-
-            read_goal_.script_name = "follow_me.txt";
+            read_goal_.script_name = "follow_me";
+            read_goal_.voice_name = "natasha";
+//            read_goal_.script_name = "follow_me.txt";
             future_read_goal_handle_ = read_action_client_->async_send_goal(read_goal_, send_goal_options);
 
 
@@ -177,12 +180,12 @@ namespace guide_action {
 
         double dist_to_move;
 
-        using AudioGoalHandle = rclcpp_action::ClientGoalHandle<shr_msgs::action::ReadScriptRequest>;
-        rclcpp_action::Client<shr_msgs::action::ReadScriptRequest>::SharedPtr read_action_client_;
+        using AudioGoalHandle = rclcpp_action::ClientGoalHandle<shr_msgs::action::DeepFakeRequest>;
+        rclcpp_action::Client<shr_msgs::action::DeepFakeRequest>::SharedPtr read_action_client_;
         std::shared_future<AudioGoalHandle::SharedPtr> future_read_goal_handle_;
         AudioGoalHandle::SharedPtr read_goal_handle_;
 
-        shr_msgs::action::ReadScriptRequest::Goal read_goal_;
+        shr_msgs::action::DeepFakeRequest::Goal read_goal_;
     };
 }
 

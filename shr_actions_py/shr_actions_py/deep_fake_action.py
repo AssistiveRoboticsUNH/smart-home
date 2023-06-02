@@ -23,6 +23,7 @@ class DeepFakeActionServer(Node):
 
     def execute_callback(self, goal_handle):
         request = goal_handle.request
+
         self.get_logger().info('Playing audio for ' + request.voice_name + " reading " + request.script_name)
         # print('here1')
         success = self.playScript(request.script_name, request.voice_name)
