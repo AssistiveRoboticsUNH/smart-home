@@ -483,9 +483,9 @@ namespace planning_controller {
 
 
 //        #ifdef USE_SIM
-//                rclcpp_action::Client<nav2_msgs::action::NavigateToPose>::SharedPtr navigation_action_client_;
+                rclcpp_action::Client<nav2_msgs::action::NavigateToPose>::SharedPtr navigation_action_client_;
 //        #else
-                rclcpp_action::Client<shr_msgs::action::NavigateToPose>::SharedPtr navigation_action_client_;
+//                rclcpp_action::Client<shr_msgs::action::NavigateToPose>::SharedPtr navigation_action_client_;
 //        #endif
         rclcpp_action::Client<shr_msgs::action::GatherInformationRequest>::SharedPtr gathering_info_client_;
 

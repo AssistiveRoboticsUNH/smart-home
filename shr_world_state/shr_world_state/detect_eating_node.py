@@ -146,7 +146,7 @@ class DetectEating(Node):
                 #             cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), 2, cv2.LINE_AA)
                 #
                 # cv2.imshow('Mediapipe Feed', image)
-                print('media')
+                # print('media')
                 # cv2.waitKey(1)
                 threshold_rep = 5
                 print(self.counter_right_food, 'coutn_right')
