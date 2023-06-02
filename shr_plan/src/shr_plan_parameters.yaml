@@ -145,27 +145,7 @@ shr_plan_parameters:
       description: "topic for sensor ",
     }
 
-  notify_automated_actions:
-    actions: {
-      type: string_array,
-      default_value: [ "notifyautomatedmedicineat", "remindautomatedfoodat", "notifyautomatedmidnightat"],
-      description: "list of pddl notify recorded actions",
-    }
-    script_names: {
-      type: string_array,
-      default_value: [ "medicine_reminder.txt", "food_reminder.txt", "midnight_reminder.txt" ],
-      description: "list of script names",
-    }
-    wait_times: {
-      type: double_array,
-      default_value: [ 10.0, 10.0, 10.0 ],
-      description: "list wait times after prompting",
-    }
-    topics: {
-      type: string_array,
-      default_value: [ "/observe/pill_detection", "/observe/eat_detection",  "/decided_to_go_back_to_sleep" ],
-      description: "topic for sensor ",
-    }
+
 
   notify_automated_deep_fake_actions:
       actions: {
@@ -193,6 +173,28 @@ shr_plan_parameters:
         default_value: [ "natasha", "natasha", "natasha" ],
         description: "list of script names",
       }
+
+#  notify_automated_actions:
+#    actions: {
+#      type: string_array,
+#      default_value: [ "notifyautomatedmedicineat", "remindautomatedfoodat", "notifyautomatedmidnightat"],
+#      description: "list of pddl notify recorded actions",
+#    }
+#    script_names: {
+#      type: string_array,
+#      default_value: [ "medicine_reminder.txt", "food_reminder.txt", "midnight_reminder.txt" ],
+#      description: "list of script names",
+#    }
+#    wait_times: {
+#      type: double_array,
+#      default_value: [ 10.0, 10.0, 10.0 ],
+#      description: "list wait times after prompting",
+#    }
+#    topics: {
+#      type: string_array,
+#      default_value: [ "/observe/pill_detection", "/observe/eat_detection",  "/decided_to_go_back_to_sleep" ],
+#      description: "topic for sensor ",
+#    }
 
   guide_to_actions:
     actions: {
