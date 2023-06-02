@@ -31,7 +31,7 @@ shr_plan_parameters:
   }
   locations: {
     type: string_array,
-    default_value: [ "bedroom_robot_pos", "kitchen_robot_pos", "couch_robot_pos", "door_robot_pos" ],
+    default_value: [ "bedroom_robot_pos", "kitchen_robot_pos", "couch_robot_pos" ],
     description: "list of tf frame locations that the robot can visit",
   }
   tf_frames: {
@@ -166,6 +166,33 @@ shr_plan_parameters:
       default_value: [ "/observe/pill_detection", "/observe/eat_detection",  "/decided_to_go_back_to_sleep" ],
       description: "topic for sensor ",
     }
+
+  notify_automated_deep_fake_actions:
+      actions: {
+        type: string_array,
+        default_value: [ "notifyautomatedmedicineat", "remindautomatedfoodat", "notifyautomatedmidnightat" ],
+        description: "list of pddl notify recorded actions",
+      }
+      script_names: {
+        type: string_array,
+        default_value: [ "medicine_reminder", "food_reminder", "midnight_reminder" ],
+        description: "list of script names",
+      }
+      wait_times: {
+        type: double_array,
+        default_value: [ 10.0, 10.0, 10.0 ],
+        description: "list wait times after prompting",
+      }
+      topics: {
+        type: string_array,
+        default_value: [ "/observe/pill_detection", "/observe/eat_detection",  "/decided_to_go_back_to_sleep" ],
+        description: "topic for sensor ",
+      }
+      voice_names: {
+        type: string_array,
+        default_value: [ "natasha", "natasha", "natasha" ],
+        description: "list of script names",
+      }
 
   guide_to_actions:
     actions: {

@@ -85,7 +85,7 @@ class Nav2ActionServer(Node):
         else:
             goal_handle.abort()
 
-        result = NavigateToGoalRequest.Result()
+        result = NavigateToPose.Result()
         # result.error_code = result.NONE
         return result
 
