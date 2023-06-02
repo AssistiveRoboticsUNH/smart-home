@@ -161,9 +161,9 @@ class DetectTakingPill(Node):
                 #             (60, 60),
                 #             cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), 2, cv2.LINE_AA)
 
-                cv2.imshow('Mediapipe Feed', image)
-                print('media')
-                cv2.waitKey(1)
+                # cv2.imshow('Mediapipe Feed', image)
+                # print('media')
+                # cv2.waitKey(1)
                 threshold_rep = 1
                 msg = Bool()
                 if self.counter_right > threshold_rep or self.counter_right > threshold_rep:

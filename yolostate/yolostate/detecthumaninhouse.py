@@ -175,29 +175,13 @@ def main(args=None):
     data_path = os.path.join(current_dir, 'yolodata')
     yh = HumanDetector(data_path)
 
-    # if len(sys.argv) > 1:
-    #     sim = sys.argv[1]
-    # else:
-    sim = False
+    node_living_room = DetectHumanLoc(yh, 'living_room_cam', '/camera_living_room/color/image_raw')
 
-    if sim:
-        node_living_room = DetectHumanLoc(yh, 'living_room_cam', '/unity_camera_living_room/color/image_raw')
+    node_kitchen = DetectHumanLoc(yh, 'kitchen_cam', '/camera_kitchen/color/image_raw')
 
-        node_kitchen = DetectHumanLoc(yh, 'kitchen_cam', '/unity_camera_kitchen/color/image_raw')
+    node_bedroom = DetectHumanLoc(yh, 'bedroom_cam', '/camera_bedroom/color/image_raw')
 
-        node_bedroom = DetectHumanLoc(yh, 'bedroom_cam', '/unity_camera_bedroom/color/image_raw')
-
-        node_dining_room = DetectHumanLoc(yh, 'dining_room_cam', '/unity_camera_dining_room/color/image_raw')
-
-    else:
-
-        node_living_room = DetectHumanLoc(yh, 'living_room_cam', '/camera_living_room/color/image_raw')
-
-        node_kitchen = DetectHumanLoc(yh, 'kitchen_cam', '/camera_kitchen/color/image_raw')
-
-        node_bedroom = DetectHumanLoc(yh, 'bedroom_cam', '/camera_bedroom/color/image_raw')
-
-        node_dining_room = DetectHumanLoc(yh, 'dining_room_cam', '/camera_dining_room/color/image_raw')
+    node_dining_room = DetectHumanLoc(yh, 'dining_room_cam', '/camera_dining_room/color/image_raw')
 
     node_hum_loc = GetLoc('loc', 'human_loc_from_cams')
 

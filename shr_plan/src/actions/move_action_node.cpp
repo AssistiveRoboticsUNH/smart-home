@@ -62,15 +62,15 @@ namespace move_action {
 
 
 //    #ifdef USE_SIM
-//            navigation_action_client_ =
-//                    rclcpp_action::create_client<nav2_msgs::action::NavigateToPose>(
-//                            this,
-//                            "navigate_to_pose");
-//    #else
             navigation_action_client_ =
-                        rclcpp_action::create_client<shr_msgs::action::NavigateToPose>(
-                                this,
-                                "navigate_to_pose");
+                    rclcpp_action::create_client<nav2_msgs::action::NavigateToPose>(
+                            this,
+                            "navigate_to_pose");
+//    #else
+//            navigation_action_client_ =
+//                        rclcpp_action::create_client<shr_msgs::action::NavigateToPose>(
+//                                this,
+//                                "navigate_to_pose");
 //    #endif
 
 
@@ -91,18 +91,18 @@ namespace move_action {
             dist_to_move = getDistance(point, current_pos_);
 //
 //#ifdef USE_SIM
-//            auto feedback_callback = [this](
-//                    shr_utils::NavigationGoalHandle_sim::SharedPtr,
-//                    shr_utils::NavigationFeedback_sim feedback) {
-//                send_feedback(std::min(1.0, std::max(0.0, 1.0 - (feedback->distance_remaining / dist_to_move))),
-//                              "Move running");
+            auto feedback_callback = [this](
+                    shr_utils::NavigationGoalHandle_sim::SharedPtr,
+                    shr_utils::NavigationFeedback_sim feedback) {
+                send_feedback(std::min(1.0, std::max(0.0, 1.0 - (feedback->distance_remaining / dist_to_move))),
+                              "Move running");
 //            };
 //#else
-            auto feedback_callback = [this](
-              shr_utils::NavigationGoalHandle::SharedPtr,
-              shr_utils::NavigationFeedback feedback) {
-            send_feedback(std::min(1.0, std::max(0.0, 1.0 - (feedback->distance_remaining / dist_to_move))),
-                          "Move running");
+//            auto feedback_callback = [this](
+//              shr_utils::NavigationGoalHandle::SharedPtr,
+//              shr_utils::NavigationFeedback feedback) {
+//            send_feedback(std::min(1.0, std::max(0.0, 1.0 - (feedback->distance_remaining / dist_to_move))),
+//                          "Move running");
           };
 //#endif
 
@@ -112,13 +112,13 @@ namespace move_action {
             };
 
 //#ifdef USE_SIM
-//            shr_utils::send_nav_request_sim(*tf_buffer_, wp_to_navigate, now(),
-//                                            navigation_action_client_, std::nullopt, feedback_callback,
-//                                            result_callback);
+            shr_utils::send_nav_request_sim(*tf_buffer_, wp_to_navigate, now(),
+                                            navigation_action_client_, std::nullopt, feedback_callback,
+                                            result_callback);
 //
 //#else
-            shr_utils::send_nav_request(*tf_buffer_, wp_to_navigate, now(),
-                                                        navigation_action_client_, std::nullopt, feedback_callback, result_callback);
+//            shr_utils::send_nav_request(*tf_buffer_, wp_to_navigate, now(),
+//                                                        navigation_action_client_, std::nullopt, feedback_callback, result_callback);
 
 //#endif
 
@@ -136,9 +136,9 @@ namespace move_action {
         }
 
 //#ifdef USE_SIM
-//        rclcpp_action::Client<nav2_msgs::action::NavigateToPose>::SharedPtr navigation_action_client_;
+        rclcpp_action::Client<nav2_msgs::action::NavigateToPose>::SharedPtr navigation_action_client_;
 //#else
-        rclcpp_action::Client<shr_msgs::action::NavigateToPose>::SharedPtr navigation_action_client_;
+//        rclcpp_action::Client<shr_msgs::action::NavigateToPose>::SharedPtr navigation_action_client_;
 //#endif
 
         std::shared_future<shr_utils::NavigationGoalHandle::SharedPtr> future_navigation_goal_handle_;
@@ -151,9 +151,9 @@ namespace move_action {
         geometry_msgs::msg::Pose current_pos_;
 
 //#ifdef USE_SIM
-//        nav2_msgs::action::NavigateToPose::Goal navigation_goal_;
+        nav2_msgs::action::NavigateToPose::Goal navigation_goal_;
 //#else
-        shr_msgs::action::NavigateToPose::Goal navigation_goal_;
+//        shr_msgs::action::NavigateToPose::Goal navigation_goal_;
 //#endif
 
         double dist_to_move;
