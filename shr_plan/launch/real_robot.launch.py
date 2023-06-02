@@ -35,6 +35,5 @@ def generate_launch_description():
     ld.add_action(nav_bridge_cmd)
     ld.add_action(tf_broadcast)
     ld.add_action(smartthings_node)
-
     ld.add_action(tapo_launch)
     return ld

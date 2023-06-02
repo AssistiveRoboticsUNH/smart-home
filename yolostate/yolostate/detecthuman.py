@@ -25,8 +25,8 @@ class DetectHuman(Node):
         super().__init__('detecthuman')
  
         self.declare_parameter('view_camera', True)
-        # self.declare_parameter('camera', '/camera/color/image_raw')
-        self.declare_parameter('camera', '/smart_home/camera/color/image_raw')
+        self.declare_parameter('camera', '/camera/color/image_raw')
+        # self.declare_parameter('camera', '/smart_home/camera/color/image_raw')
         self.declare_parameter('pub_human', '/detecthuman')
 
         param_camera_topic = self.get_parameter('camera').value
@@ -81,19 +81,18 @@ class DetectHuman(Node):
 
         org = current_frame.copy()
 
-
         names, confidences, boxes = self.yh.detect_human(current_frame)
         if len(names) > 0:
             print(f'Human detected. total={len(names)}')
             self.on_human_data(boxes[0])                   #set human detected data for timer publisher.
 
-        if self.view_camera:
-            for name, conf, box in zip(names, confidences, boxes):
-                org = self.yh.draw_box(org, name, conf, box)
+        # if self.view_camera:
+        #     for name, conf, box in zip(names, confidences, boxes):
+        #         org = self.yh.draw_box(org, name, conf, box)
 
             # cv2.imshow("camera", current_frame)
-            cv2.imshow("human detection", org)
-            cv2.waitKey(1)
+            # cv2.imshow("human detection", org)
+            # cv2.waitKey(1)
 
 
 def main(args=None):

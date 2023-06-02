@@ -19,22 +19,22 @@ def generate_launch_description():
 
     ld.add_action(world_state_node)
 
-    # detect_eating_node = Node(
-    #     package="shr_world_state",
-    #     executable="detect_eating_node",
-    #     name="detect_eating_node",
-    #     output="log"
-    #)
-    # ld.add_action(detect_eating_node)
+    detect_eating_node = Node(
+        package="shr_world_state",
+        executable="detect_eating_node",
+        name="detect_eating_node",
+        output="log"
+    )
+    ld.add_action(detect_eating_node)
 
-    # detect_taking_pill_node = Node(
-    #     package="shr_world_state",
-    #     executable="detect_taking_pill_node",
-    #     name="detect_taking_pill_node",
-    #     output="log"
-    # )
+    detect_taking_pill_node = Node(
+        package="shr_world_state",
+        executable="detect_taking_pill_node",
+        name="detect_taking_pill_node",
+        output="log"
+    )
 
-    # ld.add_action(detect_taking_pill_node)
+    ld.add_action(detect_taking_pill_node)
 
     detect_bed_after_returning_node = Node(
         package="shr_world_state",

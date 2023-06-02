@@ -46,6 +46,8 @@
 #include "tf2_ros/buffer.h"
 
 #include <shr_plan_parameters.hpp>
+//#undef USE_SIM
+//#define USE_SIM false
 
 
 namespace planning_controller {
@@ -376,7 +378,7 @@ namespace planning_controller {
                 problem_expert_->addInstance(plansys2::Instance{"pioneer", "robot"});
                 problem_expert_->addInstance(plansys2::Instance{"home", "landmark"});
                 std::vector<std::string> search_locations = {"bedroom_robot_pos", "kitchen_robot_pos",
-                                                             "couch_robot_pos", "door_robot_pos"};
+                                                             "couch_robot_pos"};
                 for (const auto &loc: search_locations) {
                     problem_expert_->addInstance(plansys2::Instance{loc, "landmark"});
                 }
@@ -430,7 +432,7 @@ namespace planning_controller {
                 problem_expert_->addInstance(plansys2::Instance{"pioneer", "robot"});
                 problem_expert_->addInstance(plansys2::Instance{"home", "landmark"});
                 std::vector<std::string> search_locations = {"bedroom_robot_pos", "kitchen_robot_pos",
-                                                             "couch_robot_pos", "door_robot_pos"};
+                                                             "couch_robot_pos"};
                 for (const auto &loc: search_locations) {
                     problem_expert_->addInstance(plansys2::Instance{loc, "landmark"});
                 }
@@ -480,11 +482,11 @@ namespace planning_controller {
         shr_plan_parameters::Params params_;
 
 
-        #ifdef USE_SIM
-                rclcpp_action::Client<nav2_msgs::action::NavigateToPose>::SharedPtr navigation_action_client_;
-        #else
+//        #ifdef USE_SIM
+//                rclcpp_action::Client<nav2_msgs::action::NavigateToPose>::SharedPtr navigation_action_client_;
+//        #else
                 rclcpp_action::Client<shr_msgs::action::NavigateToPose>::SharedPtr navigation_action_client_;
-        #endif
+//        #endif
         rclcpp_action::Client<shr_msgs::action::GatherInformationRequest>::SharedPtr gathering_info_client_;
 
 

@@ -179,7 +179,7 @@ class WorldStateNode(Node):
 
         if self.sensor_data.bedside_motion_sensor != msg.data:
             self.sensor_data.bedside_motion_sensor = msg.data
-            self.publish_world_statepublish_world_state(sensor_data=self.sensor_data)
+            self.publish_world_state(sensor_data=self.sensor_data)
 
     # def food_callback(self, msg):
     #     if msg.data:

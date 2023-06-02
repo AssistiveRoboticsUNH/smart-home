@@ -22,14 +22,10 @@ class DetectTakingPill(Node):
                                                        self.pill_callback, 10)
         self.pill_motion_sensor = False
 
-        self.declare_parameter('camera',
-                               '/camera_kitchen/color/image_raw')  # '/smart_home/camera/color/image_raw')
-
-        param_camera_topic = self.get_parameter('camera').value
+    # '/smart_home/camera/color/image_raw')
 
         self.subscription = self.create_subscription(
-            Image,
-            param_camera_topic,
+            Image, '/camera_kitchen/color/image_raw',
             self.camera_callback,
             10)
         self.subscription  # prevent unused variable warning
@@ -45,15 +41,14 @@ class DetectTakingPill(Node):
         self.counter_left = 0
 
 
-
-
-
     def pill_callback(self, msg):
         print('callllbackk', msg.data)
         self.pill_motion_sensor = msg.data
 
     def camera_callback(self, data):
+
         if self.pill_motion_sensor:
+            print('camera_callbaackckscs')
             print(2)
             frame = self.br.imgmsg_to_cv2(data)
 
@@ -74,7 +69,7 @@ class DetectTakingPill(Node):
 
                 # Recolor back to BGR
                 image.flags.writeable = True
-                image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+                # image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
                 print('before if')
                 # Extract landmarks
                 if results.pose_landmarks is not None:
@@ -117,47 +112,47 @@ class DetectTakingPill(Node):
                         print(self.counter_right)
 
                     # Render detections
-
-                    # mpDraw.draw_landmarks(image, results.pose_landmarks, mpPose.POSE_CONNECTIONS,
-                    #                       mpDraw.DrawingSpec(color=(245, 117, 66), thickness=2, circle_radius=2),
-                    #                       mpDraw.DrawingSpec(color=(245, 66, 230), thickness=2, circle_radius=2)
-                    #                       )
-
-                    specific_landmarks = [mpPose.PoseLandmark.MOUTH_RIGHT,
-                                          mpPose.PoseLandmark.MOUTH_LEFT,
-                                          mpPose.PoseLandmark.RIGHT_WRIST,
-                                          mpPose.PoseLandmark.LEFT_WRIST,
-                                          ]
-
-                    # Render the specific landmark points
-                    mp_drawing = mp.solutions.drawing_utils
-                    drawing_spec = mp_drawing.DrawingSpec(color=(245, 117, 66), thickness=2, circle_radius=2)
-
-                    for landmark in specific_landmarks:
-                        landmark_point = results.pose_landmarks.landmark[landmark]
-                        x_px, y_px = int(landmark_point.x * image.shape[1]), int(landmark_point.y * image.shape[0])
-                        cv2.circle(image, (x_px, y_px), drawing_spec.circle_radius, drawing_spec.color, drawing_spec.thickness)
-
-
-                        cv2.line(image, tuple(map(int, Left_wrist)), tuple(map(int, mid_mouth)), color=(0, 0, 255),
-                                 thickness=2)
-                    cv2.line(image, tuple(map(int, Left_wrist)), tuple(map(int, mid_mouth)), color=(0, 225, 255),
-                             thickness=2)
-
-                    print('out if')
-                    # Render eating counter
-                    # Setup status box
-                cv2.rectangle(image, (0, 0), (225, 73), (245, 117, 16), -1)
-
-                # Rep data
-                cv2.putText(image, 'REPS', (15, 12),
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv2.LINE_AA)
-                cv2.putText(image, str(self.counter_left),
-                            (10, 60),
-                            cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), 2, cv2.LINE_AA)
-                cv2.putText(image, str(self.counter_right),
-                            (100, 60),
-                            cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), 2, cv2.LINE_AA)
+                #
+                #     # mpDraw.draw_landmarks(image, results.pose_landmarks, mpPose.POSE_CONNECTIONS,
+                #     #                       mpDraw.DrawingSpec(color=(245, 117, 66), thickness=2, circle_radius=2),
+                #     #                       mpDraw.DrawingSpec(color=(245, 66, 230), thickness=2, circle_radius=2)
+                #     #                       )
+                #
+                #     specific_landmarks = [mpPose.PoseLandmark.MOUTH_RIGHT,
+                #                           mpPose.PoseLandmark.MOUTH_LEFT,
+                #                           mpPose.PoseLandmark.RIGHT_WRIST,
+                #                           mpPose.PoseLandmark.LEFT_WRIST,
+                #                           ]
+                #
+                #     # Render the specific landmark points
+                #     mp_drawing = mp.solutions.drawing_utils
+                #     drawing_spec = mp_drawing.DrawingSpec(color=(245, 117, 66), thickness=2, circle_radius=2)
+                #
+                #     for landmark in specific_landmarks:
+                #         landmark_point = results.pose_landmarks.landmark[landmark]
+                #         x_px, y_px = int(landmark_point.x * image.shape[1]), int(landmark_point.y * image.shape[0])
+                #         cv2.circle(image, (x_px, y_px), drawing_spec.circle_radius, drawing_spec.color, drawing_spec.thickness)
+                #
+                #
+                #         cv2.line(image, tuple(map(int, Left_wrist)), tuple(map(int, mid_mouth)), color=(0, 0, 255),
+                #                  thickness=2)
+                #     cv2.line(image, tuple(map(int, Left_wrist)), tuple(map(int, mid_mouth)), color=(0, 225, 255),
+                #              thickness=2)
+                #
+                #     print('out if')
+                #     # Render eating counter
+                #     # Setup status box
+                # cv2.rectangle(image, (0, 0), (225, 73), (245, 117, 16), -1)
+                #
+                # # Rep data
+                # cv2.putText(image, 'REPS', (15, 12),
+                #             cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv2.LINE_AA)
+                # cv2.putText(image, str(self.counter_left),
+                #             (10, 60),
+                #             cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), 2, cv2.LINE_AA)
+                # cv2.putText(image, str(self.counter_right),
+                #             (100, 60),
+                #             cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), 2, cv2.LINE_AA)
 
                 # Stage data
                 # cv2.putText(image, 'STAGE', (65, 12),

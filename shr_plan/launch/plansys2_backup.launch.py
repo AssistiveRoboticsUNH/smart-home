@@ -9,7 +9,6 @@ from launch_ros.actions import Node
 
 
 def generate_launch_description():
-    sim = False
     # Declare the launch argument
 
     # sim_arg = DeclareLaunchArgument(
@@ -69,17 +68,9 @@ def generate_launch_description():
         name='recognize_face_action',
         output='screen')
 
-    # read script without deep fake
-    # read_script_node_cmd = Node(
-    #     package='shr_actions_py',
-    #     executable='read_script_action',
-    #     name='read_script_action',
-    #     output='screen')
-
-    # read script with deep fake
     read_script_node_cmd = Node(
         package='shr_actions_py',
-        executable='deep_fake_action',
+        executable='read_script_action',
         name='read_script_action',
         output='screen')
 
@@ -119,62 +110,33 @@ def generate_launch_description():
         name='detect_person_action',
         output='screen')
 
-    # plansys2 actions
-    if sim: #LaunchConfiguration('sim'):
-        moveto_landmark_cmd = Node(
-            package='shr_plan',
-            executable='move_action_node_sim',
-            name='move_action_node',
-            output='screen')
-        guideto_landmark_cmd = Node(
-            package='shr_plan',
-            executable='guide_action_node_sim',
-            name='guide_action_node',
-            output='screen')
-        planning_controller_node_cmd = Node(
-            package='shr_plan',
-            executable='planning_controller_node_sim',
-            name='planning_controller_node',
-            output='screen')
-        find_person_cmd = Node(
-            package='shr_actions_cpp',
-            executable='find_person_node_sim',
-            name='find_person_node',
-            output='screen')
-    else:
-        moveto_landmark_cmd = Node(
-            package='shr_plan',
-            executable='move_action_node',
-            name='move_action_node',
-            output='screen')
-        guideto_landmark_cmd = Node(
-            package='shr_plan',
-            executable='guide_action_node',
-            name='guide_action_node',
-            output='screen')
-        # planning manager
-        planning_controller_node_cmd = Node(
-            package='shr_plan',
-            executable='planning_controller_node',
-            name='planning_controller_node',
-            output='screen')
-        find_person_cmd = Node(
-            package='shr_actions_cpp',
-            executable='find_person_node',
-            name='find_person_node',
-            output='screen')
-
-
-    # notify_automated_cmd = Node(
-    #     package='shr_plan',
-    #     executable='notify_automated_action_node',
-    #     name='notify_automated_action_node',
-    #     output='screen')
-
-    notify_automated_deep_fake_cmd = Node(
+    moveto_landmark_cmd = Node(
         package='shr_plan',
-        executable='notify_automated_deep_fake_action_node',
-        name='notify_automated_deep_fake_action_node',
+        executable='move_action_node',
+        name='move_action_node',
+        output='screen')
+    guideto_landmark_cmd = Node(
+        package='shr_plan',
+        executable='guide_action_node',
+        name='guide_action_node',
+        output='screen')
+    # planning manager
+    planning_controller_node_cmd = Node(
+        package='shr_plan',
+        executable='planning_controller_node',
+        name='planning_controller_node',
+        output='screen')
+    find_person_cmd = Node(
+        package='shr_actions_cpp',
+        executable='find_person_node',
+        name='find_person_node',
+        output='screen')
+
+
+    notify_automated_cmd = Node(
+        package='shr_plan',
+        executable='notify_automated_action_node',
+        name='notify_automated_action_node',
         output='screen')
 
 
@@ -244,8 +206,7 @@ def generate_launch_description():
     ld.add_action(check_if_person_went_to_bed_action_node_cmd)
     ld.add_action(moveto_landmark_cmd)
     ld.add_action(guideto_landmark_cmd)
-    # ld.add_action(notify_automated_cmd)
-    ld.add_action(notify_automated_deep_fake_cmd)
+    ld.add_action(notify_automated_cmd)
     ld.add_action(notify_recorded_video_cmd)
     ld.add_action(call_node_cmd)
     ld.add_action(none_action_node_cmd)
