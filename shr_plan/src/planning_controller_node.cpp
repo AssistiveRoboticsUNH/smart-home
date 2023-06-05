@@ -324,8 +324,8 @@ namespace planning_controller {
 
 
                 problem_expert_->addPredicate(plansys2::Predicate("(robot_at pioneer home)"));
-                problem_expert_->addPredicate(plansys2::Predicate(
-                        "(person_at " + world_state_.patient_name + " " + world_state_.door_location + ")"));
+//                problem_expert_->addPredicate(plansys2::Predicate(
+//                        "(person_at " + world_state_.patient_name + " " + world_state_.door_location + ")"));
 
                 /// for detection at door
 //                std::string oneof_pred = "(oneof ";
@@ -343,7 +343,7 @@ namespace planning_controller {
 //            if (world_state_.door_open == 1) {
 //                problem_expert_->addPredicate(plansys2::Predicate("(automated_message_given midnight_warning)"));
 //            }
-
+                problem_expert_->addConditional(plansys2::Unknown("(unknown (person_at nathan door_robot_pos))"));
                 problem_expert_->addConditional(plansys2::Unknown("(unknown (person_decides_to_go_outside_1 ))"));
                 problem_expert_->addConditional(plansys2::Unknown("(unknown (person_decides_to_go_outside_2))"));
                 problem_expert_->addConditional(plansys2::Unknown("(unknown (person_decides_to_return_1))"));
@@ -405,6 +405,7 @@ namespace planning_controller {
                 problem_expert_->addConditional(plansys2::Unknown("(unknown (guide_to_succeeded_attempt_2 ))"));
                 problem_expert_->addConditional(plansys2::Unknown("(unknown (notify_automated_succeeded ))"));
                 problem_expert_->addConditional(plansys2::Unknown("(unknown (notify_recorded_succeeded ))"));
+
 
 
                 problem_expert_->setGoal(plansys2::Goal("(and (success) )"));
