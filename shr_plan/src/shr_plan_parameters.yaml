@@ -146,7 +146,6 @@ shr_plan_parameters:
     }
 
 
-
   notify_automated_deep_fake_actions:
       actions: {
         type: string_array,
