@@ -75,8 +75,8 @@ class WorldStateNode(Node):
         self.eat_time_dinner = 60 * int(tmp_eat_dinner.split('h')[0]) + int(tmp_eat_dinner.split('h')[1][:-1])
 
         tmp_too_late_to_leave = self.params.too_late_to_leave_time
-        self.too_late_to_leave = 60 * int(tmp_too_late_to_leave.split('h')[0]) + int(tmp_too_late_to_leave.split('h')[1][:-1])
-
+        self.too_late_to_leave = 60 * int(tmp_too_late_to_leave.split('h')[0]) + int(
+            tmp_too_late_to_leave.split('h')[1][:-1])
 
         ## Subscribe to sensors
         self.subscriber_motion_door = self.create_subscription(Bool, '/smartthings_sensors_motion_door',
@@ -92,16 +92,16 @@ class WorldStateNode(Node):
 
         # observe actions from camera
         self.subscriber_observe_pill = self.create_subscription(Bool, '/observe/pill_detection',
-                                                       self.observe_pill_callback, 10)
+                                                                self.observe_pill_callback, 10)
         self.subscriber_observe_eating = self.create_subscription(Bool, '/observe/eat_detection',
-                                                       self.observe_eating_callback, 10)
+                                                                  self.observe_eating_callback, 10)
 
         self.world_state_pub = self.create_publisher(WorldState, '/world_state', 10)
 
         # to publish world state
         self.timer = self.create_timer(1, self.timer_callback)
         self.subscriber_successful_protocol = self.create_subscription(SuccessProtocol, '/indicates_success_protocol',
-                                                                           self.indicate_success_protocol, 10)
+                                                                       self.indicate_success_protocol, 10)
 
         self.start_stopped_Wandering = None
 
@@ -112,21 +112,21 @@ class WorldStateNode(Node):
                                                                                self.debug_time_to_take_medicine_callback,
                                                                                10)
         self.subscriber_debug_time_to_eat_breakfast = self.create_subscription(Bool, '/time_to_eat_breakfast',
-                                                                     self.debug_time_to_eat_breakfast_callback, 10)
+                                                                               self.debug_time_to_eat_breakfast_callback,
+                                                                               10)
         self.subscriber_debug_time_to_eat_lunch = self.create_subscription(Bool, '/time_to_eat_lunch',
-                                                                     self.debug_time_to_eat_lunch_callback, 10)
+                                                                           self.debug_time_to_eat_lunch_callback, 10)
         self.subscriber_debug_time_to_eat_dinner = self.create_subscription(Bool, '/time_to_eat_dinner',
-                                                                     self.debug_time_to_eat_dinner_callback, 10)
+                                                                            self.debug_time_to_eat_dinner_callback, 10)
 
         self.subscriber_debug_too_late_to_leave = 0
 
-
     def indicate_success_protocol(self, msg):
-        
+
         if msg.success:
             if msg.protocol == "midnight_reminder":
                 self.world_state.took_medicine = 1
-                
+
             elif msg.protocol == "medicine_reminder":
                 self.world_state.stopped_wandering = 1
                 self.start_stopped_Wandering = time.time()
@@ -158,7 +158,6 @@ class WorldStateNode(Node):
         if self.sensor_data.food_sensor != msg.data:
             self.sensor_data.food_sensor = msg.data
             self.publish_world_state(sensor_data=self.sensor_data)
-
 
     def timer_callback(self):
         self.publish_world_state()
@@ -201,7 +200,6 @@ class WorldStateNode(Node):
             self.world_state.door_motion_sensor = True
 
             self.publish_world_state(sensor_data=self.sensor_data)
-
 
     def door_open_callback(self, msg):
 
@@ -249,7 +247,6 @@ class WorldStateNode(Node):
                 self.took_medicine_time = datetime.datetime.now().day
             self.world_state.took_medicine = self.world_state.took_medicine or sensor_data.pills_sensor
 
-
             # captures eating food even if the protocol isn't triggered
             if self.sensor_data.food_sensor:
                 time_per_ate = datetime.datetime.now().hour * 60 + datetime.datetime.now().minute
@@ -267,21 +264,19 @@ class WorldStateNode(Node):
             self.world_state.patient_location = ""
 
         ## check time
-        self.world_state.too_late_to_leave = datetime.datetime.now().hour <= self.too_late_to_leave
-        self.world_state.time_to_take_medicine = datetime.datetime.now().hour * 60 + datetime.datetime.now().minute > self.take_medication_time
-        self.world_state.time_to_eat_breakfast = datetime.datetime.now().hour * 60 + datetime.datetime.now().minute > self.eat_time_breakfast
-        self.world_state.time_to_eat_lunch = datetime.datetime.now().hour * 60 + datetime.datetime.now().minute > self.eat_time_lunch
-        self.world_state.time_to_eat_dinner = datetime.datetime.now().hour * 60 + datetime.datetime.now().minute > self.eat_time_dinner
-
+        self.world_state.too_late_to_leave = datetime.datetime.now().hour >= self.too_late_to_leave
+        self.world_state.time_to_take_medicine = datetime.datetime.now().hour * 60 + datetime.datetime.now().minute > self.take_medication_time and datetime.datetime.now().hour * 60 + datetime.datetime.now().minute < self.take_medication_time + 30
+        self.world_state.time_to_eat_breakfast = datetime.datetime.now().hour * 60 + datetime.datetime.now().minute > self.eat_time_breakfast and datetime.datetime.now().hour * 60 + datetime.datetime.now().minute < self.eat_time_breakfast + 30
+        #self.world_state.time_to_eat_lunch = datetime.datetime.now().hour * 60 + datetime.datetime.now().minute > self.eat_time_lunch and datetime.datetime.now().hour * 60 + datetime.datetime.now().minute < self.eat_time_lunch + 30
+        self.world_state.time_to_eat_dinner = datetime.datetime.now().hour * 60 + datetime.datetime.now().minute > self.eat_time_dinner and datetime.datetime.now().hour * 60 + datetime.datetime.now().minute < self.eat_time_dinner + 30
 
         ## this is to stop the wandering protocol from getting triggered again when person is at the door and the robot already called the caregiver. It will be stopped for 5 mins
         ## wandering protocol eventually stops when the person is no longer cdetected by the door sensor so no other stopping condition needs to be added
         if self.start_stopped_Wandering is not None:
-            if time.time() - self.start_stopped_Wandering < 5*60: # 5 minutes
+            if time.time() - self.start_stopped_Wandering < 5 * 60:  # 5 minutes
                 self.world_state.door_motion_sensor = 0
             else:
                 self.start_stopped_Wandering = None
-
 
         self.world_state_pub.publish(self.world_state)
 
