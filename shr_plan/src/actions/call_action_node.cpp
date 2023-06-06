@@ -41,7 +41,7 @@ public:
     on_activate(const rclcpp_lifecycle::State &previous_state) {
         send_feedback(0.0, "Begin call");
 
-        action_client_ = rclcpp_action::create_client<shr_msgs::action::CallRequest>(shared_from_this(), "make_call");
+        action_client_ = rclcpp_action::create_client<shr_msgs::action::CallRequest>(this, "make_call");
 
         bool is_action_server_ready = false;
         do {
