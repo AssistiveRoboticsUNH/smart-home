@@ -59,6 +59,7 @@ public:
             RCLCPP_INFO(get_logger(), "Waiting for /read_script action server...");
 
             is_action_server_ready =
+
                     read_action_client_->wait_for_action_server(std::chrono::seconds(5));
         } while (!is_action_server_ready);
 

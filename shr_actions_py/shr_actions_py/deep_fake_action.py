@@ -53,7 +53,7 @@ class DeepFakeActionServer(Node):
         # store file path for reaching folder containing generated audio for voiceName
         basePath = os.path.dirname(os.path.realpath(__file__))
         voicePath = basePath + f'/voiceProfiles/{voiceName}'
-        filePath = voicePath + f'/downloadedPresets'
+        filePath = voicePath + f'/generatedAudio'
         # store path for location of script text file
         scriptPath = basePath + f'/scripts/{scriptName}.txt'
         print('dddd', scriptPath)
@@ -68,7 +68,7 @@ class DeepFakeActionServer(Node):
 
                 # wavfilename = self.create_wav_from_text(tempPath)
                 # os.system('vlc ' + wavfilename + ' vlc://quit')
-                play_audio_bytes(open(tempPath, "rb").read(), False)
+                # play_audio_bytes(open(tempPath, "rb").read(), False)
                 # playsound('temPath')
                 os.system('vlc ' + tempPath + ' vlc://quit')
 

@@ -133,7 +133,7 @@ namespace guide_action {
                 finish(true, 1.0, "Move completed");
             };
 //
-//            #ifdef USE_SIM
+////            #ifdef USE_SIM
                         shr_utils::send_nav_request_sim(*tf_buffer_, wp_to_navigate, now(),
                                                     navigation_action_client_, std::nullopt, feedback_callback, result_callback);
 

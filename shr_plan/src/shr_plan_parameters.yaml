@@ -39,48 +39,52 @@ shr_plan_parameters:
     default_value: [ "bedroom", "kitchen", "couch", "door" ],
     description: "list of tf frame locations that the robot can visit",
   }
+
+    # lab
+#  tf_values:
+#    bedroom: {
+#      type: double_array,
+#      default_value: [ 11, 3.66, 0, 0, 0, 0, 1 ],
+#      description: "TF for kitchen",
+#    }
+#    kitchen: {
+#      type: double_array,
+#      default_value: [ 5.3, 2.5, 0, 0, 0, 0, 1 ],
+#      description: "TF for kitchen",
+#    }
+#    couch: {
+#      type: double_array,
+#      default_value: [ 1.8, -9, 0, 0, 0, 0, 1 ],
+#      description: "TF for couch",
+#    }
+#    door: {
+#      type: double_array,
+#      default_value: [ 2.75, 0.58, -7.76, 0, 0, 0, 1 ],
+#      description: "TF for couch",
+#    }
+
+   # at daines house
   tf_values:
     bedroom: {
       type: double_array,
-      default_value: [ 11, 3.66, 0, 0, 0, 0, 1 ],
+      default_value: [-2, -3.69, 0, 0, 0, 0, 1 ],
       description: "TF for kitchen",
     }
     kitchen: {
-      type: double_array,
-      default_value: [ 5.3, 2.5, 0, 0, 0, 0, 1 ],
-      description: "TF for kitchen",
-    }
+        type: double_array,
+        default_value: [1.9, -0.27, 0, 0, 0, 0, 1 ],
+        description: "TF for kitchen",
+      }
     couch: {
       type: double_array,
-      default_value: [ 1.8, -9, 0, 0, 0, 0, 1 ],
+      default_value: [0, 1.6, -0.0, 0, 0, 0, 1 ],
       description: "TF for couch",
-    }
+      }
     door: {
       type: double_array,
-      default_value: [ 2.75, 0.58, -7.76, 0, 0, 0, 1 ],
+      default_value: [ -2.89, 0.59, 0, 0, 0, 0, 1 ],
       description: "TF for couch",
-    }
-  #  tf_values:
-  #    bedroom: {
-  #      type: double_array,
-  #      default_value: [ 3.05, -1.4, -2.35, 0, 0, 0, 1 ],
-  #      description: "TF for kitchen",
-  #    }
-  #    kitchen: {
-  #        type: double_array,
-  #        default_value: [-2.38, -1.4, -0.92, 0, 0, 0, 1 ],
-  #        description: "TF for kitchen",
-  #      }
-  #    couch: {
-  #      type: double_array,
-  #      default_value: [-2.5, -1.4, -0.19, 0, 0, 0, 1 ],
-  #      description: "TF for couch",
-  #      }
-  #    door: {
-  #      type: double_array,
-  #      default_value: [ -1.28, -1.4, -3.25, 0, 0, 0, 1 ],
-  #      description: "TF for couch",
-  #      }
+      }
 
   patient_name: {
     type: string,
@@ -114,7 +118,7 @@ shr_plan_parameters:
     }
     phone_numbers: {
       type: string_array,
-      default_value: [ "7742257735", "7742257735", "7742257735", "7742257735",  "7742257735", "7742257735", "6038514204", "7742257735", "7742257735" ],
+      default_value: [ "7742257735", "7742257735", "7742257735", "7742257735",  "7742257735", "7742257735", "7742257735", "7742257735", "7742257735" ],
       description: "list of phone numbers for each call action",
     }
     script_names: {

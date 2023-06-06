@@ -61,7 +61,7 @@ namespace move_action {
             send_feedback(0.0, "Move starting");
 
 
-//    #ifdef USE_SIM
+////    #ifdef USE_SIM
             navigation_action_client_ =
                     rclcpp_action::create_client<nav2_msgs::action::NavigateToPose>(
                             this,
@@ -96,14 +96,14 @@ namespace move_action {
                     shr_utils::NavigationFeedback_sim feedback) {
                 send_feedback(std::min(1.0, std::max(0.0, 1.0 - (feedback->distance_remaining / dist_to_move))),
                               "Move running");
-//            };
+            };
 //#else
 //            auto feedback_callback = [this](
 //              shr_utils::NavigationGoalHandle::SharedPtr,
 //              shr_utils::NavigationFeedback feedback) {
 //            send_feedback(std::min(1.0, std::max(0.0, 1.0 - (feedback->distance_remaining / dist_to_move))),
 //                          "Move running");
-          };
+//          };
 //#endif
 
             auto result_callback = [this](auto r) {
@@ -115,8 +115,8 @@ namespace move_action {
             shr_utils::send_nav_request_sim(*tf_buffer_, wp_to_navigate, now(),
                                             navigation_action_client_, std::nullopt, feedback_callback,
                                             result_callback);
-//
-//#else
+////
+////#else
 //            shr_utils::send_nav_request(*tf_buffer_, wp_to_navigate, now(),
 //                                                        navigation_action_client_, std::nullopt, feedback_callback, result_callback);
 
