@@ -146,8 +146,8 @@ class WorldStateNode(Node):
             self.world_state.patient_location = self.world_state.medicine_location
             self.patient_located_time = time.time()
 
-        if self.sensor_data.pill_sensor != msg.data:
-            self.sensor_data.pill_sensor = msg.data
+        if self.sensor_data.pills_sensor != msg.data:
+            self.sensor_data.pills_sensor = msg.data
             self.publish_world_state(sensor_data=self.sensor_data)
 
     def observe_eating_callback(self, msg):
@@ -267,11 +267,11 @@ class WorldStateNode(Node):
             self.world_state.patient_location = ""
 
         ## check time
-        # self.world_state.too_late_to_leave = datetime.datetime.now().hour <= self.too_late_to_leave # uncomment after debugging
-        # self.world_state.time_to_take_medicine = datetime.datetime.now().hour * 60 + datetime.datetime.now().minute > self.take_medication_time
-        # self.world_state.time_to_eat_breakfast = datetime.datetime.now().hour * 60 + datetime.datetime.now().minute > self.eat_time_breakfast
-        # self.world_state.time_to_eat_lunch = datetime.datetime.now().hour * 60 + datetime.datetime.now().minute > self.eat_time_lunch
-        # self.world_state.time_to_eat_dinner = datetime.datetime.now().hour * 60 + datetime.datetime.now().minute > self.eat_time_dinner
+        self.world_state.too_late_to_leave = datetime.datetime.now().hour <= self.too_late_to_leave
+        self.world_state.time_to_take_medicine = datetime.datetime.now().hour * 60 + datetime.datetime.now().minute > self.take_medication_time
+        self.world_state.time_to_eat_breakfast = datetime.datetime.now().hour * 60 + datetime.datetime.now().minute > self.eat_time_breakfast
+        self.world_state.time_to_eat_lunch = datetime.datetime.now().hour * 60 + datetime.datetime.now().minute > self.eat_time_lunch
+        self.world_state.time_to_eat_dinner = datetime.datetime.now().hour * 60 + datetime.datetime.now().minute > self.eat_time_dinner
 
 
         ## this is to stop the wandering protocol from getting triggered again when person is at the door and the robot already called the caregiver. It will be stopped for 5 mins

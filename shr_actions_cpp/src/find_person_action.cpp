@@ -10,7 +10,7 @@
 #include "shr_msgs/action/rotate_request.hpp"
 #include "shr_msgs/action/recognize_request.hpp"
 #include "nav2_msgs/action/navigate_to_pose.hpp"
-//#inclu "shr_msgs/action/navigate_to_pose.hpp"
+#include "shr_msgs/action/navigate_to_pose.hpp"
 #include "shr_utils/utils.hpp"
 //#undef USE_SIM
 //#define USE_SIM false

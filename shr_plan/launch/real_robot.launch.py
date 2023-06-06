@@ -19,12 +19,16 @@ def generate_launch_description():
             get_package_share_directory('tapo_cam_ros_wrapper'), 'launch', 'launch_tapo.launch.py']))
     )
 
-    nav_bridge_cmd = Node(
-            package='shr_actions_py',
-            executable='nav2_zmq_action',
-            name='nav2_zmq_action',
-            output='screen')
+    # nav_bridge_cmd = Node(
+    #         package='shr_actions_py',
+    #         executable='nav2_zmq_action',
+    #         name='nav2_zmq_action',
+    #         output='screen')
 
+    nav_cmd = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(PathJoinSubstitution([
+            get_package_share_directory('jackal_navigation'), 'launch', 'navigation2_jackal.launch.py']))
+    )
 
     tf_broadcast = Node(
         package='shr_plan',
@@ -32,7 +36,8 @@ def generate_launch_description():
     )
 
     ld = LaunchDescription()
-    ld.add_action(nav_bridge_cmd)
+    # ld.add_action(nav_bridge_cmd)
+    ld.add_action(nav_cmd)
     ld.add_action(tf_broadcast)
     ld.add_action(smartthings_node)
     ld.add_action(tapo_launch)
