@@ -140,7 +140,7 @@ shr_plan_parameters:
     }
     wait_times: {
       type: double_array,
-      default_value: [ 10.0, 10.0, 10.0, 10.0, 10.0 ],
+      default_value: [ 600.0, 600.0, 600.0, 600.0, 600.0 ],
       description: "list wait times after prompting",
     }
     topics: {
@@ -163,7 +163,7 @@ shr_plan_parameters:
       }
       wait_times: {
         type: double_array,
-        default_value: [ 10.0, 10.0, 10.0 ],
+        default_value: [ 600.0, 600.0, 600.0 ],
         description: "list wait times after prompting",
       }
       topics: {
@@ -214,7 +214,7 @@ shr_plan_parameters:
     }
     timeouts: {
       type: double_array,
-      default_value: [ 10.0, 10.0, 10.0 ],
+      default_value: [ 100.0, 100.0, 100.0 ],
       description: "list of detect person timeout values",
     }
 
@@ -233,7 +233,7 @@ shr_plan_parameters:
     }
     timeouts: {
       type: double_array,
-      default_value: [ 10.0, 10.0 ],
+      default_value: [ 100.0, 100.0 ],
       description: "list of detect person timeout values",
     }
 
@@ -245,7 +245,7 @@ shr_plan_parameters:
     }
     timeouts: {
       type: double_array,
-      default_value: [ 10.0, 10.0 ],
+      default_value: [ 100.0, 100.0 ],
       description: "list of detect person timeout values",
     }
 
@@ -257,7 +257,7 @@ shr_plan_parameters:
     }
     timeouts: {
       type: double_array,
-      default_value: [ 10.0, 10.0 ],
+      default_value: [ 300.0, 300.0 ],
       description: "list of detect person timeout values",
     }
 
