@@ -164,7 +164,6 @@ def generate_launch_description():
             name='find_person_node',
             output='screen')
 
-
     # notify_automated_cmd = Node(
     #     package='shr_plan',
     #     executable='notify_automated_action_node',
@@ -176,7 +175,6 @@ def generate_launch_description():
         executable='notify_automated_deep_fake_action_node',
         name='notify_automated_deep_fake_action_node',
         output='screen')
-
 
     notify_recorded_video_cmd = Node(
         package='shr_plan',

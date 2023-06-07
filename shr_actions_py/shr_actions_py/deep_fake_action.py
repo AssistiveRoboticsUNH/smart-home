@@ -3,7 +3,7 @@ from rclpy.action import ActionServer
 from rclpy.node import Node
 
 from shr_msgs.action import DeepFakeRequest
-
+from ament_index_python.packages import get_package_share_directory
 import os
 from elevenlabslib.helpers import *
 from elevenlabslib import *
@@ -51,7 +51,8 @@ class DeepFakeActionServer(Node):
         user = ElevenLabsUser(apikey)
         # print('here133')
         # store file path for reaching folder containing generated audio for voiceName
-        basePath = os.path.dirname(os.path.realpath(__file__))
+        # basePath = os.path.dirname(os.path.realpath(__file__))
+        basePath  = os.path.join(get_package_share_directory('shr_resources'), 'resources')
         voicePath = basePath + f'/voiceProfiles/{voiceName}'
         filePath = voicePath + f'/generatedAudio'
         # store path for location of script text file
