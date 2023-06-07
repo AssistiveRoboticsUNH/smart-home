@@ -5,8 +5,10 @@ from std_msgs.msg import String
 from rcl_interfaces.msg import Log
 from datetime import datetime
 import os 
+
+#log file: ~/.log_rosout
  
-path = "~/.log_rosout"
+path = f"{os.path.expanduser('~')}/.log_rosout"
  
 isExist = os.path.exists(path)
 if not isExist: 
@@ -25,12 +27,11 @@ class LogSubscriber(Node):
             self.listener_callback,
             10)
         self.subscription   
-
+        self.simple_log_file=path+'/'+'simplelog.txt'
 
 
     def listener_callback(self, msg):
-        # print('info:', msg)
-         
+        # print('info:', msg) 
         stamp=msg.stamp
         name=msg.name
         file=msg.file 
@@ -38,10 +39,16 @@ class LogSubscriber(Node):
         
         td=datetime.fromtimestamp(stamp.sec).strftime("%m/%d/%Y : %H:%M:%S")
 
-        print(f'\ntime={td}')
-        print(f'name={name}')
-        print(f'file={file}')
-        print(f'data={data}')
+        # print(f'\ntime={td}')
+        # print(f'name={name}')
+        # print(f'file={file}')
+        # print(f'data={data}')
+
+
+        if 'action' in file:
+            info=f'\ntime={td}\nname={name}\nfile={file}\nmsg={data}\n-----'
+            with open(self.simple_log_file, 'a+') as f:
+                f.write(info)
 
 
 
