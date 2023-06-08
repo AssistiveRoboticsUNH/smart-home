@@ -21,7 +21,7 @@ def generate_launch_description():
 
     simple_logger = Node(
         package="simple_logger",
-        executable="log_rosout",
+        executable="simple_logger",
         name="simple_logger",
         output="log"
     )
