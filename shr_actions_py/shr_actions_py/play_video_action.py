@@ -22,11 +22,13 @@ class PlayVideoActionServer(Node):
 
         if not os.path.isfile(file_path):
             result.status = "file '" + file_path + "' does not exist"
+            self.get_logger().info('Playing video was aborted')
             goal_handle.abort()
             return result
 
         command = 'vlc ' + file_path + ' --fullscreen vlc://quit'
         os.system(command)
+        self.get_logger().info('Playing video was successful')
         result.status = "success"
         goal_handle.succeed()
 

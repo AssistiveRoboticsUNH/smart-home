@@ -44,6 +44,7 @@ class DetectPersonActionServer(Node):
                 self.get_logger().info('Goal canceled')
                 return DetectPersonRequest.Result()
             if self.human_coords != "":
+                self.get_logger().info('Human detected with yolo')
                 result.status = "success"
                 goal_handle.succeed()
                 msg.angular.z = 0.0
@@ -55,6 +56,7 @@ class DetectPersonActionServer(Node):
         msg.angular.z = 0.0
         self.vel_pub.publish(msg)
 
+        self.get_logger().info('Human not detected with yolo')
         result.status = "fail"
         goal_handle.abort()
 

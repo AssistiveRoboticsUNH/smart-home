@@ -45,6 +45,7 @@ class DeepFakeActionServer(Node):
     # apikey: elevenlabs api profile key
     # returns True if script played successfuly, False if an error occured trying to play
     def playScript(self, scriptName, voiceName):
+        self.get_logger().info('Reading script...')
         # login user
         # print('here13')
         apikey = os.getenv("APIKEY")
@@ -74,6 +75,7 @@ class DeepFakeActionServer(Node):
                 os.system('vlc ' + tempPath + ' vlc://quit')
 
             except FileNotFoundError:
+                self.get_logger().info("file not found,  generating audio and saving")
                 print(f"No file found for script {scriptName} at filepath {tempPath}, generating audio and saving")
                 voiceProfile = user.get_voices_by_name(voiceName)[0]  # grab user from elevenlabs
 

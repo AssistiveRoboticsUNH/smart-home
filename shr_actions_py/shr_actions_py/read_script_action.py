@@ -30,11 +30,12 @@ class ReadScriptActionServer(Node):
         if not os.path.isfile(file_path):
             result.status = "file '" + file_path + "' does not exist"
             goal_handle.abort()
+            self.get_logger().info('Reading script was aborted')
             return result
 
         wavfilename = self.create_wav_from_text(file_path)
         os.system('vlc ' + wavfilename + ' vlc://quit')
-
+        self.get_logger().info('Reading script was successful')
         result.status = "success"
         goal_handle.succeed()
 
