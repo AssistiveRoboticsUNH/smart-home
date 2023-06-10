@@ -40,6 +40,7 @@ class PersonReturnedToHouseActionServer(Node):
         return CancelResponse.ACCEPT
 
     def callback(self, goal_handle):
+        self.get_logger().info('waiting for person to return ')
         # self.human_coords = ""
         result = WaitForPersonToReturnRequest.Result()
         timeout = goal_handle.request.timeout
@@ -48,11 +49,13 @@ class PersonReturnedToHouseActionServer(Node):
         while time.time() - start_time < timeout:
             if goal_handle.is_cancel_requested:
                 goal_handle.canceled()
+                self.get_logger().info('person is not back ')
                 print("person not back")
                 self.get_logger().info('Goal canceled')
                 return WaitForPersonToReturnRequest.Result()
             if self.human_back:
                 print("person back")
+                self.get_logger().info('person is back ')
                 result.status = "success"
                 goal_handle.succeed()
                 return result

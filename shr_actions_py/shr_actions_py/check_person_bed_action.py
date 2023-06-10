@@ -43,11 +43,14 @@ class CheckPersonInBedActionServer(Node):
                 return CheckPersonInBedRequest.Result()
             if self.motion_detected:
                 # print('motion detected true')
+                self.get_logger().info('Motion detected next to bed indicating the patient returned to bed afetr leaving at night')
+                self.get_logger().info('Goal canceled')
                 result.status = "success"
                 goal_handle.succeed()
                 return result
 
         result.status = "fail"
+        self.get_logger().info('Motion not detected next to bed indicating the patient didnt return to bed afetr leaving at night')
         goal_handle.abort()
 
         return result

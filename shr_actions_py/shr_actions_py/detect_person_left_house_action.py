@@ -47,10 +47,12 @@ class DetectLeftHouseActionServer(Node):
                 return DetectLeftHouseRequest.Result()
             if self.human_outside:
                 # print('fail')
+                self.get_logger().info('Human left house was detected')
                 result.status = "success"
                 goal_handle.succeed()
                 return result
 
+        self.get_logger().info('Human left house was not detected')
         result.status = "fail"
         goal_handle.abort()
 
