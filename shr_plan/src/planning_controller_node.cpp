@@ -168,18 +168,25 @@ namespace planning_controller {
         StateType get_transition() {
             if (world_state_.too_late_to_leave && world_state_.door_motion_sensor) {
                 active_protocol = "midnight_reminder";
+                RCLCPP_ERROR(get_logger(), "midnight_reminder is the active_protocol");
             }
             if (world_state_.time_to_take_medicine && !world_state_.took_medicine) {
                 active_protocol = "medicine_reminder";
+                RCLCPP_ERROR(get_logger(), "medicine_reminder is the active_protocol");
             }
             if (world_state_.time_to_eat_breakfast && !world_state_.ate_breakfast) {
                 active_protocol = "food_reminder";
+                RCLCPP_ERROR(get_logger(), "food_reminder is the active_protocol");
             }
             if (world_state_.time_to_eat_lunch && !world_state_.ate_lunch) {
                 active_protocol = "food_reminder";
+                RCLCPP_ERROR(get_logger(), "food_reminder is the active_protocol");
+
             }
             if (world_state_.time_to_eat_dinner && !world_state_.ate_dinner) {
                 active_protocol = "food_reminder";
+                RCLCPP_ERROR(get_logger(), "food_reminder is the active_protocol");
+                
             }
             if (active_protocol.empty()) {
                 return IDLE;

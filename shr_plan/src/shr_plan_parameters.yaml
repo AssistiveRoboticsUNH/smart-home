@@ -63,7 +63,7 @@ shr_plan_parameters:
 #      description: "TF for couch",
 #    }
 
-   # at daines house
+   # at danes house
   tf_values:
     bedroom: {
       type: double_array,
@@ -130,22 +130,22 @@ shr_plan_parameters:
   notify_recorded_actions:
     actions: {
       type: string_array,
-      default_value: [ "notifyrecordedmedicineat", "remindautomatedfoodat2", "notifyrecordedmidnightat" , "checkbedafterreturn1", "checkbedafterreturn2"],
+      default_value: [ "notifyrecordedmedicineat",  "remindautomatedfoodat", "notifyrecordedmidnightat"],
       description: "list of pddl notify recorded actions",
     }
     file_names: {
       type: string_array,
-      default_value: [ "medicine_reminder.mp3", "food_reminder.mp3", "midnight_reminder.mp3", "midnight_reminder.mp3",  "midnight_reminder.mp3" ],
+      default_value: [ "medicine_reminder.mp3", "food_reminder.mp3", "midnight_reminder.mp3"],
       description: "list of file names",
     }
     wait_times: {
       type: double_array,
-      default_value: [ 600.0, 600.0, 600.0, 600.0, 600.0 ],
+      default_value: [ 500.0, 500.0, 10],
       description: "list wait times after prompting",
     }
     topics: {
       type: string_array,
-      default_value: [ "/observe/pill_detection", "/observe/eat_detection",  "/decided_to_go_back_to_sleep" , "/observe/bed_after_returning", "/observe/bed_after_returning"],
+      default_value: [ "/observe/pill_detection", "/observe/eat_detection", "/decided_to_go_back_to_sleep"],
       description: "topic for sensor ",
     }
 
@@ -153,17 +153,17 @@ shr_plan_parameters:
   notify_automated_deep_fake_actions:
       actions: {
         type: string_array,
-        default_value: [ "notifyautomatedmedicineat", "remindautomatedfoodat", "notifyautomatedmidnightat" ],
+        default_value: [ "notifyautomatedmedicineat", "remindautomatedfoodat2", "notifyautomatedmidnightat" ],
         description: "list of pddl notify recorded actions",
       }
       script_names: {
         type: string_array,
-        default_value: [ "medicine_reminder", "food_reminder", "midnight_reminder" ],
+        default_value: [ "medicine_reminder", "food_reminder",  "midnight_reminder" ],
         description: "list of script names",
       }
       wait_times: {
         type: double_array,
-        default_value: [ 600.0, 600.0, 600.0 ],
+        default_value: [ 500.0, 500.0, 10.0 ],
         description: "list wait times after prompting",
       }
       topics: {
@@ -214,7 +214,7 @@ shr_plan_parameters:
     }
     timeouts: {
       type: double_array,
-      default_value: [ 100.0, 100.0, 100.0 ],
+      default_value: [ 60.0, 60.0, 60.0 ],
       description: "list of detect person timeout values",
     }
 
@@ -233,19 +233,19 @@ shr_plan_parameters:
     }
     timeouts: {
       type: double_array,
-      default_value: [ 100.0, 100.0 ],
+      default_value: [ 30.0, 30.0 ],
       description: "list of detect person timeout values",
     }
 
   check_if_person_went_to_bed:
     actions: {
       type: string_array,
-      default_value: [ "checkifpersonwenttobed1", "checkifpersonwenttobed2" ],
+      default_value: [ "checkifpersonwenttobed1", "checkifpersonwenttobed2" , "checkbedafterreturn1", "checkbedafterreturn2"],
       description: "list of pddl actions that do not have a corresponding action",
     }
     timeouts: {
       type: double_array,
-      default_value: [ 100.0, 100.0 ],
+      default_value: [ 120.0, 120.0, 120.0, 120.0 ],
       description: "list of detect person timeout values",
     }
 
