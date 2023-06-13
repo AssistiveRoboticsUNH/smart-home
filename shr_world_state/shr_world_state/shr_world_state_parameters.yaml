@@ -32,13 +32,13 @@ parameters:
   }
   take_medication_time: {
     type: string,
-    default_value: "20h00m",
+    default_value: "19h00m",
     description: "topic for detecting pills being taken",
   }
 
   eat_time: {
     type: string_array,
-    default_value: [ "7h00m", "14h30m", "19h00m"],
+    default_value: [ "7h00m", "14h30m", "18h00m"],
     description: "topic for detecting pills being taken",
   }
 
@@ -50,7 +50,7 @@ parameters:
 
   too_late_to_leave_time: {
     type: string,
-    default_value: "21h00m",
+    default_value: "20h00m",
     description: "topic for detecting pills being taken",
   }
 
