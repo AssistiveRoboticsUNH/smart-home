@@ -270,9 +270,11 @@ class WorldStateNode(Node):
             self.world_state.too_late_to_leave = self.too_late_to_leave_debug
         else:
             # before midnight
-            self.world_state.too_late_to_leave = datetime.datetime.now().hour * 60 + datetime.datetime.now().minute >= self.too_late_to_leave
+            if datetime.datetime.now().hour * 60 + datetime.datetime.now().minute >= self.too_late_to_leave or datetime.datetime.now().hour * 60 + datetime.datetime.now().minute <= 5*60:
+                self.world_state.too_late_to_leave = True
             # after midnight till 5am
-            self.world_state.too_late_to_leave = datetime.datetime.now().hour * 60 + datetime.datetime.now().minute <= 5*60 #5am
+            else:
+                self.world_state.too_late_to_leave = False
 
         if self.time_to_take_medicine_debug:
             self.world_state.time_to_take_medicine = self.time_to_take_medicine_debug
