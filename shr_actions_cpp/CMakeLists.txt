@@ -10,7 +10,6 @@ if (CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif ()
 
 
-
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_action REQUIRED)
@@ -32,12 +31,17 @@ set(dependencies
 add_executable(find_person_node src/find_person_action.cpp)
 ament_target_dependencies(find_person_node ${dependencies})
 
+add_executable(find_person_node_sim src/find_person_action.cpp)
+add_compile_definitions(find_person_node_sim USE_SIM)
+ament_target_dependencies(find_person_node_sim ${dependencies})
+
 include_directories(
         include
 )
 
 install(TARGETS
         find_person_node
+        find_person_node_sim
         DESTINATION lib/${PROJECT_NAME}
 )
 

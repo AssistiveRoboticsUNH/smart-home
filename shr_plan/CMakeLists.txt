@@ -42,6 +42,10 @@ set(dependencies
 add_executable(planning_controller_node src/planning_controller_node.cpp)
 ament_target_dependencies(planning_controller_node ${dependencies})
 
+#add_executable(planning_controller_node_sim src/planning_controller_node.cpp)
+#add_compile_definitions(planning_controller_node_sim USE_SIM)
+#ament_target_dependencies(planning_controller_node_sim ${dependencies})
+
 generate_parameter_library(shr_plan_parameters
         src/shr_plan_parameters.yaml
         )
@@ -49,11 +53,21 @@ generate_parameter_library(shr_plan_parameters
 target_link_libraries(planning_controller_node
         shr_plan_parameters
         )
+#target_link_libraries(planning_controller_node_sim
+#        shr_plan_parameters
+#        )
 
 
-add_executable(notify_automated_action_node src/actions/notify_automated_action_node.cpp)
-ament_target_dependencies(notify_automated_action_node ${dependencies})
-target_link_libraries(notify_automated_action_node
+#add_executable(notify_automated_action_node src/actions/notify_automated_action_node.cpp)
+#ament_target_dependencies(notify_automated_action_node ${dependencies})
+#target_link_libraries(notify_automated_action_node
+#        shr_plan_parameters
+#        )
+
+
+add_executable(notify_automated_deep_fake_action_node src/actions/notify_automated_deep_fake_action_node.cpp)
+ament_target_dependencies(notify_automated_deep_fake_action_node ${dependencies})
+target_link_libraries(notify_automated_deep_fake_action_node
         shr_plan_parameters
         )
 
@@ -69,12 +83,25 @@ ament_target_dependencies(move_action_node ${dependencies})
 target_link_libraries(move_action_node
         shr_plan_parameters
         )
+#add_executable(move_action_node_sim src/actions/move_action_node.cpp)
+#add_compile_definitions(move_action_node_sim USE_SIM)
+#ament_target_dependencies(move_action_node_sim ${dependencies})
+#target_link_libraries(move_action_node_sim
+#        shr_plan_parameters
+#        )
 
 add_executable(guide_action_node src/actions/guide_action_node.cpp)
 ament_target_dependencies(guide_action_node ${dependencies})
 target_link_libraries(guide_action_node
         shr_plan_parameters
         )
+
+#add_executable(guide_action_node_sim src/actions/guide_action_node.cpp)
+#add_compile_definitions(guide_action_node_sim USE_SIM)
+#ament_target_dependencies(guide_action_node_sim ${dependencies})
+#target_link_libraries(guide_action_node_sim
+#        shr_plan_parameters
+#        )
 
 
 add_executable(call_action_node src/actions/call_action_node.cpp)
@@ -95,6 +122,29 @@ target_link_libraries(detect_person_action_node
         shr_plan_parameters
         )
 
+add_executable(check_if_person_went_to_bed_action_node src/actions/check_if_person_went_to_bed_action_node.cpp)
+ament_target_dependencies(check_if_person_went_to_bed_action_node ${dependencies})
+target_link_libraries(check_if_person_went_to_bed_action_node
+        shr_plan_parameters
+        )
+
+add_executable(wait_for_person_to_return_node src/actions/wait_for_person_to_return_node.cpp)
+ament_target_dependencies(wait_for_person_to_return_node ${dependencies})
+target_link_libraries(wait_for_person_to_return_node
+        shr_plan_parameters
+        )
+
+add_executable(detect_person_left_house_action_node src/actions/detect_person_left_house_action_node.cpp)
+ament_target_dependencies(detect_person_left_house_action_node ${dependencies})
+target_link_libraries(detect_person_left_house_action_node
+        shr_plan_parameters
+        )
+
+add_executable(tf_broadcaster_node src/tf_broadcaster.cpp)
+ament_target_dependencies(tf_broadcaster_node ${dependencies})
+target_link_libraries(tf_broadcaster_node
+        shr_plan_parameters
+        )
 
 include_directories(
         include
@@ -104,7 +154,7 @@ if(BUILD_TESTING)
     find_package(ament_cmake_gtest REQUIRED)
     find_package(ament_index_cpp REQUIRED)
     set(dependencies ${dependencies} ament_index_cpp)
-    add_subdirectory(test)
+#    add_subdirectory(test)
 endif()
 
 install(TARGETS
@@ -112,10 +162,18 @@ install(TARGETS
         detect_person_action_node
         guide_action_node
         move_action_node
+#        guide_action_node_sim
+#        move_action_node_sim
         none_action_node
-        notify_automated_action_node
+#        notify_automated_action_node
         notify_recorded_video_node
         planning_controller_node
+#        planning_controller_node_sim
+        notify_automated_deep_fake_action_node
+        tf_broadcaster_node
+        detect_person_left_house_action_node
+        check_if_person_went_to_bed_action_node
+        wait_for_person_to_return_node
         ARCHIVE DESTINATION lib
         LIBRARY DESTINATION lib
         RUNTIME DESTINATION lib/${PROJECT_NAME}
@@ -126,6 +184,6 @@ install(
         DESTINATION share/shr_plan
 )
 
-ament_export_dependencies(${dependencies})
 
+ament_export_dependencies(${dependencies})
 ament_package()

@@ -19,13 +19,9 @@ repositories:
     type: git
     url: https://github.com/mikeferguson/openni2_camera.git
     version: ros2
-  external/unity_pioneer:
-    type: git
-    url: https://github.com/pac48/unity_pioneer.git
-    version: main
   external/ros2_planning_system:
     type: git
-    url: https://github.com/pac48/ros2_planning_system.git
+    url: https://github.com/olaghattas/ros2_planning_system.git
     version: add-cff-planner-ament-format
   external/plansys2_cff_plan_solver:
     type: git
@@ -34,4 +30,28 @@ repositories:
   external/smartthings_ros:
     type: git
     url: https://github.com/AssistiveRoboticsUNH/smartthings_ros.git
+    version: main
+  external/realsense:
+    type: git
+    url: https://github.com/IntelRealSense/realsense-ros.git
+    version: ros2-development
+  external/tapo_cam_ros_wrapper:
+    type: git
+    url:  https://github.com/olaghattas/tapo_cam_ros_wrapper.git
+    version: master
+  external/generate_parameter_library:
+    type: git
+    url: https://github.com/PickNikRobotics/generate_parameter_library.git
+    version: main
+  external/ros2_unity_bridge:
+    type: git
+    url: https://github.com/AssistiveRoboticsUNH/ros2_unity_bridge.git
+    version: main
+  external/ros2_pioneer:
+    type: git
+    url: https://github.com/AssistiveRoboticsUNH/ros2_pioneer.git
+    version: main
+  external/ros2_jackal:
+    type: git
+    url: https://github.com/AssistiveRoboticsUNH/ros2_jackal.git
     version: main

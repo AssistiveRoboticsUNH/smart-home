@@ -1,0 +1,2 @@
+string protocol
+bool success

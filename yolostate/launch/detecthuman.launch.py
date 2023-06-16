@@ -17,10 +17,18 @@ def generate_launch_description():
         package="yolostate",
         executable="detecthuman",
         name="detecthuman",
-        parameters=[{"view_camera": False}],
+        parameters=[{"view_camera": True}],
+        output="log"
+    )
+    run_detecthumaninhouse = Node(
+        package="yolostate",
+        executable="detecthumaninhouse",
+        name="detecthumaninhouse",
+        parameters=[{"view_camera": True}],
         output="log"
     )
 
+    ld.add_action(run_detecthumaninhouse)
     ld.add_action(download_weights_if_necessary)
     ld.add_action(run_detecthuman)
 

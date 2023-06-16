@@ -9,6 +9,7 @@ import rclpy
 import tempfile
 import threading
 import functools
+from gtts import gTTS
 
 
 class ReadScriptActionServer(Node):
@@ -29,22 +30,33 @@ class ReadScriptActionServer(Node):
         if not os.path.isfile(file_path):
             result.status = "file '" + file_path + "' does not exist"
             goal_handle.abort()
+            self.get_logger().info('Reading script was aborted')
             return result
 
         wavfilename = self.create_wav_from_text(file_path)
         os.system('vlc ' + wavfilename + ' vlc://quit')
-
+        self.get_logger().info('Reading script was successful')
         result.status = "success"
         goal_handle.succeed()
 
         return result
-
+        
     @functools.cache
     def create_wav_from_text(self, file_path):
         (wavfile, wavfilename) = tempfile.mkstemp(
             prefix='sound_play', suffix='.wav')
-        # os.system("text2wave -eval '(" + self.voice + ")' " + file_path + " -o " + wavfilename)
-        os.system("text2wave " + file_path + " -o " + wavfilename)
+
+        # Create a gTTS object with the text and language
+        # Path to the file containing the text you want to convert
+        # Open the text file and read its contents
+        with open(file_path, 'r') as f:
+            mytext = f.read()
+        tts_obj = gTTS(text=mytext, lang='en', slow=False)
+
+        # Save the generated speech as a WAV file
+        with tempfile.NamedTemporaryFile(suffix='.wav', delete=False) as f:
+            wavfilename = f.name
+            tts_obj.save(wavfilename)
         # os.system("pico2wave -l en-US -w" + wavfilename + f' "{data.arg}"')
         wavfilename_new = wavfilename.replace('.wav', '')
         wavfilename_new += '_new.wav'
@@ -54,8 +66,8 @@ class ReadScriptActionServer(Node):
 
     def thread_function(self):
         files = glob.glob(os.path.join(get_package_share_directory('shr_resources'), 'resources', '*.txt'))
-        for file in files:
-            wavfilename = self.create_wav_from_text(file)
+        # for file in files:
+        #     wavfilename = self.create_wav_from_text(file)
 
 
 def main(args=None):

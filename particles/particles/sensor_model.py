@@ -112,7 +112,8 @@ DISTANCE_SENSOR_TABLE = {
 class Map:
     def __init__(self, cfg_file, logger):
         package_dir = get_package_share_directory('mcl')
-        self._map_cfg = None
+        self._map_cfg = None # look forward to your response.
+
         with open(os.path.join(package_dir, cfg_file)) as cfg:
             self._map_cfg = yaml.load(cfg, Loader=yaml.FullLoader)
         if self._map_cfg is None:

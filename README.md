@@ -42,7 +42,9 @@ However, it is best practice to add all binary packages to the package xml (see 
 ``` 
 rosdep install --from-paths src --ignore-src -y 
 ``` 
-Note, the above command must be run at the root of the ROS workspace.
+
+Note, the above command must be run at the root of the ROS workspace. 
+
 
 # Smart Home Robot
 The project is about i) designing a smart home equipped with a socially assistive robot (SAR) and serval

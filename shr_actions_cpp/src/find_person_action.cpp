@@ -10,8 +10,10 @@
 #include "shr_msgs/action/rotate_request.hpp"
 #include "shr_msgs/action/recognize_request.hpp"
 #include "nav2_msgs/action/navigate_to_pose.hpp"
-
+#include "shr_msgs/action/navigate_to_pose.hpp"
 #include "shr_utils/utils.hpp"
+//#undef USE_SIM
+//#define USE_SIM false
 
 
 namespace find_person_request {
@@ -38,8 +40,15 @@ namespace find_person_request {
                     std::bind(&FindPersonRequestActionServer::handle_cancel, this, _1),
                     std::bind(&FindPersonRequestActionServer::handle_accepted, this, _1));
 
-            navigation_action_client_ = rclcpp_action::create_client<nav2_msgs::action::NavigateToPose>(
-                    this, "navigate_to_pose");
+
+//            #ifdef USE_SIM
+                navigation_action_client_ = rclcpp_action::create_client<nav2_msgs::action::NavigateToPose>(
+                        this, "navigate_to_pose");
+//            #else
+//                navigation_action_client_ = rclcpp_action::create_client<shr_msgs::action::NavigateToPose>(
+//                        this, "navigate_to_pose");
+//            #endif
+
             rotate_client_ = rclcpp_action::create_client<shr_msgs::action::RotateRequest>(
                     this, "rotate");
             recognize_face_client_ = rclcpp_action::create_client<shr_msgs::action::RecognizeRequest>(
@@ -59,7 +68,11 @@ namespace find_person_request {
 
     private:
         rclcpp_action::Server<FindPersonRequest>::SharedPtr action_server_;
-        rclcpp_action::Client<nav2_msgs::action::NavigateToPose>::SharedPtr navigation_action_client_;
+//        #ifdef USE_SIM
+                rclcpp_action::Client<nav2_msgs::action::NavigateToPose>::SharedPtr navigation_action_client_;
+//        #else
+//                rclcpp_action::Client<shr_msgs::action::NavigateToPose>::SharedPtr navigation_action_client_;
+//        #endif
         rclcpp_action::Client<shr_msgs::action::RotateRequest>::SharedPtr rotate_client_;
         rclcpp_action::Client<shr_msgs::action::RecognizeRequest>::SharedPtr recognize_face_client_;
 
@@ -122,8 +135,6 @@ namespace find_person_request {
 
 
         void execute(const std::shared_ptr<GoalHandleFindPersonRequest> goal_handle) {
-
-
 
 
             RCLCPP_INFO(this->get_logger(), "Executing goal");
@@ -196,7 +207,7 @@ namespace find_person_request {
             *moving = true;
         }
 
-        void navigate(const std::shared_ptr<const FindPersonRequest::Goal> &goal, bool *moving, int* location_ind) {
+        void navigate(const std::shared_ptr<const FindPersonRequest::Goal> &goal, bool *moving, int *location_ind) {
             auto result_callback = [this, moving](auto) {
                 *moving = false;
             };
@@ -211,9 +222,17 @@ namespace find_person_request {
                 }
             };
             *location_ind = (*location_ind + 1) % goal->locations.size();
-            shr_utils::send_nav_request(*tf_buffer_, goal->locations[*location_ind], now(),
-                                                           navigation_action_client_,
-                                                           goal_response_callback, std::nullopt, result_callback);
+//            #ifdef USE_SIM
+                        shr_utils::send_nav_request_sim(*tf_buffer_, goal->locations[*location_ind], now(),
+                                        navigation_action_client_,
+                                        goal_response_callback, std::nullopt, result_callback);
+
+//            #else
+//                        shr_utils::send_nav_request(*tf_buffer_, goal->locations[*location_ind], now(),
+//                                        navigation_action_client_,
+//                                        goal_response_callback, std::nullopt, result_callback);
+//            #endif
+
             *moving = true;
         }
 
@@ -225,7 +244,7 @@ namespace find_person_request {
             auto send_goal_options = rclcpp_action::Client<shr_msgs::action::RecognizeRequest>::SendGoalOptions();
             auto result_callback = [this, goal, rotating, recognizing, found_person](
                     const rclcpp_action::ClientGoalHandle<shr_msgs::action::RecognizeRequest>::WrappedResult &response) {
-              if (*rotating) {
+                if (*rotating) {
                     for (const auto &name: response.result->names) {
                         if (name == goal->name) {
                             *found_person = true;

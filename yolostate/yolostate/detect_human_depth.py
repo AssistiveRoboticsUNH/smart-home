@@ -28,9 +28,9 @@ class DetectHumanAndDepth(Node):
  
         self.declare_parameter('view_camera', False)
         self.declare_parameter('view_depth_camera', True)
-        self.declare_parameter('camera', '/smart_home/camera/color/image_raw')
-        self.declare_parameter('depth_camera', '/smart_home/camera/depth/image_raw')
-        self.declare_parameter('depth_camera_info', '/smart_home/camera/depth/camera_info')
+        self.declare_parameter('camera', '/camera/color/image_raw')
+        self.declare_parameter('depth_camera', '/camera/depth/image_rect_raw')
+        self.declare_parameter('depth_camera_info', '/camera/depth/camera_info')
 
         self.declare_parameter('pub_human', '/detecthuman')
         self.declare_parameter('pub_human_depth', '/detecthumandepth')
@@ -58,7 +58,7 @@ class DetectHumanAndDepth(Node):
             self.depth_callback,
             10)
 
-        self.sub_depth_camera_info= self.create_subscription(
+        self.sub_depth_camera_infoHumanDetector = self.create_subscription(
             CameraInfo,
             param_depth_camera_info_topic,
             self.depth_info_callback,
@@ -69,7 +69,7 @@ class DetectHumanAndDepth(Node):
         self.tf_broadcaster = TransformBroadcaster(self)
 
 
-        self.last_depth_ros_image=None   #store the depth camera ros image
+        self.last_depth_ros_image = None   #store the depth camera ros image
         # Used to convert between ROS and OpenCV images
         self.br = CvBridge()
 
@@ -148,8 +148,8 @@ class DetectHumanAndDepth(Node):
                 #end of crop
 
 
-                cx=int( x+xd/2 ) #center of the box
-                cy=int( y+yd/2 ) #center of the box
+                cx = min(int( x+xd/2 ), img.shape[1]-2) #center of the box
+                cy = min(int( y+yd/2 ),  img.shape[0]-2)#center of the box
                 pv=img[cy,cx]     #center pixel value 
                 # depth =pv*10      #unity depth image give 1 for 10 meter.
                 depth=(pv -0.28 ) *10   #TODO: hack

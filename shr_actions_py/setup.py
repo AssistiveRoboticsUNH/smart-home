@@ -27,6 +27,11 @@ setup(
                             'open_image_action = shr_actions_py.open_image_action:main',
                             'rotate_action = shr_actions_py.rotate_action:main',
                             'detect_person_action = shr_actions_py.detect_person_action:main',
+                            'deep_fake_action = shr_actions_py.deep_fake_action:main',
+                            'check_person_bed_action = shr_actions_py.check_person_bed_action:main',
+                            'detect_person_left_house_action = shr_actions_py.detect_person_left_house_action:main',
+                            'wait_for_person_to_return_action = shr_actions_py.wait_for_person_to_return_action:main',
+                            'nav2_zmq_action = shr_actions_py.nav2_zmq_action:main'
                             ],
     },
 )

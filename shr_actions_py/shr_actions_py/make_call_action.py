@@ -1,5 +1,4 @@
 import os
-
 from shr_msgs.action import CallRequest
 from rclpy.action import ActionServer, ActionClient
 from rclpy.node import Node
@@ -17,23 +16,24 @@ class MakeCallActionServer(Node):
                                                       self.make_call_callback)
 
     def make_call_callback(self, goal_handle):
-        self.get_logger().info('Reading script...')
+        self.get_logger().info('Making call...')
         result = CallRequest.Result()
 
         account_sid = os.environ['TWILIO_ACCOUNT_SID']
-        token = os.environ['TWIO_TOKEN']
+        token = os.environ['TWILIO_TOKEN']
 
         client = Client(account_sid, token)
         try:
             call = client.calls.create(
                 url='https://mypages.unh.edu/sites/default/files/paulgesel/files/' + goal_handle.request.script_name,
                 to=goal_handle.request.phone_number,
-                from_='+14094074384')
+                from_='+18332484379')
         except Exception as e:
+            self.get_logger().info('Making call failed')
             result.status = "failed: " + str(e)
             goal_handle.abort()
             return result
-
+        self.get_logger().info('Making call succeeded')
         result.status = "success"
         goal_handle.succeed()
 
@@ -42,7 +42,6 @@ class MakeCallActionServer(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-
     make_call_action_server = MakeCallActionServer()
 
     while True:

@@ -24,3 +24,5 @@ devel_isolated/
 
 # Colcon custom files
 COLCON_IGNORE
+.docker_nsojib
+

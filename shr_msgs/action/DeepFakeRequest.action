@@ -1,0 +1,6 @@
+string script_name
+string voice_name
+---
+string status
+---
+bool running # returns true if running

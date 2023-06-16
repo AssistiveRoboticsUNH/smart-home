@@ -20,12 +20,14 @@ class PlayAudioActionServer(Node):
         file_path = os.path.join(get_package_share_directory('shr_resources'), 'resources', file_name)
 
         if not os.path.isfile(file_path):
+            self.get_logger().info('Playing audio was aborted')
             result.status = "file '" + file_path + "' does not exist"
             goal_handle.abort()
             return result
 
         command = 'mpg321 ' + file_path
         os.system(command)
+        self.get_logger().info('Playing audio was successful')
         result.status = "success"
         goal_handle.succeed()
 
