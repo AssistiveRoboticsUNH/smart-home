@@ -16,7 +16,7 @@
 
 `right-click and drag` : pan camera
 
-`mouse wheel` : zoom in
+`mouse wheel` : zoom in 
 
   
 ## Managing source package dependencies 
@@ -42,6 +42,7 @@ However, it is best practice to add all binary packages to the package xml (see 
 ``` 
 rosdep install --from-paths src --ignore-src -y 
 ``` 
+
 Note, the above command must be run at the root of the ROS workspace. 
 
 
