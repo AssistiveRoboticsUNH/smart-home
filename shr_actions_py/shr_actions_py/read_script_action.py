@@ -40,7 +40,8 @@ class ReadScriptActionServer(Node):
         goal_handle.succeed()
 
         return result
-
+        
+    @functools.cache
     def create_wav_from_text(self, file_path):
         (wavfile, wavfilename) = tempfile.mkstemp(
             prefix='sound_play', suffix='.wav')
