@@ -18,13 +18,7 @@
 
 #include <memory>
 
-#include "plansys2_msgs/msg/action_execution_info.hpp"
-#include "plansys2_msgs/msg/plan.hpp"
 
-#include "plansys2_domain_expert/DomainExpertClient.hpp"
-#include "plansys2_executor/ExecutorClient.hpp"
-#include "plansys2_planner/PlannerClient.hpp"
-#include "plansys2_problem_expert/ProblemExpertClient.hpp"
 #include "ament_index_cpp/get_package_share_directory.hpp"
 
 #include "rclcpp/rclcpp.hpp"
@@ -36,7 +30,6 @@
 #include "shr_msgs/msg/medicine_reminder_protocol.hpp"
 #include "shr_msgs/msg/food_reminder_protocol.hpp"
 #include "shr_msgs/msg/world_state.hpp"
-#include "plansys2_msgs/msg/action_execution.hpp"
 #include "shr_msgs/msg/success_protocol.hpp"
 
 #include <rclcpp_action/client.hpp>
@@ -46,6 +39,8 @@
 #include "tf2_ros/buffer.h"
 
 #include <shr_plan_parameters.hpp>
+#include <shr_plan/actions.hpp>
+
 //#undef USE_SIM
 //#define USE_SIM false
 
