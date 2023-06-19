@@ -38,21 +38,94 @@
 #include <shr_plan/actions.hpp>
 
 
+TRUTH_VALUE person_at(TRUTH_VALUE val, person p, landmark lm) {
+
+    return val;
+}
+
+TRUTH_VALUE robot_at(TRUTH_VALUE val, robot p, landmark lm) {
+
+    return val;
+}
+
+TRUTH_VALUE medicine_location(TRUTH_VALUE val, landmark lm) {
+
+    return val;
+}
+
+TRUTH_VALUE time_to_eat_dinner(TRUTH_VALUE val) {
+
+    return val;
+}
+
+TRUTH_VALUE time_to_take_medicine(TRUTH_VALUE val) {
+
+    return val;
+}
+
+TRUTH_VALUE time_to_eat_breakfast(TRUTH_VALUE val) {
+
+    return val;
+}
+
+TRUTH_VALUE time_to_eat_lunch(TRUTH_VALUE val) {
+
+    return val;
+}
+
+TRUTH_VALUE person_on_ground(TRUTH_VALUE val) {
+
+    return val;
+}
+
+TRUTH_VALUE too_late_to_go_outside(TRUTH_VALUE val) {
+
+    return val;
+}
+
+
+
 
 int main(int argc, char **argv) {
-  rclcpp::init(argc, argv);
-  auto node = std::make_shared<rclcpp::Node>("PlanningControllerNode");
-  auto param_listener_ = shr_plan_parameters::ParamListener(node);
-  auto params_ = param_listener_.get_params();
+    rclcpp::init(argc, argv);
+    auto node = std::make_shared<rclcpp::Node>("PlanningControllerNode");
+    auto param_listener_ = shr_plan_parameters::ParamListener(node);
+    auto params = param_listener_.get_params();
 
-  shr_msgs::msg::WorldState world_state_;
-  auto world_state_sub_ = node->create_subscription<shr_msgs::msg::WorldState>(
-      params_.world_state_topic, 10, [&world_state_](const shr_msgs::msg::WorldState::SharedPtr msg) {
-        world_state_ = *msg;
-      });
+    shr_msgs::msg::WorldState world_state_;
+    auto world_state_sub_ = node->create_subscription<shr_msgs::msg::WorldState>(
+            params.world_state_topic, 10, [&world_state_](const shr_msgs::msg::WorldState::SharedPtr msg) {
+                world_state_ = *msg;
+            });
 
+    UpdatePredicates updater;
+    updater.set_person_at(person_at);
+    updater.set_robot_at(robot_at);
+    updater.set_medicine_location(medicine_location);
+    updater.set_time_to_eat_breakfast(time_to_eat_breakfast);
+    updater.set_time_to_eat_lunch(time_to_eat_lunch);
+    updater.set_time_to_eat_dinner(time_to_eat_dinner);
+    updater.set_time_to_take_medicine(time_to_take_medicine);
+    updater.set_person_on_ground(person_on_ground);
+    updater.set_too_late_to_go_outside(too_late_to_go_outside);
 
-  rclcpp::shutdown();
+    auto &kb = KnowledgeBase::getInstance();
+    for (const auto& landmark : params.pddl_instances.landmarks){
+        kb.objects.push_back({landmark, "landmark"});
+    }
+    for (const auto& person : params.pddl_instances.people){
+        kb.objects.push_back({person, "person"});
+    }
+    for (const auto& robot : params.pddl_instances.robots){
+        kb.objects.push_back({robot, "robot"});
+    }
 
-  return 0;
+//    kb.knownPredicates.concurrent_insert({"person_at", {nathan, kitchen}} ) ;
+//    kb.unknownPredicates.concurrent_insert({"person_at", {nathan, couch}} ) ;
+
+    updater.update();
+
+    rclcpp::shutdown();
+
+    return 0;
 }

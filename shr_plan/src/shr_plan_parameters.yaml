@@ -41,50 +41,50 @@ shr_plan_parameters:
   }
 
     # lab
-#  tf_values:
-#    bedroom: {
-#      type: double_array,
-#      default_value: [ 11, 3.66, 0, 0, 0, 0, 1 ],
-#      description: "TF for kitchen",
-#    }
-#    kitchen: {
-#      type: double_array,
-#      default_value: [ 5.3, 2.5, 0, 0, 0, 0, 1 ],
-#      description: "TF for kitchen",
-#    }
-#    couch: {
-#      type: double_array,
-#      default_value: [ 1.8, -9, 0, 0, 0, 0, 1 ],
-#      description: "TF for couch",
-#    }
-#    door: {
-#      type: double_array,
-#      default_value: [ 2.75, 0.58, -7.76, 0, 0, 0, 1 ],
-#      description: "TF for couch",
-#    }
+    #  tf_values:
+    #    bedroom: {
+    #      type: double_array,
+    #      default_value: [ 11, 3.66, 0, 0, 0, 0, 1 ],
+    #      description: "TF for kitchen",
+    #    }
+    #    kitchen: {
+    #      type: double_array,
+    #      default_value: [ 5.3, 2.5, 0, 0, 0, 0, 1 ],
+    #      description: "TF for kitchen",
+    #    }
+    #    couch: {
+    #      type: double_array,
+    #      default_value: [ 1.8, -9, 0, 0, 0, 0, 1 ],
+    #      description: "TF for couch",
+    #    }
+    #    door: {
+    #      type: double_array,
+    #      default_value: [ 2.75, 0.58, -7.76, 0, 0, 0, 1 ],
+  #      description: "TF for couch",
+  #    }
 
-   # at danes house
+  # at danes house
   tf_values:
     bedroom: {
       type: double_array,
-      default_value: [-2, -3.69, 0, 0, 0, 0, 1 ],
+      default_value: [ -2, -3.69, 0, 0, 0, 0, 1 ],
       description: "TF for kitchen",
     }
     kitchen: {
-        type: double_array,
-        default_value: [1.9, -0.27, 0, 0, 0, 0, 1 ],
-        description: "TF for kitchen",
-      }
+      type: double_array,
+      default_value: [ 1.9, -0.27, 0, 0, 0, 0, 1 ],
+      description: "TF for kitchen",
+    }
     couch: {
       type: double_array,
-      default_value: [0, 1.6, -0.0, 0, 0, 0, 1 ],
+      default_value: [ 0, 1.6, -0.0, 0, 0, 0, 1 ],
       description: "TF for couch",
-      }
+    }
     door: {
       type: double_array,
       default_value: [ -2.89, 0.59, 0, 0, 0, 0, 1 ],
       description: "TF for couch",
-      }
+    }
 
   patient_name: {
     type: string,
@@ -113,7 +113,7 @@ shr_plan_parameters:
     actions: {
       type: string_array,
       default_value: [ "askcaregiverhelpmedicine1", "askcaregiverhelpmedicine2", "askcaregiverhelpfood1", "askcaregiverhelpfood2", "callcaregiverasktogotobed", "callcaregiverwondering", "callemergency", "callcaregiverasktogotobedafterreturn2",
-                       "callcaregiverasktogotobedafterreturn1"],
+                       "callcaregiverasktogotobedafterreturn1" ],
       description: "list of pddl call actions",
     }
     phone_numbers: {
@@ -130,74 +130,74 @@ shr_plan_parameters:
   notify_recorded_actions:
     actions: {
       type: string_array,
-      default_value: [ "notifyrecordedmedicineat",  "remindautomatedfoodat", "notifyrecordedmidnightat"],
+      default_value: [ "notifyrecordedmedicineat",  "remindautomatedfoodat", "notifyrecordedmidnightat" ],
       description: "list of pddl notify recorded actions",
     }
     file_names: {
       type: string_array,
-      default_value: [ "medicine_reminder.mp3", "food_reminder.mp3", "midnight_reminder.mp3"],
+      default_value: [ "medicine_reminder.mp3", "food_reminder.mp3", "midnight_reminder.mp3" ],
       description: "list of file names",
     }
     wait_times: {
       type: double_array,
-      default_value: [ 500.0, 500.0, 10],
+      default_value: [ 500.0, 500.0, 10 ],
       description: "list wait times after prompting",
     }
     topics: {
       type: string_array,
-      default_value: [ "/observe/pill_detection", "/observe/eat_detection", "/decided_to_go_back_to_sleep"],
+      default_value: [ "/observe/pill_detection", "/observe/eat_detection", "/decided_to_go_back_to_sleep" ],
       description: "topic for sensor ",
     }
 
 
   notify_automated_deep_fake_actions:
-      actions: {
-        type: string_array,
-        default_value: [ "notifyautomatedmedicineat", "remindautomatedfoodat2", "notifyautomatedmidnightat" ],
-        description: "list of pddl notify recorded actions",
-      }
-      script_names: {
-        type: string_array,
-        default_value: [ "medicine_reminder", "food_reminder",  "midnight_reminder" ],
-        description: "list of script names",
-      }
-      wait_times: {
-        type: double_array,
-        default_value: [ 500.0, 500.0, 10.0 ],
-        description: "list wait times after prompting",
-      }
-      topics: {
-        type: string_array,
-        default_value: [ "/observe/pill_detection", "/observe/eat_detection",  "/decided_to_go_back_to_sleep" ],
-        description: "topic for sensor ",
-      }
-      voice_names: {
-        type: string_array,
-        default_value: [ "natasha", "natasha", "natasha" ],
-        description: "list of script names",
-      }
+    actions: {
+      type: string_array,
+      default_value: [ "notifyautomatedmedicineat", "remindautomatedfoodat2", "notifyautomatedmidnightat" ],
+      description: "list of pddl notify recorded actions",
+    }
+    script_names: {
+      type: string_array,
+      default_value: [ "medicine_reminder", "food_reminder",  "midnight_reminder" ],
+      description: "list of script names",
+    }
+    wait_times: {
+      type: double_array,
+      default_value: [ 500.0, 500.0, 10.0 ],
+      description: "list wait times after prompting",
+    }
+    topics: {
+      type: string_array,
+      default_value: [ "/observe/pill_detection", "/observe/eat_detection",  "/decided_to_go_back_to_sleep" ],
+      description: "topic for sensor ",
+    }
+    voice_names: {
+      type: string_array,
+      default_value: [ "natasha", "natasha", "natasha" ],
+      description: "list of script names",
+    }
 
-#  notify_automated_actions:
-#    actions: {
-#      type: string_array,
-#      default_value: [ "notifyautomatedmedicineat", "remindautomatedfoodat", "notifyautomatedmidnightat"],
-#      description: "list of pddl notify recorded actions",
-#    }
-#    script_names: {
-#      type: string_array,
-#      default_value: [ "medicine_reminder.txt", "food_reminder.txt", "midnight_reminder.txt" ],
-#      description: "list of script names",
-#    }
-#    wait_times: {
-#      type: double_array,
-#      default_value: [ 10.0, 10.0, 10.0 ],
-#      description: "list wait times after prompting",
-#    }
-#    topics: {
-#      type: string_array,
-#      default_value: [ "/observe/pill_detection", "/observe/eat_detection",  "/decided_to_go_back_to_sleep" ],
-#      description: "topic for sensor ",
-#    }
+  #  notify_automated_actions:
+  #    actions: {
+  #      type: string_array,
+  #      default_value: [ "notifyautomatedmedicineat", "remindautomatedfoodat", "notifyautomatedmidnightat"],
+  #      description: "list of pddl notify recorded actions",
+  #    }
+  #    script_names: {
+  #      type: string_array,
+  #      default_value: [ "medicine_reminder.txt", "food_reminder.txt", "midnight_reminder.txt" ],
+  #      description: "list of script names",
+  #    }
+  #    wait_times: {
+  #      type: double_array,
+  #      default_value: [ 10.0, 10.0, 10.0 ],
+  #      description: "list wait times after prompting",
+  #    }
+  #    topics: {
+  #      type: string_array,
+  #      default_value: [ "/observe/pill_detection", "/observe/eat_detection",  "/decided_to_go_back_to_sleep" ],
+  #      description: "topic for sensor ",
+  #    }
 
   guide_to_actions:
     actions: {
@@ -221,7 +221,7 @@ shr_plan_parameters:
   none_actions:
     actions: {
       type: string_array,
-      default_value: [ "updatesuccess1", "updatesuccess2", "updatesuccess3","updatepersonloc1", "updatepersonloc2", "initguidepersontolandmarkattempt", "initmovetolandmark", "initdetectpersonlefthouse1", "initdetectpersonlefthouse2", "persongooutside1", "persongooutside2", "finishdetectperson1", "finishdetectperson2", "updatepersonlocation1", "updatepersonlocation2", "updatesuccess0", "updatesuccess5", "initcheckbedafterreturn1", "initcheckbedafterreturn2"],
+      default_value: [ "updatesuccess1", "updatesuccess2", "updatesuccess3","updatepersonloc1", "updatepersonloc2", "initguidepersontolandmarkattempt", "initmovetolandmark", "initdetectpersonlefthouse1", "initdetectpersonlefthouse2", "persongooutside1", "persongooutside2", "finishdetectperson1", "finishdetectperson2", "updatepersonlocation1", "updatepersonlocation2", "updatesuccess0", "updatesuccess5", "initcheckbedafterreturn1", "initcheckbedafterreturn2" ],
       description: "list of pddl actions that do not have a corresponding action",
     }
 
@@ -240,7 +240,7 @@ shr_plan_parameters:
   check_if_person_went_to_bed:
     actions: {
       type: string_array,
-      default_value: [ "checkifpersonwenttobed1", "checkifpersonwenttobed2" , "checkbedafterreturn1", "checkbedafterreturn2"],
+      default_value: [ "checkifpersonwenttobed1", "checkifpersonwenttobed2" , "checkbedafterreturn1", "checkbedafterreturn2" ],
       description: "list of pddl actions that do not have a corresponding action",
     }
     timeouts: {
@@ -268,4 +268,23 @@ shr_plan_parameters:
       description: "pddl action to move robot",
     }
   }
+
+  pddl_instances:
+    landmarks: {
+      type: string_array,
+      default_value: [ "kitchen", "couch", "home" ],
+      description: "all landmarks in protocols",
+    }
+    robots: {
+      type: string_array,
+      default_value: [ "jackel" ],
+      description: "all robots in protocols",
+    }
+    people: {
+      type: string_array,
+      default_value: [ "nathan" ],
+      description: "all robots in protocols",
+    }
+
+
 

@@ -1,4 +1,5 @@
 #include "bt_shr_actions.hpp"
+
 std::string active_domain;
 
 BT::NodeStatus
