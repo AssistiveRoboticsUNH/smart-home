@@ -36,6 +36,7 @@ set(dependencies
     tf2_ros
     shr_msgs
     shr_utils
+    cff_plan_solver
     )
 
 add_executable(planning_controller_node src/planning_controller_node.cpp)

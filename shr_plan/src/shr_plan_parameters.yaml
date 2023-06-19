@@ -59,7 +59,7 @@ shr_plan_parameters:
     #    }
     #    door: {
     #      type: double_array,
-    #      default_value: [ 2.75, 0.58, -7.76, 0, 0, 0, 1 ],
+  #      default_value: [ 2.75, 0.58, -7.76, 0, 0, 0, 1 ],
   #      description: "TF for couch",
   #    }
 
@@ -270,20 +270,40 @@ shr_plan_parameters:
   }
 
   pddl_instances:
-    landmarks: {
+    Landmark: {
       type: string_array,
       default_value: [ "kitchen", "couch", "home" ],
       description: "all landmarks in protocols",
     }
-    robots: {
+    Robot: {
       type: string_array,
       default_value: [ "jackel" ],
       description: "all robots in protocols",
     }
-    people: {
+    Person: {
       type: string_array,
       default_value: [ "nathan" ],
-      description: "all robots in protocols",
+      description: "all people in protocols",
+    }
+    FoodProtocol: {
+      type: string_array,
+      default_value: [ "breakfast", "lunch", "dinner" ],
+      description: "food protocols",
+    }
+    MedicineProtocol: {
+      type: string_array,
+      default_value: [ "daily" ],
+      description: "medicine protocols",
+    }
+    WonderingProtocol: {
+      type: string_array,
+      default_value: [ "daily" ],
+      description: "wondering protocols",
+    }
+    FallProtocol: {
+      type: string_array,
+      default_value: [ "daily" ],
+      description: "wondering protocols",
     }
 
 

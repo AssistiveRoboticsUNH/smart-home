@@ -5,6 +5,7 @@ string outside_location
 string medicine_location
 string bedroom_location
 string patient_location
+string robot_location
 string eat_location
 int32 door_open # -1 means value is none
 int32 door_motion_sensor # -1 means value is none

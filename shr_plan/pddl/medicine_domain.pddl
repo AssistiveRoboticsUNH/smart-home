@@ -3,166 +3,167 @@
 (:requirements :strips :typing)
 
 (:types
-	person
-	robot
-	landmark
+	Person
+	Robot
+	Landmark
+	MedicineProtocol
 )
 
 (:predicates
-	(robot_at ?r - robot ?lm - landmark)
-	(person_at ?p - person ?lm - landmark)
-	(medicine_location ?lm - landmark)
+	(robot_at ?r - Robot ?lm - Landmark)
+	(person_at ?p - Person ?lm - Landmark)
+	(medicine_location ?m - MedicineProtocol ?lm - Landmark)
 
-	(asked_caregiver_help ?p - person)
-	(robot_updated_1)
-	(robot_updated_2)
+	(asked_caregiver_help ?m - MedicineProtocol ?p - Person)
 
-	(init_move_to_landmark)
-	(init_guide_person_to_landmark_attempt)
+	(init_move_to_landmark ?m - MedicineProtocol)
+	(init_guide_person_to_landmark_attempt ?m - MedicineProtocol)
 
-	(guide_to_succeeded_attempt_1 )
-	(guide_to_succeeded_attempt_2)
-	(notify_automated_succeeded)
-	(notify_recorded_succeeded)
+	(guide_to_succeeded_attempt_1 ?m - MedicineProtocol)
+	(guide_to_succeeded_attempt_2 ?m - MedicineProtocol)
+	(notify_automated_succeeded ?m - MedicineProtocol)
+	(notify_recorded_succeeded ?m - MedicineProtocol)
 
-	(tried_guide_person_landmark_1)
-	(tried_guide_person_landmark_2)
+	(tried_guide_person_landmark_1 ?m - MedicineProtocol)
+	(tried_guide_person_landmark_2 ?m - MedicineProtocol)
 
-	(enable_check_guide_1)
-	(enable_check_guide_2)
+	(enable_check_guide_1 ?m - MedicineProtocol)
+	(enable_check_guide_2 ?m - MedicineProtocol)
 
+  (already_took_medicine ?m - MedicineProtocol)
+	(already_called_about_medicine ?m - MedicineProtocol)
 	(success)
 
 )
 
 (:action detectPerson
-    :parameters (?r - robot ?p - person ?loc - landmark)
+    :parameters (?m - MedicineProtocol ?r - Robot ?p - Person ?loc - Landmark)
     :precondition (and
     			(robot_at ?r ?loc)
-			(not (init_move_to_landmark))
-			(not (init_guide_person_to_landmark_attempt))
+			(not (init_move_to_landmark ?m))
+			(not (init_guide_person_to_landmark_attempt ?m))
    		 )
     :observe (person_at ?p ?loc)
 )
 
 ;; Init move
 (:action initMoveToLandmark
-	:parameters (?r - robot)
+	:parameters (?m - MedicineProtocol ?r - Robot)
 	:precondition (and
-			(not (init_move_to_landmark))
-			(not (init_guide_person_to_landmark_attempt))
+			(not (init_move_to_landmark ?m))
+			(not (init_guide_person_to_landmark_attempt ?m))
 		      )
 	  :effect (and
 		      (forall (?loc - landmark)
 			  (not (robot_at ?r ?loc))
 		      )
-		      (init_move_to_landmark)
+		      (init_move_to_landmark ?m)
   	        )
 )
 
 ;; Move to any landmark, avoiding terrain
 (:action moveToLandmark
-	:parameters (?r - robot ?to - landmark)
+	:parameters (?m - MedicineProtocol ?r - Robot ?to - Landmark)
 	:precondition (and
-			(init_move_to_landmark)
-			(not (init_guide_person_to_landmark_attempt))
+			(init_move_to_landmark ?m)
+			(not (init_guide_person_to_landmark_attempt ?m))
 		      )
 	:effect (and
                 (robot_at ?r ?to)
-                (not (enable_check_guide_1))
-                (not (enable_check_guide_2))
-		(not (init_move_to_landmark))
+                (not (enable_check_guide_1 ?m))
+                (not (enable_check_guide_2 ?m))
+		(not (init_move_to_landmark ?m))
             )
 )
 
 
  ;; Init Guide
 (:action InitguidePersonToLandmarkAttempt
-	:parameters (?r - robot ?p - person ?to - landmark)
+	:parameters (?m - MedicineProtocol ?r - Robot ?p - Person ?to - Landmark)
 	:precondition (and
 			(robot_at ?r ?to)
 			(person_at ?p ?to)
-			(not (init_move_to_landmark))
-			(not (init_guide_person_to_landmark_attempt))
+			(not (init_move_to_landmark ?m))
+			(not (init_guide_person_to_landmark_attempt ?m))
 		      )
 	  :effect (and
-		      (forall (?loc - landmark)
+		      (forall (?loc - Landmark)
 			    (not (robot_at ?r ?loc))
 		      )
-		      (init_guide_person_to_landmark_attempt)
+		      (init_guide_person_to_landmark_attempt ?m)
   	        )
 )
 
 
 ;; Guide person from one landmark to another
 (:action guidePersonToLandmarkAttempt1
-	:parameters (?r - robot ?p - person ?to - landmark)
+	:parameters (?m - MedicineProtocol ?r - Robot ?p - Person ?to - Landmark)
 	:precondition (and
-	                (not (tried_guide_person_landmark_1))
-                        (medicine_location ?to)
-                        (not (init_move_to_landmark))
-			(init_guide_person_to_landmark_attempt)
+	                (not (tried_guide_person_landmark_1 ?m))
+                        (medicine_location ?m ?to)
+                        (not (init_move_to_landmark ?m))
+			(init_guide_person_to_landmark_attempt ?m)
                    )
     :effect (and
                 (robot_at ?r ?to)
-                (tried_guide_person_landmark_1)
-                (enable_check_guide_1)
-		(not (init_guide_person_to_landmark_attempt))
+                (tried_guide_person_landmark_1 ?m)
+                (enable_check_guide_1 ?m)
+		(not (init_guide_person_to_landmark_attempt ?m))
             )
 )
 
 ;; Guide person from one landmark to another
 (:action guidePersonToLandmarkAttempt2
-	:parameters (?r - robot ?p - person ?to - landmark)
+	:parameters (?m - MedicineProtocol ?r - Robot ?p - Person ?to - Landmark)
 	:precondition (and
-                        (tried_guide_person_landmark_1)
-                        (not (tried_guide_person_landmark_2))
-                        (medicine_location ?to)
-                        (not (init_move_to_landmark))
-			(init_guide_person_to_landmark_attempt)
+                        (tried_guide_person_landmark_1 ?m)
+                        (not (tried_guide_person_landmark_2 ?m))
+                        (medicine_location ?m ?to)
+                        (not (init_move_to_landmark ?m))
+			(init_guide_person_to_landmark_attempt ?m)
                    )
     :effect (and
                 (robot_at ?r ?to)
-                (tried_guide_person_landmark_2)
-                (enable_check_guide_2)
-		(not (init_guide_person_to_landmark_attempt))
+                (tried_guide_person_landmark_2 ?m)
+                (enable_check_guide_2 ?m)
+		(not (init_guide_person_to_landmark_attempt ?m))
             )
 )
 
 ;; Notify message at landmark
 (:action checkGuideToSucceeded1
-	:parameters (?loc - landmark)
+	:parameters (?m - MedicineProtocol ?loc - Landmark)
 	:precondition  (and
-		            (tried_guide_person_landmark_1)
-		            (enable_check_guide_1)
-			    (not (init_move_to_landmark))
-		            (not (init_guide_person_to_landmark_attempt))
+		            (tried_guide_person_landmark_1 ?m)
+		            (enable_check_guide_1 ?m)
+			    (not (init_move_to_landmark ?m))
+		            (not (init_guide_person_to_landmark_attempt ?m))
 	                )
-	:observe (guide_to_succeeded_attempt_1)
+	:observe (guide_to_succeeded_attempt_1 ?m)
 )
 ;; Notify message at landmark
 (:action checkGuideToSucceeded2
-	:parameters (?loc - landmark)
+	:parameters (?m - MedicineProtocol ?loc - Landmark)
 	:precondition  (and
-	                    (tried_guide_person_landmark_2)
-	                    (enable_check_guide_2)
-	                    (not (init_move_to_landmark))
-			    (not (init_guide_person_to_landmark_attempt))
+	                    (tried_guide_person_landmark_2 ?m)
+	                    (enable_check_guide_2 ?m)
+	                    (not (init_move_to_landmark ?m))
+			    (not (init_guide_person_to_landmark_attempt ?m))
 	                )
-	:observe (guide_to_succeeded_attempt_2)
+	:observe (guide_to_succeeded_attempt_2 ?m)
 )
 
 
 
 ;; Update person location
 (:action UpdatePersonLoc1
-	:parameters (?p - person ?from ?to - landmark)
+	:parameters (?m - MedicineProtocol ?p - Person ?from ?to - Landmark)
 	:precondition (and
-	                (guide_to_succeeded_attempt_1)
+	                (guide_to_succeeded_attempt_1 ?m)
 	                (person_at ?p ?from)
-	                (medicine_location ?to)
-                        (not (init_move_to_landmark))
-		        (not (init_guide_person_to_landmark_attempt))
+	                (medicine_location ?m ?to)
+                        (not (init_move_to_landmark ?m))
+		        (not (init_guide_person_to_landmark_attempt ?m))
 	               )
     :effect ( and
                 (not (person_at ?p ?from))
@@ -172,13 +173,13 @@
 
 ;; Update person location
 (:action UpdatePersonLoc2
-	:parameters (?p - person ?from ?to - landmark)
+	:parameters (?m - MedicineProtocol ?p - Person ?from ?to - Landmark)
 	:precondition (and
-			(guide_to_succeeded_attempt_2)
+			(guide_to_succeeded_attempt_2 ?m)
 			(person_at ?p ?from)
-			(medicine_location ?to)
-			(not (init_move_to_landmark))
-			(not (init_guide_person_to_landmark_attempt))
+			(medicine_location ?m ?to)
+			(not (init_move_to_landmark ?m))
+			(not (init_guide_person_to_landmark_attempt ?m))
                    )
 	:effect ( and
                 (not (person_at ?p ?from))
@@ -188,89 +189,89 @@
 
 ;; Update success status
 (:action UpdateSuccess1
-	:parameters ()
+	:parameters (?m - MedicineProtocol)
 	:precondition (and
-			(notify_automated_succeeded)
-			(not (init_move_to_landmark))
-			(not (init_guide_person_to_landmark_attempt))
+			(notify_automated_succeeded ?m)
+			(not (init_move_to_landmark ?m))
+			(not (init_guide_person_to_landmark_attempt ?m))
 		)
-    :effect (success)
+    :effect (and (success) (already_took_medicine ?m))
 )
 ;; Update success status
 (:action UpdateSuccess2
-	:parameters ()
+	:parameters (?m - MedicineProtocol)
 	:precondition (and
-			(notify_recorded_succeeded)
-			(not (init_move_to_landmark))
-			(not (init_guide_person_to_landmark_attempt))
+			(notify_recorded_succeeded ?m)
+			(not (init_move_to_landmark ?m))
+			(not (init_guide_person_to_landmark_attempt ?m))
 		)
-	:effect (success)
+	:effect (and (success) (already_took_medicine ?m))
 )
 ;; Update success status
 (:action UpdateSuccess3
-	:parameters (?p - person)
+	:parameters (?m - MedicineProtocol ?p - Person)
 	:precondition (and
-			(asked_caregiver_help ?p)
-			(not (init_move_to_landmark))
-			(not (init_guide_person_to_landmark_attempt))
+			(asked_caregiver_help ?m ?p)
+			(not (init_move_to_landmark ?m))
+			(not (init_guide_person_to_landmark_attempt ?m))
 		)
-	:effect (success)
+	:effect (and (success) (already_called_about_medicine ?m))
 )
 
 ;; Notify message at landmark
 (:action notifyAutomatedMedicineAt
-	:parameters (?r - robot ?p - person ?loc - landmark)
+	:parameters (?m - MedicineProtocol ?r - Robot ?p - Person ?loc - Landmark)
 	:precondition  (and
                         (robot_at ?r ?loc)
                         (person_at ?p ?loc)
-                        (medicine_location ?loc)
-			(not (init_move_to_landmark))
-			(not (init_guide_person_to_landmark_attempt))
+                        (medicine_location ?m ?loc)
+			(not (init_move_to_landmark ?m))
+			(not (init_guide_person_to_landmark_attempt ?m))
                	   )
-	:observe (notify_automated_succeeded)
+	:observe (notify_automated_succeeded ?m)
 )
 
 ;; Notify message at landmark
 (:action notifyRecordedMedicineAt
-	:parameters (?r - robot ?p - person ?loc - landmark)
+	:parameters (?m - MedicineProtocol ?r - Robot ?p - Person ?loc - Landmark)
 	:precondition (and
-		        (not (notify_automated_succeeded))
+		        (not (notify_automated_succeeded ?m))
 		        (robot_at ?r ?loc)
 		        (person_at ?p ?loc)
-		        (medicine_location ?loc)
-			(not (init_move_to_landmark))
-			(not (init_guide_person_to_landmark_attempt))
+		        (medicine_location ?m ?loc)
+			(not (init_move_to_landmark ?m))
+			(not (init_guide_person_to_landmark_attempt ?m))
                	   )
-	:observe (notify_recorded_succeeded)
+	:observe (notify_recorded_succeeded ?m)
 )
 
 
 ;; ask for caregiver to convince person to do something
 (:action askCaregiverHelpMedicine1
-	:parameters (?r - robot ?p - person ?loc - landmark)
+	:parameters (?m - MedicineProtocol ?r - Robot ?p - Person ?loc - Landmark)
 	:precondition (and
-			(not (notify_automated_succeeded))
-			(not (notify_recorded_succeeded))
+			(not (notify_automated_succeeded ?m))
+			(not (notify_recorded_succeeded ?m))
 			(robot_at ?r ?loc)
 			(person_at ?p ?loc)
-			(not (init_move_to_landmark))
-			(not (init_guide_person_to_landmark_attempt))
+			(not (init_move_to_landmark ?m))
+			(not (init_guide_person_to_landmark_attempt ?m))
                    )
-	:effect (asked_caregiver_help ?p)
+	:effect (asked_caregiver_help  ?m ?p)
 )
 
 ;; ask for caregiver to convince person to do something
 (:action askCaregiverHelpMedicine2
-	:parameters (?r - robot ?p - person ?loc - landmark)
+	:parameters (?m - MedicineProtocol ?r - Robot ?p - Person ?loc - Landmark)
 	:precondition (and
-			(not (guide_to_succeeded_attempt_1))
-			(not (guide_to_succeeded_attempt_2))
+			(not (guide_to_succeeded_attempt_1 ?m))
+			(not (guide_to_succeeded_attempt_2 ?m))
 			(robot_at ?r ?loc)
 			(person_at ?p ?loc)
-			(not (init_move_to_landmark))
-			(not (init_guide_person_to_landmark_attempt))
+			(not (init_move_to_landmark ?m))
+			(not (init_guide_person_to_landmark_attempt ?m))
                    )
-	:effect (asked_caregiver_help ?p)
+	:effect (asked_caregiver_help ?m ?p)
 )
 
 

@@ -6,19 +6,21 @@
 )
 
 (:types
+  FallProtocol
+  FoodProtocol
+  MedicineProtocol
+  WonderingProtocol
 )
 
 (:predicates
 	;; medicine
-	(time_to_take_medicine)
-	(already_took_medicine)
+	(time_to_take_medicine ?m - MedicineProtocol)
+	(already_took_medicine ?m - MedicineProtocol)
+	(already_called_about_medicine ?m - MedicineProtocol)
   ;; eating
-  (time_to_eat_breakfast)
-  (already_ate_breakfast)
-  (time_to_eat_lunch)
-  (already_ate_lunch)
-  (time_to_eat_dinner)
-  (already_ate_dinner)
+  (time_to_eat ?f - FoodProtocol)
+  (already_ate  ?f - FoodProtocol)
+  (already_called_about_eating  ?f - FoodProtocol)
   ;; wondering
   (too_late_to_go_outside)
   ;; fall
@@ -64,20 +66,41 @@
 )
 
 (:action StartMedicineProtocol
-	:parameters ()
+	:parameters (?m - MedicineProtocol)
 	:precondition (and
 	    (priority_2)
-      (time_to_take_medicine)
-      (not (already_took_medicine))
+      (time_to_take_medicine ?m)
+      (not (already_took_medicine ?m))
+      (not (already_called_about_medicine ?m))
+		)
+	:effect (success)
+)
+
+(:action StartFoodProtocol
+	:parameters (?f - FoodProtocol)
+	:precondition (and
+	    (priority_2)
+      (time_to_eat ?f)
+      (not (already_ate ?f))
+      (not (already_called_about_eating ?f))
 		)
 	:effect (success)
 )
 
 (:action StartFallProtocol
-	:parameters ()
+	:parameters (?f - FallProtocol)
 	:precondition (and
 	    (priority_1)
       (person_on_ground)
+		)
+	:effect (success)
+)
+
+(:action StartWonderingProtocol
+	:parameters (?w - WonderingProtocol)
+	:precondition (and
+	    (priority_1)
+      (too_late_to_go_outside)
 		)
 	:effect (success)
 )
