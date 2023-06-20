@@ -1,61 +1,67 @@
 (define
-	(domain food)
+	(domain food_protocol)
 	(:requirements :strips :typing)
 	(:types
-		landmark
-		person
-		robot
+		Landmark
+		Person
+		Robot
+	    FoodProtocol
 	)
 	(:predicates
-	    (robot_at ?r - robot ?loc - landmark)
-	    (person_at ?p - person ?loc - landmark)
-	    (food_location ?loc - landmark)
+	    (enabled ?f - FoodProtocol)
 
-		(asked_caregiver_help ?p - person)
-		(robot_updated_1 )
-        (robot_updated_2 )
+	    (robot_at ?r - Robot ?loc - Landmark)
+	    (person_at ?p - Person ?loc - Landmark)
+	    (food_location ?f - FoodProtocol ?loc - Landmark)
 
-        (init_guide_person_to_landmark_attempt )
-        (init_move_to_landmark )
+		(asked_caregiver_help ?f - FoodProtocol ?p - Person)
 
-        (guide_to_succeeded_attempt_1 )
-        (guide_to_succeeded_attempt_2 )
-        (remind_food_succeeded )
-        (remind_food_succeeded2)
+        (init_guide_person_to_landmark_attempt ?f - FoodProtocol)
+        (init_move_to_landmark ?f - FoodProtocol)
 
-        (tried_guide_person_landmark_1 )
-        (tried_guide_person_landmark_2 )
+        (guide_to_succeeded_attempt_1 ?f - FoodProtocol)
+        (guide_to_succeeded_attempt_2 ?f - FoodProtocol)
+        (remind_food_succeeded ?f - FoodProtocol)
+        (remind_food_succeeded2 ?f - FoodProtocol)
 
-		(enable_check_guide_1 )
-		(enable_check_guide_2 )
+        (tried_guide_person_landmark_1 ?f - FoodProtocol)
+        (tried_guide_person_landmark_2 ?f - FoodProtocol)
+
+		(enable_check_guide_1 ?f - FoodProtocol)
+		(enable_check_guide_2 ?f - FoodProtocol)
+
+		(already_ate  ?f - FoodProtocol)
+        (already_called_about_eating  ?f - FoodProtocol)
 
 		(success)
 )
 
 	(:action InitguidePersonToLandmarkAttempt
-		:parameters (?r - robot ?p - person ?to - landmark)
-		:precondition  ( and 
+		:parameters (?f - FoodProtocol ?r - Robot ?p - Person ?to - Landmark)
+		:precondition (and
+		        (enabled ?f)
 				(robot_at ?r ?to)
 				(person_at ?p ?to)
-				(not (init_move_to_landmark ))
-				(not (init_guide_person_to_landmark_attempt ))
+				(not (init_move_to_landmark ?f))
+				(not (init_guide_person_to_landmark_attempt ?f))
 			)
 	  :effect (and
-		      (forall (?loc - landmark)
+		      (forall (?loc - Landmark)
 			  (not (robot_at ?r ?loc))
 		      )
-		      (init_guide_person_to_landmark_attempt)
+		      (init_guide_person_to_landmark_attempt ?f)
   	        )
 
 	)
 	(:action UpdatePersonLoc1
-		:parameters (?p - person ?from - landmark ?to - landmark)
-		:precondition  ( and 
-				(guide_to_succeeded_attempt_1 )
+		:parameters (?f - FoodProtocol ?p - Person ?from - Landmark ?to - Landmark)
+		:precondition  (and
+		        (enabled ?f)
+				(guide_to_succeeded_attempt_1 ?f)
 				(person_at ?p ?from)
-				(food_location ?to)
-				(not (init_move_to_landmark ))
-				(not (init_guide_person_to_landmark_attempt ))
+				(food_location ?f ?to)
+				(not (init_move_to_landmark ?f))
+				(not (init_guide_person_to_landmark_attempt ?f))
 			)
 		:effect  ( and 
 				(not (person_at ?p ?from))
@@ -63,13 +69,14 @@
 			)
 	)
 	(:action UpdatePersonLoc2
-		:parameters (?p - person ?from - landmark ?to - landmark)
-		:precondition  ( and 
-				(guide_to_succeeded_attempt_2 )
+		:parameters (?f - FoodProtocol ?p - Person ?from - Landmark ?to - Landmark)
+		:precondition  (and
+                (enabled ?f)
+				(guide_to_succeeded_attempt_2 ?f)
 				(person_at ?p ?from)
-				(food_location ?to)
-				(not (init_move_to_landmark ))
-				(not (init_guide_person_to_landmark_attempt ))
+				(food_location ?f ?to)
+				(not (init_move_to_landmark ?f))
+				(not (init_guide_person_to_landmark_attempt ?f))
 			)
 		:effect  ( and 
 				(not (person_at ?p ?from))
@@ -77,170 +84,184 @@
 			)
 	)
 	(:action UpdateSuccess1
-		:parameters ()
-		:precondition  ( and 
-				(remind_food_succeeded )
-				(not (init_move_to_landmark ))
-				(not (init_guide_person_to_landmark_attempt ))
+		:parameters (?f - FoodProtocol )
+		:precondition  (and
+                (enabled ?f)
+				(remind_food_succeeded ?f)
+				(not (init_move_to_landmark ?f))
+				(not (init_guide_person_to_landmark_attempt ?f))
 			)
-		:effect (success )
+		:effect (and (success) (already_ate ?f) (not (enabled ?f)))
 
 	)
 	(:action UpdateSuccess2
-		:parameters ()
-		:precondition  ( and 
-				(not (remind_food_succeeded ))
-				(remind_food_succeeded2 )
-				(not (init_move_to_landmark ))
-				(not (init_guide_person_to_landmark_attempt ))
+		:parameters (?f - FoodProtocol )
+		:precondition  (and
+                (enabled ?f)
+				(not (remind_food_succeeded ?f))
+				(remind_food_succeeded2 ?f)
+				(not (init_move_to_landmark ?f))
+				(not (init_guide_person_to_landmark_attempt ?f))
 			)
-		:effect (success )
+		:effect (and (success) (already_ate ?f) (not (enabled ?f)))
 
 	)
 	(:action UpdateSuccess3
-		:parameters (?p - person)
-		:precondition  ( and 
-				(asked_caregiver_help ?p)
-				(not (init_move_to_landmark ))
-				(not (init_guide_person_to_landmark_attempt ))
+		:parameters (?f - FoodProtocol ?p - Person)
+		:precondition  (and
+                (enabled ?f)
+				(asked_caregiver_help  ?f ?p)
+				(not (init_move_to_landmark ?f))
+				(not (init_guide_person_to_landmark_attempt ?f))
 			)
-		:effect (success )
+		:effect (and (success) (already_called_about_eating ?f) (not (enabled ?f)))
 
 	)
 	(:action askCaregiverHelpFood1
-		:parameters (?r - robot ?p - person ?loc - landmark)
-		:precondition  ( and 
-				(not (remind_food_succeeded ))
-				(not (remind_food_succeeded2 ))
+		:parameters (?f - FoodProtocol ?r - Robot ?p - Person ?loc - Landmark)
+		:precondition  (and
+                (enabled ?f)
+				(not (remind_food_succeeded ?f))
+				(not (remind_food_succeeded2 ?f))
 				(robot_at ?r ?loc)
 				(person_at ?p ?loc)
-				(not (init_move_to_landmark ))
-				(not (init_guide_person_to_landmark_attempt ))
+				(not (init_move_to_landmark ?f))
+				(not (init_guide_person_to_landmark_attempt ?f))
 			)
-		:effect (asked_caregiver_help ?p)
+		:effect (asked_caregiver_help  ?f ?p)
 
 	)
 	(:action askCaregiverHelpFood2
-		:parameters (?r - robot ?p - person ?loc - landmark)
-		:precondition  ( and 
-				(not (guide_to_succeeded_attempt_1 ))
-				(not (guide_to_succeeded_attempt_2 ))
+		:parameters (?f - FoodProtocol ?r - Robot ?p - Person ?loc - Landmark)
+		:precondition  (and
+                (enabled ?f)
+				(not (guide_to_succeeded_attempt_1 ?f))
+				(not (guide_to_succeeded_attempt_2 ?f))
 				(robot_at ?r ?loc)
 				(person_at ?p ?loc)
-				(not (init_move_to_landmark ))
-				(not (init_guide_person_to_landmark_attempt ))
+				(not (init_move_to_landmark ?f))
+				(not (init_guide_person_to_landmark_attempt ?f))
 			)
-		:effect (asked_caregiver_help ?p)
+		:effect (asked_caregiver_help ?f ?p)
 
 	)
 	(:action checkGuideToSucceeded1
-		:parameters (?loc - landmark)
-		:precondition  ( and 
-				(tried_guide_person_landmark_1 )
-				(enable_check_guide_1 )
-				(not (init_move_to_landmark ))
-				(not (init_guide_person_to_landmark_attempt ))
+		:parameters (?f - FoodProtocol ?loc - Landmark)
+		:precondition  (and
+                (enabled ?f)
+				(tried_guide_person_landmark_1 ?f)
+				(enable_check_guide_1 ?f)
+				(not (init_move_to_landmark ?f))
+				(not (init_guide_person_to_landmark_attempt ?f))
 			)
-		:observe (guide_to_succeeded_attempt_1 )
+		:observe (guide_to_succeeded_attempt_1 ?f)
 	)
 	(:action checkGuideToSucceeded2
-		:parameters (?loc - landmark)
-		:precondition  ( and 
-				(tried_guide_person_landmark_2 )
-				(enable_check_guide_2 )
-				(not (init_move_to_landmark ))
-				(not (init_guide_person_to_landmark_attempt ))
+		:parameters (?f - FoodProtocol ?loc - Landmark)
+		:precondition  (and
+                (enabled ?f)
+				(tried_guide_person_landmark_2 ?f)
+				(enable_check_guide_2 ?f)
+				(not (init_move_to_landmark ?f))
+				(not (init_guide_person_to_landmark_attempt ?f))
 			)
-		:observe (guide_to_succeeded_attempt_2 )
+		:observe (guide_to_succeeded_attempt_2 ?f)
 	)
 	(:action detectPerson
-		:parameters (?r - robot ?p - person ?loc - landmark)
-		:precondition  ( and 
+		:parameters (?f - FoodProtocol ?r - Robot ?p - Person ?loc - Landmark)
+		:precondition  (and
+                (enabled ?f)
 				(robot_at ?r ?loc)
-				(not (init_move_to_landmark ))
-				(not (init_guide_person_to_landmark_attempt ))
+				(not (init_move_to_landmark ?f))
+				(not (init_guide_person_to_landmark_attempt ?f))
 			)
 		:observe (person_at ?p ?loc)
 	)
 	(:action guidePersonToLandmarkAttempt1
-		:parameters (?r - robot ?p - person ?to - landmark)
-		:precondition  ( and 
-				(not (tried_guide_person_landmark_1 ))
-				(food_location ?to)
-				(not (init_move_to_landmark ))
-				(init_guide_person_to_landmark_attempt )
+		:parameters (?f - FoodProtocol ?r - Robot ?p - Person ?to - Landmark)
+		:precondition  (and
+                (enabled ?f)
+				(not (tried_guide_person_landmark_1 ?f))
+				(food_location  ?f ?to)
+				(not (init_move_to_landmark ?f))
+				(init_guide_person_to_landmark_attempt ?f)
 			)
 		:effect  ( and 
 				(robot_at ?r ?to)
-				(tried_guide_person_landmark_1 )
-				(enable_check_guide_1 )
-				(not (init_guide_person_to_landmark_attempt ))
+				(tried_guide_person_landmark_1 ?f)
+				(enable_check_guide_1 ?f)
+				(not (init_guide_person_to_landmark_attempt ?f))
 			)
 	)
 	(:action guidePersonToLandmarkAttempt2
-		:parameters (?r - robot ?p - person ?to - landmark)
-		:precondition  ( and 
-				(tried_guide_person_landmark_1 )
-				(not (tried_guide_person_landmark_2 ))
-				(food_location ?to)
-				(not (init_move_to_landmark ))
-				(init_guide_person_to_landmark_attempt )
+		:parameters (?f - FoodProtocol ?r - Robot ?p - Person ?to - Landmark)
+		:precondition  (and
+                (enabled ?f)
+				(tried_guide_person_landmark_1 ?f)
+				(not (tried_guide_person_landmark_2 ?f))
+				(food_location ?f ?to)
+				(not (init_move_to_landmark ?f))
+				(init_guide_person_to_landmark_attempt ?f)
 			)
 		:effect  ( and 
 				(robot_at ?r ?to)
-				(tried_guide_person_landmark_2 )
-				(enable_check_guide_2 )
-				(not (init_guide_person_to_landmark_attempt ))
+				(tried_guide_person_landmark_2 ?f)
+				(enable_check_guide_2 ?f)
+				(not (init_guide_person_to_landmark_attempt ?f))
 			)
 	)
 	(:action initMoveToLandmark
-		:parameters (?r - robot)
-		:precondition  ( and 
-				(not (init_move_to_landmark ))
-				(not (init_guide_person_to_landmark_attempt ))
+		:parameters (?f - FoodProtocol ?r - Robot)
+		:precondition  (and
+                (enabled ?f)
+				(not (init_move_to_landmark ?f))
+				(not (init_guide_person_to_landmark_attempt ?f))
 			)
 	  :effect (and
-		      (forall (?loc - landmark)
+		      (forall (?loc - Landmark)
 			  (not (robot_at ?r ?loc))
 		      )
-		      (init_move_to_landmark)
+		      (init_move_to_landmark ?f)
   	        )
 
 	)
 	(:action moveToLandmark
-		:parameters (?r - robot ?to - landmark)
-		:precondition  ( and 
-				(init_move_to_landmark )
-				(not (init_guide_person_to_landmark_attempt ))
+		:parameters (?f - FoodProtocol ?r - Robot ?to - Landmark)
+		:precondition  (and
+                (enabled ?f)
+				(init_move_to_landmark ?f)
+				(not (init_guide_person_to_landmark_attempt ?f))
 			)
 		:effect  ( and 
 				(robot_at ?r ?to)
-				(not (enable_check_guide_1 ))
-				(not (enable_check_guide_2 ))
-				(not (init_move_to_landmark ))
+				(not (enable_check_guide_1 ?f))
+				(not (enable_check_guide_2 ?f))
+				(not (init_move_to_landmark ?f))
 			)
 	)
 	(:action remindAutomatedFoodAt
-		:parameters (?r - robot ?p - person ?loc - landmark)
-		:precondition  ( and 
+		:parameters (?f - FoodProtocol ?r - Robot ?p - Person ?loc - Landmark)
+		:precondition  (and
+                (enabled ?f)
 				(robot_at ?r ?loc)
 				(person_at ?p ?loc)
-				(food_location ?loc)
-				(not (init_move_to_landmark ))
-				(not (init_guide_person_to_landmark_attempt ))
+				(food_location ?f ?loc)
+				(not (init_move_to_landmark ?f))
+				(not (init_guide_person_to_landmark_attempt ?f))
 			)
-		:observe (remind_food_succeeded )
+		:observe (remind_food_succeeded ?f)
 	)
 	(:action remindAutomatedFoodAt2
-		:parameters (?r - robot ?p - person ?loc - landmark)
-		:precondition  ( and 
-				(not (remind_food_succeeded ))
+		:parameters (?f - FoodProtocol ?r - Robot ?p - Person ?loc - Landmark)
+		:precondition  (and
+                (enabled ?f)
+				(not (remind_food_succeeded ?f))
 				(robot_at ?r ?loc)
 				(person_at ?p ?loc)
-				(food_location ?loc)
-				(not (init_move_to_landmark ))
-				(not (init_guide_person_to_landmark_attempt ))
+				(food_location ?f ?loc)
+				(not (init_move_to_landmark ?f))
+				(not (init_guide_person_to_landmark_attempt ?f))
 			)
-		:observe (remind_food_succeeded2 )
+		:observe (remind_food_succeeded2 ?f)
 	)
 )

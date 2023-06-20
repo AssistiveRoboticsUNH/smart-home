@@ -1,4 +1,4 @@
-(define (domain high_level)
+(define (domain high_level_domain)
 
 (:requirements
   :strips

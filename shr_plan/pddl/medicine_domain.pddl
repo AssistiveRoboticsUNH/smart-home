@@ -1,4 +1,4 @@
-(define (domain paul_shr_conditional)
+(define (domain medicine_protocol)
 
 (:requirements :strips :typing)
 
@@ -10,30 +10,30 @@
 )
 
 (:predicates
-	(enabled ?m - MedicineProtocol)
-	(robot_at ?r - Robot ?lm - Landmark)
-	(person_at ?p - Person ?lm - Landmark)
-	(medicine_location ?m - MedicineProtocol ?lm - Landmark)
+    (enabled ?m - MedicineProtocol)
+    (robot_at ?r - Robot ?lm - Landmark)
+    (person_at ?p - Person ?lm - Landmark)
+    (medicine_location ?m - MedicineProtocol ?lm - Landmark)
 
-	(asked_caregiver_help ?m - MedicineProtocol ?p - Person)
+    (asked_caregiver_help ?m - MedicineProtocol ?p - Person)
 
-	(init_move_to_landmark ?m - MedicineProtocol)
-	(init_guide_person_to_landmark_attempt ?m - MedicineProtocol)
+    (init_move_to_landmark ?m - MedicineProtocol)
+    (init_guide_person_to_landmark_attempt ?m - MedicineProtocol)
 
-	(guide_to_succeeded_attempt_1 ?m - MedicineProtocol)
-	(guide_to_succeeded_attempt_2 ?m - MedicineProtocol)
-	(notify_automated_succeeded ?m - MedicineProtocol)
-	(notify_recorded_succeeded ?m - MedicineProtocol)
+    (guide_to_succeeded_attempt_1 ?m - MedicineProtocol)
+    (guide_to_succeeded_attempt_2 ?m - MedicineProtocol)
+    (notify_automated_succeeded ?m - MedicineProtocol)
+    (notify_recorded_succeeded ?m - MedicineProtocol)
 
-	(tried_guide_person_landmark_1 ?m - MedicineProtocol)
-	(tried_guide_person_landmark_2 ?m - MedicineProtocol)
+    (tried_guide_person_landmark_1 ?m - MedicineProtocol)
+    (tried_guide_person_landmark_2 ?m - MedicineProtocol)
 
-	(enable_check_guide_1 ?m - MedicineProtocol)
-	(enable_check_guide_2 ?m - MedicineProtocol)
+    (enable_check_guide_1 ?m - MedicineProtocol)
+    (enable_check_guide_2 ?m - MedicineProtocol)
 
-  (already_took_medicine ?m - MedicineProtocol)
-	(already_called_about_medicine ?m - MedicineProtocol)
-	(success)
+    (already_took_medicine ?m - MedicineProtocol)
+    (already_called_about_medicine ?m - MedicineProtocol)
+    (success)
 
 )
 
