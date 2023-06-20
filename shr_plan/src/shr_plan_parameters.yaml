@@ -292,7 +292,7 @@ shr_plan_parameters:
     }
     MedicineProtocol: {
       type: string_array,
-      default_value: [ "daily" ],
+      default_value: [ "daily", "B", "A", "C"  ],
       description: "medicine protocols",
     }
     WonderingProtocol: {

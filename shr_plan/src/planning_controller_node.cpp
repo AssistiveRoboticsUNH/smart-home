@@ -237,13 +237,6 @@ int main(int argc, char **argv) {
     for (const auto &protocol: params.pddl_instances.WonderingProtocol) {
         kb.objects.push_back({protocol, "WonderingProtocol"});
     }
-
-    InstantiatedParameter med_prot = {params.pddl_instances.MedicineProtocol[0], "MedicineProtocol"};
-    kb.unknownPredicates.insert({"guide_to_succeeded_attempt_1", {med_prot}});
-    kb.unknownPredicates.insert({"guide_to_succeeded_attempt_2", {med_prot}});
-    kb.unknownPredicates.insert({"notify_automated_succeeded", {med_prot}});
-    kb.unknownPredicates.insert({"notify_recorded_succeeded", {med_prot}});
-
     // run the domains
     BT::BehaviorTreeFactory factory = create_tree_factory();
     active_domain = "high_level_domain.pddl";

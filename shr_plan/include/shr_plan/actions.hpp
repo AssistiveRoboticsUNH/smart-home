@@ -17,6 +17,16 @@ StartWonderingProtocol::tick_action(const InstantiatedAction &action) {
 BT::NodeStatus
 StartMedicineProtocol::tick_action(const InstantiatedAction &action) {
     active_domain = "medicine_domain.pddl";
+    auto &kb = KnowledgeBase::getInstance();
+    InstantiatedParameter inst = {action.parameters[0].name, "MedicineProtocol"};
+    kb.unknownPredicates.insert({"guide_to_succeeded_attempt_1", {inst}});
+    kb.unknownPredicates.insert({"guide_to_succeeded_attempt_2", {inst}});
+    kb.unknownPredicates.insert({"notify_automated_succeeded", {inst}});
+    kb.unknownPredicates.insert({"notify_recorded_succeeded", {inst}});
+    kb.knownPredicates.insert({"enabled", {inst}});
+
+    kb.objects.push_back(inst);
+
     return BT::NodeStatus::SUCCESS;
 }
 
