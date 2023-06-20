@@ -192,42 +192,42 @@ int main(int argc, char **argv) {
 
   UpdatePredicates updater;
 
-  updater.set_person_at([&world_state_converter](TRUTH_VALUE val, Person p, Landmark lm) {
+  updater.register_person_at([&world_state_converter](TRUTH_VALUE val, Person p, Landmark lm) {
     return world_state_converter.person_at(val, p, lm);
   });
-  updater.set_robot_at([&world_state_converter](TRUTH_VALUE val, Robot r, Landmark lm) {
+  updater.register_robot_at([&world_state_converter](TRUTH_VALUE val, Robot r, Landmark lm) {
     return world_state_converter.robot_at(val, r, lm);
   });
-  updater.set_medicine_location([&world_state_converter](TRUTH_VALUE val, MedicineProtocol m, Landmark lm) {
+  updater.register_medicine_location([&world_state_converter](TRUTH_VALUE val, MedicineProtocol m, Landmark lm) {
     return world_state_converter.medicine_location(val, m, lm);
   });
-  updater.set_time_to_eat(
+  updater.register_time_to_eat(
       [&world_state_converter](TRUTH_VALUE val, FoodProtocol f) {
         return world_state_converter.time_to_eat(val, f);
       });
-  updater.set_time_to_take_medicine(
+  updater.register_time_to_take_medicine(
       [&world_state_converter](TRUTH_VALUE val, MedicineProtocol m) {
         return world_state_converter.time_to_take_medicine(val, m);
       });
-  updater.set_person_on_ground(
+  updater.register_person_on_ground(
       [&world_state_converter](TRUTH_VALUE val, FallProtocol f) { return world_state_converter.person_on_ground(val, f); });
-  updater.set_too_late_to_go_outside(
+  updater.register_too_late_to_go_outside(
       [&world_state_converter](TRUTH_VALUE val, WonderingProtocol w) { return world_state_converter.too_late_to_go_outside(val, w); });
-  updater.set_success(
+  updater.register_success(
       [&world_state_converter](TRUTH_VALUE val) { return world_state_converter.success(val); });
-  updater.set_priority_1(
+  updater.register_priority_1(
       [&world_state_converter](TRUTH_VALUE val) { return world_state_converter.priority_1(val); });
-  updater.set_priority_2(
+  updater.register_priority_2(
       [&world_state_converter](TRUTH_VALUE val) { return world_state_converter.priority_2(val); });
-  updater.set_priority_3(
+  updater.register_priority_3(
       [&world_state_converter](TRUTH_VALUE val) { return world_state_converter.priority_3(val); });
-  updater.set_priority_4(
+  updater.register_priority_4(
       [&world_state_converter](TRUTH_VALUE val) { return world_state_converter.priority_4(val); });
-  updater.set_priority_5(
+  updater.register_priority_5(
       [&world_state_converter](TRUTH_VALUE val) { return world_state_converter.priority_5(val); });
 
 
-  updater.set_food_location([&world_state_converter](TRUTH_VALUE val, FoodProtocol f, Landmark lm) {
+  updater.register_food_location([&world_state_converter](TRUTH_VALUE val, FoodProtocol f, Landmark lm) {
     return world_state_converter.food_location(val, f, lm);
   });
 
