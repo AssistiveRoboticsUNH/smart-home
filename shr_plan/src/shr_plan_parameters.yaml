@@ -272,7 +272,7 @@ shr_plan_parameters:
   pddl_instances:
     Landmark: {
       type: string_array,
-      default_value: [ "kitchen", "couch", "home" ],
+      default_value: [ "kitchen", "couch", "home" , "door"],
       description: "all landmarks in protocols",
     }
     Robot: {
@@ -285,22 +285,22 @@ shr_plan_parameters:
       default_value: [ "nathan" ],
       description: "all people in protocols",
     }
-    FoodProtocol: {
+    FoodProtocols: {
       type: string_array,
       default_value: [ "breakfast", "lunch", "dinner" ],
       description: "food protocols",
     }
-    MedicineProtocol: {
+    MedicineProtocols: {
       type: string_array,
-      default_value: [ "daily", "B", "A", "C"  ],
+      default_value: [ "daily"],
       description: "medicine protocols",
     }
-    WonderingProtocol: {
+    WonderingProtocols: {
       type: string_array,
       default_value: [ "daily"],
       description: "wondering protocols",
     }
-    FallProtocol: {
+    FallProtocols: {
       type: string_array,
       default_value: [ "daily" ],
       description: "wondering protocols",

@@ -26,7 +26,7 @@ find_package(tf2_ros REQUIRED)
 generate_bt_header(bt_shr_actions
     pddl/medicine_domain.pddl
     pddl/food_domain.pddl
-    pddl/midnight_domain.pddl
+    pddl/wondering_domain.pddl
     pddl/high_level_domain.pddl
     )
 

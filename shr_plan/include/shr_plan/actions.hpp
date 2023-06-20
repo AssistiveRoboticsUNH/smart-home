@@ -22,6 +22,24 @@ namespace pddl_lib {
             InstantiatedParameter inst = {action.parameters[0].name, "WonderingProtocol"};
             kb.knownPredicates.insert({"enabled", {inst}});
 
+            kb.unknownPredicates.concurrent_insert({"person_decides_to_go_outside_1", {inst}});
+            kb.unknownPredicates.concurrent_insert({"person_decides_to_go_outside_2", {inst}});
+            kb.unknownPredicates.concurrent_insert({"person_decides_to_go_to_bed_1", {inst}});
+            kb.unknownPredicates.concurrent_insert({"person_decides_to_go_to_bed_2", {inst}});
+            kb.unknownPredicates.concurrent_insert({"person_decides_to_return_1", {inst}});
+            kb.unknownPredicates.concurrent_insert({"person_decides_to_return_2", {inst}});
+            kb.unknownPredicates.concurrent_insert({"person_goes_to_bed_after_return_1", {inst}});
+            kb.unknownPredicates.concurrent_insert({"person_goes_to_bed_after_return_2", {inst}});
+
+            kb.knownPredicates.concurrent_erase({"person_decides_to_go_outside_1", {inst}});
+            kb.knownPredicates.concurrent_erase({"person_decides_to_go_outside_2", {inst}});
+            kb.knownPredicates.concurrent_erase({"person_decides_to_go_to_bed_1", {inst}});
+            kb.knownPredicates.concurrent_erase({"person_decides_to_go_to_bed_2", {inst}});
+            kb.knownPredicates.concurrent_erase({"person_decides_to_return_1", {inst}});
+            kb.knownPredicates.concurrent_erase({"person_decides_to_return_2", {inst}});
+            kb.knownPredicates.concurrent_erase({"person_goes_to_bed_after_return_1", {inst}});
+            kb.knownPredicates.concurrent_erase({"person_goes_to_bed_after_return_2", {inst}});
+
             return BT::NodeStatus::SUCCESS;
         }
 
