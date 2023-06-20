@@ -22,9 +22,11 @@
   (already_ate  ?f - FoodProtocol)
   (already_called_about_eating  ?f - FoodProtocol)
   ;; wondering
-  (too_late_to_go_outside)
+  (too_late_to_go_outside ?w - WonderingProtocol)
+  (person_at_door ?w - WonderingProtocol)
+  (person_outside ?w - WonderingProtocol)
   ;; fall
-  (person_on_ground)
+  (person_on_ground ?f - FallProtocol)
   ;; priority
   (priority_1)
   (priority_2)
@@ -91,7 +93,7 @@
 	:parameters (?f - FallProtocol)
 	:precondition (and
 	    (priority_1)
-      (person_on_ground)
+      (person_on_ground ?f)
 		)
 	:effect (success)
 )
@@ -100,10 +102,14 @@
 	:parameters (?w - WonderingProtocol)
 	:precondition (and
 	    (priority_1)
-      (too_late_to_go_outside)
-		)
+      (not
+        (and (not (person_at_door ?w) ) (not (person_outside ?w) ) )
+      )
+      (too_late_to_go_outside ?w)
+    )
 	:effect (success)
 )
+
 
 (:action StartIdle
 	:parameters ()

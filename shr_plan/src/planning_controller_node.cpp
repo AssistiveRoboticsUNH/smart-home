@@ -121,12 +121,12 @@ public:
   }
 
 
-  TRUTH_VALUE person_on_ground(TRUTH_VALUE val) {
+  TRUTH_VALUE person_on_ground(TRUTH_VALUE val, FallProtocol f) {
 
     return val;
   }
 
-  TRUTH_VALUE too_late_to_go_outside(TRUTH_VALUE val) {
+  TRUTH_VALUE too_late_to_go_outside(TRUTH_VALUE val, WonderingProtocol w) {
     auto msg = get_world_state_msg();
     if (msg.too_late_to_leave) {
       return TRUTH_VALUE::TRUE;
@@ -210,9 +210,9 @@ int main(int argc, char **argv) {
         return world_state_converter.time_to_take_medicine(val, m);
       });
   updater.set_person_on_ground(
-      [&world_state_converter](TRUTH_VALUE val) { return world_state_converter.person_on_ground(val); });
+      [&world_state_converter](TRUTH_VALUE val, FallProtocol f) { return world_state_converter.person_on_ground(val, f); });
   updater.set_too_late_to_go_outside(
-      [&world_state_converter](TRUTH_VALUE val) { return world_state_converter.too_late_to_go_outside(val); });
+      [&world_state_converter](TRUTH_VALUE val, WonderingProtocol w) { return world_state_converter.too_late_to_go_outside(val, w); });
   updater.set_success(
       [&world_state_converter](TRUTH_VALUE val) { return world_state_converter.success(val); });
   updater.set_priority_1(

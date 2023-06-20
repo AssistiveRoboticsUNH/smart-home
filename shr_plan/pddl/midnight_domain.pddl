@@ -1,17 +1,20 @@
-(define (domain midnight_wondering_domain)
+(define (domain wondering_protocol)
 
 (:requirements :strips :typing)
 
 (:types
-	person
-	robot
-	landmark
+	Person
+	Robot
+	Landmark
+	WonderingProtocol
 )
 
 (:predicates
-	(robot_at ?v - robot ?lm - landmark)
-	(person_at ?p - person ?lm - landmark)
-	(door_location ?lm - landmark)
+  (enabled ?w - WonderingProtocol)
+
+	(robot_at ?r - Robot ?lm- Landmark)
+	(person_at ?p - Person ?lm- Landmark)
+	(door_location ?lm- Landmark)
 	
 	;; control flow
 	(init_move_to_landmark)
@@ -47,8 +50,9 @@
 
 ;; Notify message at landmark
 (:action notifyAutomatedMidnightAt
-	:parameters (?r - robot ?p - person ?loc - landmark)
+	:parameters (?w - WonderingProtocol ?r - Robot ?p - Person ?loc - Landmark)
 	:precondition  (and
+	                      (enabled ?w)
                         (robot_at ?r ?loc)
                         (person_at ?p ?loc)
                         (not (tried_notify_automated))
@@ -62,8 +66,9 @@
 
 ;; Notify message at landmark
 (:action notifyRecordedMidnightAt
-	:parameters (?r - robot ?p - person ?loc - landmark)
+	:parameters (?w - WonderingProtocol ?r - Robot ?p - Person ?loc - Landmark)
 	:precondition (and
+	          (enabled ?w)
 		        (robot_at ?r ?loc)
 		        (person_at ?p ?loc)
 		        (tried_notify_automated)
@@ -79,20 +84,22 @@
 
 ;; detect if person is at location
 (:action DetectPerson
-    :parameters (?r - robot ?p - person ?loc - landmark)
+    :parameters (?w - WonderingProtocol ?r - Robot ?p - Person ?loc - Landmark)
     :precondition (and
-    			(robot_at ?r ?loc)
-			(not (init_detect_person_left_house_1))
-            (not (init_detect_person_left_house_2))
-            (not (init_check_bed_after_return))
-        (not (init_move_to_landmark))
+                    (enabled ?w)
+                    (robot_at ?r ?loc)
+                    (not (init_detect_person_left_house_1))
+                    (not (init_detect_person_left_house_2))
+                    (not (init_check_bed_after_return))
+                    (not (init_move_to_landmark))
    		 )
     :observe (person_at ?p ?loc)
 )
 
 (:action initDetectPersonLeftHouse1
-    :parameters (?p - person ?r - robot ?loc - landmark)
+    :parameters (?w - WonderingProtocol ?p - Person ?r - Robot ?loc - Landmark)
     :precondition (and
+          (enabled ?w)
     			(tried_notify_automated)
     			(door_location ?loc)
     			(robot_at ?r ?loc)
@@ -105,8 +112,9 @@
     :effect (init_detect_person_left_house_1)
 )
 (:action initDetectPersonLeftHouse2
-    :parameters (?p - person ?r - robot ?loc - landmark)
+    :parameters (?w - WonderingProtocol ?p - Person ?r - Robot ?loc - Landmark)
     :precondition (and
+          (enabled ?w)
     			(tried_notify_recorded)
     			(door_location ?loc)
     			(robot_at ?r ?loc)
@@ -120,16 +128,18 @@
 )
 ;; detect if person leaves house
 (:action detectPersonLeftHouse1
-    :parameters (?r - robot ?loc - landmark)
+    :parameters (?w - WonderingProtocol ?r - Robot ?loc - Landmark)
     :precondition (and
+          (enabled ?w)
     			(init_detect_person_left_house_1)
 		)
     :observe (person_decides_to_go_outside_1)
 )
 ;; detect if person leaves house
 (:action detectPersonLeftHouse2
-    :parameters (?r - robot ?loc - landmark)
+    :parameters (?w - WonderingProtocol ?r - Robot ?loc - Landmark)
     :precondition (and
+          (enabled ?w)
     			(init_detect_person_left_house_2)
 		)
     :observe (person_decides_to_go_outside_2)
@@ -137,31 +147,34 @@
 
 ;; detect human action, either: go to bed, open door, go outside
 (:action personGoOutside1
-    :parameters (?p - person)
-    :precondition (and 
+    :parameters (?w - WonderingProtocol ?p - Person)
+    :precondition (and
+          (enabled ?w)
     			(person_decides_to_go_outside_1)
     			(init_detect_person_left_house_1)
 		)
     :effect (and 
-    		(forall (?loc - landmark) (not (person_at ?p ?loc)))
+    		(forall (?loc - Landmark) (not (person_at ?p ?loc)))
     		(not (init_detect_person_left_house_1))
 	    )
 )
 (:action personGoOutside2
-    :parameters (?p - person)
-    :precondition (and 
+    :parameters (?w - WonderingProtocol ?p - Person)
+    :precondition (and
+          (enabled ?w)
     			(person_decides_to_go_outside_2)
     			(init_detect_person_left_house_2)
 		)
     :effect (and 
-    		(forall (?loc - landmark) (not (person_at ?p ?loc)))
+    		(forall (?loc - Landmark) (not (person_at ?p ?loc)))
     		(not (init_detect_person_left_house_2))
 	    )
 )
 
 (:action finishDetectPerson1
-    :parameters (?p - person)
-    :precondition (and 
+    :parameters (?w - WonderingProtocol ?p - Person)
+    :precondition (and
+      (enabled ?w)
 			(init_detect_person_left_house_1)
 			(not (person_decides_to_go_outside_1))
 		)
@@ -171,8 +184,9 @@
     )
 )
 (:action finishDetectPerson2
-    :parameters (?p - person)
-    :precondition (and 
+    :parameters (?w - WonderingProtocol ?p - Person)
+    :precondition (and
+      (enabled ?w)
 			(init_detect_person_left_house_2)
 			(not (person_decides_to_go_outside_2))
 		)
@@ -184,8 +198,9 @@
 
 ;; check if person went to bed
 (:action checkIfPersonWentToBed1
-    :parameters (?p - person ?loc - landmark)
-    :precondition (and 
+    :parameters (?w - WonderingProtocol ?p - Person ?loc - Landmark)
+    :precondition (and
+          (enabled ?w)
     			(door_location ?loc)
     			(person_at ?p ?loc)
     			(tried_detect_person_left_house_1)
@@ -194,8 +209,9 @@
 )
 
 (:action checkIfPersonWentToBed2
-    :parameters (?p - person ?loc - landmark)
-    :precondition (and 
+    :parameters (?w - WonderingProtocol ?p - Person ?loc - Landmark)
+    :precondition (and
+          (enabled ?w)
     			(door_location ?loc)
     			(person_at ?p ?loc)
     			(tried_detect_person_left_house_2)
@@ -206,8 +222,9 @@
 
 ;;call caregiver and ask person to go to sleep
 (:action callCaregiverAskToGoToBed
-    :parameters (?p - person)
-    :precondition (and 
+    :parameters (?w - WonderingProtocol ?p - Person)
+    :precondition (and
+          (enabled ?w)
     			(tried_notify_automated)
          		(tried_notify_recorded)
     			(not (person_decides_to_go_to_bed_2))
@@ -217,23 +234,26 @@
 )
 
 (:action waitForPersonToReturn1
-    :parameters (?p - person)
-    :precondition (and 
-			(forall (?loc - landmark) (not (person_at ?p ?loc)))
+    :parameters (?w - WonderingProtocol ?p - Person)
+    :precondition (and
+      (enabled ?w)
+			(forall (?loc - Landmark) (not (person_at ?p ?loc)))
 		)
     :observe (person_decides_to_return_1)
 )
 (:action updatePersonLocation1
-    :parameters (?p - person ?loc - landmark)
+    :parameters (?w - WonderingProtocol ?p - Person ?loc - Landmark)
     :precondition (and
+                   (enabled ?w)
 	                (door_location ?loc)
-    			(person_decides_to_return_1)
+    			        (person_decides_to_return_1)
 		)
     :effect (person_at ?p ?loc)
 )
 (:action updatePersonLocation2
-    :parameters (?p - person ?loc - landmark)
+    :parameters (?w - WonderingProtocol ?p - Person ?loc - Landmark)
     :precondition (and
+     	            (enabled ?w)
 	                (door_location ?loc)
     			(person_decides_to_return_2)
 		)
@@ -243,8 +263,9 @@
 
 ;; call caregiver
 (:action callCaregiverWondering
-    :parameters (?p - person)
+    :parameters (?w - WonderingProtocol ?p - Person)
     :precondition (and
+          (enabled ?w)
     			(not (person_decides_to_return_1))
     			(not (init_detect_person_left_house_1))
                 (not (init_detect_person_left_house_2))
@@ -256,10 +277,11 @@
 
 
 (:action waitForPersonToReturn2
-    :parameters (?p - person)
+    :parameters (?w - WonderingProtocol ?p - Person)
     :precondition (and
+          (enabled ?w)
     			(called_caregiver_wondering)
-			(forall (?loc - landmark) (not (person_at ?p ?loc)))
+			(forall (?loc - Landmark) (not (person_at ?p ?loc)))
 		)
     :observe (person_decides_to_return_2)
 )
@@ -267,8 +289,9 @@
 
 ;; call emergency services
 (:action callEmergency
-    :parameters (?p - person)
+    :parameters (?w - WonderingProtocol ?p - Person)
     :precondition (and
+          (enabled ?w)
     			(not (person_decides_to_return_2))
     			(not (init_detect_person_left_house_1))
                 (not (init_detect_person_left_house_2))
@@ -280,8 +303,9 @@
 
 ;; Update success status
 (:action UpdateSuccess2
-	:parameters ()
+	:parameters (?w - WonderingProtocol )
 	:precondition (and
+    (enabled ?w)
 		(not (person_decides_to_return_2))
 		(called_emergency)
 		)
@@ -289,8 +313,9 @@
 )
 ;; Update success status
 (:action UpdateSuccess3
-	:parameters ()
+	:parameters (?w - WonderingProtocol )
 	:precondition (and
+    (enabled ?w)
 		(person_decides_to_go_to_bed_1)
 		)
     :effect (success)
@@ -298,16 +323,18 @@
 
 ;; Update success status
 (:action UpdateSuccess4
-	:parameters ()
+	:parameters (?w - WonderingProtocol )
 	:precondition (and
+    (enabled ?w)
 		(person_decides_to_go_to_bed_2)
 		)
     :effect (success)
 )
 ;; Update success status
 (:action UpdateSuccess5
-	:parameters ()
+	:parameters (?w - WonderingProtocol )
 	:precondition (and
+    (enabled ?w)
 		(called_caregiver_ask_to_go_to_bed)
 		)
     :effect (success)
@@ -315,15 +342,16 @@
 
 ;; Init move
 (:action initMoveToLandmark
-	:parameters (?r - robot)
+	:parameters (?w - WonderingProtocol ?r - Robot)
 	:precondition (and
+            (enabled ?w)
 		        (not (init_detect_person_left_house_1))
 		        (not (init_detect_person_left_house_2))
 		        (not (init_check_bed_after_return))
 			(not (init_move_to_landmark))
 		      )
 	  :effect (and
-		      (forall (?loc - landmark)
+		      (forall (?loc - Landmark)
 			  (not (robot_at ?r ?loc))
 		      )
 		      (init_move_to_landmark)
@@ -332,8 +360,9 @@
 
 ;; Move to any landmark, avoiding terrain
 (:action moveToLandmark
-	:parameters (?r - robot ?to - landmark)
+	:parameters (?w - WonderingProtocol ?r - Robot ?to- Landmark)
 	:precondition (and
+      (enabled ?w)
 			(init_move_to_landmark)
 		      )
 	:effect (and
@@ -345,8 +374,9 @@
 
  ;;Update success status
  (:action InitCheckBedAfterReturn1
- :parameters  (?p - person ?loc - landmark)
+ :parameters  (?p - Person ?loc - Landmark)
   	:precondition (and
+      (enabled ?w)
   		(door_location ?loc)
          (person_at ?p ?loc)
 		 (person_decides_to_return_1)
@@ -356,16 +386,18 @@
 
  ;;notify_check
  (:action CheckBedAfterReturn1
- :parameters ()
+ :parameters (?w - WonderingProtocol )
      :precondition (and
+      (enabled ?w)
 		 (init_check_bed_after_return)
 	 	)
      :observe (person_goes_to_bed_after_return_1)
 )
 ;;Update success status
  (:action UpdateSuccess0
- :parameters (?p - person ?loc - landmark)
+ :parameters (?w - WonderingProtocol ?p - Person ?loc - Landmark)
      :precondition (and
+     	          (enabled ?w)
                  (person_goes_to_bed_after_return_1)
                  )
      :effect (and
@@ -374,8 +406,9 @@
 )
 ;;call caregiver and ask person to go to sleep
 (:action callCaregiverAskToGoToBedAfterReturn1
-    :parameters (?p - person)
+    :parameters (?w - WonderingProtocol ?p - Person)
     :precondition (and
+    	          (enabled ?w)
                 (init_check_bed_after_return)
     			(not (person_goes_to_bed_after_return_1))
 		)
@@ -386,8 +419,9 @@
 
  ;;Update success status
  (:action InitCheckBedAfterReturn2
- :parameters  (?p - person ?loc - landmark)
+ :parameters (?w - WonderingProtocol ?p - Person ?loc - Landmark)
  	:precondition (and
+ 		          (enabled ?w)
  		(door_location ?loc)
          (person_at ?p ?loc)
 		 (person_decides_to_return_2)
@@ -397,8 +431,9 @@
 
  ;;Update success status
  (:action CheckBedAfterReturn2
- :parameters ()
+ :parameters (?w - WonderingProtocol )
      :precondition (and
+     (enabled ?w)
 		 (init_check_bed_after_return2)
 	 	)
      :observe (person_goes_to_bed_after_return_2)
@@ -409,6 +444,7 @@
 (:action UpdateSuccess1
 	:parameters  ()
 	:precondition (and
+    (enabled ?w)
 		(person_goes_to_bed_after_return_2)
 		(not (person_decides_to_return_1))
 		(called_caregiver_wondering)
@@ -417,8 +453,9 @@
 )
 ;;call caregiver and ask person to go to sleep
 (:action callCaregiverAskToGoToBedAfterReturn2
-    :parameters ()
+    :parameters (?w - WonderingProtocol )
     :precondition (and
+                (enabled ?w)
                 (init_check_bed_after_return2)
     			(not (person_goes_to_bed_after_return_2))
 		)
