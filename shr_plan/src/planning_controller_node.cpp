@@ -241,9 +241,21 @@ int main(int argc, char **argv) {
   }
   for (const auto &meal: params.pddl_instances.FoodProtocol) {
     kb.objects.push_back({meal, "FoodProtocol"});
+    InstantiatedParameter inst = {meal, "FoodProtocol"};
+    kb.unknownPredicates.insert({"guide_to_succeeded_attempt_1", {inst}});
+    kb.unknownPredicates.insert({"guide_to_succeeded_attempt_2", {inst}});
+    kb.unknownPredicates.insert({"remind_food_succeeded", {inst}});
+    kb.unknownPredicates.insert({"remind_food_succeeded2", {inst}});
+
   }
   for (const auto &protocol: params.pddl_instances.MedicineProtocol) {
     kb.objects.push_back({protocol, "MedicineProtocol"});
+    InstantiatedParameter inst = {protocol, "MedicineProtocol"};
+    kb.unknownPredicates.insert({"guide_to_succeeded_attempt_1", {inst}});
+    kb.unknownPredicates.insert({"guide_to_succeeded_attempt_2", {inst}});
+    kb.unknownPredicates.insert({"notify_automated_succeeded", {inst}});
+    kb.unknownPredicates.insert({"notify_recorded_succeeded", {inst}});
+
   }
   for (const auto &protocol: params.pddl_instances.FallProtocol) {
     kb.objects.push_back({protocol, "FallProtocol"});
@@ -261,16 +273,22 @@ int main(int argc, char **argv) {
     auto problem_str = kb.convert_to_problem(domain);
     if (auto config = getPlan(domain.str(), problem_str)) {
       auto tree = factory.createTreeFromText(config.value());
-      while (tree.tickRoot() == BT::NodeStatus::RUNNING) {
+      BT::NodeStatus res;
+      do {
+        res = tree.tickRoot();
         printf("running.. \n");
+      } while (res == BT::NodeStatus::RUNNING);
+
+      if (res == BT::NodeStatus::FAILURE) {
+        active_domain = "high_level_domain.pddl";
       }
     }
+
     rclcpp::sleep_for(std::chrono::seconds(3));
   }
 
   world_state_converter.terminate_node();
   thread.join();
-
   rclcpp::shutdown();
 
   return 0;

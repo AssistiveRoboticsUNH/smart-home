@@ -19,10 +19,6 @@ high_level_domain::StartMedicineProtocol::tick_action(const InstantiatedAction &
   active_domain = "medicine_domain.pddl";
   auto &kb = KnowledgeBase::getInstance();
   InstantiatedParameter inst = {action.parameters[0].name, "MedicineProtocol"};
-  kb.unknownPredicates.insert({"guide_to_succeeded_attempt_1", {inst}});
-  kb.unknownPredicates.insert({"guide_to_succeeded_attempt_2", {inst}});
-  kb.unknownPredicates.insert({"notify_automated_succeeded", {inst}});
-  kb.unknownPredicates.insert({"notify_recorded_succeeded", {inst}});
   kb.knownPredicates.insert({"enabled", {inst}});
 
   return BT::NodeStatus::SUCCESS;
@@ -33,10 +29,6 @@ high_level_domain::StartFoodProtocol::tick_action(const InstantiatedAction &acti
   active_domain = "food_domain.pddl";
   auto &kb = KnowledgeBase::getInstance();
   InstantiatedParameter inst = {action.parameters[0].name, "FoodProtocol"};
-  kb.unknownPredicates.insert({"guide_to_succeeded_attempt_1", {inst}});
-  kb.unknownPredicates.insert({"guide_to_succeeded_attempt_2", {inst}});
-  kb.unknownPredicates.insert({"remind_food_succeeded", {inst}});
-  kb.unknownPredicates.insert({"remind_food_succeeded2", {inst}});
   kb.knownPredicates.insert({"enabled", {inst}});
 
   return BT::NodeStatus::SUCCESS;
@@ -130,7 +122,7 @@ BT::NodeStatus medicine_protocol::notifyAutomatedMedicineAt::tick_action(const I
 }
 
 BT::NodeStatus medicine_protocol::notifyRecordedMedicineAt::tick_action(const InstantiatedAction &action) {
-  return BT::NodeStatus::SUCCESS;
+  return BT::NodeStatus::FAILURE;
 }
 
 BT::NodeStatus medicine_protocol::askCaregiverHelpMedicine1::tick_action(const InstantiatedAction &action) {
