@@ -297,7 +297,7 @@ shr_plan_parameters:
     }
     WonderingProtocol: {
       type: string_array,
-      default_value: [ "daily" ],
+      default_value: [ "daily"],
       description: "wondering protocols",
     }
     FallProtocol: {

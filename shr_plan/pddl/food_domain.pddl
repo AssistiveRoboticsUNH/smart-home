@@ -5,33 +5,33 @@
 		Landmark
 		Person
 		Robot
-	    FoodProtocol
+    FoodProtocol
 	)
 	(:predicates
-	    (enabled ?f - FoodProtocol)
+    (enabled ?f - FoodProtocol)
 
-	    (robot_at ?r - Robot ?loc - Landmark)
-	    (person_at ?p - Person ?loc - Landmark)
-	    (food_location ?f - FoodProtocol ?loc - Landmark)
+    (robot_at ?r - Robot ?loc - Landmark)
+    (person_at ?p - Person ?loc - Landmark)
+    (food_location ?f - FoodProtocol ?loc - Landmark)
 
-		(asked_caregiver_help ?f - FoodProtocol ?p - Person)
+    (asked_caregiver_help ?f - FoodProtocol ?p - Person)
 
-        (init_guide_person_to_landmark_attempt ?f - FoodProtocol)
-        (init_move_to_landmark ?f - FoodProtocol)
+    (init_guide_person_to_landmark_attempt ?f - FoodProtocol)
+    (init_move_to_landmark ?f - FoodProtocol)
 
-        (guide_to_succeeded_attempt_1 ?f - FoodProtocol)
-        (guide_to_succeeded_attempt_2 ?f - FoodProtocol)
-        (remind_food_succeeded ?f - FoodProtocol)
-        (remind_food_succeeded2 ?f - FoodProtocol)
+    (guide_to_succeeded_attempt_1 ?f - FoodProtocol)
+    (guide_to_succeeded_attempt_2 ?f - FoodProtocol)
+    (remind_food_succeeded ?f - FoodProtocol)
+    (remind_food_succeeded2 ?f - FoodProtocol)
 
-        (tried_guide_person_landmark_1 ?f - FoodProtocol)
-        (tried_guide_person_landmark_2 ?f - FoodProtocol)
+    (tried_guide_person_landmark_1 ?f - FoodProtocol)
+    (tried_guide_person_landmark_2 ?f - FoodProtocol)
 
 		(enable_check_guide_1 ?f - FoodProtocol)
 		(enable_check_guide_2 ?f - FoodProtocol)
 
 		(already_ate  ?f - FoodProtocol)
-        (already_called_about_eating  ?f - FoodProtocol)
+    (already_called_about_eating  ?f - FoodProtocol)
 
 		(success)
 )

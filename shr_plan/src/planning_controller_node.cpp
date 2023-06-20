@@ -25,6 +25,8 @@
 #include <shr_plan_parameters.hpp>
 #include <shr_plan/actions.hpp>
 
+using namespace pddl_lib;
+
 class WorldStatePDDLConverter : public rclcpp::Node {
 private:
   rclcpp::Subscription<shr_msgs::msg::WorldState>::SharedPtr world_state_sub_;
