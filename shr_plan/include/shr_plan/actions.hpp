@@ -1,26 +1,42 @@
 #include "bt_shr_actions.hpp"
 
-std::string active_domain;
-
 namespace pddl_lib {
+    void abort() {
+        throw std::runtime_error("abort: higher priority protocol detected");
+    }
+
+    InstantiatedParameter get_active_protocol() {
+        InstantiatedParameter out = {"idle", ""};
+        auto &kb = KnowledgeBase::getInstance();
+        kb.knownPredicates.lock();
+        for (const auto &pred: kb.knownPredicates) {
+            if ((pred.name == "fall_protocol_enabled") || (pred.name == "medicine_protocol_enabled")
+                || (pred.name == "wondering_protocol_enabled") || (pred.name == "food_protocol_enabled")) {
+                out = pred.parameters[0];
+            }
+        }
+        kb.knownPredicates.unlock();
+        return out;
+    }
 
     namespace high_level_domain {
+
         BT::NodeStatus
         StartFallProtocol::tick_action(const InstantiatedAction &action) {
-            active_domain = "fall_domain.pddl";
-            auto &kb = KnowledgeBase::getInstance();
-            InstantiatedParameter inst = {action.parameters[0].name, "FallProtocol"};
-            kb.knownPredicates.insert({"enabled", {inst}});
+
+            return BT::NodeStatus::SUCCESS;
+        }
+
+        BT::NodeStatus
+        ContinueFallProtocol::tick_action(const InstantiatedAction &action) {
 
             return BT::NodeStatus::SUCCESS;
         }
 
         BT::NodeStatus
         StartWonderingProtocol::tick_action(const InstantiatedAction &action) {
-            active_domain = "wondering_domain.pddl";
             auto &kb = KnowledgeBase::getInstance();
-            InstantiatedParameter inst = {action.parameters[0].name, "WonderingProtocol"};
-            kb.knownPredicates.insert({"enabled", {inst}});
+            InstantiatedParameter inst = action.parameters[0];
 
             kb.unknownPredicates.concurrent_insert({"person_decides_to_go_outside_1", {inst}});
             kb.unknownPredicates.concurrent_insert({"person_decides_to_go_outside_2", {inst}});
@@ -44,29 +60,32 @@ namespace pddl_lib {
         }
 
         BT::NodeStatus
-        StartMedicineProtocol::tick_action(const InstantiatedAction &action) {
-            active_domain = "medicine_domain.pddl";
-            auto &kb = KnowledgeBase::getInstance();
-            InstantiatedParameter inst = {action.parameters[0].name, "MedicineProtocol"};
-            kb.knownPredicates.insert({"enabled", {inst}});
+        ContinueWonderingProtocol::tick_action(const InstantiatedAction &action) {
+            return BT::NodeStatus::SUCCESS;
+        }
 
+        BT::NodeStatus
+        StartMedicineProtocol::tick_action(const InstantiatedAction &action) {
+            return BT::NodeStatus::SUCCESS;
+        }
+        BT::NodeStatus
+        ContinueMedicineProtocol::tick_action(const InstantiatedAction &action) {
             return BT::NodeStatus::SUCCESS;
         }
 
         BT::NodeStatus
         StartFoodProtocol::tick_action(const InstantiatedAction &action) {
-            active_domain = "food_domain.pddl";
-            auto &kb = KnowledgeBase::getInstance();
-            InstantiatedParameter inst = {action.parameters[0].name, "FoodProtocol"};
-            kb.knownPredicates.insert({"enabled", {inst}});
+            return BT::NodeStatus::SUCCESS;
+        }
 
+        BT::NodeStatus
+        ContinueFoodProtocol::tick_action(const InstantiatedAction &action) {
             return BT::NodeStatus::SUCCESS;
         }
 
 
         BT::NodeStatus
-        StartIdle::tick_action(const InstantiatedAction &action) {
-            active_domain = "high_level_domain.pddl";
+        Idle::tick_action(const InstantiatedAction &action) {
             return BT::NodeStatus::SUCCESS;
         }
 
@@ -119,6 +138,17 @@ namespace pddl_lib {
         }
 
         BT::NodeStatus checkGuideToSucceeded1::tick_action(const InstantiatedAction &action) {
+            auto active_protocol = get_active_protocol();
+            auto startTime = std::chrono::steady_clock::now();
+            auto endTime = startTime + std::chrono::minutes(10);
+
+            while (std::chrono::steady_clock::now() < endTime) {
+                active_protocol = get_active_protocol();
+                if (active_protocol.type != "MedicineProtocol"){
+                    abort();
+                }
+            }
+
             return BT::NodeStatus::FAILURE;
         }
 
@@ -135,17 +165,14 @@ namespace pddl_lib {
         }
 
         BT::NodeStatus UpdateSuccess1::tick_action(const InstantiatedAction &action) {
-            active_domain = "high_level_domain.pddl";
             return BT::NodeStatus::SUCCESS;
         }
 
         BT::NodeStatus UpdateSuccess2::tick_action(const InstantiatedAction &action) {
-            active_domain = "high_level_domain.pddl";
             return BT::NodeStatus::SUCCESS;
         }
 
         BT::NodeStatus UpdateSuccess3::tick_action(const InstantiatedAction &action) {
-            active_domain = "high_level_domain.pddl";
             return BT::NodeStatus::SUCCESS;
         }
 
@@ -210,17 +237,14 @@ namespace pddl_lib {
         }
 
         BT::NodeStatus UpdateSuccess1::tick_action(const InstantiatedAction &action) {
-            active_domain = "high_level_domain.pddl";
             return BT::NodeStatus::SUCCESS;
         }
 
         BT::NodeStatus UpdateSuccess2::tick_action(const InstantiatedAction &action) {
-            active_domain = "high_level_domain.pddl";
             return BT::NodeStatus::SUCCESS;
         }
 
         BT::NodeStatus UpdateSuccess3::tick_action(const InstantiatedAction &action) {
-            active_domain = "high_level_domain.pddl";
             return BT::NodeStatus::SUCCESS;
         }
 
@@ -384,32 +408,26 @@ namespace pddl_lib {
         }
 
         BT::NodeStatus UpdateSuccess0::tick_action(const InstantiatedAction &action) {
-            active_domain = "high_level_domain.pddl";
             return BT::NodeStatus::SUCCESS;
         }
 
         BT::NodeStatus UpdateSuccess1::tick_action(const InstantiatedAction &action) {
-            active_domain = "high_level_domain.pddl";
             return BT::NodeStatus::SUCCESS;
         }
 
         BT::NodeStatus UpdateSuccess2::tick_action(const InstantiatedAction &action) {
-            active_domain = "high_level_domain.pddl";
             return BT::NodeStatus::SUCCESS;
         }
 
         BT::NodeStatus UpdateSuccess3::tick_action(const InstantiatedAction &action) {
-            active_domain = "high_level_domain.pddl";
             return BT::NodeStatus::SUCCESS;
         }
 
         BT::NodeStatus UpdateSuccess4::tick_action(const InstantiatedAction &action) {
-            active_domain = "high_level_domain.pddl";
             return BT::NodeStatus::SUCCESS;
         }
 
         BT::NodeStatus UpdateSuccess5::tick_action(const InstantiatedAction &action) {
-            active_domain = "high_level_domain.pddl";
             return BT::NodeStatus::SUCCESS;
         }
     }

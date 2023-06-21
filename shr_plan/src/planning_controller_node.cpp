@@ -27,6 +27,20 @@
 
 using namespace pddl_lib;
 
+
+Domain load_domain(const std::string &domain_file) {
+    std::string domain_str;
+    std::filesystem::path pkg_dir = ament_index_cpp::get_package_share_directory("shr_plan");
+    std::filesystem::path domain_file_path = pkg_dir / "pddl" / domain_file;
+
+    std::ifstream domain_file_stream(domain_file_path.c_str());
+    std::stringstream ss;
+    ss << domain_file_stream.rdbuf();
+    domain_str = ss.str();
+    return parse_domain(domain_str).value();
+}
+
+
 class WorldStatePDDLConverter : public rclcpp::Node {
 private:
     rclcpp::Subscription<shr_msgs::msg::WorldState>::SharedPtr world_state_sub_;
@@ -166,41 +180,52 @@ public:
     TRUTH_VALUE success(TRUTH_VALUE val) {
         return TRUTH_VALUE::FALSE;
     }
-
-    TRUTH_VALUE priority_1(TRUTH_VALUE val) {
-        return TRUTH_VALUE::TRUE;
-    }
-
-    TRUTH_VALUE priority_2(TRUTH_VALUE val) {
-        return TRUTH_VALUE::FALSE;
-    }
-
-    TRUTH_VALUE priority_3(TRUTH_VALUE val) {
-        return TRUTH_VALUE::FALSE;
-    }
-
-    TRUTH_VALUE priority_4(TRUTH_VALUE val) {
-        return TRUTH_VALUE::FALSE;
-    }
-
-    TRUTH_VALUE priority_5(TRUTH_VALUE val) {
-        return TRUTH_VALUE::FALSE;
-    }
-
-
 };
 
-Domain load_domain(std::string &domain_file) {
-    std::string domain_str;
-    std::filesystem::path pkg_dir = ament_index_cpp::get_package_share_directory("shr_plan");
-    std::filesystem::path domain_file_path = pkg_dir / "pddl" / domain_file;
+class HighLevelBT {
+private:
+    std::mutex mtx;
+    bool terminate_thread_;
+    const UpdatePredicates &updater_;
+    Domain domain_;
+    BT::BehaviorTreeFactory factory_;
+public:
 
-    std::ifstream domain_file_stream(domain_file_path.c_str());
-    std::stringstream ss;
-    ss << domain_file_stream.rdbuf();
-    domain_str = ss.str();
-    return parse_domain(domain_str).value();
-}
+    HighLevelBT(const UpdatePredicates &updater) : updater_{updater} {
+        terminate_thread_ = false;
+        domain_ = load_domain("high_level_domain.pddl");
+        factory_ = create_tree_factory();
+    }
+
+    void tick_tree() {
+        updater_.update();
+        auto &kb = KnowledgeBase::getInstance();
+        kb.knownPredicates.concurrent_insert({"priority_1", {}});
+
+        auto problem_str = kb.convert_to_problem(domain_);
+
+        if (auto config = getPlan(domain_.str(), problem_str)) {
+            auto tree = factory_.createTreeFromText(config.value());
+            BT::NodeStatus res;
+            do {
+                res = tree.tickRoot();
+                printf("running.. \n");
+            } while (res == BT::NodeStatus::RUNNING);
+        }
+        kb.knownPredicates.concurrent_erase({"success", {}});
+    }
+
+    void terminate_thread() {
+        std::lock_guard<std::mutex> lock(mtx);
+        terminate_thread_ = true;
+    }
+
+    bool should_terminate_thread() {
+        std::lock_guard<std::mutex> lock(mtx);
+        return terminate_thread_;
+    }
+};
+
 
 int main(int argc, char **argv) {
     rclcpp::init(argc, argv);
@@ -210,13 +235,50 @@ int main(int argc, char **argv) {
 
 
     WorldStatePDDLConverter world_state_converter("WorldStatePDDLConverter", params);
-    std::thread thread(
+    std::thread thread_1(
             [&world_state_converter]() {
                 while (!world_state_converter.should_terminate_node()) {
                     rclcpp::spin_some(world_state_converter.get_node_base_interface());
+                    rclcpp::sleep_for(std::chrono::milliseconds (200));
                 }
             }
     );
+
+    auto &kb = KnowledgeBase::getInstance();
+    for (const auto &landmark: params.pddl_instances.Landmark) {
+        kb.objects.concurrent_insert({landmark, "Landmark"});
+    }
+    for (const auto &person: params.pddl_instances.Person) {
+        kb.objects.concurrent_insert({person, "Person"});
+    }
+    for (const auto &robot: params.pddl_instances.Robot) {
+        kb.objects.concurrent_insert({robot, "Robot"});
+    }
+
+    for (const auto &meal: params.pddl_instances.FoodProtocols) {
+        kb.objects.concurrent_insert({meal, "FoodProtocol"});
+        InstantiatedParameter inst = {meal, "FoodProtocol"};
+        kb.unknownPredicates.concurrent_insert({"guide_to_succeeded_attempt_1", {inst}});
+        kb.unknownPredicates.concurrent_insert({"guide_to_succeeded_attempt_2", {inst}});
+        kb.unknownPredicates.concurrent_insert({"remind_food_succeeded", {inst}});
+        kb.unknownPredicates.concurrent_insert({"remind_food_succeeded2", {inst}});
+
+    }
+    for (const auto &protocol: params.pddl_instances.MedicineProtocols) {
+        kb.objects.concurrent_insert({protocol, "MedicineProtocol"});
+        InstantiatedParameter inst = {protocol, "MedicineProtocol"};
+        kb.unknownPredicates.concurrent_insert({"guide_to_succeeded_attempt_1", {inst}});
+        kb.unknownPredicates.concurrent_insert({"guide_to_succeeded_attempt_2", {inst}});
+        kb.unknownPredicates.concurrent_insert({"notify_automated_succeeded", {inst}});
+        kb.unknownPredicates.concurrent_insert({"notify_recorded_succeeded", {inst}});
+
+    }
+    for (const auto &protocol: params.pddl_instances.FallProtocols) {
+        kb.objects.concurrent_insert({protocol, "FallProtocol"});
+    }
+    for (const auto &protocol: params.pddl_instances.WonderingProtocols) {
+        kb.objects.concurrent_insert({protocol, "WonderingProtocol"});
+    }
 
     UpdatePredicates updater;
 
@@ -258,16 +320,6 @@ int main(int argc, char **argv) {
             });
     updater.register_success(
             [&world_state_converter](TRUTH_VALUE val) { return world_state_converter.success(val); });
-    updater.register_priority_1(
-            [&world_state_converter](TRUTH_VALUE val) { return world_state_converter.priority_1(val); });
-    updater.register_priority_2(
-            [&world_state_converter](TRUTH_VALUE val) { return world_state_converter.priority_2(val); });
-    updater.register_priority_3(
-            [&world_state_converter](TRUTH_VALUE val) { return world_state_converter.priority_3(val); });
-    updater.register_priority_4(
-            [&world_state_converter](TRUTH_VALUE val) { return world_state_converter.priority_4(val); });
-    updater.register_priority_5(
-            [&world_state_converter](TRUTH_VALUE val) { return world_state_converter.priority_5(val); });
     updater.register_food_location([&world_state_converter](TRUTH_VALUE val, FoodProtocol f, Landmark lm) {
         return world_state_converter.food_location(val, f, lm);
     });
@@ -275,66 +327,68 @@ int main(int argc, char **argv) {
         return world_state_converter.door_location(val, w, lm);
     });
 
-    auto &kb = KnowledgeBase::getInstance();
-    for (const auto &landmark: params.pddl_instances.Landmark) {
-        kb.objects.push_back({landmark, "Landmark"});
-    }
-    for (const auto &person: params.pddl_instances.Person) {
-        kb.objects.push_back({person, "Person"});
-    }
-    for (const auto &robot: params.pddl_instances.Robot) {
-        kb.objects.push_back({robot, "Robot"});
-    }
-    for (const auto &meal: params.pddl_instances.FoodProtocols) {
-        kb.objects.push_back({meal, "FoodProtocol"});
-        InstantiatedParameter inst = {meal, "FoodProtocol"};
-        kb.unknownPredicates.insert({"guide_to_succeeded_attempt_1", {inst}});
-        kb.unknownPredicates.insert({"guide_to_succeeded_attempt_2", {inst}});
-        kb.unknownPredicates.insert({"remind_food_succeeded", {inst}});
-        kb.unknownPredicates.insert({"remind_food_succeeded2", {inst}});
+    // run high level behavior tree on its own thread
+    HighLevelBT high_level_bt(updater);
+    std::thread thread_2(
+            [&high_level_bt]() {
+                while (!high_level_bt.should_terminate_thread()) {
+                    high_level_bt.tick_tree();
+                    rclcpp::sleep_for(std::chrono::milliseconds (800));
+                }
+            }
+    );
 
-    }
-    for (const auto &protocol: params.pddl_instances.MedicineProtocols) {
-        kb.objects.push_back({protocol, "MedicineProtocol"});
-        InstantiatedParameter inst = {protocol, "MedicineProtocol"};
-        kb.unknownPredicates.insert({"guide_to_succeeded_attempt_1", {inst}});
-        kb.unknownPredicates.insert({"guide_to_succeeded_attempt_2", {inst}});
-        kb.unknownPredicates.insert({"notify_automated_succeeded", {inst}});
-        kb.unknownPredicates.insert({"notify_recorded_succeeded", {inst}});
-
-    }
-    for (const auto &protocol: params.pddl_instances.FallProtocols) {
-        kb.objects.push_back({protocol, "FallProtocol"});
-    }
-    for (const auto &protocol: params.pddl_instances.WonderingProtocols) {
-        kb.objects.push_back({protocol, "WonderingProtocol"});
-    }
     // run the domains
     BT::BehaviorTreeFactory factory = create_tree_factory();
-    active_domain = "high_level_domain.pddl";
+
 
     while (true) {
+        rclcpp::sleep_for(std::chrono::seconds(3));
+
+        std::string active_domain;
+        InstantiatedParameter protocol = get_active_protocol();
+        if (protocol.type == "FallProtocol"){
+            active_domain = "fall_domain.pddl";
+        } else if (protocol.type == "FoodProtocol"){
+            active_domain = "food_domain.pddl";
+        } else if (protocol.type == "MedicineProtocol"){
+            active_domain = "medicine_domain.pddl";
+        } else if (protocol.type == "WonderingProtocol"){
+            active_domain = "wondering_domain.pddl";
+        } else{
+            // no work to do
+            continue;
+        }
+
+        // updater.update(); needs to be called, but that is done by the high level bt
         auto domain = load_domain(active_domain);
-        updater.update();
         auto problem_str = kb.convert_to_problem(domain);
         if (auto config = getPlan(domain.str(), problem_str)) {
             auto tree = factory.createTreeFromText(config.value());
             BT::NodeStatus res;
-            do {
-                res = tree.tickRoot();
-                printf("running.. \n");
-            } while (res == BT::NodeStatus::RUNNING);
-
-            if (res == BT::NodeStatus::FAILURE) {
-                active_domain = "high_level_domain.pddl";
+            try {
+                do {
+                    res = tree.tickRoot();
+                    printf("running.. \n");
+                } while (res == BT::NodeStatus::RUNNING);
+            } catch (const std::runtime_error &ex) {
+                std::cout << ex.what() << std::endl;
+                res = BT::NodeStatus::FAILURE;
             }
+            kb.knownPredicates.concurrent_erase({"success", {}});
+
+//            if (res == BT::NodeStatus::FAILURE) {
+//
+//            }
         }
 
-        rclcpp::sleep_for(std::chrono::seconds(3));
+
     }
 
     world_state_converter.terminate_node();
-    thread.join();
+    high_level_bt.terminate_thread();
+    thread_1.join();
+    thread_2.join();
     rclcpp::shutdown();
 
     return 0;

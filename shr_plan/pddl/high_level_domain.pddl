@@ -34,6 +34,11 @@
   (priority_4)
   (priority_5)
 
+  (fall_protocol_enabled ?f - FallProtocol)
+  (food_protocol_enabled ?f - FoodProtocol)
+  (medicine_protocol_enabled ?m - MedicineProtocol)
+  (wondering_protocol_enabled ?w - WonderingProtocol)
+
 	(success)
 
 )
@@ -74,8 +79,28 @@
       (time_to_take_medicine ?m)
       (not (already_took_medicine ?m))
       (not (already_called_about_medicine ?m))
+      (forall (?med - MedicineProtocol) (not (medicine_protocol_enabled ?med)) )
 		)
-	:effect (success)
+	:effect (and
+	          (success)
+            (not (priority_2))
+            (medicine_protocol_enabled ?m)
+            (forall (?fall - FallProtocol) (not (fall_protocol_enabled ?fall)) )
+            (forall (?food - FoodProtocol) (not (food_protocol_enabled ?food)) )
+            (forall (?wond - WonderingProtocol) (not (wondering_protocol_enabled ?wond)) )
+          )
+)
+
+(:action ContinueMedicineProtocol
+	:parameters (?m - MedicineProtocol)
+	:precondition (and
+	    (priority_2)
+      (time_to_take_medicine ?m)
+      (not (already_took_medicine ?m))
+      (not (already_called_about_medicine ?m))
+      (medicine_protocol_enabled ?m)
+		)
+	:effect (and (success) (not (priority_2)) )
 )
 
 (:action StartFoodProtocol
@@ -85,8 +110,27 @@
       (time_to_eat ?f)
       (not (already_ate ?f))
       (not (already_called_about_eating ?f))
+      (forall (?food - FoodProtocol) (not (food_protocol_enabled ?food)) )
 		)
-	:effect (success)
+	:effect (and
+	          (success)
+            (not (priority_2))
+            (food_protocol_enabled ?f)
+            (forall (?fall - FallProtocol) (not (fall_protocol_enabled ?fall)) )
+            (forall (?med - MedicineProtocol) (not (medicine_protocol_enabled ?med)) )
+            (forall (?wond - WonderingProtocol) (not (wondering_protocol_enabled ?wond)) )
+          )
+)
+(:action ContinueFoodProtocol
+	:parameters (?f - FoodProtocol)
+	:precondition (and
+	    (priority_2)
+      (time_to_eat ?f)
+      (not (already_ate ?f))
+      (not (already_called_about_eating ?f))
+      (food_protocol_enabled ?f)
+		)
+	:effect (and (success) (not (priority_2)) )
 )
 
 (:action StartFallProtocol
@@ -94,8 +138,26 @@
 	:precondition (and
 	    (priority_1)
       (person_on_ground ?f)
+      (forall (?fall - FallProtocol) (not (fall_protocol_enabled ?fall)) )
 		)
-	:effect (success)
+	:effect (and
+	          (success)
+	          (not (priority_1))
+	          (fall_protocol_enabled ?f)
+            (forall (?med - MedicineProtocol) (not (medicine_protocol_enabled ?med)) )
+            (forall (?wond - WonderingProtocol) (not (wondering_protocol_enabled ?wond)) )
+            (forall (?food - FoodProtocol) (not (food_protocol_enabled ?food)) )
+          )
+)
+
+(:action ContinueFallProtocol
+	:parameters (?f - FallProtocol)
+	:precondition (and
+	    (priority_1)
+      (person_on_ground ?f)
+      (fall_protocol_enabled ?f)
+		)
+	:effect (and (success) (not (priority_1)) )
 )
 
 (:action StartWonderingProtocol
@@ -106,17 +168,38 @@
         (and (not (person_at_door ?w) ) (not (person_outside ?w) ) )
       )
       (too_late_to_go_outside ?w)
+      (forall (?wond - WonderingProtocol) (not (wondering_protocol_enabled ?wond)) )
     )
-	:effect (success)
+	:effect (and
+	          (success)
+	          (not (priority_1))
+	          (wondering_protocol_enabled ?w)
+            (forall (?fall - FallProtocol) (not (fall_protocol_enabled ?fall)) )
+            (forall (?med - MedicineProtocol) (not (medicine_protocol_enabled ?med)) )
+            (forall (?food - FoodProtocol) (not (food_protocol_enabled ?food)) )
+          )
+)
+
+(:action ContinueWonderingProtocol
+	:parameters (?w - WonderingProtocol)
+	:precondition (and
+	    (priority_1)
+      (not
+        (and (not (person_at_door ?w) ) (not (person_outside ?w) ) )
+      )
+      (too_late_to_go_outside ?w)
+      (wondering_protocol_enabled ?w)
+    )
+	:effect (and (success) (not (priority_1)) )
 )
 
 
-(:action StartIdle
+(:action Idle
 	:parameters ()
 	:precondition (and
 	    (priority_5)
 		)
-	:effect (success)
+	:effect (and (success) (not (priority_5)) )
 )
 
 

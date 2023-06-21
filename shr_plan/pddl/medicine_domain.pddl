@@ -10,7 +10,7 @@
 )
 
 (:predicates
-    (enabled ?m - MedicineProtocol)
+    (medicine_protocol_enabled ?m - MedicineProtocol)
     (robot_at ?r - Robot ?lm - Landmark)
     (person_at ?p - Person ?lm - Landmark)
     (medicine_location ?m - MedicineProtocol ?lm - Landmark)
@@ -40,7 +40,7 @@
 (:action detectPerson
     :parameters (?m - MedicineProtocol ?r - Robot ?p - Person ?loc - Landmark)
     :precondition (and
-          (enabled ?m)
+          (medicine_protocol_enabled ?m)
     			(robot_at ?r ?loc)
 			(not (init_move_to_landmark ?m))
 			(not (init_guide_person_to_landmark_attempt ?m))
@@ -52,7 +52,7 @@
 (:action initMoveToLandmark
 	:parameters (?m - MedicineProtocol ?r - Robot)
 	:precondition (and
-          (enabled ?m)
+          (medicine_protocol_enabled ?m)
 			(not (init_move_to_landmark ?m))
 			(not (init_guide_person_to_landmark_attempt ?m))
 		      )
@@ -68,7 +68,7 @@
 (:action moveToLandmark
 	:parameters (?m - MedicineProtocol ?r - Robot ?to - Landmark)
 	:precondition (and
-          (enabled ?m)
+          (medicine_protocol_enabled ?m)
 			(init_move_to_landmark ?m)
 			(not (init_guide_person_to_landmark_attempt ?m))
 		      )
@@ -85,7 +85,7 @@
 (:action InitguidePersonToLandmarkAttempt
 	:parameters (?m - MedicineProtocol ?r - Robot ?p - Person ?to - Landmark)
 	:precondition (and
-          (enabled ?m)
+          (medicine_protocol_enabled ?m)
 			(robot_at ?r ?to)
 			(person_at ?p ?to)
 			(not (init_move_to_landmark ?m))
@@ -104,7 +104,7 @@
 (:action guidePersonToLandmarkAttempt1
 	:parameters (?m - MedicineProtocol ?r - Robot ?p - Person ?to - Landmark)
 	:precondition (and
-          (enabled ?m)
+          (medicine_protocol_enabled ?m)
 	                (not (tried_guide_person_landmark_1 ?m))
                         (medicine_location ?m ?to)
                         (not (init_move_to_landmark ?m))
@@ -122,7 +122,7 @@
 (:action guidePersonToLandmarkAttempt2
 	:parameters (?m - MedicineProtocol ?r - Robot ?p - Person ?to - Landmark)
 	:precondition (and
-          (enabled ?m)
+          (medicine_protocol_enabled ?m)
                         (tried_guide_person_landmark_1 ?m)
                         (not (tried_guide_person_landmark_2 ?m))
                         (medicine_location ?m ?to)
@@ -166,7 +166,7 @@
 (:action UpdatePersonLoc1
 	:parameters (?m - MedicineProtocol ?p - Person ?from ?to - Landmark)
 	:precondition (and
-          (enabled ?m)
+          (medicine_protocol_enabled ?m)
 	                (guide_to_succeeded_attempt_1 ?m)
 	                (person_at ?p ?from)
 	                (medicine_location ?m ?to)
@@ -183,7 +183,7 @@
 (:action UpdatePersonLoc2
 	:parameters (?m - MedicineProtocol ?p - Person ?from ?to - Landmark)
 	:precondition (and
-          (enabled ?m)
+          (medicine_protocol_enabled ?m)
 			(guide_to_succeeded_attempt_2 ?m)
 			(person_at ?p ?from)
 			(medicine_location ?m ?to)
@@ -200,34 +200,34 @@
 (:action UpdateSuccess1
 	:parameters (?m - MedicineProtocol)
 	:precondition (and
-          (enabled ?m)
+          (medicine_protocol_enabled ?m)
 			(notify_automated_succeeded ?m)
 			(not (init_move_to_landmark ?m))
 			(not (init_guide_person_to_landmark_attempt ?m))
 		)
-    :effect (and (success) (already_took_medicine ?m) (not (enabled ?m)) )
+    :effect (and (success) (already_took_medicine ?m) (not (medicine_protocol_enabled ?m)) )
 )
 ;; Update success status
 (:action UpdateSuccess2
 	:parameters (?m - MedicineProtocol)
 	:precondition (and
-          (enabled ?m)
+          (medicine_protocol_enabled ?m)
 			(notify_recorded_succeeded ?m)
 			(not (init_move_to_landmark ?m))
 			(not (init_guide_person_to_landmark_attempt ?m))
 		)
-	:effect (and (success) (already_took_medicine ?m) (not (enabled ?m)))
+	:effect (and (success) (already_took_medicine ?m) (not (medicine_protocol_enabled ?m)))
 )
 ;; Update success status
 (:action UpdateSuccess3
 	:parameters (?m - MedicineProtocol ?p - Person)
 	:precondition (and
-          (enabled ?m)
+          (medicine_protocol_enabled ?m)
 			(asked_caregiver_help ?m ?p)
 			(not (init_move_to_landmark ?m))
 			(not (init_guide_person_to_landmark_attempt ?m))
 		)
-	:effect (and (success) (already_called_about_medicine ?m) (not (enabled ?m)))
+	:effect (and (success) (already_called_about_medicine ?m) (not (medicine_protocol_enabled ?m)))
 )
 
 ;; Notify message at landmark
@@ -247,7 +247,7 @@
 (:action notifyRecordedMedicineAt
 	:parameters (?m - MedicineProtocol ?r - Robot ?p - Person ?loc - Landmark)
 	:precondition (and
-          (enabled ?m)
+          (medicine_protocol_enabled ?m)
 		        (not (notify_automated_succeeded ?m))
 		        (robot_at ?r ?loc)
 		        (person_at ?p ?loc)
@@ -263,7 +263,7 @@
 (:action askCaregiverHelpMedicine1
 	:parameters (?m - MedicineProtocol ?r - Robot ?p - Person ?loc - Landmark)
 	:precondition (and
-          (enabled ?m)
+          (medicine_protocol_enabled ?m)
 			(not (notify_automated_succeeded ?m))
 			(not (notify_recorded_succeeded ?m))
 			(robot_at ?r ?loc)
@@ -278,7 +278,7 @@
 (:action askCaregiverHelpMedicine2
 	:parameters (?m - MedicineProtocol ?r - Robot ?p - Person ?loc - Landmark)
 	:precondition (and
-          (enabled ?m)
+          (medicine_protocol_enabled ?m)
 			(not (guide_to_succeeded_attempt_1 ?m))
 			(not (guide_to_succeeded_attempt_2 ?m))
 			(robot_at ?r ?loc)
