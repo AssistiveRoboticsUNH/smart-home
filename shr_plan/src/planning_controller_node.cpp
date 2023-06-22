@@ -77,109 +77,6 @@ public:
         std::lock_guard<std::mutex> lock(mtx);
         return world_state_;
     }
-
-    TRUTH_VALUE person_at(TRUTH_VALUE val, Person p, Landmark lm) {
-        auto msg = get_world_state_msg();
-        if (msg.patient_location == lm.value) {
-            return TRUTH_VALUE::TRUE;
-        } else {
-            return TRUTH_VALUE::FALSE;
-        }
-    }
-
-    TRUTH_VALUE robot_at(TRUTH_VALUE val, Robot r, Landmark lm) {
-        auto msg = get_world_state_msg();
-        if (msg.robot_location == lm.value) {
-            return TRUTH_VALUE::TRUE;
-        } else {
-            return TRUTH_VALUE::FALSE;
-        }
-    }
-
-    TRUTH_VALUE medicine_location(TRUTH_VALUE val, MedicineProtocol m, Landmark lm) {
-        auto msg = get_world_state_msg();
-        if (msg.medicine_location == lm.value && m.value == "daily") {
-            return TRUTH_VALUE::TRUE;
-        } else {
-            return TRUTH_VALUE::FALSE;
-        }
-    }
-
-    TRUTH_VALUE food_location(TRUTH_VALUE val, FoodProtocol m, Landmark lm) {
-        auto msg = get_world_state_msg();
-        if (msg.eat_location == lm.value) {
-            return TRUTH_VALUE::TRUE;
-        } else {
-            return TRUTH_VALUE::FALSE;
-        }
-    }
-
-    TRUTH_VALUE door_location(TRUTH_VALUE val, WonderingProtocol w, Landmark lm) {
-        auto msg = get_world_state_msg();
-        if (msg.door_location == lm.value) {
-            return TRUTH_VALUE::TRUE;
-        } else {
-            return TRUTH_VALUE::FALSE;
-        }
-    }
-
-
-    TRUTH_VALUE time_to_eat(TRUTH_VALUE val, FoodProtocol f) {
-        auto msg = get_world_state_msg();
-        if ((msg.time_to_eat_dinner && f.value == "dinner") ||
-            (msg.time_to_eat_lunch && f.value == "lunch") ||
-            (msg.time_to_eat_breakfast && f.value == "breakfast")) {
-            return TRUTH_VALUE::TRUE;
-        } else {
-            return TRUTH_VALUE::FALSE;
-        }
-    }
-
-    TRUTH_VALUE time_to_take_medicine(TRUTH_VALUE val, MedicineProtocol m) {
-        auto msg = get_world_state_msg();
-        if (msg.time_to_take_medicine && m.value == "daily") {
-            return TRUTH_VALUE::TRUE;
-        } else {
-            return TRUTH_VALUE::FALSE;
-        }
-    }
-
-
-    TRUTH_VALUE person_on_ground(TRUTH_VALUE val, FallProtocol f) {
-
-        return val;
-    }
-
-    TRUTH_VALUE person_outside(TRUTH_VALUE val, WonderingProtocol w) {
-        auto msg = get_world_state_msg();
-        if (msg.patient_location == "outside") {
-            return TRUTH_VALUE::TRUE;
-        } else {
-            return TRUTH_VALUE::FALSE;
-        }
-    }
-
-    TRUTH_VALUE person_at_door(TRUTH_VALUE val, WonderingProtocol w) {
-        auto msg = get_world_state_msg();
-        if (msg.patient_location == "door") {
-            return TRUTH_VALUE::TRUE;
-        } else {
-            return TRUTH_VALUE::FALSE;
-        }
-    }
-
-    TRUTH_VALUE too_late_to_go_outside(TRUTH_VALUE val, WonderingProtocol w) {
-        auto msg = get_world_state_msg();
-        if (msg.too_late_to_leave) {
-            return TRUTH_VALUE::TRUE;
-        } else {
-            return TRUTH_VALUE::FALSE;
-        }
-    }
-
-    TRUTH_VALUE success(TRUTH_VALUE val) {
-        return TRUTH_VALUE::FALSE;
-    }
 };
 
 class HighLevelBT {
@@ -226,6 +123,119 @@ public:
     }
 };
 
+class UpdatePredicatesImpl : public UpdatePredicates {
+    WorldStatePDDLConverter &world_state_converter;
+
+public:
+    UpdatePredicatesImpl(WorldStatePDDLConverter &world_state_converter) : world_state_converter(
+            world_state_converter) {
+
+    }
+
+    TRUTH_VALUE success(TRUTH_VALUE val) const override {
+        return TRUTH_VALUE::FALSE;
+    }
+
+    TRUTH_VALUE medicine_location(TRUTH_VALUE val, MedicineProtocol m, Landmark lm) const override {
+        auto msg = world_state_converter.get_world_state_msg();
+        if (msg.medicine_location == lm && m == "daily") {
+            return TRUTH_VALUE::TRUE;
+        } else {
+            return TRUTH_VALUE::FALSE;
+        }
+    }
+
+
+    TRUTH_VALUE robot_at(TRUTH_VALUE val, Robot r, Landmark lm) const override {
+        auto msg = world_state_converter.get_world_state_msg();
+        if (msg.robot_location == lm) {
+            return TRUTH_VALUE::TRUE;
+        } else {
+            return TRUTH_VALUE::FALSE;
+        }
+    }
+
+
+    TRUTH_VALUE person_at(TRUTH_VALUE val, Person p, Landmark lm) const override {
+        auto msg = world_state_converter.get_world_state_msg();
+        if (msg.patient_location == lm) {
+            return TRUTH_VALUE::TRUE;
+        } else {
+            return TRUTH_VALUE::FALSE;
+        }
+    }
+
+
+    TRUTH_VALUE food_location(TRUTH_VALUE val, FoodProtocol f, Landmark loc) const override {
+        auto msg = world_state_converter.get_world_state_msg();
+        if (msg.eat_location == loc) {
+            return TRUTH_VALUE::TRUE;
+        } else {
+            return TRUTH_VALUE::FALSE;
+        }
+    }
+
+
+    TRUTH_VALUE door_location(TRUTH_VALUE val, WonderingProtocol w, Landmark lm) const override {
+        auto msg = world_state_converter.get_world_state_msg();
+        if (msg.door_location == lm) {
+            return TRUTH_VALUE::TRUE;
+        } else {
+            return TRUTH_VALUE::FALSE;
+        }
+    }
+
+
+    TRUTH_VALUE person_at_door(TRUTH_VALUE val, WonderingProtocol w) const override {
+        auto msg = world_state_converter.get_world_state_msg();
+        if (msg.patient_location == "door") {
+            return TRUTH_VALUE::TRUE;
+        } else {
+            return TRUTH_VALUE::FALSE;
+        }
+    }
+
+
+    TRUTH_VALUE person_outside(TRUTH_VALUE val, WonderingProtocol w) const override {
+        auto msg = world_state_converter.get_world_state_msg();
+        if (msg.patient_location == "outside") {
+            return TRUTH_VALUE::TRUE;
+        } else {
+            return TRUTH_VALUE::FALSE;
+        }
+    }
+
+    TRUTH_VALUE time_to_eat(TRUTH_VALUE val, FoodProtocol f) const override {
+        auto msg = world_state_converter.get_world_state_msg();
+        if ((msg.time_to_eat_dinner && f == "dinner") ||
+            (msg.time_to_eat_lunch && f == "lunch") ||
+            (msg.time_to_eat_breakfast && f == "breakfast")) {
+            return TRUTH_VALUE::TRUE;
+        } else {
+            return TRUTH_VALUE::FALSE;
+        }
+    }
+
+    TRUTH_VALUE too_late_to_go_outside(TRUTH_VALUE val, WonderingProtocol w) const override {
+        auto msg = world_state_converter.get_world_state_msg();
+        if (msg.too_late_to_leave) {
+            return TRUTH_VALUE::TRUE;
+        } else {
+            return TRUTH_VALUE::FALSE;
+        }
+    }
+
+    TRUTH_VALUE time_to_take_medicine(TRUTH_VALUE val, MedicineProtocol m) const override {
+        auto msg = world_state_converter.get_world_state_msg();
+        if (msg.time_to_take_medicine && m == "daily") {
+            return TRUTH_VALUE::TRUE;
+        } else {
+            return TRUTH_VALUE::FALSE;
+        }
+    }
+
+};
+
 
 int main(int argc, char **argv) {
     rclcpp::init(argc, argv);
@@ -239,7 +249,7 @@ int main(int argc, char **argv) {
             [&world_state_converter]() {
                 while (!world_state_converter.should_terminate_node()) {
                     rclcpp::spin_some(world_state_converter.get_node_base_interface());
-                    rclcpp::sleep_for(std::chrono::milliseconds (200));
+                    rclcpp::sleep_for(std::chrono::milliseconds(200));
                 }
             }
     );
@@ -280,60 +290,14 @@ int main(int argc, char **argv) {
         kb.objects.concurrent_insert({protocol, "WonderingProtocol"});
     }
 
-    UpdatePredicates updater;
-
-    updater.register_person_at([&world_state_converter](TRUTH_VALUE val, Person p, Landmark lm) {
-        return world_state_converter.person_at(val, p, lm);
-    });
-    updater.register_robot_at([&world_state_converter](TRUTH_VALUE val, Robot r, Landmark lm) {
-        return world_state_converter.robot_at(val, r, lm);
-    });
-    updater.register_medicine_location([&world_state_converter](TRUTH_VALUE val, MedicineProtocol m, Landmark lm) {
-        return world_state_converter.medicine_location(val, m, lm);
-    });
-    updater.register_time_to_eat(
-            [&world_state_converter](TRUTH_VALUE val, FoodProtocol f) {
-                return world_state_converter.time_to_eat(val, f);
-            });
-    updater.register_time_to_take_medicine(
-            [&world_state_converter](TRUTH_VALUE val, MedicineProtocol m) {
-                return world_state_converter.time_to_take_medicine(val, m);
-            });
-    updater.register_person_on_ground(
-            [&world_state_converter](TRUTH_VALUE val, FallProtocol f) {
-                return world_state_converter.person_on_ground(val, f);
-            });
-
-    updater.register_person_outside(
-            [&world_state_converter](TRUTH_VALUE val, WonderingProtocol w) {
-                return world_state_converter.person_outside(val, w);
-            });
-
-    updater.register_person_at_door(
-            [&world_state_converter](TRUTH_VALUE val, WonderingProtocol w) {
-                return world_state_converter.person_at_door(val, w);
-            });
-
-    updater.register_too_late_to_go_outside(
-            [&world_state_converter](TRUTH_VALUE val, WonderingProtocol w) {
-                return world_state_converter.too_late_to_go_outside(val, w);
-            });
-    updater.register_success(
-            [&world_state_converter](TRUTH_VALUE val) { return world_state_converter.success(val); });
-    updater.register_food_location([&world_state_converter](TRUTH_VALUE val, FoodProtocol f, Landmark lm) {
-        return world_state_converter.food_location(val, f, lm);
-    });
-    updater.register_door_location([&world_state_converter](TRUTH_VALUE val, WonderingProtocol w, Landmark lm) {
-        return world_state_converter.door_location(val, w, lm);
-    });
-
+    UpdatePredicatesImpl updater(world_state_converter);
     // run high level behavior tree on its own thread
     HighLevelBT high_level_bt(updater);
     std::thread thread_2(
             [&high_level_bt]() {
                 while (!high_level_bt.should_terminate_thread()) {
                     high_level_bt.tick_tree();
-                    rclcpp::sleep_for(std::chrono::milliseconds (800));
+                    rclcpp::sleep_for(std::chrono::milliseconds(800));
                 }
             }
     );
@@ -347,15 +311,15 @@ int main(int argc, char **argv) {
 
         std::string active_domain;
         InstantiatedParameter protocol = get_active_protocol();
-        if (protocol.type == "FallProtocol"){
+        if (protocol.type == "FallProtocol") {
             active_domain = "fall_domain.pddl";
-        } else if (protocol.type == "FoodProtocol"){
+        } else if (protocol.type == "FoodProtocol") {
             active_domain = "food_domain.pddl";
-        } else if (protocol.type == "MedicineProtocol"){
+        } else if (protocol.type == "MedicineProtocol") {
             active_domain = "medicine_domain.pddl";
-        } else if (protocol.type == "WonderingProtocol"){
+        } else if (protocol.type == "WonderingProtocol") {
             active_domain = "wondering_domain.pddl";
-        } else{
+        } else {
             // no work to do
             continue;
         }
@@ -377,9 +341,6 @@ int main(int argc, char **argv) {
             }
             kb.knownPredicates.concurrent_erase({"success", {}});
 
-//            if (res == BT::NodeStatus::FAILURE) {
-//
-//            }
         }
 
 
