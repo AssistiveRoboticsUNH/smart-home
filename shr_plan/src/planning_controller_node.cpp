@@ -22,7 +22,7 @@
 #include "tf2_ros/buffer.h"
 #include "cff_plan_solver/cff_plan_solver.hpp"
 
-#include <shr_plan_parameters.hpp>
+#include <shr_parameters.hpp>
 #include <shr_plan/actions.hpp>
 
 using namespace pddl_lib;
@@ -49,7 +49,7 @@ private:
     bool terminate_node_;
 public:
 
-    WorldStatePDDLConverter(const std::string &node_name, const shr_plan_parameters::Params &params) : rclcpp::Node(
+    WorldStatePDDLConverter(const std::string &node_name, const shr_parameters::Params &params) : rclcpp::Node(
             node_name) {
         terminate_node_ = false;
         world_state_sub_ = create_subscription<shr_msgs::msg::WorldState>(
@@ -138,7 +138,7 @@ public:
 
     TRUTH_VALUE medicine_location(TRUTH_VALUE val, MedicineProtocol m, Landmark lm) const override {
         auto msg = world_state_converter.get_world_state_msg();
-        if (msg.medicine_location == lm && m == "daily") {
+        if (msg.medicine_location == lm) {
             return TRUTH_VALUE::TRUE;
         } else {
             return TRUTH_VALUE::FALSE;
@@ -188,7 +188,7 @@ public:
 
     TRUTH_VALUE person_at_door(TRUTH_VALUE val, WonderingProtocol w) const override {
         auto msg = world_state_converter.get_world_state_msg();
-        if (msg.patient_location == "door") {
+        if (msg.patient_location == msg.door_location) {
             return TRUTH_VALUE::TRUE;
         } else {
             return TRUTH_VALUE::FALSE;
@@ -198,7 +198,7 @@ public:
 
     TRUTH_VALUE person_outside(TRUTH_VALUE val, WonderingProtocol w) const override {
         auto msg = world_state_converter.get_world_state_msg();
-        if (msg.patient_location == "outside") {
+        if (msg.patient_location == msg.outside_location) {
             return TRUTH_VALUE::TRUE;
         } else {
             return TRUTH_VALUE::FALSE;
@@ -234,13 +234,97 @@ public:
         }
     }
 
+    TRUTH_VALUE person_goes_to_bed_after_return_1(TRUTH_VALUE val, WonderingProtocol w) const override {
+        auto msg = world_state_converter.get_world_state_msg();
+        if (msg.bedroom_location == msg.patient_location) {
+            return TRUTH_VALUE::TRUE;
+        } else {
+            return TRUTH_VALUE::FALSE;
+        }
+    }
+
+    TRUTH_VALUE person_goes_to_bed_after_return_2(TRUTH_VALUE val, WonderingProtocol w) const override {
+        auto msg = world_state_converter.get_world_state_msg();
+        if (msg.bedroom_location == msg.patient_location) {
+            return TRUTH_VALUE::TRUE;
+        } else {
+            return TRUTH_VALUE::FALSE;
+        }
+    }
+
+    TRUTH_VALUE person_decides_to_go_to_bed_1(TRUTH_VALUE val, WonderingProtocol w) const override {
+        auto msg = world_state_converter.get_world_state_msg();
+        if (msg.bedroom_location == msg.patient_location) {
+            return TRUTH_VALUE::TRUE;
+        } else {
+            return TRUTH_VALUE::FALSE;
+        }
+    }
+
+    TRUTH_VALUE person_decides_to_go_to_bed_2(TRUTH_VALUE val, WonderingProtocol w) const override {
+        auto msg = world_state_converter.get_world_state_msg();
+        if (msg.bedroom_location == msg.patient_location) {
+            return TRUTH_VALUE::TRUE;
+        } else {
+            return TRUTH_VALUE::FALSE;
+        }
+    }
+
+    TRUTH_VALUE guide_to_succeeded_attempt_1(TRUTH_VALUE val, MedicineProtocol m) const {
+        return val; //TODO
+    }
+
+    TRUTH_VALUE guide_to_succeeded_attempt_2(TRUTH_VALUE val, MedicineProtocol m) const {
+        return val; //TODO
+    }
+
+    TRUTH_VALUE notify_recorded_succeeded(TRUTH_VALUE val, MedicineProtocol m) const {
+        return val; //TODO
+    }
+
+    TRUTH_VALUE remind_food_succeeded(TRUTH_VALUE val, FoodProtocol f) const {
+        return val; //TODO
+    }
+
+    TRUTH_VALUE remind_food_succeeded2(TRUTH_VALUE val, FoodProtocol f) const {
+        return val; //TODO
+    }
+
+    TRUTH_VALUE notify_automated_succeeded(TRUTH_VALUE val, MedicineProtocol m) const {
+        return val; //TODO
+    }
+
+    TRUTH_VALUE guide_to_succeeded_attempt_1(TRUTH_VALUE val, FoodProtocol f) const {
+        return val; //TODO
+    }
+
+    TRUTH_VALUE guide_to_succeeded_attempt_2(TRUTH_VALUE val, FoodProtocol f) const {
+        return val; //TODO
+    }
+
+    TRUTH_VALUE person_decides_to_go_outside_1(TRUTH_VALUE val, WonderingProtocol w) const {
+        return val; //TODO
+    }
+
+    TRUTH_VALUE person_decides_to_go_outside_2(TRUTH_VALUE val, WonderingProtocol w) const {
+        return val; //TODO
+    }
+
+    TRUTH_VALUE person_decides_to_return_1(TRUTH_VALUE val, WonderingProtocol w) const {
+        return val; //TODO
+    }
+
+    TRUTH_VALUE person_decides_to_return_2(TRUTH_VALUE val, WonderingProtocol w) const {
+        return val; //TODO
+    }
+
 };
 
 
 int main(int argc, char **argv) {
     rclcpp::init(argc, argv);
     auto node = std::make_shared<rclcpp::Node>("shrParameterNode");
-    auto param_listener_ = shr_plan_parameters::ParamListener(node);
+    auto param_listener_ = shr_parameters::ParamListener(node);
     auto params = param_listener_.get_params();
 
 
@@ -277,6 +361,7 @@ int main(int argc, char **argv) {
     for (const auto &protocol: params.pddl_instances.MedicineProtocols) {
         kb.objects.concurrent_insert({protocol, "MedicineProtocol"});
         InstantiatedParameter inst = {protocol, "MedicineProtocol"};
+//        InstantiatedParameter loc = {params, "Landmark"};
         kb.unknownPredicates.concurrent_insert({"guide_to_succeeded_attempt_1", {inst}});
         kb.unknownPredicates.concurrent_insert({"guide_to_succeeded_attempt_2", {inst}});
         kb.unknownPredicates.concurrent_insert({"notify_automated_succeeded", {inst}});

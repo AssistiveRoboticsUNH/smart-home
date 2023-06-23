@@ -21,6 +21,7 @@ find_package(rclcpp_action REQUIRED)
 find_package(shr_msgs REQUIRED)
 find_package(shr_utils REQUIRED)
 find_package(tf2_ros REQUIRED)
+find_package(shr_parameters REQUIRED)
 
 
 generate_bt_header(bt_shr_actions
@@ -39,6 +40,7 @@ set(dependencies
     shr_msgs
     shr_utils
     cff_plan_solver
+    shr_parameters
     )
 
 add_executable(planning_controller_node src/planning_controller_node.cpp)
@@ -48,20 +50,21 @@ ament_target_dependencies(planning_controller_node ${dependencies})
 #add_compile_definitions(planning_controller_node_sim USE_SIM)
 #ament_target_dependencies(planning_controller_node_sim ${dependencies})
 
-generate_parameter_library(shr_plan_parameters
-    src/shr_plan_parameters.yaml
-    )
+#generate_parameter_library(shr_plan_parameters
+#    src/shr_plan_parameters.yaml
+#    )
 
 target_link_libraries(planning_controller_node
-    shr_plan_parameters
     bt_shr_actions
     )
 
+#include_directories(${shr_parameters_INCLUDE_DIRS})
+
 add_executable(tf_broadcaster_node src/tf_broadcaster.cpp)
 ament_target_dependencies(tf_broadcaster_node ${dependencies})
-target_link_libraries(tf_broadcaster_node
-    shr_plan_parameters
-    )
+#target_link_libraries(tf_broadcaster_node
+#    shr_parameters
+#    )
 
 include_directories(
     include

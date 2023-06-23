@@ -23,7 +23,7 @@
 #include "rclcpp_action/rclcpp_action.hpp"
 #include "shr_msgs/action/read_script_request.hpp"
 //
-#include <shr_plan_parameters.hpp>
+#include <shr_parameters.hpp>
 #include <std_msgs/msg/bool.hpp>
 //
 #include <tf2_ros/transform_broadcaster.h>
@@ -85,13 +85,13 @@ int main(int argc, char **argv) {
 
 
     auto n = std::make_shared<rclcpp::Node>("params");
-    auto param_listener = std::make_shared<shr_plan_parameters::ParamListener>(n);
+    auto param_listener = std::make_shared<shr_parameters::ParamListener>(n);
     auto params = param_listener->get_params();
 
     std::vector<std::shared_ptr<FramePublisher>> nodes;
     for (auto loc : params.tf_frames){
         auto node = std::make_shared<FramePublisher>(loc, loc);
-        auto listener = std::make_shared<shr_plan_parameters::ParamListener>(node);
+        auto listener = std::make_shared<shr_parameters::ParamListener>(node);
         exe.add_node(node);
         nodes.push_back(node);
     }

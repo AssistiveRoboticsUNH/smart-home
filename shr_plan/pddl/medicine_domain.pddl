@@ -20,8 +20,8 @@
     (init_move_to_landmark ?m - MedicineProtocol)
     (init_guide_person_to_landmark_attempt ?m - MedicineProtocol)
 
-    (guide_to_succeeded_attempt_1 ?m - MedicineProtocol)
-    (guide_to_succeeded_attempt_2 ?m - MedicineProtocol)
+    (guide_to_succeeded_attempt_1 ?m - MedicineProtocol ?lm - Landmark)
+    (guide_to_succeeded_attempt_2 ?m - MedicineProtocol ?lm - Landmark)
     (notify_automated_succeeded ?m - MedicineProtocol)
     (notify_recorded_succeeded ?m - MedicineProtocol)
 
@@ -146,7 +146,7 @@
 			    (not (init_move_to_landmark ?m))
 		            (not (init_guide_person_to_landmark_attempt ?m))
 	                )
-	:observe (guide_to_succeeded_attempt_1 ?m)
+	:observe (guide_to_succeeded_attempt_1 ?m ?loc)
 )
 ;; Notify message at landmark
 (:action checkGuideToSucceeded2
@@ -157,7 +157,7 @@
 	                    (not (init_move_to_landmark ?m))
 			    (not (init_guide_person_to_landmark_attempt ?m))
 	                )
-	:observe (guide_to_succeeded_attempt_2 ?m)
+	:observe (guide_to_succeeded_attempt_2 ?m ?loc)
 )
 
 

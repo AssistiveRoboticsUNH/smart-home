@@ -16,7 +16,7 @@ from shr_msgs.msg import WorldState, SuccessProtocol
 import datetime
 import time
 
-from shr_world_state.shr_world_state_parameters import parameters
+from shr_parameters_py.shr_parameters import shr_parameters
 
 
 class SensorData:
@@ -51,7 +51,7 @@ class WorldStateNode(Node):
         self.world_state.too_late_to_leave = 0
         self.world_state.door_open = 0
 
-        self.param_listener = parameters.ParamListener(self)
+        self.param_listener = shr_parameters.ParamListener(self)
         self.params = self.param_listener.get_params()
 
         self.world_state.patient_name = self.params.patient_name
