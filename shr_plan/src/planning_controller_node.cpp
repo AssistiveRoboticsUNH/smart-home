@@ -91,7 +91,7 @@ public:
     HighLevelBT(const UpdatePredicates &updater) : updater_{updater} {
         terminate_thread_ = false;
         domain_ = load_domain("high_level_domain.pddl");
-        factory_ = create_tree_factory();
+        factory_ = create_tree_factory<ProtocolActions>();
     }
 
     void tick_tree() {
@@ -303,8 +303,7 @@ int main(int argc, char **argv) {
     );
 
     // run the domains
-    BT::BehaviorTreeFactory factory = create_tree_factory();
-
+    BT::BehaviorTreeFactory factory = create_tree_factory<ProtocolActions>();
 
     while (true) {
         rclcpp::sleep_for(std::chrono::seconds(3));

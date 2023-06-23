@@ -1,5 +1,6 @@
 #include "bt_shr_actions.hpp"
 
+
 namespace pddl_lib {
     void abort() {
         throw std::runtime_error("abort: higher priority protocol detected");
@@ -19,22 +20,13 @@ namespace pddl_lib {
         return out;
     }
 
-    namespace high_level_domain {
+    class ProtocolActions : public pddl_lib::ActionInterface {
+        std::chrono::steady_clock::time_point CheckBedAfterReturn1_ = {};
+        std::chrono::steady_clock::time_point CheckBedAfterReturn2_ = {};
 
-        BT::NodeStatus
-        StartFallProtocol::tick_action(const InstantiatedAction &action) {
+    public:
 
-            return BT::NodeStatus::SUCCESS;
-        }
-
-        BT::NodeStatus
-        ContinueFallProtocol::tick_action(const InstantiatedAction &action) {
-
-            return BT::NodeStatus::SUCCESS;
-        }
-
-        BT::NodeStatus
-        StartWonderingProtocol::tick_action(const InstantiatedAction &action) {
+        BT::NodeStatus high_level_domain_StartWonderingProtocol(const InstantiatedAction &action) override {
             auto &kb = KnowledgeBase::getInstance();
             InstantiatedParameter inst = action.parameters[0];
 
@@ -59,92 +51,32 @@ namespace pddl_lib {
             return BT::NodeStatus::SUCCESS;
         }
 
-        BT::NodeStatus
-        ContinueWonderingProtocol::tick_action(const InstantiatedAction &action) {
-            return BT::NodeStatus::SUCCESS;
-        }
 
-        BT::NodeStatus
-        StartMedicineProtocol::tick_action(const InstantiatedAction &action) {
-            return BT::NodeStatus::SUCCESS;
-        }
-        BT::NodeStatus
-        ContinueMedicineProtocol::tick_action(const InstantiatedAction &action) {
-            return BT::NodeStatus::SUCCESS;
-        }
-
-        BT::NodeStatus
-        StartFoodProtocol::tick_action(const InstantiatedAction &action) {
-            return BT::NodeStatus::SUCCESS;
-        }
-
-        BT::NodeStatus
-        ContinueFoodProtocol::tick_action(const InstantiatedAction &action) {
-            return BT::NodeStatus::SUCCESS;
-        }
-
-
-        BT::NodeStatus
-        Idle::tick_action(const InstantiatedAction &action) {
-            return BT::NodeStatus::SUCCESS;
-        }
-
-        BT::NodeStatus
-        ChangePriority_1_2::tick_action(const InstantiatedAction &action) {
-            return BT::NodeStatus::SUCCESS;
-        }
-
-        BT::NodeStatus
-        ChangePriority_2_3::tick_action(const InstantiatedAction &action) {
-            return BT::NodeStatus::SUCCESS;
-        }
-
-        BT::NodeStatus
-        ChangePriority_3_4::tick_action(const InstantiatedAction &action) {
-            return BT::NodeStatus::SUCCESS;
-        }
-
-        BT::NodeStatus
-        ChangePriority_4_5::tick_action(const InstantiatedAction &action) {
-            return BT::NodeStatus::SUCCESS;
-        }
-    }
-
-    namespace medicine_protocol {
-        BT::NodeStatus
-        detectPerson::tick_action(const InstantiatedAction &action) {
-            return BT::NodeStatus::SUCCESS;
-        }
-
-        BT::NodeStatus initMoveToLandmark::tick_action(const InstantiatedAction &action) {
-            return BT::NodeStatus::SUCCESS;
-        }
-
-        BT::NodeStatus moveToLandmark::tick_action(const InstantiatedAction &action) {
-            return BT::NodeStatus::SUCCESS;
-        }
-
-        BT::NodeStatus
-        InitguidePersonToLandmarkAttempt::tick_action(const InstantiatedAction &action) {
-            return BT::NodeStatus::SUCCESS;
-        }
-
-        BT::NodeStatus guidePersonToLandmarkAttempt1::tick_action(const InstantiatedAction &action) {
-            return BT::NodeStatus::SUCCESS;
-        }
-
-        BT::NodeStatus guidePersonToLandmarkAttempt2::tick_action(const InstantiatedAction &action) {
-            return BT::NodeStatus::SUCCESS;
-        }
-
-        BT::NodeStatus checkGuideToSucceeded1::tick_action(const InstantiatedAction &action) {
-            auto active_protocol = get_active_protocol();
+        BT::NodeStatus wondering_protocol_CheckBedAfterReturn1(const InstantiatedAction &action) override {
             auto startTime = std::chrono::steady_clock::now();
-            auto endTime = startTime + std::chrono::minutes(10);
+            if (startTime > CheckBedAfterReturn1_){
+                CheckBedAfterReturn1_ = startTime + std::chrono::minutes(10);
+            }
 
-            while (std::chrono::steady_clock::now() < endTime) {
-                active_protocol = get_active_protocol();
-                if (active_protocol.type != "MedicineProtocol"){
+            while (std::chrono::steady_clock::now() < CheckBedAfterReturn1_) {
+                auto active_protocol = get_active_protocol();
+                if (active_protocol.type != "WonderingProtocol") {
+                    abort();
+                }
+
+            }
+
+            return BT::NodeStatus::FAILURE;
+        }
+        BT::NodeStatus wondering_protocol_InitCheckBedAfterReturn2(const InstantiatedAction &action) override {
+            auto startTime = std::chrono::steady_clock::now();
+            if (startTime > CheckBedAfterReturn2_){
+                CheckBedAfterReturn2_ = startTime + std::chrono::minutes(10);
+            }
+
+            while (std::chrono::steady_clock::now() < CheckBedAfterReturn2_) {
+                auto active_protocol = get_active_protocol();
+                if (active_protocol.type != "WonderingProtocol") {
                     abort();
                 }
             }
@@ -152,284 +84,7 @@ namespace pddl_lib {
             return BT::NodeStatus::FAILURE;
         }
 
-        BT::NodeStatus checkGuideToSucceeded2::tick_action(const InstantiatedAction &action) {
-            return BT::NodeStatus::FAILURE;
-        }
 
-        BT::NodeStatus UpdatePersonLoc1::tick_action(const InstantiatedAction &action) {
-            return BT::NodeStatus::SUCCESS;
-        }
-
-        BT::NodeStatus UpdatePersonLoc2::tick_action(const InstantiatedAction &action) {
-            return BT::NodeStatus::SUCCESS;
-        }
-
-        BT::NodeStatus UpdateSuccess1::tick_action(const InstantiatedAction &action) {
-            return BT::NodeStatus::SUCCESS;
-        }
-
-        BT::NodeStatus UpdateSuccess2::tick_action(const InstantiatedAction &action) {
-            return BT::NodeStatus::SUCCESS;
-        }
-
-        BT::NodeStatus UpdateSuccess3::tick_action(const InstantiatedAction &action) {
-            return BT::NodeStatus::SUCCESS;
-        }
-
-        BT::NodeStatus notifyAutomatedMedicineAt::tick_action(const InstantiatedAction &action) {
-            return BT::NodeStatus::FAILURE;
-        }
-
-        BT::NodeStatus notifyRecordedMedicineAt::tick_action(const InstantiatedAction &action) {
-            return BT::NodeStatus::FAILURE;
-        }
-
-        BT::NodeStatus askCaregiverHelpMedicine1::tick_action(const InstantiatedAction &action) {
-            return BT::NodeStatus::SUCCESS;
-        }
-
-        BT::NodeStatus askCaregiverHelpMedicine2::tick_action(const InstantiatedAction &action) {
-            return BT::NodeStatus::SUCCESS;
-        }
-    }
-
-
-    BT::NodeStatus
-    food_protocol::detectPerson::tick_action(const InstantiatedAction &action) {
-        return BT::NodeStatus::SUCCESS;
-    }
-
-    namespace food_protocol {
-        BT::NodeStatus initMoveToLandmark::tick_action(const InstantiatedAction &action) {
-            return BT::NodeStatus::SUCCESS;
-        }
-
-        BT::NodeStatus moveToLandmark::tick_action(const InstantiatedAction &action) {
-            return BT::NodeStatus::SUCCESS;
-        }
-
-        BT::NodeStatus InitguidePersonToLandmarkAttempt::tick_action(const InstantiatedAction &action) {
-            return BT::NodeStatus::SUCCESS;
-        }
-
-        BT::NodeStatus guidePersonToLandmarkAttempt1::tick_action(const InstantiatedAction &action) {
-            return BT::NodeStatus::SUCCESS;
-        }
-
-        BT::NodeStatus guidePersonToLandmarkAttempt2::tick_action(const InstantiatedAction &action) {
-            return BT::NodeStatus::SUCCESS;
-        }
-
-        BT::NodeStatus checkGuideToSucceeded1::tick_action(const InstantiatedAction &action) {
-            return BT::NodeStatus::FAILURE;
-        }
-
-        BT::NodeStatus checkGuideToSucceeded2::tick_action(const InstantiatedAction &action) {
-            return BT::NodeStatus::FAILURE;
-        }
-
-        BT::NodeStatus UpdatePersonLoc1::tick_action(const InstantiatedAction &action) {
-            return BT::NodeStatus::SUCCESS;
-        }
-
-        BT::NodeStatus UpdatePersonLoc2::tick_action(const InstantiatedAction &action) {
-            return BT::NodeStatus::SUCCESS;
-        }
-
-        BT::NodeStatus UpdateSuccess1::tick_action(const InstantiatedAction &action) {
-            return BT::NodeStatus::SUCCESS;
-        }
-
-        BT::NodeStatus UpdateSuccess2::tick_action(const InstantiatedAction &action) {
-            return BT::NodeStatus::SUCCESS;
-        }
-
-        BT::NodeStatus UpdateSuccess3::tick_action(const InstantiatedAction &action) {
-            return BT::NodeStatus::SUCCESS;
-        }
-
-        BT::NodeStatus
-        remindAutomatedFoodAt::tick_action(const InstantiatedAction &action) {
-            return BT::NodeStatus::SUCCESS;
-        }
-
-        BT::NodeStatus
-        remindAutomatedFoodAt2::tick_action(const InstantiatedAction &action) {
-            return BT::NodeStatus::SUCCESS;
-        }
-
-        BT::NodeStatus
-        askCaregiverHelpFood1::tick_action(const InstantiatedAction &action) {
-            return BT::NodeStatus::SUCCESS;
-        }
-
-        BT::NodeStatus
-        askCaregiverHelpFood2::tick_action(const InstantiatedAction &action) {
-            return BT::NodeStatus::SUCCESS;
-        }
-    }
-
-
-    namespace wondering_protocol {
-        BT::NodeStatus initMoveToLandmark::tick_action(const InstantiatedAction &action) {
-            return BT::NodeStatus::SUCCESS;
-        }
-
-        BT::NodeStatus moveToLandmark::tick_action(const InstantiatedAction &action) {
-            return BT::NodeStatus::SUCCESS;
-        }
-
-        BT::NodeStatus updatePersonLocation1::tick_action(const InstantiatedAction &action) {
-            return BT::NodeStatus::SUCCESS;
-        }
-
-        BT::NodeStatus updatePersonLocation2::tick_action(const InstantiatedAction &action) {
-            return BT::NodeStatus::SUCCESS;
-        }
-
-        BT::NodeStatus
-        InitCheckBedAfterReturn2::tick_action(const InstantiatedAction &action) {
-            return BT::NodeStatus::SUCCESS;
-        }
-
-        BT::NodeStatus
-        notifyAutomatedMidnightAt::tick_action(const InstantiatedAction &action) {
-            return BT::NodeStatus::SUCCESS;
-        }
-
-        BT::NodeStatus
-        notifyRecordedMidnightAt::tick_action(const InstantiatedAction &action) {
-            return BT::NodeStatus::SUCCESS;
-        }
-
-        BT::NodeStatus
-        DetectPerson::tick_action(const InstantiatedAction &action) {
-            return BT::NodeStatus::SUCCESS;
-        }
-
-        BT::NodeStatus
-        initDetectPersonLeftHouse1::tick_action(const InstantiatedAction &action) {
-            return BT::NodeStatus::SUCCESS;
-        }
-
-        BT::NodeStatus
-        detectPersonLeftHouse1::tick_action(const InstantiatedAction &action) {
-            return BT::NodeStatus::SUCCESS;
-        }
-
-        BT::NodeStatus
-        initDetectPersonLeftHouse2::tick_action(const InstantiatedAction &action) {
-            return BT::NodeStatus::SUCCESS;
-        }
-
-        BT::NodeStatus
-        detectPersonLeftHouse2::tick_action(const InstantiatedAction &action) {
-            return BT::NodeStatus::SUCCESS;
-        }
-
-        BT::NodeStatus
-        personGoOutside1::tick_action(const InstantiatedAction &action) {
-            return BT::NodeStatus::SUCCESS;
-        }
-
-        BT::NodeStatus
-        personGoOutside2::tick_action(const InstantiatedAction &action) {
-            return BT::NodeStatus::SUCCESS;
-        }
-
-        BT::NodeStatus
-        finishDetectPerson1::tick_action(const InstantiatedAction &action) {
-            return BT::NodeStatus::SUCCESS;
-        }
-
-        BT::NodeStatus
-        finishDetectPerson2::tick_action(const InstantiatedAction &action) {
-            return BT::NodeStatus::SUCCESS;
-        }
-
-        BT::NodeStatus
-        InitCheckBedAfterReturn1::tick_action(const InstantiatedAction &action) {
-            return BT::NodeStatus::SUCCESS;
-        }
-
-        BT::NodeStatus
-        checkIfPersonWentToBed1::tick_action(const InstantiatedAction &action) {
-            return BT::NodeStatus::SUCCESS;
-        }
-
-        BT::NodeStatus
-        checkIfPersonWentToBed2::tick_action(const InstantiatedAction &action) {
-            return BT::NodeStatus::SUCCESS;
-        }
-
-        BT::NodeStatus
-        callCaregiverAskToGoToBed::tick_action(const InstantiatedAction &action) {
-            return BT::NodeStatus::SUCCESS;
-        }
-
-        BT::NodeStatus
-        callCaregiverAskToGoToBedAfterReturn1::tick_action(const InstantiatedAction &action) {
-            return BT::NodeStatus::SUCCESS;
-        }
-
-        BT::NodeStatus
-        callCaregiverAskToGoToBedAfterReturn2::tick_action(const InstantiatedAction &action) {
-            return BT::NodeStatus::SUCCESS;
-        }
-
-        BT::NodeStatus
-        CheckBedAfterReturn1::tick_action(const InstantiatedAction &action) {
-            return BT::NodeStatus::SUCCESS;
-        }
-
-        BT::NodeStatus
-        CheckBedAfterReturn2::tick_action(const InstantiatedAction &action) {
-            return BT::NodeStatus::SUCCESS;
-        }
-
-        BT::NodeStatus
-        waitForPersonToReturn1::tick_action(const InstantiatedAction &action) {
-            return BT::NodeStatus::SUCCESS;
-        }
-
-        BT::NodeStatus
-        waitForPersonToReturn2::tick_action(const InstantiatedAction &action) {
-            return BT::NodeStatus::SUCCESS;
-        }
-
-        BT::NodeStatus
-        callCaregiverWondering::tick_action(const InstantiatedAction &action) {
-            return BT::NodeStatus::SUCCESS;
-        }
-
-        BT::NodeStatus
-        callEmergency::tick_action(const InstantiatedAction &action) {
-            return BT::NodeStatus::SUCCESS;
-        }
-
-        BT::NodeStatus UpdateSuccess0::tick_action(const InstantiatedAction &action) {
-            return BT::NodeStatus::SUCCESS;
-        }
-
-        BT::NodeStatus UpdateSuccess1::tick_action(const InstantiatedAction &action) {
-            return BT::NodeStatus::SUCCESS;
-        }
-
-        BT::NodeStatus UpdateSuccess2::tick_action(const InstantiatedAction &action) {
-            return BT::NodeStatus::SUCCESS;
-        }
-
-        BT::NodeStatus UpdateSuccess3::tick_action(const InstantiatedAction &action) {
-            return BT::NodeStatus::SUCCESS;
-        }
-
-        BT::NodeStatus UpdateSuccess4::tick_action(const InstantiatedAction &action) {
-            return BT::NodeStatus::SUCCESS;
-        }
-
-        BT::NodeStatus UpdateSuccess5::tick_action(const InstantiatedAction &action) {
-            return BT::NodeStatus::SUCCESS;
-        }
-    }
+    };
 
 }
