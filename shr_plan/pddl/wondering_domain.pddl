@@ -15,7 +15,7 @@
 	(robot_at ?r - Robot ?lm - Landmark)
 	(person_at ?p - Person ?lm - Landmark)
 	(door_location ?w - WonderingProtocol ?lm - Landmark)
-	
+
 	;; control flow
 	(init_move_to_landmark ?w - WonderingProtocol)
 	(init_detect_person_left_house_1 ?w - WonderingProtocol)

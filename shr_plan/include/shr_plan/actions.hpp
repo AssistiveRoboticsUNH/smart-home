@@ -1,6 +1,6 @@
 #include "bt_shr_actions.hpp"
 #include "rclcpp/rclcpp.hpp"
-
+#include <shr_plan/world_state_converter.hpp>
 
 namespace pddl_lib {
     void abort() {
@@ -23,8 +23,16 @@ namespace pddl_lib {
 
     class ProtocolState {
     public:
-        std::chrono::steady_clock::time_point CheckBedAfterReturn1_ = {};
-        std::chrono::steady_clock::time_point CheckBedAfterReturn2_ = {};
+        std::shared_ptr<WorldStatePDDLConverter> world_state_converter;
+
+        std::chrono::steady_clock::time_point time_wondering_protocol_detectPersonLeftHouse1 = {};
+        std::chrono::steady_clock::time_point time_wondering_protocol_detectPersonLeftHouse2 = {};
+        std::chrono::steady_clock::time_point time_wondering_protocol_CheckBedAfterReturn1 = {};
+        std::chrono::steady_clock::time_point time_wondering_protocol_CheckBedAfterReturn2 = {};
+        std::chrono::steady_clock::time_point time_wondering_protocol_checkIfPersonWentToBed1 = {};
+        std::chrono::steady_clock::time_point time_wondering_protocol_checkIfPersonWentToBed2 = {};
+        std::chrono::steady_clock::time_point time_wondering_protocol_waitForPersonToReturn1 = {};
+        std::chrono::steady_clock::time_point time_wondering_protocol_waitForPersonToReturn2 = {};
 
         static ProtocolState &getInstance() {
             static ProtocolState instance;
@@ -37,6 +45,31 @@ namespace pddl_lib {
         ProtocolState(const ProtocolState &) = delete; // Disable copy constructor
         ProtocolState &operator=(const ProtocolState &) = delete; // Disable assignment operator
     };
+
+    BT::NodeStatus observe_wait_for_cond(const InstantiatedAction &action,
+                                         std::chrono::steady_clock::time_point &init_time,
+                                         const std::function<bool()> &cond,
+                                         std::chrono::seconds wait_time) {
+        ProtocolState &ps = ProtocolState::getInstance();
+        auto startTime = std::chrono::steady_clock::now();
+        if (startTime > init_time) {
+            init_time = startTime + wait_time;
+        }
+
+        while (std::chrono::steady_clock::now() < init_time) {
+            auto active_protocol = get_active_protocol();
+            if (active_protocol.type != action.parameters[0].type) {
+                abort();
+            }
+            auto msg = ps.world_state_converter->get_world_state_msg();
+            if (cond()) {
+                return BT::NodeStatus::SUCCESS;
+            }
+            rclcpp::sleep_for(std::chrono::seconds(1));
+        }
+
+        return BT::NodeStatus::FAILURE;
+    }
 
     class ProtocolActions : public pddl_lib::ActionInterface {
     public:
@@ -67,42 +100,88 @@ namespace pddl_lib {
         }
 
         BT::NodeStatus wondering_protocol_CheckBedAfterReturn1(const InstantiatedAction &action) override {
+            auto cond = []() {
+                ProtocolState &ps = ProtocolState::getInstance();
+                auto msg = ps.world_state_converter->get_world_state_msg();
+                return msg->patient_location == msg->bedroom_location;
+            };
             ProtocolState &ps = ProtocolState::getInstance();
-            auto startTime = std::chrono::steady_clock::now();
-            if (startTime > ps.CheckBedAfterReturn1_) {
-                ps.CheckBedAfterReturn1_ = startTime + std::chrono::minutes(10);
-            }
-            auto n = std::make_shared<rclcpp::Node>("wondering_protocol_CheckBedAfterReturn1");
-
-            while (std::chrono::steady_clock::now() < ps.CheckBedAfterReturn1_) {
-                auto active_protocol = get_active_protocol();
-                if (active_protocol.type != "WonderingProtocol") {
-                    abort();
-                }
-                rclcpp::spin_some(n);
-
-            }
-
-            return BT::NodeStatus::FAILURE;
+            return observe_wait_for_cond(action, ps.time_wondering_protocol_CheckBedAfterReturn1, cond, std::chrono::minutes(10));
         }
 
-        BT::NodeStatus wondering_protocol_InitCheckBedAfterReturn2(const InstantiatedAction &action) override {
+        BT::NodeStatus wondering_protocol_CheckBedAfterReturn2(const InstantiatedAction &action) override {
+            auto cond = []() {
+                ProtocolState &ps = ProtocolState::getInstance();
+                auto msg = ps.world_state_converter->get_world_state_msg();
+                return msg->patient_location == msg->bedroom_location;
+            };
             ProtocolState &ps = ProtocolState::getInstance();
-            auto startTime = std::chrono::steady_clock::now();
-            if (startTime > ps.CheckBedAfterReturn2_) {
-                ps.CheckBedAfterReturn2_ = startTime + std::chrono::minutes(10);
-            }
-            auto n = std::make_shared<rclcpp::Node>("wondering_protocol_CheckBedAfterReturn1");
-            while (std::chrono::steady_clock::now() < ps.CheckBedAfterReturn2_) {
-                auto active_protocol = get_active_protocol();
-                if (active_protocol.type != "WonderingProtocol") {
-                    abort();
-                }
-                rclcpp::spin_some(n);
-            }
-
-            return BT::NodeStatus::FAILURE;
+            return observe_wait_for_cond(action, ps.time_wondering_protocol_CheckBedAfterReturn2, cond, std::chrono::minutes(10));
         }
+
+        BT::NodeStatus wondering_protocol_detectPersonLeftHouse1(const InstantiatedAction &action) override {
+            auto cond = []() {
+                ProtocolState &ps = ProtocolState::getInstance();
+                auto msg = ps.world_state_converter->get_world_state_msg();
+                return msg->patient_location == msg->outside_location;
+            };
+            ProtocolState &ps = ProtocolState::getInstance();
+            return observe_wait_for_cond(action, ps.time_wondering_protocol_detectPersonLeftHouse1, cond, std::chrono::minutes(10));
+        }
+
+        BT::NodeStatus wondering_protocol_detectPersonLeftHouse2(const InstantiatedAction &action) override {
+            auto cond = []() {
+                ProtocolState &ps = ProtocolState::getInstance();
+                auto msg = ps.world_state_converter->get_world_state_msg();
+                return msg->patient_location == msg->outside_location;
+            };
+            ProtocolState &ps = ProtocolState::getInstance();
+            return observe_wait_for_cond(action, ps.time_wondering_protocol_detectPersonLeftHouse2, cond, std::chrono::minutes(10));
+        }
+
+
+        BT::NodeStatus wondering_protocol_checkIfPersonWentToBed1(const InstantiatedAction &action) override {
+            auto cond = []() {
+                ProtocolState &ps = ProtocolState::getInstance();
+                auto msg = ps.world_state_converter->get_world_state_msg();
+                return msg->patient_location == msg->bedroom_location;
+            };
+            ProtocolState &ps = ProtocolState::getInstance();
+            return observe_wait_for_cond(action, ps.time_wondering_protocol_checkIfPersonWentToBed1, cond, std::chrono::minutes(10));
+        }
+
+        BT::NodeStatus wondering_protocol_checkIfPersonWentToBed2(const InstantiatedAction &action) override {
+            auto cond = []() {
+                ProtocolState &ps = ProtocolState::getInstance();
+                auto msg = ps.world_state_converter->get_world_state_msg();
+                return msg->patient_location == msg->bedroom_location;
+            };
+            ProtocolState &ps = ProtocolState::getInstance();
+            return observe_wait_for_cond(action, ps.time_wondering_protocol_checkIfPersonWentToBed2, cond, std::chrono::minutes(10));
+        }
+
+        BT::NodeStatus wondering_protocol_waitForPersonToReturn1(const InstantiatedAction &action) override {
+            auto cond = []() {
+                ProtocolState &ps = ProtocolState::getInstance();
+                auto msg = ps.world_state_converter->get_world_state_msg();
+                return msg->patient_location != msg->outside_location;
+            };
+            ProtocolState &ps = ProtocolState::getInstance();
+            return observe_wait_for_cond(action, ps.time_wondering_protocol_waitForPersonToReturn1, cond, std::chrono::minutes(10));
+        }
+
+        BT::NodeStatus wondering_protocol_waitForPersonToReturn2(const InstantiatedAction &action) override {
+            auto cond = []() {
+                ProtocolState &ps = ProtocolState::getInstance();
+                auto msg = ps.world_state_converter->get_world_state_msg();
+                return msg->patient_location != msg->outside_location;
+            };
+            ProtocolState &ps = ProtocolState::getInstance();
+            return observe_wait_for_cond(action, ps.time_wondering_protocol_waitForPersonToReturn2, cond, std::chrono::minutes(10));
+        }
+
+
+
 
 
     };

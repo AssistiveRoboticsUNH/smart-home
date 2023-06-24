@@ -54,13 +54,13 @@ class WorldStateNode(Node):
         self.param_listener = shr_parameters.ParamListener(self)
         self.params = self.param_listener.get_params()
 
-        self.world_state.patient_name = self.params.patient_name
-        self.world_state.locations = self.params.locations
-        self.world_state.door_location = self.params.door_location
-        self.world_state.outside_location = self.params.outside_location
-        self.world_state.medicine_location = self.params.medicine_location
-        self.world_state.eat_location = self.params.eat_location
-        self.world_state.bedroom_location = self.params.bedroom_location
+        self.world_state.patient_name = self.params.Person.patient
+        self.world_state.locations = list(self.params.locations.__dict__.keys())
+        self.world_state.door_location = self.params.locations.door_location
+        self.world_state.outside_location = self.params.locations.outside_location
+        self.world_state.medicine_location = self.params.locations.medicine_location
+        self.world_state.eat_location = self.params.locations.eat_location
+        self.world_state.bedroom_location = self.params.locations.bedroom_location
 
         tmp = self.params.take_medication_time
         self.take_medication_time = 60 * int(tmp.split('h')[0]) + int(tmp.split('h')[1][:-1])
