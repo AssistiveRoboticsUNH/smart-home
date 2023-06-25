@@ -2,7 +2,7 @@
 ## Simulator keyboard controls 
 `shift+O` : open door
 
-`shift+D` : move to door
+`shift+M` : move to door
 
 `shift+B` : move to bedroom
 
@@ -10,7 +10,7 @@
 
 `shift+K` : toggle move to kitchen position 1/2
 
-`shift+P` : take medicine
+`shift+V` : take medicine
 
 `shift+R` : go outside
 
