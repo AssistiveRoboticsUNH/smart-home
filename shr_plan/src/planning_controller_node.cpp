@@ -245,8 +245,8 @@ int main(int argc, char **argv) {
     );
 
     ProtocolState::getInstance().world_state_converter = world_state_converter;
-    ProtocolState::getInstance().call_client_ = rclcpp_action::create_client<shr_msgs::action::CallRequest>(
-            world_state_converter, "make_call");
+    ProtocolState::getInstance().call_client_ = rclcpp_action::create_client<shr_msgs::action::TextRequest>(
+            world_state_converter, "send_text");
     ProtocolState::getInstance().nav_client_ = rclcpp_action::create_client<nav2_msgs::action::NavigateToPose>(
             world_state_converter, "navigate_to_pose");
     ProtocolState::getInstance().read_action_client_ = rclcpp_action::create_client<shr_msgs::action::DeepFakeRequest>(

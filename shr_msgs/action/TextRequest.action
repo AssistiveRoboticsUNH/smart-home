@@ -1,0 +1,6 @@
+string msg
+string phone_number
+---
+string status
+---
+bool running # returns true if running

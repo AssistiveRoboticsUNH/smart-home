@@ -18,6 +18,7 @@ class shr_parameters:
         # for detecting if the parameter struct has been updated
         stamp_ = Time()
 
+        caregiver_phone_number = "6038514204"
         sensor_pills_motion_topic = "smartthings_sensors_motion_pills"
         sensor_eat_motion_topic = "smartthings_sensors_motion_eat"
         sensors_door_motion_topic = "smartthings_sensors_motion_door"
@@ -42,9 +43,10 @@ class shr_parameters:
             class __Medicineprotocols:
                 instances = ["daily"]
                 medicine_location = ["kitchen"]
-                take_medication_time = ["8h0m0s/9h0m0s"]
-                check_guide_to_succeeded_times = ["0h1m0s"]
-                notify_automated_medicine_at_times = ["0h1m0s"]
+                take_medication_time = ["8h0m0s/23h59m0s"]
+                check_guide_to_succeeded_times = ["0h0m5s"]
+                notify_automated_medicine_at_times = ["0h0m5s"]
+                ask_caregiver_help_medicine = ["askcaregiverhelpmedicine1"]
             MedicineProtocols = __Medicineprotocols()
             class __Wonderingprotocols:
                 instances = ["daily"]
@@ -167,6 +169,10 @@ class shr_parameters:
                     updated_params.pddl.MedicineProtocols.notify_automated_medicine_at_times = param.value
                     self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
 
+                if param.name == self.prefix_ + "pddl.MedicineProtocols.ask_caregiver_help_medicine":
+                    updated_params.pddl.MedicineProtocols.ask_caregiver_help_medicine = param.value
+                    self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
+
                 if param.name == self.prefix_ + "pddl.WonderingProtocols.instances":
                     updated_params.pddl.WonderingProtocols.instances = param.value
                     self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
@@ -209,6 +215,10 @@ class shr_parameters:
 
                 if param.name == self.prefix_ + "pddl.FallProtocols.wait_times":
                     updated_params.pddl.FallProtocols.wait_times = param.value
+                    self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
+
+                if param.name == self.prefix_ + "caregiver_phone_number":
+                    updated_params.caregiver_phone_number = param.value
                     self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
 
                 if param.name == self.prefix_ + "sensor_pills_motion_topic":
@@ -349,6 +359,11 @@ class shr_parameters:
                 parameter = updated_params.pddl.MedicineProtocols.notify_automated_medicine_at_times
                 self.node_.declare_parameter(self.prefix_ + "pddl.MedicineProtocols.notify_automated_medicine_at_times", parameter, descriptor)
 
+            if not self.node_.has_parameter(self.prefix_ + "pddl.MedicineProtocols.ask_caregiver_help_medicine"):
+                descriptor = ParameterDescriptor(description="time to wait for observation", read_only = False)
+                parameter = updated_params.pddl.MedicineProtocols.ask_caregiver_help_medicine
+                self.node_.declare_parameter(self.prefix_ + "pddl.MedicineProtocols.ask_caregiver_help_medicine", parameter, descriptor)
+
             if not self.node_.has_parameter(self.prefix_ + "pddl.WonderingProtocols.instances"):
                 descriptor = ParameterDescriptor(description="wondering protocols", read_only = False)
                 parameter = updated_params.pddl.WonderingProtocols.instances
@@ -403,6 +418,11 @@ class shr_parameters:
                 descriptor = ParameterDescriptor(description="time to wait for observation", read_only = False)
                 parameter = updated_params.pddl.FallProtocols.wait_times
                 self.node_.declare_parameter(self.prefix_ + "pddl.FallProtocols.wait_times", parameter, descriptor)
+
+            if not self.node_.has_parameter(self.prefix_ + "caregiver_phone_number"):
+                descriptor = ParameterDescriptor(description="time to wait for observation", read_only = False)
+                parameter = updated_params.caregiver_phone_number
+                self.node_.declare_parameter(self.prefix_ + "caregiver_phone_number", parameter, descriptor)
 
             if not self.node_.has_parameter(self.prefix_ + "sensor_pills_motion_topic"):
                 descriptor = ParameterDescriptor(description="topic for detecting pills being taken", read_only = False)
@@ -518,6 +538,9 @@ class shr_parameters:
             param = self.node_.get_parameter(self.prefix_ + "pddl.MedicineProtocols.notify_automated_medicine_at_times")
             self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
             updated_params.pddl.MedicineProtocols.notify_automated_medicine_at_times = param.value
+            param = self.node_.get_parameter(self.prefix_ + "pddl.MedicineProtocols.ask_caregiver_help_medicine")
+            self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
+            updated_params.pddl.MedicineProtocols.ask_caregiver_help_medicine = param.value
             param = self.node_.get_parameter(self.prefix_ + "pddl.WonderingProtocols.instances")
             self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
             updated_params.pddl.WonderingProtocols.instances = param.value
@@ -551,6 +574,9 @@ class shr_parameters:
             param = self.node_.get_parameter(self.prefix_ + "pddl.FallProtocols.wait_times")
             self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
             updated_params.pddl.FallProtocols.wait_times = param.value
+            param = self.node_.get_parameter(self.prefix_ + "caregiver_phone_number")
+            self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
+            updated_params.caregiver_phone_number = param.value
             param = self.node_.get_parameter(self.prefix_ + "sensor_pills_motion_topic")
             self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
             updated_params.sensor_pills_motion_topic = param.value

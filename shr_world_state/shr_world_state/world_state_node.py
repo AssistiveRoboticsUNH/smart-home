@@ -250,7 +250,7 @@ class WorldStateNode(Node):
                 self.start_stopped_Wandering = None
 
         # DEBUG!!!
-        self.world_state.patient_location = 'outside'
+        self.world_state.patient_location = 'couch'
         self.world_state.robot_location = 'home'
         self.world_state_pub.publish(self.world_state)
 

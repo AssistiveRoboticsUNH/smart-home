@@ -55,22 +55,27 @@ shr_parameters:
       }
       medicine_location: {
         type: string_array,
-        default_value: ["kitchen"],
+        default_value: [ "kitchen" ],
         description: "location of medicine",
       }
       take_medication_time: {
         type: string_array,
-        default_value: ["8h0m0s/9h0m0s"],
+        default_value: [ "8h0m0s/23h59m0s" ],
         description: "time that each protocol is triggered",
       }
       check_guide_to_succeeded_times: {
         type: string_array,
-        default_value: [ "0h1m0s"],
+        default_value: [ "0h0m5s" ],
         description: "time to wait for observation",
       }
       notify_automated_medicine_at_times: {
         type: string_array,
-        default_value: [ "0h1m0s" ],
+        default_value: [ "0h0m5s" ],
+        description: "time to wait for observation",
+      }
+      ask_caregiver_help_medicine: {
+        type: string_array,
+        default_value: [ "askcaregiverhelpmedicine1" ],
         description: "time to wait for observation",
       }
     WonderingProtocols:
@@ -96,7 +101,7 @@ shr_parameters:
       }
       too_late_to_leave_time: {
         type: string_array,
-        default_value: ["17h0m0s/8h0m0s"],
+        default_value: [ "17h0m0s/8h0m0s" ],
         description: "time that the person must not go outside",
       }
       check_bed_after_return_wait_times: {
@@ -130,6 +135,12 @@ shr_parameters:
         default_value: [ "0h10m0s" ],
         description: "time to wait for observation",
       }
+
+  caregiver_phone_number: {
+    type: string,
+    default_value: "6038514204",
+    description: "time to wait for observation",
+  }
 
   # ros topics
   sensor_pills_motion_topic: {

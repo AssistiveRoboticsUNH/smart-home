@@ -2,6 +2,7 @@
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_action/rclcpp_action.hpp"
 #include "shr_msgs/action/call_request.hpp"
+#include "shr_msgs/action/text_request.hpp"
 #include "nav2_msgs/action/navigate_to_pose.hpp"
 #include "shr_msgs/action/deep_fake_request.hpp"
 
@@ -33,7 +34,7 @@ namespace pddl_lib {
         std::chrono::steady_clock::time_point time_food_protocol_remindAutomatedFoodAt = {};
         std::chrono::steady_clock::time_point time_food_protocol_remindAutomatedFoodAt2 = {};
         // action servers
-        rclcpp_action::Client<shr_msgs::action::CallRequest>::SharedPtr call_client_ = {};
+        rclcpp_action::Client<shr_msgs::action::TextRequest>::SharedPtr call_client_ = {};
         rclcpp_action::Client<nav2_msgs::action::NavigateToPose>::SharedPtr nav_client_ = {};
         rclcpp_action::Client<shr_msgs::action::DeepFakeRequest>::SharedPtr read_action_client_ = {};
 
@@ -304,8 +305,28 @@ namespace pddl_lib {
         }
 
         BT::NodeStatus medicine_protocol_askCaregiverHelpMedicine1(const InstantiatedAction &action) override {
-            //
-            return ActionInterface::medicine_protocol_askCaregiverHelpMedicine2(action);
+            auto &ps = ProtocolState::getInstance();
+            auto params = ps.world_state_converter->get_params();
+            auto inst = action.parameters[0];
+            auto index = get_inst_index(inst, params).value();
+
+            shr_msgs::action::TextRequest::Goal goal;
+            goal.phone_number = params.caregiver_phone_number;
+            goal.msg = params.pddl.MedicineProtocols.ask_caregiver_help_medicine[index];
+
+            std::atomic<int> success = -1;
+            auto send_goal_options = rclcpp_action::Client<shr_msgs::action::TextRequest>::SendGoalOptions();
+            send_goal_options.result_callback = [&success](
+                    const rclcpp_action::ClientGoalHandle<shr_msgs::action::TextRequest>::WrappedResult result) {
+                success = result.code == rclcpp_action::ResultCode::SUCCEEDED;
+            };
+            ps.call_client_->async_send_goal(goal, send_goal_options);
+
+            while (success == -1) {
+                rclcpp::sleep_for(std::chrono::seconds(1));
+            }
+
+            return success == 1 ? BT::NodeStatus::SUCCESS : BT::NodeStatus::FAILURE;
         }
 
 
