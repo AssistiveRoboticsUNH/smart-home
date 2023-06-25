@@ -12,11 +12,20 @@
 
 `shift+P` : take medicine
 
-`WASD` : nagivate camera
+`shift+R` : go outside
+
+`shift+S` : move to dining
+
+`shift+J` : eat
+
+'arrows' : nagivate camera
+
+'shift+arrows' : move person around
 
 `right-click and drag` : pan camera
 
 `mouse wheel` : zoom in 
+
 
   
 ## Managing source package dependencies 
