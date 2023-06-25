@@ -18,9 +18,6 @@ class shr_parameters:
         # for detecting if the parameter struct has been updated
         stamp_ = Time()
 
-        take_medication_time = "19h00m"
-        eat_time = ["7h00m", "14h30m", "18h00m"]
-        too_late_to_leave_time = "20h00m"
         sensor_pills_motion_topic = "smartthings_sensors_motion_pills"
         sensor_eat_motion_topic = "smartthings_sensors_motion_eat"
         sensors_door_motion_topic = "smartthings_sensors_motion_door"
@@ -28,22 +25,43 @@ class shr_parameters:
         update_protocol_topic = "update_protocol"
         world_state_topic = "world_state"
         tf_frames = ["bedroom", "kitchen", "couch", "door"]
-        class __Locations:
-            outside_location = "outside"
-            medicine_location = "kitchen"
-            door_location = "door"
-            eat_location = "kitchen"
-            bedroom_location = "bedroom"
-        locations = __Locations()
-        class __PddlInstances:
-            Landmark = ["kitchen", "couch", "home", "door", "outside"]
-            Robot = ["jackel"]
-            Person = ["nathan"]
-            FoodProtocols = ["breakfast", "lunch", "dinner"]
-            MedicineProtocols = ["daily"]
-            WonderingProtocols = ["daily"]
-            FallProtocols = ["daily"]
-        pddl_instances = __PddlInstances()
+        class __Pddl:
+            class __Instances:
+                Landmarks = ["kitchen", "couch", "home", "door", "outside"]
+                Robots = ["jackel"]
+                Persons = ["nathan"]
+            instances = __Instances()
+            class __Foodprotocols:
+                instances = ["breakfast", "lunch", "dinner"]
+                eat_times = ["7h0m0s/8h0m0s", "14h30m0s/15h30m0s", "18h00m0s/19h0m0s"]
+                eat_locations = ["kitchen", "kitchen", "kitchen"]
+                check_guide_to_succeeded_times = ["0h1m0s", "0h1m0s", "0h1m0s"]
+                remind_automated_food_at_times = ["0h10m0s", "0h10m0s", "0h10m0s"]
+                remind_automated_food_at_2_times = ["0h10m0s", "0h1m0s", "0h10m0s"]
+            FoodProtocols = __Foodprotocols()
+            class __Medicineprotocols:
+                instances = ["daily"]
+                medicine_location = ["kitchen"]
+                take_medication_time = ["8h0m0s/9h0m0s"]
+                check_guide_to_succeeded_times = ["0h1m0s"]
+                notify_automated_medicine_at_times = ["0h1m0s"]
+            MedicineProtocols = __Medicineprotocols()
+            class __Wonderingprotocols:
+                instances = ["daily"]
+                outside_location = ["outside"]
+                door_location = ["door"]
+                bedroom_location = ["bedroom"]
+                too_late_to_leave_time = ["17h0m0s/8h0m0s"]
+                check_bed_after_return_wait_times = ["0h1m0s"]
+                detect_person_left_house_times = ["0h10m0s"]
+                wait_for_person_to_return_times = ["0h0m30s"]
+                check_if_person_went_to_bed_times = ["0h0m30s"]
+            WonderingProtocols = __Wonderingprotocols()
+            class __Fallprotocols:
+                instances = ["daily"]
+                wait_times = ["0h10m0s"]
+            FallProtocols = __Fallprotocols()
+        pddl = __Pddl()
         class __TfValues:
             bedroom = [-2.0, -3.69, 0.0, 0.0, 0.0, 0.0, 1.0]
             kitchen = [1.9, -0.27, 0.0, 0.0, 0.0, 0.0, 1.0]
@@ -93,64 +111,104 @@ class shr_parameters:
             updated_params = self.get_params()
 
             for param in parameters:
-                if param.name == self.prefix_ + "locations.outside_location":
-                    updated_params.locations.outside_location = param.value
+                if param.name == self.prefix_ + "pddl.instances.Landmarks":
+                    updated_params.pddl.instances.Landmarks = param.value
                     self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
 
-                if param.name == self.prefix_ + "locations.medicine_location":
-                    updated_params.locations.medicine_location = param.value
+                if param.name == self.prefix_ + "pddl.instances.Robots":
+                    updated_params.pddl.instances.Robots = param.value
                     self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
 
-                if param.name == self.prefix_ + "locations.door_location":
-                    updated_params.locations.door_location = param.value
+                if param.name == self.prefix_ + "pddl.instances.Persons":
+                    updated_params.pddl.instances.Persons = param.value
                     self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
 
-                if param.name == self.prefix_ + "locations.eat_location":
-                    updated_params.locations.eat_location = param.value
+                if param.name == self.prefix_ + "pddl.FoodProtocols.instances":
+                    updated_params.pddl.FoodProtocols.instances = param.value
                     self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
 
-                if param.name == self.prefix_ + "locations.bedroom_location":
-                    updated_params.locations.bedroom_location = param.value
+                if param.name == self.prefix_ + "pddl.FoodProtocols.eat_times":
+                    updated_params.pddl.FoodProtocols.eat_times = param.value
                     self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
 
-                if param.name == self.prefix_ + "pddl_instances.Landmark":
-                    updated_params.pddl_instances.Landmark = param.value
+                if param.name == self.prefix_ + "pddl.FoodProtocols.eat_locations":
+                    updated_params.pddl.FoodProtocols.eat_locations = param.value
                     self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
 
-                if param.name == self.prefix_ + "pddl_instances.Robot":
-                    updated_params.pddl_instances.Robot = param.value
+                if param.name == self.prefix_ + "pddl.FoodProtocols.check_guide_to_succeeded_times":
+                    updated_params.pddl.FoodProtocols.check_guide_to_succeeded_times = param.value
                     self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
 
-                if param.name == self.prefix_ + "pddl_instances.Person":
-                    updated_params.pddl_instances.Person = param.value
+                if param.name == self.prefix_ + "pddl.FoodProtocols.remind_automated_food_at_times":
+                    updated_params.pddl.FoodProtocols.remind_automated_food_at_times = param.value
                     self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
 
-                if param.name == self.prefix_ + "pddl_instances.FoodProtocols":
-                    updated_params.pddl_instances.FoodProtocols = param.value
+                if param.name == self.prefix_ + "pddl.FoodProtocols.remind_automated_food_at_2_times":
+                    updated_params.pddl.FoodProtocols.remind_automated_food_at_2_times = param.value
                     self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
 
-                if param.name == self.prefix_ + "pddl_instances.MedicineProtocols":
-                    updated_params.pddl_instances.MedicineProtocols = param.value
+                if param.name == self.prefix_ + "pddl.MedicineProtocols.instances":
+                    updated_params.pddl.MedicineProtocols.instances = param.value
                     self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
 
-                if param.name == self.prefix_ + "pddl_instances.WonderingProtocols":
-                    updated_params.pddl_instances.WonderingProtocols = param.value
+                if param.name == self.prefix_ + "pddl.MedicineProtocols.medicine_location":
+                    updated_params.pddl.MedicineProtocols.medicine_location = param.value
                     self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
 
-                if param.name == self.prefix_ + "pddl_instances.FallProtocols":
-                    updated_params.pddl_instances.FallProtocols = param.value
+                if param.name == self.prefix_ + "pddl.MedicineProtocols.take_medication_time":
+                    updated_params.pddl.MedicineProtocols.take_medication_time = param.value
                     self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
 
-                if param.name == self.prefix_ + "take_medication_time":
-                    updated_params.take_medication_time = param.value
+                if param.name == self.prefix_ + "pddl.MedicineProtocols.check_guide_to_succeeded_times":
+                    updated_params.pddl.MedicineProtocols.check_guide_to_succeeded_times = param.value
                     self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
 
-                if param.name == self.prefix_ + "eat_time":
-                    updated_params.eat_time = param.value
+                if param.name == self.prefix_ + "pddl.MedicineProtocols.notify_automated_medicine_at_times":
+                    updated_params.pddl.MedicineProtocols.notify_automated_medicine_at_times = param.value
                     self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
 
-                if param.name == self.prefix_ + "too_late_to_leave_time":
-                    updated_params.too_late_to_leave_time = param.value
+                if param.name == self.prefix_ + "pddl.WonderingProtocols.instances":
+                    updated_params.pddl.WonderingProtocols.instances = param.value
+                    self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
+
+                if param.name == self.prefix_ + "pddl.WonderingProtocols.outside_location":
+                    updated_params.pddl.WonderingProtocols.outside_location = param.value
+                    self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
+
+                if param.name == self.prefix_ + "pddl.WonderingProtocols.door_location":
+                    updated_params.pddl.WonderingProtocols.door_location = param.value
+                    self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
+
+                if param.name == self.prefix_ + "pddl.WonderingProtocols.bedroom_location":
+                    updated_params.pddl.WonderingProtocols.bedroom_location = param.value
+                    self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
+
+                if param.name == self.prefix_ + "pddl.WonderingProtocols.too_late_to_leave_time":
+                    updated_params.pddl.WonderingProtocols.too_late_to_leave_time = param.value
+                    self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
+
+                if param.name == self.prefix_ + "pddl.WonderingProtocols.check_bed_after_return_wait_times":
+                    updated_params.pddl.WonderingProtocols.check_bed_after_return_wait_times = param.value
+                    self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
+
+                if param.name == self.prefix_ + "pddl.WonderingProtocols.detect_person_left_house_times":
+                    updated_params.pddl.WonderingProtocols.detect_person_left_house_times = param.value
+                    self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
+
+                if param.name == self.prefix_ + "pddl.WonderingProtocols.wait_for_person_to_return_times":
+                    updated_params.pddl.WonderingProtocols.wait_for_person_to_return_times = param.value
+                    self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
+
+                if param.name == self.prefix_ + "pddl.WonderingProtocols.check_if_person_went_to_bed_times":
+                    updated_params.pddl.WonderingProtocols.check_if_person_went_to_bed_times = param.value
+                    self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
+
+                if param.name == self.prefix_ + "pddl.FallProtocols.instances":
+                    updated_params.pddl.FallProtocols.instances = param.value
+                    self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
+
+                if param.name == self.prefix_ + "pddl.FallProtocols.wait_times":
+                    updated_params.pddl.FallProtocols.wait_times = param.value
                     self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
 
                 if param.name == self.prefix_ + "sensor_pills_motion_topic":
@@ -221,80 +279,130 @@ class shr_parameters:
         def declare_params(self):
             updated_params = self.get_params()
             # declare all parameters and give default values to non-required ones
-            if not self.node_.has_parameter(self.prefix_ + "locations.outside_location"):
-                descriptor = ParameterDescriptor(description="topic for detecting pills being taken", read_only = False)
-                parameter = updated_params.locations.outside_location
-                self.node_.declare_parameter(self.prefix_ + "locations.outside_location", parameter, descriptor)
-
-            if not self.node_.has_parameter(self.prefix_ + "locations.medicine_location"):
-                descriptor = ParameterDescriptor(description="topic for detecting pills being taken", read_only = False)
-                parameter = updated_params.locations.medicine_location
-                self.node_.declare_parameter(self.prefix_ + "locations.medicine_location", parameter, descriptor)
-
-            if not self.node_.has_parameter(self.prefix_ + "locations.door_location"):
-                descriptor = ParameterDescriptor(description="topic for detecting pills being taken", read_only = False)
-                parameter = updated_params.locations.door_location
-                self.node_.declare_parameter(self.prefix_ + "locations.door_location", parameter, descriptor)
-
-            if not self.node_.has_parameter(self.prefix_ + "locations.eat_location"):
-                descriptor = ParameterDescriptor(description="topic for detecting pills being taken", read_only = False)
-                parameter = updated_params.locations.eat_location
-                self.node_.declare_parameter(self.prefix_ + "locations.eat_location", parameter, descriptor)
-
-            if not self.node_.has_parameter(self.prefix_ + "locations.bedroom_location"):
-                descriptor = ParameterDescriptor(description="topic for detecting pills being taken", read_only = False)
-                parameter = updated_params.locations.bedroom_location
-                self.node_.declare_parameter(self.prefix_ + "locations.bedroom_location", parameter, descriptor)
-
-            if not self.node_.has_parameter(self.prefix_ + "pddl_instances.Landmark"):
+            if not self.node_.has_parameter(self.prefix_ + "pddl.instances.Landmarks"):
                 descriptor = ParameterDescriptor(description="all landmarks in protocols", read_only = False)
-                parameter = updated_params.pddl_instances.Landmark
-                self.node_.declare_parameter(self.prefix_ + "pddl_instances.Landmark", parameter, descriptor)
+                parameter = updated_params.pddl.instances.Landmarks
+                self.node_.declare_parameter(self.prefix_ + "pddl.instances.Landmarks", parameter, descriptor)
 
-            if not self.node_.has_parameter(self.prefix_ + "pddl_instances.Robot"):
+            if not self.node_.has_parameter(self.prefix_ + "pddl.instances.Robots"):
                 descriptor = ParameterDescriptor(description="all robots in protocols", read_only = False)
-                parameter = updated_params.pddl_instances.Robot
-                self.node_.declare_parameter(self.prefix_ + "pddl_instances.Robot", parameter, descriptor)
+                parameter = updated_params.pddl.instances.Robots
+                self.node_.declare_parameter(self.prefix_ + "pddl.instances.Robots", parameter, descriptor)
 
-            if not self.node_.has_parameter(self.prefix_ + "pddl_instances.Person"):
+            if not self.node_.has_parameter(self.prefix_ + "pddl.instances.Persons"):
                 descriptor = ParameterDescriptor(description="all people in protocols", read_only = False)
-                parameter = updated_params.pddl_instances.Person
-                self.node_.declare_parameter(self.prefix_ + "pddl_instances.Person", parameter, descriptor)
+                parameter = updated_params.pddl.instances.Persons
+                self.node_.declare_parameter(self.prefix_ + "pddl.instances.Persons", parameter, descriptor)
 
-            if not self.node_.has_parameter(self.prefix_ + "pddl_instances.FoodProtocols"):
+            if not self.node_.has_parameter(self.prefix_ + "pddl.FoodProtocols.instances"):
                 descriptor = ParameterDescriptor(description="food protocols", read_only = False)
-                parameter = updated_params.pddl_instances.FoodProtocols
-                self.node_.declare_parameter(self.prefix_ + "pddl_instances.FoodProtocols", parameter, descriptor)
+                parameter = updated_params.pddl.FoodProtocols.instances
+                self.node_.declare_parameter(self.prefix_ + "pddl.FoodProtocols.instances", parameter, descriptor)
 
-            if not self.node_.has_parameter(self.prefix_ + "pddl_instances.MedicineProtocols"):
+            if not self.node_.has_parameter(self.prefix_ + "pddl.FoodProtocols.eat_times"):
+                descriptor = ParameterDescriptor(description="time that each protocol is triggered", read_only = False)
+                parameter = updated_params.pddl.FoodProtocols.eat_times
+                self.node_.declare_parameter(self.prefix_ + "pddl.FoodProtocols.eat_times", parameter, descriptor)
+
+            if not self.node_.has_parameter(self.prefix_ + "pddl.FoodProtocols.eat_locations"):
+                descriptor = ParameterDescriptor(description="topic for detecting pills being taken", read_only = False)
+                parameter = updated_params.pddl.FoodProtocols.eat_locations
+                self.node_.declare_parameter(self.prefix_ + "pddl.FoodProtocols.eat_locations", parameter, descriptor)
+
+            if not self.node_.has_parameter(self.prefix_ + "pddl.FoodProtocols.check_guide_to_succeeded_times"):
+                descriptor = ParameterDescriptor(description="time to wait for observation", read_only = False)
+                parameter = updated_params.pddl.FoodProtocols.check_guide_to_succeeded_times
+                self.node_.declare_parameter(self.prefix_ + "pddl.FoodProtocols.check_guide_to_succeeded_times", parameter, descriptor)
+
+            if not self.node_.has_parameter(self.prefix_ + "pddl.FoodProtocols.remind_automated_food_at_times"):
+                descriptor = ParameterDescriptor(description="time to wait for observation", read_only = False)
+                parameter = updated_params.pddl.FoodProtocols.remind_automated_food_at_times
+                self.node_.declare_parameter(self.prefix_ + "pddl.FoodProtocols.remind_automated_food_at_times", parameter, descriptor)
+
+            if not self.node_.has_parameter(self.prefix_ + "pddl.FoodProtocols.remind_automated_food_at_2_times"):
+                descriptor = ParameterDescriptor(description="time to wait for observation", read_only = False)
+                parameter = updated_params.pddl.FoodProtocols.remind_automated_food_at_2_times
+                self.node_.declare_parameter(self.prefix_ + "pddl.FoodProtocols.remind_automated_food_at_2_times", parameter, descriptor)
+
+            if not self.node_.has_parameter(self.prefix_ + "pddl.MedicineProtocols.instances"):
                 descriptor = ParameterDescriptor(description="medicine protocols", read_only = False)
-                parameter = updated_params.pddl_instances.MedicineProtocols
-                self.node_.declare_parameter(self.prefix_ + "pddl_instances.MedicineProtocols", parameter, descriptor)
+                parameter = updated_params.pddl.MedicineProtocols.instances
+                self.node_.declare_parameter(self.prefix_ + "pddl.MedicineProtocols.instances", parameter, descriptor)
 
-            if not self.node_.has_parameter(self.prefix_ + "pddl_instances.WonderingProtocols"):
+            if not self.node_.has_parameter(self.prefix_ + "pddl.MedicineProtocols.medicine_location"):
+                descriptor = ParameterDescriptor(description="location of medicine", read_only = False)
+                parameter = updated_params.pddl.MedicineProtocols.medicine_location
+                self.node_.declare_parameter(self.prefix_ + "pddl.MedicineProtocols.medicine_location", parameter, descriptor)
+
+            if not self.node_.has_parameter(self.prefix_ + "pddl.MedicineProtocols.take_medication_time"):
+                descriptor = ParameterDescriptor(description="time that each protocol is triggered", read_only = False)
+                parameter = updated_params.pddl.MedicineProtocols.take_medication_time
+                self.node_.declare_parameter(self.prefix_ + "pddl.MedicineProtocols.take_medication_time", parameter, descriptor)
+
+            if not self.node_.has_parameter(self.prefix_ + "pddl.MedicineProtocols.check_guide_to_succeeded_times"):
+                descriptor = ParameterDescriptor(description="time to wait for observation", read_only = False)
+                parameter = updated_params.pddl.MedicineProtocols.check_guide_to_succeeded_times
+                self.node_.declare_parameter(self.prefix_ + "pddl.MedicineProtocols.check_guide_to_succeeded_times", parameter, descriptor)
+
+            if not self.node_.has_parameter(self.prefix_ + "pddl.MedicineProtocols.notify_automated_medicine_at_times"):
+                descriptor = ParameterDescriptor(description="time to wait for observation", read_only = False)
+                parameter = updated_params.pddl.MedicineProtocols.notify_automated_medicine_at_times
+                self.node_.declare_parameter(self.prefix_ + "pddl.MedicineProtocols.notify_automated_medicine_at_times", parameter, descriptor)
+
+            if not self.node_.has_parameter(self.prefix_ + "pddl.WonderingProtocols.instances"):
                 descriptor = ParameterDescriptor(description="wondering protocols", read_only = False)
-                parameter = updated_params.pddl_instances.WonderingProtocols
-                self.node_.declare_parameter(self.prefix_ + "pddl_instances.WonderingProtocols", parameter, descriptor)
+                parameter = updated_params.pddl.WonderingProtocols.instances
+                self.node_.declare_parameter(self.prefix_ + "pddl.WonderingProtocols.instances", parameter, descriptor)
 
-            if not self.node_.has_parameter(self.prefix_ + "pddl_instances.FallProtocols"):
+            if not self.node_.has_parameter(self.prefix_ + "pddl.WonderingProtocols.outside_location"):
+                descriptor = ParameterDescriptor(description="topic for detecting pills being taken", read_only = False)
+                parameter = updated_params.pddl.WonderingProtocols.outside_location
+                self.node_.declare_parameter(self.prefix_ + "pddl.WonderingProtocols.outside_location", parameter, descriptor)
+
+            if not self.node_.has_parameter(self.prefix_ + "pddl.WonderingProtocols.door_location"):
+                descriptor = ParameterDescriptor(description="topic for detecting pills being taken", read_only = False)
+                parameter = updated_params.pddl.WonderingProtocols.door_location
+                self.node_.declare_parameter(self.prefix_ + "pddl.WonderingProtocols.door_location", parameter, descriptor)
+
+            if not self.node_.has_parameter(self.prefix_ + "pddl.WonderingProtocols.bedroom_location"):
+                descriptor = ParameterDescriptor(description="topic for detecting pills being taken", read_only = False)
+                parameter = updated_params.pddl.WonderingProtocols.bedroom_location
+                self.node_.declare_parameter(self.prefix_ + "pddl.WonderingProtocols.bedroom_location", parameter, descriptor)
+
+            if not self.node_.has_parameter(self.prefix_ + "pddl.WonderingProtocols.too_late_to_leave_time"):
+                descriptor = ParameterDescriptor(description="time that the person must not go outside", read_only = False)
+                parameter = updated_params.pddl.WonderingProtocols.too_late_to_leave_time
+                self.node_.declare_parameter(self.prefix_ + "pddl.WonderingProtocols.too_late_to_leave_time", parameter, descriptor)
+
+            if not self.node_.has_parameter(self.prefix_ + "pddl.WonderingProtocols.check_bed_after_return_wait_times"):
+                descriptor = ParameterDescriptor(description="time to wait for observation", read_only = False)
+                parameter = updated_params.pddl.WonderingProtocols.check_bed_after_return_wait_times
+                self.node_.declare_parameter(self.prefix_ + "pddl.WonderingProtocols.check_bed_after_return_wait_times", parameter, descriptor)
+
+            if not self.node_.has_parameter(self.prefix_ + "pddl.WonderingProtocols.detect_person_left_house_times"):
+                descriptor = ParameterDescriptor(description="time to wait for observation", read_only = False)
+                parameter = updated_params.pddl.WonderingProtocols.detect_person_left_house_times
+                self.node_.declare_parameter(self.prefix_ + "pddl.WonderingProtocols.detect_person_left_house_times", parameter, descriptor)
+
+            if not self.node_.has_parameter(self.prefix_ + "pddl.WonderingProtocols.wait_for_person_to_return_times"):
+                descriptor = ParameterDescriptor(description="time to wait for observation", read_only = False)
+                parameter = updated_params.pddl.WonderingProtocols.wait_for_person_to_return_times
+                self.node_.declare_parameter(self.prefix_ + "pddl.WonderingProtocols.wait_for_person_to_return_times", parameter, descriptor)
+
+            if not self.node_.has_parameter(self.prefix_ + "pddl.WonderingProtocols.check_if_person_went_to_bed_times"):
+                descriptor = ParameterDescriptor(description="time to wait for observation", read_only = False)
+                parameter = updated_params.pddl.WonderingProtocols.check_if_person_went_to_bed_times
+                self.node_.declare_parameter(self.prefix_ + "pddl.WonderingProtocols.check_if_person_went_to_bed_times", parameter, descriptor)
+
+            if not self.node_.has_parameter(self.prefix_ + "pddl.FallProtocols.instances"):
                 descriptor = ParameterDescriptor(description="wondering protocols", read_only = False)
-                parameter = updated_params.pddl_instances.FallProtocols
-                self.node_.declare_parameter(self.prefix_ + "pddl_instances.FallProtocols", parameter, descriptor)
+                parameter = updated_params.pddl.FallProtocols.instances
+                self.node_.declare_parameter(self.prefix_ + "pddl.FallProtocols.instances", parameter, descriptor)
 
-            if not self.node_.has_parameter(self.prefix_ + "take_medication_time"):
-                descriptor = ParameterDescriptor(description="topic for detecting pills being taken", read_only = False)
-                parameter = updated_params.take_medication_time
-                self.node_.declare_parameter(self.prefix_ + "take_medication_time", parameter, descriptor)
-
-            if not self.node_.has_parameter(self.prefix_ + "eat_time"):
-                descriptor = ParameterDescriptor(description="topic for detecting pills being taken", read_only = False)
-                parameter = updated_params.eat_time
-                self.node_.declare_parameter(self.prefix_ + "eat_time", parameter, descriptor)
-
-            if not self.node_.has_parameter(self.prefix_ + "too_late_to_leave_time"):
-                descriptor = ParameterDescriptor(description="topic for detecting pills being taken", read_only = False)
-                parameter = updated_params.too_late_to_leave_time
-                self.node_.declare_parameter(self.prefix_ + "too_late_to_leave_time", parameter, descriptor)
+            if not self.node_.has_parameter(self.prefix_ + "pddl.FallProtocols.wait_times"):
+                descriptor = ParameterDescriptor(description="time to wait for observation", read_only = False)
+                parameter = updated_params.pddl.FallProtocols.wait_times
+                self.node_.declare_parameter(self.prefix_ + "pddl.FallProtocols.wait_times", parameter, descriptor)
 
             if not self.node_.has_parameter(self.prefix_ + "sensor_pills_motion_topic"):
                 descriptor = ParameterDescriptor(description="topic for detecting pills being taken", read_only = False)
@@ -368,51 +476,81 @@ class shr_parameters:
 
             # TODO: need validation
             # get parameters and fill struct fields
-            param = self.node_.get_parameter(self.prefix_ + "locations.outside_location")
+            param = self.node_.get_parameter(self.prefix_ + "pddl.instances.Landmarks")
             self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
-            updated_params.locations.outside_location = param.value
-            param = self.node_.get_parameter(self.prefix_ + "locations.medicine_location")
+            updated_params.pddl.instances.Landmarks = param.value
+            param = self.node_.get_parameter(self.prefix_ + "pddl.instances.Robots")
             self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
-            updated_params.locations.medicine_location = param.value
-            param = self.node_.get_parameter(self.prefix_ + "locations.door_location")
+            updated_params.pddl.instances.Robots = param.value
+            param = self.node_.get_parameter(self.prefix_ + "pddl.instances.Persons")
             self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
-            updated_params.locations.door_location = param.value
-            param = self.node_.get_parameter(self.prefix_ + "locations.eat_location")
+            updated_params.pddl.instances.Persons = param.value
+            param = self.node_.get_parameter(self.prefix_ + "pddl.FoodProtocols.instances")
             self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
-            updated_params.locations.eat_location = param.value
-            param = self.node_.get_parameter(self.prefix_ + "locations.bedroom_location")
+            updated_params.pddl.FoodProtocols.instances = param.value
+            param = self.node_.get_parameter(self.prefix_ + "pddl.FoodProtocols.eat_times")
             self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
-            updated_params.locations.bedroom_location = param.value
-            param = self.node_.get_parameter(self.prefix_ + "pddl_instances.Landmark")
+            updated_params.pddl.FoodProtocols.eat_times = param.value
+            param = self.node_.get_parameter(self.prefix_ + "pddl.FoodProtocols.eat_locations")
             self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
-            updated_params.pddl_instances.Landmark = param.value
-            param = self.node_.get_parameter(self.prefix_ + "pddl_instances.Robot")
+            updated_params.pddl.FoodProtocols.eat_locations = param.value
+            param = self.node_.get_parameter(self.prefix_ + "pddl.FoodProtocols.check_guide_to_succeeded_times")
             self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
-            updated_params.pddl_instances.Robot = param.value
-            param = self.node_.get_parameter(self.prefix_ + "pddl_instances.Person")
+            updated_params.pddl.FoodProtocols.check_guide_to_succeeded_times = param.value
+            param = self.node_.get_parameter(self.prefix_ + "pddl.FoodProtocols.remind_automated_food_at_times")
             self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
-            updated_params.pddl_instances.Person = param.value
-            param = self.node_.get_parameter(self.prefix_ + "pddl_instances.FoodProtocols")
+            updated_params.pddl.FoodProtocols.remind_automated_food_at_times = param.value
+            param = self.node_.get_parameter(self.prefix_ + "pddl.FoodProtocols.remind_automated_food_at_2_times")
             self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
-            updated_params.pddl_instances.FoodProtocols = param.value
-            param = self.node_.get_parameter(self.prefix_ + "pddl_instances.MedicineProtocols")
+            updated_params.pddl.FoodProtocols.remind_automated_food_at_2_times = param.value
+            param = self.node_.get_parameter(self.prefix_ + "pddl.MedicineProtocols.instances")
             self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
-            updated_params.pddl_instances.MedicineProtocols = param.value
-            param = self.node_.get_parameter(self.prefix_ + "pddl_instances.WonderingProtocols")
+            updated_params.pddl.MedicineProtocols.instances = param.value
+            param = self.node_.get_parameter(self.prefix_ + "pddl.MedicineProtocols.medicine_location")
             self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
-            updated_params.pddl_instances.WonderingProtocols = param.value
-            param = self.node_.get_parameter(self.prefix_ + "pddl_instances.FallProtocols")
+            updated_params.pddl.MedicineProtocols.medicine_location = param.value
+            param = self.node_.get_parameter(self.prefix_ + "pddl.MedicineProtocols.take_medication_time")
             self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
-            updated_params.pddl_instances.FallProtocols = param.value
-            param = self.node_.get_parameter(self.prefix_ + "take_medication_time")
+            updated_params.pddl.MedicineProtocols.take_medication_time = param.value
+            param = self.node_.get_parameter(self.prefix_ + "pddl.MedicineProtocols.check_guide_to_succeeded_times")
             self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
-            updated_params.take_medication_time = param.value
-            param = self.node_.get_parameter(self.prefix_ + "eat_time")
+            updated_params.pddl.MedicineProtocols.check_guide_to_succeeded_times = param.value
+            param = self.node_.get_parameter(self.prefix_ + "pddl.MedicineProtocols.notify_automated_medicine_at_times")
             self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
-            updated_params.eat_time = param.value
-            param = self.node_.get_parameter(self.prefix_ + "too_late_to_leave_time")
+            updated_params.pddl.MedicineProtocols.notify_automated_medicine_at_times = param.value
+            param = self.node_.get_parameter(self.prefix_ + "pddl.WonderingProtocols.instances")
             self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
-            updated_params.too_late_to_leave_time = param.value
+            updated_params.pddl.WonderingProtocols.instances = param.value
+            param = self.node_.get_parameter(self.prefix_ + "pddl.WonderingProtocols.outside_location")
+            self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
+            updated_params.pddl.WonderingProtocols.outside_location = param.value
+            param = self.node_.get_parameter(self.prefix_ + "pddl.WonderingProtocols.door_location")
+            self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
+            updated_params.pddl.WonderingProtocols.door_location = param.value
+            param = self.node_.get_parameter(self.prefix_ + "pddl.WonderingProtocols.bedroom_location")
+            self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
+            updated_params.pddl.WonderingProtocols.bedroom_location = param.value
+            param = self.node_.get_parameter(self.prefix_ + "pddl.WonderingProtocols.too_late_to_leave_time")
+            self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
+            updated_params.pddl.WonderingProtocols.too_late_to_leave_time = param.value
+            param = self.node_.get_parameter(self.prefix_ + "pddl.WonderingProtocols.check_bed_after_return_wait_times")
+            self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
+            updated_params.pddl.WonderingProtocols.check_bed_after_return_wait_times = param.value
+            param = self.node_.get_parameter(self.prefix_ + "pddl.WonderingProtocols.detect_person_left_house_times")
+            self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
+            updated_params.pddl.WonderingProtocols.detect_person_left_house_times = param.value
+            param = self.node_.get_parameter(self.prefix_ + "pddl.WonderingProtocols.wait_for_person_to_return_times")
+            self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
+            updated_params.pddl.WonderingProtocols.wait_for_person_to_return_times = param.value
+            param = self.node_.get_parameter(self.prefix_ + "pddl.WonderingProtocols.check_if_person_went_to_bed_times")
+            self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
+            updated_params.pddl.WonderingProtocols.check_if_person_went_to_bed_times = param.value
+            param = self.node_.get_parameter(self.prefix_ + "pddl.FallProtocols.instances")
+            self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
+            updated_params.pddl.FallProtocols.instances = param.value
+            param = self.node_.get_parameter(self.prefix_ + "pddl.FallProtocols.wait_times")
+            self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
+            updated_params.pddl.FallProtocols.wait_times = param.value
             param = self.node_.get_parameter(self.prefix_ + "sensor_pills_motion_topic")
             self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
             updated_params.sensor_pills_motion_topic = param.value

@@ -1,85 +1,136 @@
 shr_parameters:
-  # locations specifications
-  locations:
-    outside_location: {
-      type: string,
-      default_value: "outside",
-      description: "topic for detecting pills being taken",
-    }
-    medicine_location: {
-      type: string,
-      default_value: "kitchen",
-      description: "topic for detecting pills being taken",
-    }
-    door_location: {
-      type: string,
-      default_value: "door",
-      description: "topic for detecting pills being taken",
-    }
-    eat_location: {
-      type: string,
-      default_value: "kitchen",
-      description: "topic for detecting pills being taken",
-    }
-    bedroom_location: {
-      type: string,
-      default_value: "bedroom",
-      description: "topic for detecting pills being taken",
-    }
+  pddl:
+    instances:
+      Landmarks: {
+        type: string_array,
+        default_value: [ "kitchen", "couch", "home" , "door", "outside" ],
+        description: "all landmarks in protocols",
+      }
+      Robots: {
+        type: string_array,
+        default_value: [ "jackel" ],
+        description: "all robots in protocols",
+      }
+      Persons: {
+        type: string_array,
+        default_value: [ "nathan" ],
+        description: "all people in protocols",
+      }
+    FoodProtocols:
+      instances: {
+        type: string_array,
+        default_value: [ "breakfast", "lunch", "dinner" ],
+        description: "food protocols",
+      }
+      eat_times: {
+        type: string_array,
+        default_value: [ "7h0m0s/8h0m0s", "14h30m0s/15h30m0s", "18h00m0s/19h0m0s" ],
+        description: "time that each protocol is triggered",
+      }
+      eat_locations: {
+        type: string_array,
+        default_value: [ "kitchen", "kitchen", "kitchen" ],
+        description: "topic for detecting pills being taken",
+      }
+      check_guide_to_succeeded_times: {
+        type: string_array,
+        default_value: [ "0h1m0s", "0h1m0s", "0h1m0s" ],
+        description: "time to wait for observation",
+      }
+      remind_automated_food_at_times: {
+        type: string_array,
+        default_value: [ "0h10m0s", "0h10m0s", "0h10m0s" ],
+        description: "time to wait for observation",
+      }
+      remind_automated_food_at_2_times: {
+        type: string_array,
+        default_value: [ "0h10m0s", "0h1m0s", "0h10m0s" ],
+        description: "time to wait for observation",
+      }
+    MedicineProtocols:
+      instances: {
+        type: string_array,
+        default_value: [ "daily" ],
+        description: "medicine protocols",
+      }
+      medicine_location: {
+        type: string_array,
+        default_value: ["kitchen"],
+        description: "location of medicine",
+      }
+      take_medication_time: {
+        type: string_array,
+        default_value: ["8h0m0s/9h0m0s"],
+        description: "time that each protocol is triggered",
+      }
+      check_guide_to_succeeded_times: {
+        type: string_array,
+        default_value: [ "0h1m0s"],
+        description: "time to wait for observation",
+      }
+      notify_automated_medicine_at_times: {
+        type: string_array,
+        default_value: [ "0h1m0s" ],
+        description: "time to wait for observation",
+      }
+    WonderingProtocols:
+      instances: {
+        type: string_array,
+        default_value: [ "daily" ],
+        description: "wondering protocols",
+      }
+      outside_location: {
+        type: string_array,
+        default_value: [ "outside" ],
+        description: "topic for detecting pills being taken",
+      }
+      door_location: {
+        type: string_array,
+        default_value: [ "door" ],
+        description: "topic for detecting pills being taken",
+      }
+      bedroom_location: {
+        type: string_array,
+        default_value: [ "bedroom" ],
+        description: "topic for detecting pills being taken",
+      }
+      too_late_to_leave_time: {
+        type: string_array,
+        default_value: ["17h0m0s/8h0m0s"],
+        description: "time that the person must not go outside",
+      }
+      check_bed_after_return_wait_times: {
+        type: string_array,
+        default_value: [ "0h1m0s" ],
+        description: "time to wait for observation",
+      }
+      detect_person_left_house_times: {
+        type: string_array,
+        default_value: [ "0h10m0s" ],
+        description: "time to wait for observation",
+      }
+      wait_for_person_to_return_times: {
+        type: string_array,
+        default_value: [ "0h0m30s" ],
+        description: "time to wait for observation",
+      }
+      check_if_person_went_to_bed_times: {
+        type: string_array,
+        default_value: [ "0h0m30s" ],
+        description: "time to wait for observation",
+      }
+    FallProtocols:
+      instances: {
+        type: string_array,
+        default_value: [ "daily" ],
+        description: "wondering protocols",
+      }
+      wait_times: {
+        type: string_array,
+        default_value: [ "0h10m0s" ],
+        description: "time to wait for observation",
+      }
 
-  pddl_instances:
-    Landmark: {
-      type: string_array,
-      default_value: [ "kitchen", "couch", "home" , "door", "outside"],
-      description: "all landmarks in protocols",
-    }
-    Robot: {
-      type: string_array,
-      default_value: [ "jackel" ],
-      description: "all robots in protocols",
-    }
-    Person: {
-      type: string_array,
-      default_value: [ "nathan" ],
-      description: "all people in protocols",
-    }
-    FoodProtocols: {
-      type: string_array,
-      default_value: [ "breakfast", "lunch", "dinner" ],
-      description: "food protocols",
-    }
-    MedicineProtocols: {
-      type: string_array,
-      default_value: [ "daily"],
-      description: "medicine protocols",
-    }
-    WonderingProtocols: {
-      type: string_array,
-      default_value: [ "daily"],
-      description: "wondering protocols",
-    }
-    FallProtocols: {
-      type: string_array,
-      default_value: [ "daily" ],
-      description: "wondering protocols",
-    }
-
-  # time events
-  take_medication_time: {
-    type: string,
-    default_value: "19h00m",
-    description: "topic for detecting pills being taken",
-  }
-  eat_time: {
-    type: string_array,
-    default_value: [ "7h00m", "14h30m", "18h00m" ],
-    description: "topic for detecting pills being taken",
-  }
-  too_late_to_leave_time: {
-    type: string,
-    default_value: "20h00m",
-    description: "topic for detecting pills being taken",
-  }
   # ros topics
   sensor_pills_motion_topic: {
     type: string,

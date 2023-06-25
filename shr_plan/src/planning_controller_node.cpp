@@ -86,10 +86,10 @@ public:
 };
 
 class UpdatePredicatesImpl : public UpdatePredicates {
-    std::shared_ptr<WorldStatePDDLConverter> world_state_converter;
+    std::shared_ptr<WorldStateListener> world_state_converter;
 
 public:
-    UpdatePredicatesImpl(std::shared_ptr<WorldStatePDDLConverter> &world_state_converter) : world_state_converter(
+    UpdatePredicatesImpl(std::shared_ptr<WorldStateListener> &world_state_converter) : world_state_converter(
             world_state_converter) {
 
     }
@@ -99,12 +99,13 @@ public:
     }
 
     TRUTH_VALUE medicine_location(TRUTH_VALUE val, MedicineProtocol m, Landmark lm) const override {
-        auto msg = world_state_converter->get_world_state_msg();
-        if (msg->medicine_location == lm) {
-            return TRUTH_VALUE::TRUE;
-        } else {
-            return TRUTH_VALUE::FALSE;
+        auto params = world_state_converter->get_params();
+        if (auto index = get_inst_index(m, params)) {
+            if (lm == params.pddl.MedicineProtocols.medicine_location[index.value()]) {
+                return TRUTH_VALUE::TRUE;
+            }
         }
+        return TRUTH_VALUE::FALSE;
     }
 
 
@@ -120,7 +121,9 @@ public:
 
     TRUTH_VALUE person_at(TRUTH_VALUE val, Person p, Landmark lm) const override {
         auto msg = world_state_converter->get_world_state_msg();
-        if (msg->patient_location == lm) {
+        auto params = world_state_converter->get_params();
+        if (msg->patient_location == lm &&
+            lm != params.pddl.WonderingProtocols.outside_location[0]) {// TODO this is hack
             return TRUTH_VALUE::TRUE;
         } else {
             return TRUTH_VALUE::FALSE;
@@ -129,71 +132,98 @@ public:
 
 
     TRUTH_VALUE food_location(TRUTH_VALUE val, FoodProtocol f, Landmark loc) const override {
-        auto msg = world_state_converter->get_world_state_msg();
-        if (msg->eat_location == loc) {
-            return TRUTH_VALUE::TRUE;
-        } else {
-            return TRUTH_VALUE::FALSE;
+        auto params = world_state_converter->get_params();
+        if (auto index = get_inst_index(f, params)) {
+            if (loc == params.pddl.FoodProtocols.eat_locations[index.value()]) {
+                return TRUTH_VALUE::TRUE;
+            }
         }
+        return TRUTH_VALUE::FALSE;
     }
 
 
     TRUTH_VALUE door_location(TRUTH_VALUE val, WonderingProtocol w, Landmark lm) const override {
-        auto msg = world_state_converter->get_world_state_msg();
-        if (msg->door_location == lm) {
-            return TRUTH_VALUE::TRUE;
-        } else {
-            return TRUTH_VALUE::FALSE;
+        auto params = world_state_converter->get_params();
+        if (auto index = get_inst_index(w, params)) {
+            if (lm == params.pddl.WonderingProtocols.door_location[index.value()]) {
+                return TRUTH_VALUE::TRUE;
+            }
         }
+        return TRUTH_VALUE::FALSE;
     }
 
 
     TRUTH_VALUE person_at_door(TRUTH_VALUE val, WonderingProtocol w) const override {
-        auto msg = world_state_converter->get_world_state_msg();
-        if (msg->patient_location == msg->door_location) {
-            return TRUTH_VALUE::TRUE;
-        } else {
-            return TRUTH_VALUE::FALSE;
+        auto params = world_state_converter->get_params();
+        if (auto index = get_inst_index(w, params)) {
+            auto msg = world_state_converter->get_world_state_msg();
+            if (msg->patient_location == params.pddl.WonderingProtocols.door_location[index.value()]) {
+                return TRUTH_VALUE::TRUE;
+            }
         }
+        return TRUTH_VALUE::FALSE;
     }
 
 
     TRUTH_VALUE person_outside(TRUTH_VALUE val, WonderingProtocol w) const override {
-        auto msg = world_state_converter->get_world_state_msg();
-        if (msg->patient_location == msg->outside_location) {
-            return TRUTH_VALUE::TRUE;
-        } else {
-            return TRUTH_VALUE::FALSE;
+        auto params = world_state_converter->get_params();
+        if (auto index = get_inst_index(w, params)) {
+            auto msg = world_state_converter->get_world_state_msg();
+            if (msg->patient_location == params.pddl.WonderingProtocols.outside_location[index.value()]) {
+                return TRUTH_VALUE::TRUE;
+            }
         }
+        return TRUTH_VALUE::FALSE;
     }
 
     TRUTH_VALUE time_to_eat(TRUTH_VALUE val, FoodProtocol f) const override {
-        auto msg = world_state_converter->get_world_state_msg();
-        if ((msg->time_to_eat_dinner && f == "dinner") ||
-            (msg->time_to_eat_lunch && f == "lunch") ||
-            (msg->time_to_eat_breakfast && f == "breakfast")) {
-            return TRUTH_VALUE::TRUE;
-        } else {
-            return TRUTH_VALUE::FALSE;
+        auto params = world_state_converter->get_params();
+        if (auto index = get_inst_index(f, params)) {
+            if (compare_time(params.pddl.FoodProtocols.eat_times[index.value()])) {
+                return TRUTH_VALUE::TRUE;
+            }
         }
+        return TRUTH_VALUE::FALSE;
     }
 
     TRUTH_VALUE too_late_to_go_outside(TRUTH_VALUE val, WonderingProtocol w) const override {
-        auto msg = world_state_converter->get_world_state_msg();
-        if (msg->too_late_to_leave) {
-            return TRUTH_VALUE::TRUE;
-        } else {
-            return TRUTH_VALUE::FALSE;
+        auto params = world_state_converter->get_params();
+        if (auto index = get_inst_index(w, params)) {
+            if (compare_time(params.pddl.WonderingProtocols.too_late_to_leave_time[index.value()])) {
+                return TRUTH_VALUE::TRUE;
+            }
         }
+        return TRUTH_VALUE::FALSE;
     }
 
     TRUTH_VALUE time_to_take_medicine(TRUTH_VALUE val, MedicineProtocol m) const override {
-        auto msg = world_state_converter->get_world_state_msg();
-        if (msg->time_to_take_medicine && m == "daily") {
-            return TRUTH_VALUE::TRUE;
-        } else {
-            return TRUTH_VALUE::FALSE;
+        auto params = world_state_converter->get_params();
+        if (auto index = get_inst_index(m, params)) {
+            if (compare_time(params.pddl.MedicineProtocols.take_medication_time[index.value()])) {
+                return TRUTH_VALUE::TRUE;
+            }
         }
+        return TRUTH_VALUE::FALSE;
+    }
+
+private:
+    bool compare_time(std::string param_time) const {
+        auto msg = world_state_converter->get_world_state_msg();
+        auto time = msg->time;
+        std::stringstream ss(param_time);
+        std::string time_1;
+        std::string time_2;
+        std::getline(ss, time_1, '/');
+        std::getline(ss, time_2);
+
+        auto time_1_secs = get_seconds(time_1);
+        auto time_2_secs = get_seconds(time_2);
+
+        const int second_in_day = 60 * 60 * 24;
+        double clock_distance = fmod((time_2_secs - time_1_secs + second_in_day), second_in_day);
+        double time_to_check_normalized = fmod((time.sec - time_1_secs + second_in_day), second_in_day);
+
+        return time_to_check_normalized <= clock_distance;
     }
 
 };
@@ -202,11 +232,9 @@ public:
 int main(int argc, char **argv) {
     rclcpp::init(argc, argv);
     auto node = std::make_shared<rclcpp::Node>("shrParameterNode");
-    auto param_listener_ = shr_parameters::ParamListener(node);
-    auto params = param_listener_.get_params();
+    auto param_listener_ = std::make_shared<shr_parameters::ParamListener>(node);
 
-
-    auto world_state_converter = std::make_shared<WorldStatePDDLConverter>("WorldStatePDDLConverter", params);
+    auto world_state_converter = std::make_shared<WorldStateListener>("WorldStatePDDLConverter", param_listener_);
     std::thread thread_1(
             [&world_state_converter]() {
                 while (!world_state_converter->should_terminate_node()) {
@@ -217,23 +245,32 @@ int main(int argc, char **argv) {
     );
 
     ProtocolState::getInstance().world_state_converter = world_state_converter;
+    ProtocolState::getInstance().call_client_ = rclcpp_action::create_client<shr_msgs::action::CallRequest>(
+            world_state_converter, "make_call");
+    ProtocolState::getInstance().nav_client_ = rclcpp_action::create_client<nav2_msgs::action::NavigateToPose>(
+            world_state_converter, "navigate_to_pose");
+    ProtocolState::getInstance().read_action_client_ = rclcpp_action::create_client<shr_msgs::action::DeepFakeRequest>(
+            world_state_converter, "read_script");
+
+
     while (world_state_converter->get_world_state_msg() == nullptr) {
         RCLCPP_INFO_STREAM(rclcpp::get_logger(node->get_name()), "waiting for first world state message");
         rclcpp::sleep_for(std::chrono::seconds(1));
     }
 
+    auto params = param_listener_->get_params();
     auto &kb = KnowledgeBase::getInstance();
-    for (const auto &landmark: params.pddl_instances.Landmark) {
+    for (const auto &landmark: params.pddl.instances.Landmarks) {
         kb.objects.concurrent_insert({landmark, "Landmark"});
     }
-    for (const auto &person: params.pddl_instances.Person) {
+    for (const auto &person: params.pddl.instances.Persons) {
         kb.objects.concurrent_insert({person, "Person"});
     }
-    for (const auto &robot: params.pddl_instances.Robot) {
+    for (const auto &robot: params.pddl.instances.Robots) {
         kb.objects.concurrent_insert({robot, "Robot"});
     }
 
-    for (const auto &meal: params.pddl_instances.FoodProtocols) {
+    for (const auto &meal: params.pddl.FoodProtocols.instances) {
         kb.objects.concurrent_insert({meal, "FoodProtocol"});
         InstantiatedParameter inst = {meal, "FoodProtocol"};
         kb.unknownPredicates.concurrent_insert({"guide_to_succeeded_attempt_1", {inst}});
@@ -242,7 +279,7 @@ int main(int argc, char **argv) {
         kb.unknownPredicates.concurrent_insert({"remind_food_succeeded2", {inst}});
 
     }
-    for (const auto &protocol: params.pddl_instances.MedicineProtocols) {
+    for (const auto &protocol: params.pddl.MedicineProtocols.instances) {
         kb.objects.concurrent_insert({protocol, "MedicineProtocol"});
         InstantiatedParameter inst = {protocol, "MedicineProtocol"};
         kb.unknownPredicates.concurrent_insert({"guide_to_succeeded_attempt_1", {inst}});
@@ -251,10 +288,10 @@ int main(int argc, char **argv) {
         kb.unknownPredicates.concurrent_insert({"notify_recorded_succeeded", {inst}});
 
     }
-    for (const auto &protocol: params.pddl_instances.FallProtocols) {
+    for (const auto &protocol: params.pddl.FallProtocols.instances) {
         kb.objects.concurrent_insert({protocol, "FallProtocol"});
     }
-    for (const auto &protocol: params.pddl_instances.WonderingProtocols) {
+    for (const auto &protocol: params.pddl.WonderingProtocols.instances) {
         kb.objects.concurrent_insert({protocol, "WonderingProtocol"});
     }
 
@@ -265,7 +302,7 @@ int main(int argc, char **argv) {
             [&high_level_bt]() {
                 while (!high_level_bt.should_terminate_thread()) {
                     high_level_bt.tick_tree();
-                    rclcpp::sleep_for(std::chrono::milliseconds(800));
+                    rclcpp::sleep_for(std::chrono::milliseconds(5000));
                 }
             }
     );
