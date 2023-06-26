@@ -4,7 +4,7 @@
 #include "shr_msgs/action/call_request.hpp"
 #include "shr_msgs/action/text_request.hpp"
 #include "nav2_msgs/action/navigate_to_pose.hpp"
-#include "shr_msgs/action/deep_fake_request.hpp"
+#include "shr_msgs/action/read_script_request.hpp"
 
 #include <shr_plan/world_state_converter.hpp>
 #include "shr_plan/helpers.hpp"
@@ -34,9 +34,9 @@ namespace pddl_lib {
         std::chrono::steady_clock::time_point time_food_protocol_remindAutomatedFoodAt = {};
         std::chrono::steady_clock::time_point time_food_protocol_remindAutomatedFoodAt2 = {};
         // action servers
-        rclcpp_action::Client<shr_msgs::action::TextRequest>::SharedPtr call_client_ = {};
+        rclcpp_action::Client<shr_msgs::action::CallRequest>::SharedPtr call_client_ = {};
         rclcpp_action::Client<nav2_msgs::action::NavigateToPose>::SharedPtr nav_client_ = {};
-        rclcpp_action::Client<shr_msgs::action::DeepFakeRequest>::SharedPtr read_action_client_ = {};
+        rclcpp_action::Client<shr_msgs::action::ReadScriptRequest>::SharedPtr read_action_client_ = {};
 
 
         static ProtocolState &getInstance() {
@@ -76,6 +76,61 @@ namespace pddl_lib {
         return BT::NodeStatus::FAILURE;
     }
 
+    int send_goal_blocking(const shr_msgs::action::CallRequest::Goal &goal) {
+        auto &ps = ProtocolState::getInstance();
+        std::atomic<int> success = -1;
+        auto send_goal_options = rclcpp_action::Client<shr_msgs::action::CallRequest>::SendGoalOptions();
+        send_goal_options.result_callback = [&success](
+                const rclcpp_action::ClientGoalHandle<shr_msgs::action::CallRequest>::WrappedResult result) {
+            success = result.code == rclcpp_action::ResultCode::SUCCEEDED;
+        };
+        ps.call_client_->async_send_goal(goal, send_goal_options);
+
+        while (success == -1) {
+            rclcpp::sleep_for(std::chrono::seconds(1));
+        }
+        return success;
+    }
+
+    int send_goal_blocking(const nav2_msgs::action::NavigateToPose::Goal &goal) {
+        auto &ps = ProtocolState::getInstance();
+        std::atomic<int> success = -1;
+        auto send_goal_options = rclcpp_action::Client<nav2_msgs::action::NavigateToPose>::SendGoalOptions();
+        send_goal_options.result_callback = [&success](
+                const rclcpp_action::ClientGoalHandle<nav2_msgs::action::NavigateToPose>::WrappedResult result) {
+            success = result.code == rclcpp_action::ResultCode::SUCCEEDED;
+        };
+        ps.nav_client_->async_send_goal(goal, send_goal_options);
+
+        while (success == -1) {
+            rclcpp::sleep_for(std::chrono::seconds(1));
+        }
+        return success;
+    }
+
+    int send_goal_blocking(const shr_msgs::action::ReadScriptRequest::Goal &goal) {
+        auto &ps = ProtocolState::getInstance();
+        std::atomic<int> success = -1;
+        auto send_goal_options = rclcpp_action::Client<shr_msgs::action::ReadScriptRequest>::SendGoalOptions();
+        send_goal_options.result_callback = [&success](
+                const rclcpp_action::ClientGoalHandle<shr_msgs::action::ReadScriptRequest>::WrappedResult result) {
+            success = result.code == rclcpp_action::ResultCode::SUCCEEDED;
+        };
+        ps.read_action_client_->async_send_goal(goal, send_goal_options);
+
+        while (success == -1) {
+            rclcpp::sleep_for(std::chrono::seconds(1));
+        }
+        return success;
+    }
+
+    long get_inst_index_helper(const InstantiatedAction &action) {
+        auto &ps = ProtocolState::getInstance();
+        auto inst = action.parameters[0];
+        auto params = ps.world_state_converter->get_params();
+        return get_inst_index(inst, params).value();
+    }
+
     class ProtocolActions : public pddl_lib::ActionInterface {
     public:
 
@@ -106,14 +161,15 @@ namespace pddl_lib {
 
         BT::NodeStatus wondering_protocol_CheckBedAfterReturn1(const InstantiatedAction &action) override {
             ProtocolState &ps = ProtocolState::getInstance();
-            auto params = ps.world_state_converter->get_params();
-            auto inst = action.parameters[0];
-            auto index = get_inst_index(inst, params).value();
+            shr_parameters::Params params = ProtocolState::getInstance().world_state_converter->get_params();
+            auto index = get_inst_index_helper(action);
+
             auto cond = [params, index]() {
                 ProtocolState &ps = ProtocolState::getInstance();
                 auto msg = ps.world_state_converter->get_world_state_msg();
                 return msg->patient_location == params.pddl.WonderingProtocols.bedroom_location[index];
             };
+
             auto wait_time = get_seconds(params.pddl.WonderingProtocols.check_bed_after_return_wait_times[index]);
             return observe_wait_for_cond(action, ps.time_wondering_protocol_CheckBedAfterReturn1, cond,
                                          std::chrono::seconds(wait_time));
@@ -121,14 +177,15 @@ namespace pddl_lib {
 
         BT::NodeStatus wondering_protocol_CheckBedAfterReturn2(const InstantiatedAction &action) override {
             ProtocolState &ps = ProtocolState::getInstance();
-            auto params = ps.world_state_converter->get_params();
-            auto inst = action.parameters[0];
-            auto index = get_inst_index(inst, params).value();
+            shr_parameters::Params params = ProtocolState::getInstance().world_state_converter->get_params();
+            auto index = get_inst_index_helper(action);
+
             auto cond = [params, index]() {
                 ProtocolState &ps = ProtocolState::getInstance();
                 auto msg = ps.world_state_converter->get_world_state_msg();
                 return msg->patient_location == params.pddl.WonderingProtocols.bedroom_location[index];
             };
+
             auto wait_time = get_seconds(params.pddl.WonderingProtocols.check_bed_after_return_wait_times[index]);
             return observe_wait_for_cond(action, ps.time_wondering_protocol_CheckBedAfterReturn2, cond,
                                          std::chrono::seconds(wait_time));
@@ -136,14 +193,15 @@ namespace pddl_lib {
 
         BT::NodeStatus wondering_protocol_detectPersonLeftHouse1(const InstantiatedAction &action) override {
             ProtocolState &ps = ProtocolState::getInstance();
-            auto params = ps.world_state_converter->get_params();
-            auto inst = action.parameters[0];
-            auto index = get_inst_index(inst, params).value();
+            shr_parameters::Params params = ProtocolState::getInstance().world_state_converter->get_params();
+            auto index = get_inst_index_helper(action);
+
             auto cond = [params, index]() {
                 ProtocolState &ps = ProtocolState::getInstance();
                 auto msg = ps.world_state_converter->get_world_state_msg();
                 return msg->patient_location == params.pddl.WonderingProtocols.outside_location[index];
             };
+
             auto wait_time = get_seconds(params.pddl.WonderingProtocols.detect_person_left_house_times[index]);
             return observe_wait_for_cond(action, ps.time_wondering_protocol_detectPersonLeftHouse1, cond,
                                          std::chrono::seconds(wait_time));
@@ -151,14 +209,15 @@ namespace pddl_lib {
 
         BT::NodeStatus wondering_protocol_detectPersonLeftHouse2(const InstantiatedAction &action) override {
             ProtocolState &ps = ProtocolState::getInstance();
-            auto params = ps.world_state_converter->get_params();
-            auto inst = action.parameters[0];
-            auto index = get_inst_index(inst, params).value();
+            shr_parameters::Params params = ProtocolState::getInstance().world_state_converter->get_params();
+            auto index = get_inst_index_helper(action);
+
             auto cond = [params, index]() {
                 ProtocolState &ps = ProtocolState::getInstance();
                 auto msg = ps.world_state_converter->get_world_state_msg();
                 return msg->patient_location == params.pddl.WonderingProtocols.outside_location[index];
             };
+
             auto wait_time = get_seconds(params.pddl.WonderingProtocols.detect_person_left_house_times[index]);
             return observe_wait_for_cond(action, ps.time_wondering_protocol_detectPersonLeftHouse2, cond,
                                          std::chrono::seconds(wait_time));
@@ -167,14 +226,15 @@ namespace pddl_lib {
 
         BT::NodeStatus wondering_protocol_checkIfPersonWentToBed1(const InstantiatedAction &action) override {
             ProtocolState &ps = ProtocolState::getInstance();
-            auto params = ps.world_state_converter->get_params();
-            auto inst = action.parameters[0];
-            auto index = get_inst_index(inst, params).value();
+            shr_parameters::Params params = ProtocolState::getInstance().world_state_converter->get_params();
+            auto index = get_inst_index_helper(action);
+
             auto cond = [params, index]() {
                 ProtocolState &ps = ProtocolState::getInstance();
                 auto msg = ps.world_state_converter->get_world_state_msg();
                 return msg->patient_location == params.pddl.WonderingProtocols.bedroom_location[index];
             };
+
             auto wait_time = get_seconds(params.pddl.WonderingProtocols.check_if_person_went_to_bed_times[index]);
             return observe_wait_for_cond(action, ps.time_wondering_protocol_checkIfPersonWentToBed1, cond,
                                          std::chrono::seconds(wait_time));
@@ -182,14 +242,15 @@ namespace pddl_lib {
 
         BT::NodeStatus wondering_protocol_checkIfPersonWentToBed2(const InstantiatedAction &action) override {
             ProtocolState &ps = ProtocolState::getInstance();
-            auto params = ps.world_state_converter->get_params();
-            auto inst = action.parameters[0];
-            auto index = get_inst_index(inst, params).value();
+            shr_parameters::Params params = ProtocolState::getInstance().world_state_converter->get_params();
+            auto index = get_inst_index_helper(action);
+
             auto cond = [params, index]() {
                 ProtocolState &ps = ProtocolState::getInstance();
                 auto msg = ps.world_state_converter->get_world_state_msg();
                 return msg->patient_location == params.pddl.WonderingProtocols.bedroom_location[index];
             };
+
             auto wait_time = get_seconds(params.pddl.WonderingProtocols.check_if_person_went_to_bed_times[index]);
             return observe_wait_for_cond(action, ps.time_wondering_protocol_checkIfPersonWentToBed2, cond,
                                          std::chrono::seconds(wait_time));
@@ -197,14 +258,15 @@ namespace pddl_lib {
 
         BT::NodeStatus wondering_protocol_waitForPersonToReturn1(const InstantiatedAction &action) override {
             ProtocolState &ps = ProtocolState::getInstance();
-            auto params = ps.world_state_converter->get_params();
-            auto inst = action.parameters[0];
-            auto index = get_inst_index(inst, params).value();
+            shr_parameters::Params params = ProtocolState::getInstance().world_state_converter->get_params();
+            auto index = get_inst_index_helper(action);
+
             auto cond = [params, index]() {
                 ProtocolState &ps = ProtocolState::getInstance();
                 auto msg = ps.world_state_converter->get_world_state_msg();
                 return msg->patient_location != params.pddl.WonderingProtocols.outside_location[index];
             };
+
             auto wait_time = get_seconds(params.pddl.WonderingProtocols.wait_for_person_to_return_times[index]);
             return observe_wait_for_cond(action, ps.time_wondering_protocol_waitForPersonToReturn1, cond,
                                          std::chrono::seconds(wait_time));
@@ -212,14 +274,15 @@ namespace pddl_lib {
 
         BT::NodeStatus wondering_protocol_waitForPersonToReturn2(const InstantiatedAction &action) override {
             ProtocolState &ps = ProtocolState::getInstance();
-            auto params = ps.world_state_converter->get_params();
-            auto inst = action.parameters[0];
-            auto index = get_inst_index(inst, params).value();
+            shr_parameters::Params params = ProtocolState::getInstance().world_state_converter->get_params();
+            auto index = get_inst_index_helper(action);
+
             auto cond = [params, index]() {
                 ProtocolState &ps = ProtocolState::getInstance();
                 auto msg = ps.world_state_converter->get_world_state_msg();
                 return msg->patient_location != params.pddl.WonderingProtocols.outside_location[index];
             };
+
             auto wait_time = get_seconds(params.pddl.WonderingProtocols.wait_for_person_to_return_times[index]);
             return observe_wait_for_cond(action, ps.time_wondering_protocol_waitForPersonToReturn2, cond,
                                          std::chrono::seconds(wait_time));
@@ -246,14 +309,15 @@ namespace pddl_lib {
 
         BT::NodeStatus medicine_protocol_checkGuideToSucceeded1(const InstantiatedAction &action) override {
             ProtocolState &ps = ProtocolState::getInstance();
-            auto params = ps.world_state_converter->get_params();
-            auto inst = action.parameters[0];
-            auto index = get_inst_index(inst, params).value();
+            shr_parameters::Params params = ProtocolState::getInstance().world_state_converter->get_params();
+            auto index = get_inst_index_helper(action);
+
             auto cond = [params, index]() {
                 ProtocolState &ps = ProtocolState::getInstance();
                 auto msg = ps.world_state_converter->get_world_state_msg();
                 return msg->patient_location != params.pddl.MedicineProtocols.medicine_location[index];
             };
+
             auto wait_time = get_seconds(params.pddl.MedicineProtocols.check_guide_to_succeeded_times[index]);
             return observe_wait_for_cond(action, ps.time_medicine_protocol_checkGuideToSucceeded1, cond,
                                          std::chrono::seconds(wait_time));
@@ -261,14 +325,15 @@ namespace pddl_lib {
 
         BT::NodeStatus medicine_protocol_checkGuideToSucceeded2(const InstantiatedAction &action) override {
             ProtocolState &ps = ProtocolState::getInstance();
-            auto params = ps.world_state_converter->get_params();
-            auto inst = action.parameters[0];
-            auto index = get_inst_index(inst, params).value();
+            shr_parameters::Params params = ProtocolState::getInstance().world_state_converter->get_params();
+            auto index = get_inst_index_helper(action);
+
             auto cond = [params, index]() {
                 ProtocolState &ps = ProtocolState::getInstance();
                 auto msg = ps.world_state_converter->get_world_state_msg();
                 return msg->patient_location != params.pddl.MedicineProtocols.medicine_location[index];
             };
+
             auto wait_time = get_seconds(params.pddl.MedicineProtocols.check_guide_to_succeeded_times[index]);
             return observe_wait_for_cond(action, ps.time_medicine_protocol_checkGuideToSucceeded2, cond,
                                          std::chrono::seconds(wait_time));
@@ -276,14 +341,15 @@ namespace pddl_lib {
 
         BT::NodeStatus medicine_protocol_notifyAutomatedMedicineAt(const InstantiatedAction &action) override {
             ProtocolState &ps = ProtocolState::getInstance();
-            auto params = ps.world_state_converter->get_params();
-            auto inst = action.parameters[0];
-            auto index = get_inst_index(inst, params).value();
+            shr_parameters::Params params = ProtocolState::getInstance().world_state_converter->get_params();
+            auto index = get_inst_index_helper(action);
+
             auto cond = [params, index]() {
                 ProtocolState &ps = ProtocolState::getInstance();
                 auto msg = ps.world_state_converter->get_world_state_msg();
                 return msg->medicine_sensor == 1;
             };
+
             auto wait_time = get_seconds(params.pddl.MedicineProtocols.notify_automated_medicine_at_times[index]);
             return observe_wait_for_cond(action, ps.time_notifyAutomatedMedicineAt, cond,
                                          std::chrono::seconds(wait_time));
@@ -291,44 +357,46 @@ namespace pddl_lib {
 
         BT::NodeStatus medicine_protocol_notifyRecordedMedicineAt(const InstantiatedAction &action) override {
             ProtocolState &ps = ProtocolState::getInstance();
-            auto params = ps.world_state_converter->get_params();
-            auto inst = action.parameters[0];
-            auto index = get_inst_index(inst, params).value();
-            auto cond = [params, index]() {
+            shr_parameters::Params params = ProtocolState::getInstance().world_state_converter->get_params();
+            auto index = get_inst_index_helper(action);
+
+            auto cond = [params]() {
                 ProtocolState &ps = ProtocolState::getInstance();
                 auto msg = ps.world_state_converter->get_world_state_msg();
                 return msg->medicine_sensor == 1;
             };
+
+            shr_msgs::action::ReadScriptRequest::Goal goal;
+            goal.script_name = params.pddl.MedicineProtocols.medicine_reminder[index];
+
             auto wait_time = get_seconds(params.pddl.MedicineProtocols.notify_automated_medicine_at_times[index]);
             return observe_wait_for_cond(action, ps.time_notifyRecordedMedicineAt, cond,
                                          std::chrono::seconds(wait_time));
         }
 
         BT::NodeStatus medicine_protocol_askCaregiverHelpMedicine1(const InstantiatedAction &action) override {
-            auto &ps = ProtocolState::getInstance();
-            auto params = ps.world_state_converter->get_params();
-            auto inst = action.parameters[0];
-            auto index = get_inst_index(inst, params).value();
+            shr_parameters::Params params = ProtocolState::getInstance().world_state_converter->get_params();
+            auto index = get_inst_index_helper(action);
 
-            shr_msgs::action::TextRequest::Goal goal;
+            shr_msgs::action::CallRequest::Goal goal;
             goal.phone_number = params.caregiver_phone_number;
-            goal.msg = params.pddl.MedicineProtocols.ask_caregiver_help_medicine[index];
+            goal.script_name = params.pddl.MedicineProtocols.ask_caregiver_help_medicine[index];
 
-            std::atomic<int> success = -1;
-            auto send_goal_options = rclcpp_action::Client<shr_msgs::action::TextRequest>::SendGoalOptions();
-            send_goal_options.result_callback = [&success](
-                    const rclcpp_action::ClientGoalHandle<shr_msgs::action::TextRequest>::WrappedResult result) {
-                success = result.code == rclcpp_action::ResultCode::SUCCEEDED;
-            };
-            ps.call_client_->async_send_goal(goal, send_goal_options);
-
-            while (success == -1) {
-                rclcpp::sleep_for(std::chrono::seconds(1));
-            }
-
+            int success = send_goal_blocking(goal);
             return success == 1 ? BT::NodeStatus::SUCCESS : BT::NodeStatus::FAILURE;
         }
 
+        BT::NodeStatus medicine_protocol_askCaregiverHelpMedicine2(const InstantiatedAction &action) override {
+            shr_parameters::Params params = ProtocolState::getInstance().world_state_converter->get_params();
+            auto index = get_inst_index_helper(action);
+
+            shr_msgs::action::CallRequest::Goal goal;
+            goal.phone_number = params.caregiver_phone_number;
+            goal.script_name = params.pddl.MedicineProtocols.ask_caregiver_help_medicine[index];
+
+            int success = send_goal_blocking(goal);
+            return success == 1 ? BT::NodeStatus::SUCCESS : BT::NodeStatus::FAILURE;
+        }
 
         // food_protocol
         BT::NodeStatus high_level_domain_StartFoodProtocol(const InstantiatedAction &action) override {
@@ -350,14 +418,15 @@ namespace pddl_lib {
 
         BT::NodeStatus food_protocol_checkGuideToSucceeded1(const InstantiatedAction &action) override {
             ProtocolState &ps = ProtocolState::getInstance();
-            auto params = ps.world_state_converter->get_params();
-            auto inst = action.parameters[0];
-            auto index = get_inst_index(inst, params).value();
+            shr_parameters::Params params = ProtocolState::getInstance().world_state_converter->get_params();
+            auto index = get_inst_index_helper(action);
+
             auto cond = [params, index]() {
                 ProtocolState &ps = ProtocolState::getInstance();
                 auto msg = ps.world_state_converter->get_world_state_msg();
                 return msg->patient_location != params.pddl.FoodProtocols.eat_locations[index];
             };
+
             auto wait_time = get_seconds(params.pddl.FoodProtocols.check_guide_to_succeeded_times[index]);
             return observe_wait_for_cond(action, ps.time_food_protocol_checkGuideToSucceeded1, cond,
                                          std::chrono::seconds(wait_time));
@@ -365,14 +434,15 @@ namespace pddl_lib {
 
         BT::NodeStatus food_protocol_checkGuideToSucceeded2(const InstantiatedAction &action) override {
             ProtocolState &ps = ProtocolState::getInstance();
-            auto params = ps.world_state_converter->get_params();
-            auto inst = action.parameters[0];
-            auto index = get_inst_index(inst, params).value();
+            shr_parameters::Params params = ProtocolState::getInstance().world_state_converter->get_params();
+            auto index = get_inst_index_helper(action);
+
             auto cond = [params, index]() {
                 ProtocolState &ps = ProtocolState::getInstance();
                 auto msg = ps.world_state_converter->get_world_state_msg();
                 return msg->patient_location != params.pddl.FoodProtocols.eat_locations[index];
             };
+
             auto wait_time = get_seconds(params.pddl.FoodProtocols.check_guide_to_succeeded_times[index]);
             return observe_wait_for_cond(action, ps.time_food_protocol_checkGuideToSucceeded2, cond,
                                          std::chrono::seconds(wait_time));
@@ -380,14 +450,15 @@ namespace pddl_lib {
 
         BT::NodeStatus food_protocol_remindAutomatedFoodAt(const InstantiatedAction &action) override {
             ProtocolState &ps = ProtocolState::getInstance();
-            auto params = ps.world_state_converter->get_params();
-            auto inst = action.parameters[0];
-            auto index = get_inst_index(inst, params).value();
+            shr_parameters::Params params = ProtocolState::getInstance().world_state_converter->get_params();
+            auto index = get_inst_index_helper(action);
+
             auto cond = [params, index]() {
                 ProtocolState &ps = ProtocolState::getInstance();
                 auto msg = ps.world_state_converter->get_world_state_msg();
                 return msg->eating_sensor == 1;
             };
+
             auto wait_time = get_seconds(params.pddl.FoodProtocols.remind_automated_food_at_times[index]);
             return observe_wait_for_cond(action, ps.time_food_protocol_remindAutomatedFoodAt, cond,
                                          std::chrono::seconds(wait_time));
@@ -395,14 +466,15 @@ namespace pddl_lib {
 
         BT::NodeStatus food_protocol_remindAutomatedFoodAt2(const InstantiatedAction &action) override {
             ProtocolState &ps = ProtocolState::getInstance();
-            auto params = ps.world_state_converter->get_params();
-            auto inst = action.parameters[0];
-            auto index = get_inst_index(inst, params).value();
+            shr_parameters::Params params = ProtocolState::getInstance().world_state_converter->get_params();
+            auto index = get_inst_index_helper(action);
+
             auto cond = [params, index]() {
                 ProtocolState &ps = ProtocolState::getInstance();
                 auto msg = ps.world_state_converter->get_world_state_msg();
                 return msg->eating_sensor == 1;
             };
+
             auto wait_time = get_seconds(params.pddl.FoodProtocols.remind_automated_food_at_2_times[index]);
             return observe_wait_for_cond(action, ps.time_food_protocol_remindAutomatedFoodAt2, cond,
                                          std::chrono::seconds(wait_time));

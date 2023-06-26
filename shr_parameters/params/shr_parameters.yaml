@@ -65,17 +65,22 @@ shr_parameters:
       }
       check_guide_to_succeeded_times: {
         type: string_array,
-        default_value: [ "0h0m5s" ],
+        default_value: [ "0h0m2s" ],
         description: "time to wait for observation",
       }
       notify_automated_medicine_at_times: {
         type: string_array,
-        default_value: [ "0h0m5s" ],
+        default_value: [ "0h0m2s" ],
         description: "time to wait for observation",
       }
       ask_caregiver_help_medicine: {
         type: string_array,
-        default_value: [ "askcaregiverhelpmedicine1" ],
+        default_value: [ "call_msg_medical.xml" ],
+        description: "time to wait for observation",
+      }
+      medicine_reminder: {
+        type: string_array,
+        default_value: [ "medicine_reminder.txt" ],
         description: "time to wait for observation",
       }
     WonderingProtocols:

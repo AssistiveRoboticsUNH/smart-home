@@ -10,12 +10,12 @@ from launch.conditions import IfCondition
 def generate_launch_description():
     unity_sim_cmd = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(PathJoinSubstitution([
-            get_package_share_directory('unity_launch'), 'launch', 'launch.launch.py']))
+            get_package_share_directory('unity_launch'), 'launch', 'launch_jackal.launch.py']))
     )
 
     pioneer_nav_cmd = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(PathJoinSubstitution([
-            get_package_share_directory('pioneer_navigation2'), 'launch', 'navigation2.launch.py']))
+            get_package_share_directory('jackal_navigation'), 'launch', 'navigation2_jackal.launch.py']))
     )
 
     ld = LaunchDescription()

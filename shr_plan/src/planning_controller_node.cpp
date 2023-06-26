@@ -245,11 +245,11 @@ int main(int argc, char **argv) {
     );
 
     ProtocolState::getInstance().world_state_converter = world_state_converter;
-    ProtocolState::getInstance().call_client_ = rclcpp_action::create_client<shr_msgs::action::TextRequest>(
-            world_state_converter, "send_text");
+    ProtocolState::getInstance().call_client_ = rclcpp_action::create_client<shr_msgs::action::CallRequest>(
+            world_state_converter, "make_call");
     ProtocolState::getInstance().nav_client_ = rclcpp_action::create_client<nav2_msgs::action::NavigateToPose>(
             world_state_converter, "navigate_to_pose");
-    ProtocolState::getInstance().read_action_client_ = rclcpp_action::create_client<shr_msgs::action::DeepFakeRequest>(
+    ProtocolState::getInstance().read_action_client_ = rclcpp_action::create_client<shr_msgs::action::ReadScriptRequest>(
             world_state_converter, "read_script");
 
 
@@ -302,7 +302,7 @@ int main(int argc, char **argv) {
             [&high_level_bt]() {
                 while (!high_level_bt.should_terminate_thread()) {
                     high_level_bt.tick_tree();
-                    rclcpp::sleep_for(std::chrono::milliseconds(5000));
+                    rclcpp::sleep_for(std::chrono::milliseconds(2000));
                 }
             }
     );
@@ -311,7 +311,7 @@ int main(int argc, char **argv) {
     BT::BehaviorTreeFactory factory = create_tree_factory<ProtocolActions>();
 
     while (true) {
-        rclcpp::sleep_for(std::chrono::seconds(3));
+        rclcpp::sleep_for(std::chrono::seconds(1));
 
         std::string active_domain;
         InstantiatedParameter protocol = get_active_protocol();
