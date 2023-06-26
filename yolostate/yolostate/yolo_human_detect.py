@@ -9,7 +9,7 @@ from std_msgs.msg import String
 from std_msgs.msg import Int32MultiArray
 
 from ament_index_python.packages import get_package_share_directory
-
+import time
 """
 Human detector class using cv2+yolo
 """
@@ -41,15 +41,21 @@ class HumanDetector:
         self.classes = np.array(classes)
 
         self.net = cv2.dnn.readNet(fn_weights, fn_cfg)
+        # self.net = cv2.dnn.readNetFromCaffe(args["prototxt"], args["model"])
+        self.net.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
+        self.net.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA)
         layer_names = self.net.getLayerNames()
         self.output_layers = [layer_names[i - 1] for i in self.net.getUnconnectedOutLayers()]
 
     def run_inference(self, image, scale=0.00392):
+
         self.width = image.shape[1]
         self.height = image.shape[0]
         blob = cv2.dnn.blobFromImage(image, scale, (416, 416), (0, 0, 0), True, crop=False)
         self.net.setInput(blob)
+        start = time.time()
         outs = self.net.forward(self.output_layers)
+        print(time.time() - start)
         return outs
 
     def parse_boxes(self, outs, conf_threshold=0.5, nms_threshold=0.4):

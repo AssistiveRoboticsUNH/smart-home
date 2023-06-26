@@ -24,10 +24,10 @@ class parameters:
         medicine_location = "kitchen_robot_pos"
         door_location = "door_robot_pos"
         eat_location = "kitchen_robot_pos"
-        take_medication_time = "20h00m"
-        eat_time = ["7h00m", "14h30m", "19h00m"]
+        take_medication_time = "19h00m"
+        eat_time = ["7h00m", "14h30m", "18h00m"]
         bedroom_location = "bedroom_robot_pos"
-        too_late_to_leave_time = "21h00m"
+        too_late_to_leave_time = "20h00m"
 
 
 
