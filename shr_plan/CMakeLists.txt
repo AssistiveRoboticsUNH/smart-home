@@ -25,10 +25,8 @@ find_package(shr_parameters REQUIRED)
 
 
 generate_bt_header(bt_shr_actions
-    pddl/medicine_domain.pddl
-    pddl/food_domain.pddl
-    pddl/wondering_domain.pddl
     pddl/high_level_domain.pddl
+    pddl/low_level_domain.pddl
     )
 
 set(dependencies
