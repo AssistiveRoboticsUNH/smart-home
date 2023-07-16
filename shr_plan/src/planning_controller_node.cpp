@@ -101,7 +101,7 @@ public:
     }
 
 
-    TRUTH_VALUE robot_at(TRUTH_VALUE val, Robot r, Landmark lm) const override {
+    TRUTH_VALUE robot_at(TRUTH_VALUE val, Landmark lm) const override {
         if (world_state_converter->check_robot_at_loc(lm)) {
             return TRUTH_VALUE::TRUE;
         } else {
@@ -110,11 +110,11 @@ public:
     }
 
 
-    TRUTH_VALUE person_at(TRUTH_VALUE val, Person p, Landmark lm) const override {
+    TRUTH_VALUE person_at(TRUTH_VALUE val, Time t, Person p,  Landmark lm) const override {
         auto msg = world_state_converter->get_world_state_msg();
         auto params = world_state_converter->get_params();
         if (world_state_converter->check_person_at_loc(lm) &&
-            lm != params.pddl.WonderingProtocols.outside_location[0]) {// TODO this is hack
+            lm != params.pddl.WanderingProtocols.outside_location[0]) {// TODO this is hack
             return TRUTH_VALUE::TRUE;
         } else {
             return TRUTH_VALUE::FALSE;
@@ -133,10 +133,10 @@ public:
     }
 
 
-    TRUTH_VALUE door_location(TRUTH_VALUE val, WonderingProtocol w, Landmark lm) const override {
+    TRUTH_VALUE door_location(TRUTH_VALUE val, WanderingProtocol w, Landmark lm) const override {
         auto params = world_state_converter->get_params();
         if (auto index = get_inst_index(w, params)) {
-            if (lm == params.pddl.WonderingProtocols.door_location[index.value()]) {
+            if (lm == params.pddl.WanderingProtocols.door_location[index.value()]) {
                 return TRUTH_VALUE::TRUE;
             }
         }
@@ -144,11 +144,11 @@ public:
     }
 
 
-    TRUTH_VALUE person_at_door(TRUTH_VALUE val, WonderingProtocol w) const override {
+    TRUTH_VALUE person_at_door(TRUTH_VALUE val, WanderingProtocol w) const override {
         auto params = world_state_converter->get_params();
         if (auto index = get_inst_index(w, params)) {
             auto msg = world_state_converter->get_world_state_msg();
-            if (world_state_converter->check_person_at_loc(params.pddl.WonderingProtocols.door_location[index.value()]) ) {
+            if (world_state_converter->check_person_at_loc(params.pddl.WanderingProtocols.door_location[index.value()]) ) {
                 return TRUTH_VALUE::TRUE;
             }
         }
@@ -156,11 +156,11 @@ public:
     }
 
 
-    TRUTH_VALUE person_outside(TRUTH_VALUE val, WonderingProtocol w) const override {
+    TRUTH_VALUE person_outside(TRUTH_VALUE val, WanderingProtocol w) const override {
         auto params = world_state_converter->get_params();
         if (auto index = get_inst_index(w, params)) {
             auto msg = world_state_converter->get_world_state_msg();
-            if (world_state_converter->check_person_at_loc(params.pddl.WonderingProtocols.outside_location[index.value()])) {
+            if (world_state_converter->check_person_at_loc(params.pddl.WanderingProtocols.outside_location[index.value()])) {
                 return TRUTH_VALUE::TRUE;
             }
         }
@@ -177,10 +177,10 @@ public:
         return TRUTH_VALUE::FALSE;
     }
 
-    TRUTH_VALUE too_late_to_go_outside(TRUTH_VALUE val, WonderingProtocol w) const override {
+    TRUTH_VALUE too_late_to_go_outside(TRUTH_VALUE val, WanderingProtocol w) const override {
         auto params = world_state_converter->get_params();
         if (auto index = get_inst_index(w, params)) {
-            if (compare_time(params.pddl.WonderingProtocols.too_late_to_leave_time[index.value()])) {
+            if (compare_time(params.pddl.WanderingProtocols.too_late_to_leave_time[index.value()])) {
                 return TRUTH_VALUE::TRUE;
             }
         }
@@ -282,8 +282,8 @@ int main(int argc, char **argv) {
     for (const auto &protocol: params.pddl.FallProtocols.instances) {
         kb.objects.concurrent_insert({protocol, "FallProtocol"});
     }
-    for (const auto &protocol: params.pddl.WonderingProtocols.instances) {
-        kb.objects.concurrent_insert({protocol, "WonderingProtocol"});
+    for (const auto &protocol: params.pddl.WanderingProtocols.instances) {
+        kb.objects.concurrent_insert({protocol, "WanderingProtocol"});
     }
 
     UpdatePredicatesImpl updater(world_state_converter);
@@ -312,8 +312,8 @@ int main(int argc, char **argv) {
             active_domain = "food_domain.pddl";
         } else if (protocol.type == "MedicineProtocol") {
             active_domain = "medicine_domain.pddl";
-        } else if (protocol.type == "WonderingProtocol") {
-            active_domain = "wondering_domain.pddl";
+        } else if (protocol.type == "WanderingProtocol") {
+            active_domain = "wandering_domain.pddl";
         } else {
             // no work to do
             continue;

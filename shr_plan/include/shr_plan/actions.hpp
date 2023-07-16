@@ -15,14 +15,14 @@ namespace pddl_lib {
     public:
         std::shared_ptr<WorldStateListener> world_state_converter;
         // midnight
-        std::chrono::steady_clock::time_point time_wondering_protocol_detectPersonLeftHouse1 = {};
-        std::chrono::steady_clock::time_point time_wondering_protocol_detectPersonLeftHouse2 = {};
-        std::chrono::steady_clock::time_point time_wondering_protocol_CheckBedAfterReturn1 = {};
-        std::chrono::steady_clock::time_point time_wondering_protocol_CheckBedAfterReturn2 = {};
-        std::chrono::steady_clock::time_point time_wondering_protocol_checkIfPersonWentToBed1 = {};
-        std::chrono::steady_clock::time_point time_wondering_protocol_checkIfPersonWentToBed2 = {};
-        std::chrono::steady_clock::time_point time_wondering_protocol_waitForPersonToReturn1 = {};
-        std::chrono::steady_clock::time_point time_wondering_protocol_waitForPersonToReturn2 = {};
+        std::chrono::steady_clock::time_point time_wandering_protocol_detectPersonLeftHouse1 = {};
+        std::chrono::steady_clock::time_point time_wandering_protocol_detectPersonLeftHouse2 = {};
+        std::chrono::steady_clock::time_point time_wandering_protocol_CheckBedAfterReturn1 = {};
+        std::chrono::steady_clock::time_point time_wandering_protocol_CheckBedAfterReturn2 = {};
+        std::chrono::steady_clock::time_point time_wandering_protocol_checkIfPersonWentToBed1 = {};
+        std::chrono::steady_clock::time_point time_wandering_protocol_checkIfPersonWentToBed2 = {};
+        std::chrono::steady_clock::time_point time_wandering_protocol_waitForPersonToReturn1 = {};
+        std::chrono::steady_clock::time_point time_wandering_protocol_waitForPersonToReturn2 = {};
         // medicine
         std::chrono::steady_clock::time_point time_medicine_protocol_checkGuideToSucceeded1 = {};
         std::chrono::steady_clock::time_point time_medicine_protocol_checkGuideToSucceeded2 = {};
@@ -134,7 +134,7 @@ namespace pddl_lib {
     class ProtocolActions : public pddl_lib::ActionInterface {
     public:
 
-        BT::NodeStatus high_level_domain_StartWonderingProtocol(const InstantiatedAction &action) override {
+        BT::NodeStatus high_level_domain_StartwanderingProtocol(const InstantiatedAction &action) override {
             auto &kb = KnowledgeBase::getInstance();
             InstantiatedParameter inst = action.parameters[0];
 
@@ -159,7 +159,7 @@ namespace pddl_lib {
             return BT::NodeStatus::SUCCESS;
         }
 
-        BT::NodeStatus wondering_protocol_CheckBedAfterReturn1(const InstantiatedAction &action) override {
+        BT::NodeStatus wandering_protocol_CheckBedAfterReturn1(const InstantiatedAction &action) override {
             ProtocolState &ps = ProtocolState::getInstance();
             shr_parameters::Params params = ProtocolState::getInstance().world_state_converter->get_params();
             auto index = get_inst_index_helper(action);
@@ -167,15 +167,15 @@ namespace pddl_lib {
             auto cond = [params, index]() {
                 ProtocolState &ps = ProtocolState::getInstance();
                 auto msg = ps.world_state_converter->get_world_state_msg();
-                return ps.world_state_converter->check_person_at_loc(params.pddl.WonderingProtocols.bedroom_location[index]);
+                return ps.world_state_converter->check_person_at_loc(params.pddl.WanderingProtocols.bedroom_location[index]);
             };
 
-            auto wait_time = get_seconds(params.pddl.WonderingProtocols.check_bed_after_return_wait_times[index]);
-            return observe_wait_for_cond(action, ps.time_wondering_protocol_CheckBedAfterReturn1, cond,
+            auto wait_time = get_seconds(params.pddl.WanderingProtocols.check_bed_after_return_wait_times[index]);
+            return observe_wait_for_cond(action, ps.time_wandering_protocol_CheckBedAfterReturn1, cond,
                                          std::chrono::seconds(wait_time));
         }
 
-        BT::NodeStatus wondering_protocol_CheckBedAfterReturn2(const InstantiatedAction &action) override {
+        BT::NodeStatus wandering_protocol_CheckBedAfterReturn2(const InstantiatedAction &action) override {
             ProtocolState &ps = ProtocolState::getInstance();
             shr_parameters::Params params = ProtocolState::getInstance().world_state_converter->get_params();
             auto index = get_inst_index_helper(action);
@@ -183,15 +183,15 @@ namespace pddl_lib {
             auto cond = [params, index]() {
                 ProtocolState &ps = ProtocolState::getInstance();
                 auto msg = ps.world_state_converter->get_world_state_msg();
-                return ps.world_state_converter->check_person_at_loc(params.pddl.WonderingProtocols.bedroom_location[index]);
+                return ps.world_state_converter->check_person_at_loc(params.pddl.WanderingProtocols.bedroom_location[index]);
             };
 
-            auto wait_time = get_seconds(params.pddl.WonderingProtocols.check_bed_after_return_wait_times[index]);
-            return observe_wait_for_cond(action, ps.time_wondering_protocol_CheckBedAfterReturn2, cond,
+            auto wait_time = get_seconds(params.pddl.WanderingProtocols.check_bed_after_return_wait_times[index]);
+            return observe_wait_for_cond(action, ps.time_wandering_protocol_CheckBedAfterReturn2, cond,
                                          std::chrono::seconds(wait_time));
         }
 
-        BT::NodeStatus wondering_protocol_detectPersonLeftHouse1(const InstantiatedAction &action) override {
+        BT::NodeStatus wandering_protocol_detectPersonLeftHouse1(const InstantiatedAction &action) override {
             ProtocolState &ps = ProtocolState::getInstance();
             shr_parameters::Params params = ProtocolState::getInstance().world_state_converter->get_params();
             auto index = get_inst_index_helper(action);
@@ -199,15 +199,15 @@ namespace pddl_lib {
             auto cond = [params, index]() {
                 ProtocolState &ps = ProtocolState::getInstance();
                 auto msg = ps.world_state_converter->get_world_state_msg();
-                return ps.world_state_converter->check_person_at_loc(params.pddl.WonderingProtocols.outside_location[index]);
+                return ps.world_state_converter->check_person_at_loc(params.pddl.WanderingProtocols.outside_location[index]);
             };
 
-            auto wait_time = get_seconds(params.pddl.WonderingProtocols.detect_person_left_house_times[index]);
-            return observe_wait_for_cond(action, ps.time_wondering_protocol_detectPersonLeftHouse1, cond,
+            auto wait_time = get_seconds(params.pddl.WanderingProtocols.detect_person_left_house_times[index]);
+            return observe_wait_for_cond(action, ps.time_wandering_protocol_detectPersonLeftHouse1, cond,
                                          std::chrono::seconds(wait_time));
         }
 
-        BT::NodeStatus wondering_protocol_detectPersonLeftHouse2(const InstantiatedAction &action) override {
+        BT::NodeStatus wandering_protocol_detectPersonLeftHouse2(const InstantiatedAction &action) override {
             ProtocolState &ps = ProtocolState::getInstance();
             shr_parameters::Params params = ProtocolState::getInstance().world_state_converter->get_params();
             auto index = get_inst_index_helper(action);
@@ -215,16 +215,16 @@ namespace pddl_lib {
             auto cond = [params, index]() {
                 ProtocolState &ps = ProtocolState::getInstance();
                 auto msg = ps.world_state_converter->get_world_state_msg();
-                return ps.world_state_converter->check_person_at_loc(params.pddl.WonderingProtocols.outside_location[index]);
+                return ps.world_state_converter->check_person_at_loc(params.pddl.WanderingProtocols.outside_location[index]);
             };
 
-            auto wait_time = get_seconds(params.pddl.WonderingProtocols.detect_person_left_house_times[index]);
-            return observe_wait_for_cond(action, ps.time_wondering_protocol_detectPersonLeftHouse2, cond,
+            auto wait_time = get_seconds(params.pddl.WanderingProtocols.detect_person_left_house_times[index]);
+            return observe_wait_for_cond(action, ps.time_wandering_protocol_detectPersonLeftHouse2, cond,
                                          std::chrono::seconds(wait_time));
         }
 
 
-        BT::NodeStatus wondering_protocol_checkIfPersonWentToBed1(const InstantiatedAction &action) override {
+        BT::NodeStatus wandering_protocol_checkIfPersonWentToBed1(const InstantiatedAction &action) override {
             ProtocolState &ps = ProtocolState::getInstance();
             shr_parameters::Params params = ProtocolState::getInstance().world_state_converter->get_params();
             auto index = get_inst_index_helper(action);
@@ -232,15 +232,15 @@ namespace pddl_lib {
             auto cond = [params, index]() {
                 ProtocolState &ps = ProtocolState::getInstance();
                 auto msg = ps.world_state_converter->get_world_state_msg();
-                return ps.world_state_converter->check_person_at_loc(params.pddl.WonderingProtocols.bedroom_location[index]);
+                return ps.world_state_converter->check_person_at_loc(params.pddl.WanderingProtocols.bedroom_location[index]);
             };
 
-            auto wait_time = get_seconds(params.pddl.WonderingProtocols.check_if_person_went_to_bed_times[index]);
-            return observe_wait_for_cond(action, ps.time_wondering_protocol_checkIfPersonWentToBed1, cond,
+            auto wait_time = get_seconds(params.pddl.WanderingProtocols.check_if_person_went_to_bed_times[index]);
+            return observe_wait_for_cond(action, ps.time_wandering_protocol_checkIfPersonWentToBed1, cond,
                                          std::chrono::seconds(wait_time));
         }
 
-        BT::NodeStatus wondering_protocol_checkIfPersonWentToBed2(const InstantiatedAction &action) override {
+        BT::NodeStatus wandering_protocol_checkIfPersonWentToBed2(const InstantiatedAction &action) override {
             ProtocolState &ps = ProtocolState::getInstance();
             shr_parameters::Params params = ProtocolState::getInstance().world_state_converter->get_params();
             auto index = get_inst_index_helper(action);
@@ -248,15 +248,15 @@ namespace pddl_lib {
             auto cond = [params, index]() {
                 ProtocolState &ps = ProtocolState::getInstance();
                 auto msg = ps.world_state_converter->get_world_state_msg();
-                return ps.world_state_converter->check_person_at_loc(params.pddl.WonderingProtocols.bedroom_location[index]);
+                return ps.world_state_converter->check_person_at_loc(params.pddl.WanderingProtocols.bedroom_location[index]);
             };
 
-            auto wait_time = get_seconds(params.pddl.WonderingProtocols.check_if_person_went_to_bed_times[index]);
-            return observe_wait_for_cond(action, ps.time_wondering_protocol_checkIfPersonWentToBed2, cond,
+            auto wait_time = get_seconds(params.pddl.WanderingProtocols.check_if_person_went_to_bed_times[index]);
+            return observe_wait_for_cond(action, ps.time_wandering_protocol_checkIfPersonWentToBed2, cond,
                                          std::chrono::seconds(wait_time));
         }
 
-        BT::NodeStatus wondering_protocol_waitForPersonToReturn1(const InstantiatedAction &action) override {
+        BT::NodeStatus wandering_protocol_waitForPersonToReturn1(const InstantiatedAction &action) override {
             ProtocolState &ps = ProtocolState::getInstance();
             shr_parameters::Params params = ProtocolState::getInstance().world_state_converter->get_params();
             auto index = get_inst_index_helper(action);
@@ -264,15 +264,15 @@ namespace pddl_lib {
             auto cond = [params, index]() {
                 ProtocolState &ps = ProtocolState::getInstance();
                 auto msg = ps.world_state_converter->get_world_state_msg();
-                return ps.world_state_converter->check_person_at_loc(params.pddl.WonderingProtocols.outside_location[index]);
+                return ps.world_state_converter->check_person_at_loc(params.pddl.WanderingProtocols.outside_location[index]);
             };
 
-            auto wait_time = get_seconds(params.pddl.WonderingProtocols.wait_for_person_to_return_times[index]);
-            return observe_wait_for_cond(action, ps.time_wondering_protocol_waitForPersonToReturn1, cond,
+            auto wait_time = get_seconds(params.pddl.WanderingProtocols.wait_for_person_to_return_times[index]);
+            return observe_wait_for_cond(action, ps.time_wandering_protocol_waitForPersonToReturn1, cond,
                                          std::chrono::seconds(wait_time));
         }
 
-        BT::NodeStatus wondering_protocol_waitForPersonToReturn2(const InstantiatedAction &action) override {
+        BT::NodeStatus wandering_protocol_waitForPersonToReturn2(const InstantiatedAction &action) override {
             ProtocolState &ps = ProtocolState::getInstance();
             shr_parameters::Params params = ProtocolState::getInstance().world_state_converter->get_params();
             auto index = get_inst_index_helper(action);
@@ -280,11 +280,11 @@ namespace pddl_lib {
             auto cond = [params, index]() {
                 ProtocolState &ps = ProtocolState::getInstance();
                 auto msg = ps.world_state_converter->get_world_state_msg();
-                return ps.world_state_converter->check_person_at_loc(params.pddl.WonderingProtocols.outside_location[index]);
+                return ps.world_state_converter->check_person_at_loc(params.pddl.WanderingProtocols.outside_location[index]);
             };
 
-            auto wait_time = get_seconds(params.pddl.WonderingProtocols.wait_for_person_to_return_times[index]);
-            return observe_wait_for_cond(action, ps.time_wondering_protocol_waitForPersonToReturn2, cond,
+            auto wait_time = get_seconds(params.pddl.WanderingProtocols.wait_for_person_to_return_times[index]);
+            return observe_wait_for_cond(action, ps.time_wandering_protocol_waitForPersonToReturn2, cond,
                                          std::chrono::seconds(wait_time));
         }
 

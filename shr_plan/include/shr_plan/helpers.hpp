@@ -13,8 +13,8 @@ namespace pddl_lib {
         return std::stoi(hour) * 60 * 60 + std::stoi(minute) * 60 + std::stoi(seconds);
     }
 
-    std::optional<long> get_inst_index(WonderingProtocol w, const shr_parameters::Params &params) {
-        const auto &instances = params.pddl.WonderingProtocols.instances;
+    std::optional<long> get_inst_index(WanderingProtocol w, const shr_parameters::Params &params) {
+        const auto &instances = params.pddl.WanderingProtocols.instances;
         auto it = std::find(instances.begin(), instances.end(), w);
         if (it != instances.end()) {
             auto index = std::distance(instances.begin(), it);
@@ -58,8 +58,8 @@ namespace pddl_lib {
     }
 
     std::optional<long> get_inst_index(InstantiatedParameter inst, const shr_parameters::Params &params) {
-        if (inst.type == "WonderingProtocol") {
-            return get_inst_index((WonderingProtocol) inst.name, params);
+        if (inst.type == "WanderingProtocol") {
+            return get_inst_index((WanderingProtocol) inst.name, params);
         } else if (inst.type == "MedicineProtocol") {
             return get_inst_index((MedicineProtocol) inst.name, params);
         } else if (inst.type == "FoodProtocol") {
@@ -80,7 +80,7 @@ namespace pddl_lib {
         kb.knownPredicates.lock();
         for (const auto &pred: kb.knownPredicates) {
             if ((pred.name == "fall_protocol_enabled") || (pred.name == "medicine_protocol_enabled")
-                || (pred.name == "wondering_protocol_enabled") || (pred.name == "food_protocol_enabled")) {
+                || (pred.name == "wandering_protocol_enabled") || (pred.name == "food_protocol_enabled")) {
                 out = pred.parameters[0];
             }
         }

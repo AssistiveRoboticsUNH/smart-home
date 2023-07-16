@@ -83,11 +83,11 @@ shr_parameters:
         default_value: [ "medicine_reminder.txt" ],
         description: "time to wait for observation",
       }
-    WonderingProtocols:
+    WanderingProtocols:
       instances: {
         type: string_array,
         default_value: [ "daily" ],
-        description: "wondering protocols",
+        description: "wandering protocols",
       }
       outside_location: {
         type: string_array,
@@ -133,7 +133,7 @@ shr_parameters:
       instances: {
         type: string_array,
         default_value: [ "daily" ],
-        description: "wondering protocols",
+        description: "wandering protocols",
       }
       wait_times: {
         type: string_array,
