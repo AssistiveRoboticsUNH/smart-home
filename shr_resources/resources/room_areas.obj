@@ -1,6 +1,6 @@
 # Blender 3.5.1
 # www.blender.org
-mtllib cube.mtl
+mtllib room_areas.mtl
 o couch
 v -1.469789 1.351568 3.401884
 v -1.469887 3.778233 3.401884

@@ -167,7 +167,7 @@ namespace pddl_lib {
             auto cond = [params, index]() {
                 ProtocolState &ps = ProtocolState::getInstance();
                 auto msg = ps.world_state_converter->get_world_state_msg();
-                return msg->patient_location == params.pddl.WonderingProtocols.bedroom_location[index];
+                return ps.world_state_converter->check_person_at_loc(params.pddl.WonderingProtocols.bedroom_location[index]);
             };
 
             auto wait_time = get_seconds(params.pddl.WonderingProtocols.check_bed_after_return_wait_times[index]);
@@ -183,7 +183,7 @@ namespace pddl_lib {
             auto cond = [params, index]() {
                 ProtocolState &ps = ProtocolState::getInstance();
                 auto msg = ps.world_state_converter->get_world_state_msg();
-                return msg->patient_location == params.pddl.WonderingProtocols.bedroom_location[index];
+                return ps.world_state_converter->check_person_at_loc(params.pddl.WonderingProtocols.bedroom_location[index]);
             };
 
             auto wait_time = get_seconds(params.pddl.WonderingProtocols.check_bed_after_return_wait_times[index]);
@@ -199,7 +199,7 @@ namespace pddl_lib {
             auto cond = [params, index]() {
                 ProtocolState &ps = ProtocolState::getInstance();
                 auto msg = ps.world_state_converter->get_world_state_msg();
-                return msg->patient_location == params.pddl.WonderingProtocols.outside_location[index];
+                return ps.world_state_converter->check_person_at_loc(params.pddl.WonderingProtocols.outside_location[index]);
             };
 
             auto wait_time = get_seconds(params.pddl.WonderingProtocols.detect_person_left_house_times[index]);
@@ -215,7 +215,7 @@ namespace pddl_lib {
             auto cond = [params, index]() {
                 ProtocolState &ps = ProtocolState::getInstance();
                 auto msg = ps.world_state_converter->get_world_state_msg();
-                return msg->patient_location == params.pddl.WonderingProtocols.outside_location[index];
+                return ps.world_state_converter->check_person_at_loc(params.pddl.WonderingProtocols.outside_location[index]);
             };
 
             auto wait_time = get_seconds(params.pddl.WonderingProtocols.detect_person_left_house_times[index]);
@@ -232,7 +232,7 @@ namespace pddl_lib {
             auto cond = [params, index]() {
                 ProtocolState &ps = ProtocolState::getInstance();
                 auto msg = ps.world_state_converter->get_world_state_msg();
-                return msg->patient_location == params.pddl.WonderingProtocols.bedroom_location[index];
+                return ps.world_state_converter->check_person_at_loc(params.pddl.WonderingProtocols.bedroom_location[index]);
             };
 
             auto wait_time = get_seconds(params.pddl.WonderingProtocols.check_if_person_went_to_bed_times[index]);
@@ -248,7 +248,7 @@ namespace pddl_lib {
             auto cond = [params, index]() {
                 ProtocolState &ps = ProtocolState::getInstance();
                 auto msg = ps.world_state_converter->get_world_state_msg();
-                return msg->patient_location == params.pddl.WonderingProtocols.bedroom_location[index];
+                return ps.world_state_converter->check_person_at_loc(params.pddl.WonderingProtocols.bedroom_location[index]);
             };
 
             auto wait_time = get_seconds(params.pddl.WonderingProtocols.check_if_person_went_to_bed_times[index]);
@@ -264,7 +264,7 @@ namespace pddl_lib {
             auto cond = [params, index]() {
                 ProtocolState &ps = ProtocolState::getInstance();
                 auto msg = ps.world_state_converter->get_world_state_msg();
-                return msg->patient_location != params.pddl.WonderingProtocols.outside_location[index];
+                return ps.world_state_converter->check_person_at_loc(params.pddl.WonderingProtocols.outside_location[index]);
             };
 
             auto wait_time = get_seconds(params.pddl.WonderingProtocols.wait_for_person_to_return_times[index]);
@@ -280,7 +280,7 @@ namespace pddl_lib {
             auto cond = [params, index]() {
                 ProtocolState &ps = ProtocolState::getInstance();
                 auto msg = ps.world_state_converter->get_world_state_msg();
-                return msg->patient_location != params.pddl.WonderingProtocols.outside_location[index];
+                return ps.world_state_converter->check_person_at_loc(params.pddl.WonderingProtocols.outside_location[index]);
             };
 
             auto wait_time = get_seconds(params.pddl.WonderingProtocols.wait_for_person_to_return_times[index]);
@@ -315,7 +315,7 @@ namespace pddl_lib {
             auto cond = [params, index]() {
                 ProtocolState &ps = ProtocolState::getInstance();
                 auto msg = ps.world_state_converter->get_world_state_msg();
-                return msg->patient_location != params.pddl.MedicineProtocols.medicine_location[index];
+                return ps.world_state_converter->check_person_at_loc(params.pddl.MedicineProtocols.medicine_location[index]);
             };
 
             auto wait_time = get_seconds(params.pddl.MedicineProtocols.check_guide_to_succeeded_times[index]);
@@ -331,7 +331,7 @@ namespace pddl_lib {
             auto cond = [params, index]() {
                 ProtocolState &ps = ProtocolState::getInstance();
                 auto msg = ps.world_state_converter->get_world_state_msg();
-                return msg->patient_location != params.pddl.MedicineProtocols.medicine_location[index];
+                return ps.world_state_converter->check_person_at_loc(params.pddl.MedicineProtocols.medicine_location[index]);
             };
 
             auto wait_time = get_seconds(params.pddl.MedicineProtocols.check_guide_to_succeeded_times[index]);
@@ -424,7 +424,7 @@ namespace pddl_lib {
             auto cond = [params, index]() {
                 ProtocolState &ps = ProtocolState::getInstance();
                 auto msg = ps.world_state_converter->get_world_state_msg();
-                return msg->patient_location != params.pddl.FoodProtocols.eat_locations[index];
+                return ps.world_state_converter->check_person_at_loc(params.pddl.FoodProtocols.eat_locations[index]);
             };
 
             auto wait_time = get_seconds(params.pddl.FoodProtocols.check_guide_to_succeeded_times[index]);
@@ -440,7 +440,7 @@ namespace pddl_lib {
             auto cond = [params, index]() {
                 ProtocolState &ps = ProtocolState::getInstance();
                 auto msg = ps.world_state_converter->get_world_state_msg();
-                return msg->patient_location != params.pddl.FoodProtocols.eat_locations[index];
+                return ps.world_state_converter->check_person_at_loc(params.pddl.FoodProtocols.eat_locations[index]);
             };
 
             auto wait_time = get_seconds(params.pddl.FoodProtocols.check_guide_to_succeeded_times[index]);

@@ -7,23 +7,14 @@
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_action/rclcpp_action.hpp"
 
-#include "std_msgs/msg/bool.hpp"
-#include "shr_msgs/action/gather_information_request.hpp"
-#include "shr_msgs/msg/midnight_warning_protocol.hpp"
-#include "shr_msgs/msg/medicine_reminder_protocol.hpp"
-#include "shr_msgs/msg/food_reminder_protocol.hpp"
-#include "shr_msgs/msg/world_state.hpp"
-#include "shr_msgs/msg/success_protocol.hpp"
-
 #include <rclcpp_action/client.hpp>
-#include "shr_msgs/action/navigate_to_pose.hpp"
 #include "nav2_msgs/action/navigate_to_pose.hpp"
-#include "tf2_ros/transform_listener.h"
-#include "tf2_ros/buffer.h"
 #include "cff_plan_solver/cff_plan_solver.hpp"
 
+#include "shr_utils/geometry.hpp"
 #include <shr_parameters.hpp>
 #include <shr_plan/actions.hpp>
+
 #include <shr_plan/world_state_converter.hpp>
 
 using namespace pddl_lib;
@@ -88,6 +79,7 @@ public:
 class UpdatePredicatesImpl : public UpdatePredicates {
     std::shared_ptr<WorldStateListener> world_state_converter;
 
+
 public:
     UpdatePredicatesImpl(std::shared_ptr<WorldStateListener> &world_state_converter) : world_state_converter(
             world_state_converter) {
@@ -110,8 +102,7 @@ public:
 
 
     TRUTH_VALUE robot_at(TRUTH_VALUE val, Robot r, Landmark lm) const override {
-        auto msg = world_state_converter->get_world_state_msg();
-        if (msg->robot_location == lm) {
+        if (world_state_converter->check_robot_at_loc(lm)) {
             return TRUTH_VALUE::TRUE;
         } else {
             return TRUTH_VALUE::FALSE;
@@ -122,7 +113,7 @@ public:
     TRUTH_VALUE person_at(TRUTH_VALUE val, Person p, Landmark lm) const override {
         auto msg = world_state_converter->get_world_state_msg();
         auto params = world_state_converter->get_params();
-        if (msg->patient_location == lm &&
+        if (world_state_converter->check_person_at_loc(lm) &&
             lm != params.pddl.WonderingProtocols.outside_location[0]) {// TODO this is hack
             return TRUTH_VALUE::TRUE;
         } else {
@@ -157,7 +148,7 @@ public:
         auto params = world_state_converter->get_params();
         if (auto index = get_inst_index(w, params)) {
             auto msg = world_state_converter->get_world_state_msg();
-            if (msg->patient_location == params.pddl.WonderingProtocols.door_location[index.value()]) {
+            if (world_state_converter->check_person_at_loc(params.pddl.WonderingProtocols.door_location[index.value()]) ) {
                 return TRUTH_VALUE::TRUE;
             }
         }
@@ -169,7 +160,7 @@ public:
         auto params = world_state_converter->get_params();
         if (auto index = get_inst_index(w, params)) {
             auto msg = world_state_converter->get_world_state_msg();
-            if (msg->patient_location == params.pddl.WonderingProtocols.outside_location[index.value()]) {
+            if (world_state_converter->check_person_at_loc(params.pddl.WonderingProtocols.outside_location[index.value()])) {
                 return TRUTH_VALUE::TRUE;
             }
         }

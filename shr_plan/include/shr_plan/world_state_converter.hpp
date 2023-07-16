@@ -12,6 +12,7 @@ private:
     std::mutex mtx;
     bool terminate_node_;
     std::shared_ptr<shr_parameters::ParamListener> param_listener_;
+    std::unordered_map<std::string, Eigen::MatrixXd> mesh_vert_map_;
 public:
 
     WorldStateListener(const std::string &node_name, std::shared_ptr<shr_parameters::ParamListener> param_listener)
@@ -25,7 +26,37 @@ public:
                 params.world_state_topic, 10, [this](const shr_msgs::msg::WorldState::SharedPtr msg) {
                     set_world_state_msg(msg);
                 });
+
+        std::filesystem::path pkg_dir = ament_index_cpp::get_package_share_directory("shr_resources");
+        auto mesh_file = (pkg_dir / "resources" / "room_areas.obj").string();
+        auto [mesh_verts, mesh_names] = shr_utils::load_meshes(mesh_file);
+        for (int i = 0; i < mesh_names.size(); i++) {
+            auto name = mesh_names[i];
+            auto verts = mesh_verts[i];
+            mesh_vert_map_[name] = verts;
+        }
     }
+
+    bool check_robot_at_loc(const std::string& loc){
+        if (mesh_vert_map_.find(loc) == mesh_vert_map_.end()){
+            return false;
+        }
+        auto verts = mesh_vert_map_.at(loc);
+        Eigen::MatrixXd verts2d = verts.block(0, 0, 2, verts.cols());
+        Eigen::Vector3d point = {world_state_->robot_location.x, world_state_->robot_location.y, world_state_->robot_location.z};
+        return shr_utils::PointInMesh(point, verts, verts2d);
+    }
+
+    bool check_person_at_loc(const std::string& loc){
+        if (mesh_vert_map_.find(loc) == mesh_vert_map_.end()){
+            return false;
+        }
+        auto verts = mesh_vert_map_.at(loc);
+        Eigen::MatrixXd verts2d = verts.block(0, 0, 2, verts.cols());
+        Eigen::Vector3d point = {world_state_->patient_location.x, world_state_->patient_location.y, world_state_->patient_location.z};
+        return shr_utils::PointInMesh(point, verts, verts2d);
+    }
+
 
     shr_parameters::Params get_params() {
         std::lock_guard<std::mutex> lock(mtx);
