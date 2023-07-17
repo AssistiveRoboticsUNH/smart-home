@@ -9,7 +9,7 @@
 
 #include <rclcpp_action/client.hpp>
 #include "nav2_msgs/action/navigate_to_pose.hpp"
-#include "cff_plan_solver/cff_plan_solver.hpp"
+//#include "cff_plan_solver/cff_plan_solver.hpp"
 
 #include "shr_utils/geometry.hpp"
 #include <shr_parameters.hpp>
@@ -30,6 +30,10 @@ Domain load_domain(const std::string &domain_file) {
     ss << domain_file_stream.rdbuf();
     domain_str = ss.str();
     return parse_domain(domain_str).value();
+}
+
+std::optional<std::string> getPlan(const std::string &domain, const std::string &problem) {
+    return {};
 }
 
 class HighLevelBT {
@@ -90,17 +94,6 @@ public:
         return TRUTH_VALUE::FALSE;
     }
 
-    TRUTH_VALUE medicine_location(TRUTH_VALUE val, MedicineProtocol m, Landmark lm) const override {
-        auto params = world_state_converter->get_params();
-        if (auto index = get_inst_index(m, params)) {
-            if (lm == params.pddl.MedicineProtocols.medicine_location[index.value()]) {
-                return TRUTH_VALUE::TRUE;
-            }
-        }
-        return TRUTH_VALUE::FALSE;
-    }
-
-
     TRUTH_VALUE robot_at(TRUTH_VALUE val, Landmark lm) const override {
         if (world_state_converter->check_robot_at_loc(lm)) {
             return TRUTH_VALUE::TRUE;
@@ -110,7 +103,7 @@ public:
     }
 
 
-    TRUTH_VALUE person_at(TRUTH_VALUE val, Time t, Person p,  Landmark lm) const override {
+    TRUTH_VALUE person_at(TRUTH_VALUE val, Time t, Person p, Landmark lm) const override {
         auto msg = world_state_converter->get_world_state_msg();
         auto params = world_state_converter->get_params();
         if (world_state_converter->check_person_at_loc(lm) &&
@@ -121,34 +114,12 @@ public:
         }
     }
 
-
-    TRUTH_VALUE food_location(TRUTH_VALUE val, FoodProtocol f, Landmark loc) const override {
-        auto params = world_state_converter->get_params();
-        if (auto index = get_inst_index(f, params)) {
-            if (loc == params.pddl.FoodProtocols.eat_locations[index.value()]) {
-                return TRUTH_VALUE::TRUE;
-            }
-        }
-        return TRUTH_VALUE::FALSE;
-    }
-
-
-    TRUTH_VALUE door_location(TRUTH_VALUE val, WanderingProtocol w, Landmark lm) const override {
-        auto params = world_state_converter->get_params();
-        if (auto index = get_inst_index(w, params)) {
-            if (lm == params.pddl.WanderingProtocols.door_location[index.value()]) {
-                return TRUTH_VALUE::TRUE;
-            }
-        }
-        return TRUTH_VALUE::FALSE;
-    }
-
-
     TRUTH_VALUE person_at_door(TRUTH_VALUE val, WanderingProtocol w) const override {
         auto params = world_state_converter->get_params();
         if (auto index = get_inst_index(w, params)) {
             auto msg = world_state_converter->get_world_state_msg();
-            if (world_state_converter->check_person_at_loc(params.pddl.WanderingProtocols.door_location[index.value()]) ) {
+            if (world_state_converter->check_person_at_loc(
+                    params.pddl.WanderingProtocols.door_location[index.value()])) {
                 return TRUTH_VALUE::TRUE;
             }
         }
@@ -160,7 +131,8 @@ public:
         auto params = world_state_converter->get_params();
         if (auto index = get_inst_index(w, params)) {
             auto msg = world_state_converter->get_world_state_msg();
-            if (world_state_converter->check_person_at_loc(params.pddl.WanderingProtocols.outside_location[index.value()])) {
+            if (world_state_converter->check_person_at_loc(
+                    params.pddl.WanderingProtocols.outside_location[index.value()])) {
                 return TRUTH_VALUE::TRUE;
             }
         }

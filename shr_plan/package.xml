@@ -18,7 +18,7 @@
     <depend>shr_utils</depend>
     <depend>behaviortree_cpp_v3</depend>
     <depend>pddl2cpp</depend>
-    <depend>cff_plan_solver</depend>
+    <depend>plan_solver_py</depend>
     <depend>rclcpp</depend>
     <depend>rclcpp_action</depend>
     <depend>tf2_ros</depend>

@@ -20,6 +20,7 @@
     (person_at ?t - Time ?p - Person ?lm - Landmark)
     (person_eating ?t - Time)
     (person_taking_medicine ?t - Time)
+    (person_eating_food ?t - Time)
     (person_on_ground ?t - Time)
 
     ;; physical constants
@@ -33,10 +34,13 @@
     ;; success conditions
     (person_at_success ?p - Person ?loc - Landmark)
     (message_given_success ?m - Msg)
+    (medicine_taken_success)
+    (food_eaten_success)
 
     ;; enable/disable actions
     (DetectPerson_enabled)
     (DetectTakingMedicine_enabled)
+    (DetectEatingFood_enabled)
     (GiveReminder_enabled)
     (MakeCall_enabled)
 
@@ -58,7 +62,7 @@
     (valid_guide_message ?a - GuideAction ?m - Msg)
 
     ;; time management predicates
-    (should_tick)
+    (time_critical)
     (used_move ?tc - Time)
     (current_time ?tc - Time)
     (next_time ?tc ?tn - Time)
@@ -68,7 +72,9 @@
     (call_person_location_constraint ?a - CallAction ?p - Person ?loc - Landmark)
     (reminder_person_location_constraint ?a - ReminderAction ?p - Person ?loc - Landmark)
     (reminder_person_not_taking_medicine_constraint ?a - ReminderAction ?p - Person)
+    (reminder_person_not_eating_food_constraint ?a - ReminderAction ?p - Person)
     (call_person_not_taking_medicine_constraint ?a - CallAction ?p - Person)
+    (call_person_not_eating_food_constraint ?a - CallAction ?p - Person)
     (guide_person_location_constraint ?a - GuideAction ?p - Person ?loc - Landmark)
 
     (call_not_person_location_constraint ?a - CallAction ?p - Person ?loc - Landmark)
@@ -78,15 +84,34 @@
     (success)
 )
 
-;; change time
-(:action Tick
-	:parameters (?tc - Time ?tn - Time)
-	:precondition (and
-	    (current_time ?tc)
-	    (next_time ?tc ?tn)
-	    (should_tick)
-		)
-	:effect (and (not (current_time ?tc)) (current_time ?tn) (not (should_tick)) )
+;; detect if person is at location
+(:action DetectTakingMedicine
+    :parameters (?t - Time)
+    :precondition (and
+                    (DetectTakingMedicine_enabled)
+                    (current_time ?t)
+	                )
+    :observe (person_taking_medicine ?t)
+)
+
+;; detect if person is at location
+(:action DetectEatingFood
+    :parameters (?t - Time)
+    :precondition (and
+                    (DetectEatingFood_enabled)
+                    (current_time ?t)
+	                )
+    :observe (person_eating_food ?t)
+)
+
+;; detect if person is at location
+(:action DetectPersonLocation
+    :parameters (?t - Time ?p - Person ?loc - Landmark)
+    :precondition (and
+                    (current_time ?t)
+                    (DetectPerson_enabled)
+	                )
+    :observe (person_at ?t ?p ?loc)
 )
 
 ;;give reminder
@@ -96,10 +121,12 @@
             (GiveReminder_enabled)
             (current_time ?t)
             (valid_reminder_message ?a ?m)
-            (not (should_tick))
             (not (executed_reminder ?a))
             ;; enforce that the person didn't taking medicine constraint
             (not (and (reminder_person_not_taking_medicine_constraint ?a ?p)  (not (not (person_taking_medicine ?t)) ) ) )
+            ;; enforce that the person didn't eat food constraint
+            (not (and (reminder_person_not_eating_food_constraint ?a ?p)  (not (not (person_eating_food ?t)) ) ) )
+
             ;; the robot and person must be at the same location
             (not
               (forall (?loc - Landmark)
@@ -120,45 +147,27 @@
               (not (and (person_at ?t ?p ?loc) (reminder_not_person_location_constraint ?a ?p ?loc) ) )
             )
 		)
-    :effect (and (message_given ?m)  (executed_reminder ?a)  (should_tick) )
+    :effect (and (message_given ?m)  (executed_reminder ?a)
+              (forall (?tn - Time)
+                (when (next_time ?t ?tn) (and (not (current_time ?t)) (current_time ?tn)) )
+              )
+            )
 )
-
-;; detect if person is at location
-(:action DetectPersonLocation
-    :parameters (?t - Time ?p - Person ?loc - Landmark)
-    :precondition (and
-                    (current_time ?t)
-                    (not (should_tick))
-                    (DetectPerson_enabled)
-	                )
-    :observe (person_at ?t ?p ?loc)
-)
-
-;; detect if person is at location
-(:action DetectTakingMedicine
-    :parameters (?t - Time)
-    :precondition (and
-                    (DetectTakingMedicine_enabled)
-                    (current_time ?t)
-                    (not (should_tick))
-	                )
-    :observe (person_taking_medicine ?t)
-)
-
-
-
 
 ;; Wait for timestep
 (:action Wait
 	:parameters (?a - WaitAction)
 	:precondition (and
-	                (not (should_tick))
 	                (not (executed_wait ?a))
                   (forall (?ai - WaitAction)
                     (not (and (wait_blocks_wait ?ai ?a)  (not (executed_wait ?ai) ) ) )
                   )
 	             )
-	:effect (and (should_tick) (executed_wait ?a) )
+	:effect (and (executed_wait ?a)
+            (forall (?tn - Time)
+              (when (next_time ?t ?tn) (and (not (current_time ?t)) (current_time ?tn)) )
+            )
+	)
 )
 
 ;; Move to any landmark, avoiding terrain
@@ -166,12 +175,17 @@
 	:parameters (?t - Time ?from - Landmark ?to - Landmark)
 	:precondition (and
 	                (current_time ?t)
-	                (not (should_tick))
 	                (not (used_move ?t))
 	                (robot_at ?from)
 	                (traversable ?from ?to)
 	          )
-	:effect (and (robot_at ?to) (not (robot_at ?from)) (used_move ?t) ) ;;(should_tick)
+	:effect (and (robot_at ?to) (not (robot_at ?from)) (used_move ?t)
+	          (when (time_critical)
+              (forall (?tn - Time)
+                (when (next_time ?t ?tn) (and (not (current_time ?t)) (current_time ?tn)) )
+              )
+	          )
+	        )
 )
 
 ;;make call
@@ -181,10 +195,11 @@
             (MakeCall_enabled)
             (current_time ?t)
             (valid_call_message ?a ?m)
-            (not (should_tick))
             (not (executed_call ?a))
             ;; enforce that the person didn't taking medicine constraint
             (not (and (call_person_not_taking_medicine_constraint ?a ?p)  (not (not (person_taking_medicine ?t)) ) ) )
+            ;; enforce that the person didn't eat food constraint
+            (not (and (call_person_not_eating_food_constraint ?a ?p)  (not (not (person_eating_food ?t)) ) ) )
             ;; certain action instances block others, for example, we must call caregiver before calling emergency
             (forall (?ai - CallAction)
               (not (and (call_blocks_call ?ai ?a)  (not (executed_call ?ai) ) ) )
@@ -202,7 +217,11 @@
               (not (and (person_at ?t ?p ?loc) (call_not_person_location_constraint ?a ?p ?loc) ) )
             )
 		)
-    :effect (and (message_given ?m)  (executed_call ?a) (should_tick) )
+    :effect (and (message_given ?m)  (executed_call ?a)
+              (forall (?tn - Time)
+                (when (next_time ?t ?tn) (and (not (current_time ?t)) (current_time ?tn)) )
+              )
+    )
 )
 
 ;; Update success status
@@ -220,11 +239,25 @@
 
 ;; taking medicine
 (:action MedicineTakenSuccess
-	:parameters (?t - Time)
+	:parameters ()
 	:precondition (and
-	                ;;(current_time ?t)
-	                (person_taking_medicine ?t)
-                  )
+	                (not (forall (?t - Time)
+                          (not (and (medicine_taken_success) (person_taking_medicine ?t) ) )
+                       )
+	                )
+                )
+    :effect (success)
+)
+
+;; eating food
+(:action FoodEatenSuccess
+	:parameters ()
+	:precondition (and
+	                (not (forall (?t - Time)
+	                        (not (and (food_eaten_success) (person_eating_food ?t) ) )
+                       )
+	                )
+                )
     :effect (success)
 )
 

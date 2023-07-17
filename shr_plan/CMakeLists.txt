@@ -37,7 +37,6 @@ set(dependencies
     tf2_ros
     shr_msgs
     shr_utils
-    cff_plan_solver
     shr_parameters
     )
 
