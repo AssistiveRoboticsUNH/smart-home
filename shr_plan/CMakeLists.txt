@@ -5,11 +5,12 @@ if (NOT CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 14)
 endif ()
 
-if (CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  add_compile_options(-Wall -Wextra -Wpedantic)
-endif ()
+#if (CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+#  add_compile_options(-Wall -Wextra -Wpedantic)
+#endif ()
 
 find_package(ament_cmake REQUIRED)
+find_package(ament_index_cpp REQUIRED)
 find_package(behaviortree_cpp_v3 REQUIRED)
 find_package(cff_plan_solver REQUIRED)
 find_package(generate_parameter_library REQUIRED)
@@ -19,10 +20,9 @@ find_package(pddl2cpp REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_action REQUIRED)
 find_package(shr_msgs REQUIRED)
+find_package(shr_parameters REQUIRED)
 find_package(shr_utils REQUIRED)
 find_package(tf2_ros REQUIRED)
-find_package(shr_parameters REQUIRED)
-
 
 generate_bt_header(bt_shr_actions
     pddl/high_level_domain.pddl
@@ -30,38 +30,26 @@ generate_bt_header(bt_shr_actions
     )
 
 set(dependencies
+    ament_index_cpp
+    nav2_msgs
+    plansys2_msgs
     rclcpp
     rclcpp_action
-    plansys2_msgs
-    nav2_msgs
-    tf2_ros
     shr_msgs
-    shr_utils
     shr_parameters
+    shr_utils
+    tf2_ros
     )
 
 add_executable(planning_controller_node src/planning_controller_node.cpp)
 ament_target_dependencies(planning_controller_node ${dependencies})
 
-#add_executable(planning_controller_node_sim src/planning_controller_node.cpp)
-#add_compile_definitions(planning_controller_node_sim USE_SIM)
-#ament_target_dependencies(planning_controller_node_sim ${dependencies})
-
-#generate_parameter_library(shr_plan_parameters
-#    src/shr_plan_parameters.yaml
-#    )
-
 target_link_libraries(planning_controller_node
     bt_shr_actions
     )
 
-#include_directories(${shr_parameters_INCLUDE_DIRS})
-
 add_executable(tf_broadcaster_node src/tf_broadcaster.cpp)
 ament_target_dependencies(tf_broadcaster_node ${dependencies})
-#target_link_libraries(tf_broadcaster_node
-#    shr_parameters
-#    )
 
 include_directories(
     include

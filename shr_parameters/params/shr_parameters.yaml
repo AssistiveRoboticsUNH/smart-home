@@ -60,7 +60,7 @@ shr_parameters:
       }
       take_medication_time: {
         type: string_array,
-        default_value: [ "8h0m0s/23h59m0s" ],
+        default_value: [ "8h0m0s/9h0m0s" ],
         description: "time that each protocol is triggered",
       }
       check_guide_to_succeeded_times: {

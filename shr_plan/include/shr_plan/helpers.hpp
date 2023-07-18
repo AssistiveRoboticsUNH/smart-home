@@ -77,14 +77,12 @@ namespace pddl_lib {
     std::optional<InstantiatedParameter> get_active_protocol() {
         std::optional<InstantiatedParameter> out;
         auto &kb = KnowledgeBase::getInstance();
-        kb.knownPredicates.lock();
-        for (const auto &pred: kb.knownPredicates) {
+        for (const auto &pred: kb.get_known_predicates()) {
             if ((pred.name == "fall_protocol_enabled") || (pred.name == "medicine_protocol_enabled")
                 || (pred.name == "wandering_protocol_enabled") || (pred.name == "food_protocol_enabled")) {
                 out = pred.parameters[0];
             }
         }
-        kb.knownPredicates.unlock();
         return out;
     }
 

@@ -132,31 +132,50 @@ namespace pddl_lib {
         return get_inst_index(inst, params).value();
     }
 
+    std::string get_file_content(const std::string &file_name) {
+        std::filesystem::path pkg_dir = ament_index_cpp::get_package_share_directory("shr_plan");
+        auto pddl_path = pkg_dir / "pddl";
+        auto problem_food_file = (pddl_path / file_name).string();
+        std::ifstream f(problem_food_file);
+        std::stringstream ss;
+        ss << f.rdbuf();
+        return ss.str();
+    }
+
+    void instantiate_protocol(const std::string &protocol_name) {
+        auto &kb = KnowledgeBase::getInstance();
+        if (protocol_name != "high_level.pddl") {
+            auto high_level_domain_content = get_file_content("high_level_domain.pddl");
+            auto high_level_domain = parse_domain(high_level_domain_content).value();
+            auto current_high_level = parse_problem(kb.convert_to_problem(high_level_domain),
+                                                    high_level_domain_content).value();
+
+            auto protocol_content = get_file_content("problem_" + protocol_name);
+            auto domain_content = get_file_content("low_level_domain.pddl");
+            auto prob = parse_problem(protocol_content, domain_content).value();
+
+            kb.clear();
+            kb.load_kb(current_high_level);
+            kb.load_kb(prob);
+        } else {
+            auto protocol_content = get_file_content("problem_" + protocol_name);
+            auto domain_content = get_file_content("high_level_domain.pddl");
+            auto prob = parse_problem(protocol_content, domain_content).value();
+
+            kb.clear();
+            kb.load_kb(prob);
+        }
+
+    }
+
     class ProtocolActions : public pddl_lib::ActionInterface {
     public:
 
         BT::NodeStatus high_level_domain_StartWanderingProtocol(const InstantiatedAction &action) override {
             auto &kb = KnowledgeBase::getInstance();
             InstantiatedParameter inst = action.parameters[0];
-
-            kb.unknownPredicates.concurrent_insert({"person_decides_to_go_outside_1", {inst}});
-            kb.unknownPredicates.concurrent_insert({"person_decides_to_go_outside_2", {inst}});
-            kb.unknownPredicates.concurrent_insert({"person_decides_to_go_to_bed_1", {inst}});
-            kb.unknownPredicates.concurrent_insert({"person_decides_to_go_to_bed_2", {inst}});
-            kb.unknownPredicates.concurrent_insert({"person_decides_to_return_1", {inst}});
-            kb.unknownPredicates.concurrent_insert({"person_decides_to_return_2", {inst}});
-            kb.unknownPredicates.concurrent_insert({"person_goes_to_bed_after_return_1", {inst}});
-            kb.unknownPredicates.concurrent_insert({"person_goes_to_bed_after_return_2", {inst}});
-
-            kb.knownPredicates.concurrent_erase({"person_decides_to_go_outside_1", {inst}});
-            kb.knownPredicates.concurrent_erase({"person_decides_to_go_outside_2", {inst}});
-            kb.knownPredicates.concurrent_erase({"person_decides_to_go_to_bed_1", {inst}});
-            kb.knownPredicates.concurrent_erase({"person_decides_to_go_to_bed_2", {inst}});
-            kb.knownPredicates.concurrent_erase({"person_decides_to_return_1", {inst}});
-            kb.knownPredicates.concurrent_erase({"person_decides_to_return_2", {inst}});
-            kb.knownPredicates.concurrent_erase({"person_goes_to_bed_after_return_1", {inst}});
-            kb.knownPredicates.concurrent_erase({"person_goes_to_bed_after_return_2", {inst}});
-
+            instantiate_protocol("midnight.pddl");
+            ProtocolState::getInstance().active_protocol = inst;
             return BT::NodeStatus::SUCCESS;
         }
 
@@ -164,17 +183,8 @@ namespace pddl_lib {
         BT::NodeStatus high_level_domain_StartMedicineProtocol(const InstantiatedAction &action) override {
             auto &kb = KnowledgeBase::getInstance();
             InstantiatedParameter inst = action.parameters[0];
-
-            kb.unknownPredicates.concurrent_insert({"guide_to_succeeded_attempt_1", {inst}});
-            kb.unknownPredicates.concurrent_insert({"guide_to_succeeded_attempt_2", {inst}});
-            kb.unknownPredicates.concurrent_insert({"notify_automated_succeeded", {inst}});
-            kb.unknownPredicates.concurrent_insert({"notify_recorded_succeeded", {inst}});
-
-            kb.knownPredicates.concurrent_erase({"guide_to_succeeded_attempt_1", {inst}});
-            kb.knownPredicates.concurrent_erase({"guide_to_succeeded_attempt_2", {inst}});
-            kb.knownPredicates.concurrent_erase({"notify_automated_succeeded", {inst}});
-            kb.knownPredicates.concurrent_erase({"notify_recorded_succeeded", {inst}});
-
+            instantiate_protocol("medicine.pddl");
+            ProtocolState::getInstance().active_protocol = inst;
             return BT::NodeStatus::SUCCESS;
         }
 
@@ -182,29 +192,44 @@ namespace pddl_lib {
         BT::NodeStatus high_level_domain_StartFoodProtocol(const InstantiatedAction &action) override {
             auto &kb = KnowledgeBase::getInstance();
             InstantiatedParameter inst = action.parameters[0];
-
-            kb.unknownPredicates.concurrent_insert({"guide_to_succeeded_attempt_1", {inst}});
-            kb.unknownPredicates.concurrent_insert({"guide_to_succeeded_attempt_2", {inst}});
-            kb.unknownPredicates.concurrent_insert({"remind_food_succeeded", {inst}});
-            kb.unknownPredicates.concurrent_insert({"remind_food_succeeded2", {inst}});
-
-            kb.knownPredicates.concurrent_erase({"guide_to_succeeded_attempt_1", {inst}});
-            kb.knownPredicates.concurrent_erase({"guide_to_succeeded_attempt_2", {inst}});
-            kb.knownPredicates.concurrent_erase({"remind_food_succeeded", {inst}});
-            kb.knownPredicates.concurrent_erase({"remind_food_succeeded2", {inst}});
-
+            instantiate_protocol("food.pddl");
             ProtocolState::getInstance().active_protocol = inst;
+            return BT::NodeStatus::SUCCESS;
+        }
+
+        BT::NodeStatus shr_domain_FoodEatenSuccess(const InstantiatedAction &action) override {
+            auto &kb = KnowledgeBase::getInstance();
+            InstantiatedPredicate pred{"already_ate", {ProtocolState::getInstance().active_protocol}};
+            kb.insert_predicate(pred);
 
             return BT::NodeStatus::SUCCESS;
         }
 
         BT::NodeStatus shr_domain_MessageGivenSuccess(const InstantiatedAction &action) override {
             auto &kb = KnowledgeBase::getInstance();
-            InstantiatedPredicate pred{"already_ate", {ProtocolState::getInstance().active_protocol}};
-            kb.unknownPredicates.concurrent_insert(pred);
+            auto active_protocol = ProtocolState::getInstance().active_protocol;
+            if (active_protocol.type == "MedicineProtocol"){
+                InstantiatedPredicate pred{"already_called_about_medicine", {active_protocol}};
+                kb.insert_predicate(pred);
+            } else if (active_protocol.type == "FoodProtocol"){
+                InstantiatedPredicate pred{"already_called_about_eating", {active_protocol}};
+                kb.insert_predicate(pred);
+            } else if (active_protocol.type == "WanderingProtocol"){
+                assert(0);
+            }
 
             return BT::NodeStatus::SUCCESS;
         }
+
+
+        BT::NodeStatus shr_domain_DetectEatingFood(const InstantiatedAction &action) override {
+            return BT::NodeStatus::FAILURE;
+        }
+
+        BT::NodeStatus shr_domain_DetectTakingMedicine(const InstantiatedAction &action) override {
+            return BT::NodeStatus::FAILURE;
+        }
+
 
     };
 }

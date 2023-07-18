@@ -43,7 +43,7 @@ class shr_parameters:
             class __Medicineprotocols:
                 instances = ["daily"]
                 medicine_location = ["kitchen"]
-                take_medication_time = ["8h0m0s/23h59m0s"]
+                take_medication_time = ["8h0m0s/9h0m0s"]
                 check_guide_to_succeeded_times = ["0h0m2s"]
                 notify_automated_medicine_at_times = ["0h0m2s"]
                 ask_caregiver_help_medicine = ["call_msg_medical.xml"]

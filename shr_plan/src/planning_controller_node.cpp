@@ -9,7 +9,8 @@
 
 #include <rclcpp_action/client.hpp>
 #include "nav2_msgs/action/navigate_to_pose.hpp"
-//#include "cff_plan_solver/cff_plan_solver.hpp"
+#include <ament_index_cpp/get_package_share_directory.hpp>
+
 
 #include "shr_utils/geometry.hpp"
 #include <shr_parameters.hpp>
@@ -72,7 +73,7 @@ public:
     void tick_tree() {
         updater_.update();
         auto &kb = KnowledgeBase::getInstance();
-        kb.knownPredicates.concurrent_insert({"priority_1", {}});
+        kb.insert_predicate({"priority_1", {}});
 
         auto problem_str = kb.convert_to_problem(domain_);
 
@@ -84,7 +85,7 @@ public:
                 printf("running.. \n");
             } while (res == BT::NodeStatus::RUNNING);
         }
-        kb.knownPredicates.concurrent_erase({"success", {}});
+        kb.erase_predicate({"success", {}});
     }
 
     void terminate_thread() {
@@ -113,7 +114,7 @@ public:
     }
 
     TRUTH_VALUE robot_at(TRUTH_VALUE val, Landmark lm) const override {
-        if (world_state_converter->check_robot_at_loc(lm)) {
+        if (world_state_converter->check_robot_at_loc(lm) || lm=="couch") {
             return TRUTH_VALUE::TRUE;
         } else {
             return TRUTH_VALUE::FALSE;
@@ -209,7 +210,6 @@ private:
 
 };
 
-
 int main(int argc, char **argv) {
     rclcpp::init(argc, argv);
     auto node = std::make_shared<rclcpp::Node>("shrParameterNode");
@@ -239,43 +239,10 @@ int main(int argc, char **argv) {
         rclcpp::sleep_for(std::chrono::seconds(1));
     }
 
-    auto params = param_listener_->get_params();
+
+    instantiate_protocol("high_level.pddl");
+
     auto &kb = KnowledgeBase::getInstance();
-    for (const auto &landmark: params.pddl.instances.Landmarks) {
-        kb.objects.concurrent_insert({landmark, "Landmark"});
-    }
-    for (const auto &person: params.pddl.instances.Persons) {
-        kb.objects.concurrent_insert({person, "Person"});
-    }
-    for (const auto &robot: params.pddl.instances.Robots) {
-        kb.objects.concurrent_insert({robot, "Robot"});
-    }
-
-    for (const auto &meal: params.pddl.FoodProtocols.instances) {
-        kb.objects.concurrent_insert({meal, "FoodProtocol"});
-        InstantiatedParameter inst = {meal, "FoodProtocol"};
-        kb.unknownPredicates.concurrent_insert({"guide_to_succeeded_attempt_1", {inst}});
-        kb.unknownPredicates.concurrent_insert({"guide_to_succeeded_attempt_2", {inst}});
-        kb.unknownPredicates.concurrent_insert({"remind_food_succeeded", {inst}});
-        kb.unknownPredicates.concurrent_insert({"remind_food_succeeded2", {inst}});
-
-    }
-    for (const auto &protocol: params.pddl.MedicineProtocols.instances) {
-        kb.objects.concurrent_insert({protocol, "MedicineProtocol"});
-        InstantiatedParameter inst = {protocol, "MedicineProtocol"};
-        kb.unknownPredicates.concurrent_insert({"guide_to_succeeded_attempt_1", {inst}});
-        kb.unknownPredicates.concurrent_insert({"guide_to_succeeded_attempt_2", {inst}});
-        kb.unknownPredicates.concurrent_insert({"notify_automated_succeeded", {inst}});
-        kb.unknownPredicates.concurrent_insert({"notify_recorded_succeeded", {inst}});
-
-    }
-    for (const auto &protocol: params.pddl.FallProtocols.instances) {
-        kb.objects.concurrent_insert({protocol, "FallProtocol"});
-    }
-    for (const auto &protocol: params.pddl.WanderingProtocols.instances) {
-        kb.objects.concurrent_insert({protocol, "WanderingProtocol"});
-    }
-
     UpdatePredicatesImpl updater(world_state_converter);
     // run high level behavior tree on its own thread
     HighLevelBT high_level_bt(updater);
@@ -312,7 +279,7 @@ int main(int argc, char **argv) {
                     std::cout << ex.what() << std::endl;
                     res = BT::NodeStatus::FAILURE;
                 }
-                kb.knownPredicates.concurrent_erase({"success", {}});
+                kb.erase_predicate({"success", {}});
             }
         }
     }
@@ -325,3 +292,6 @@ int main(int argc, char **argv) {
 
     return 0;
 }
+
+
+

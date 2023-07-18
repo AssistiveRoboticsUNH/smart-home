@@ -66,7 +66,6 @@
     (used_move ?tc - Time)
     (current_time ?tc - Time)
     (next_time ?tc ?tn - Time)
-    (time_limit ?t - Time)
 
     ;; constraints on the state of the world. object instances here refer to non-input instances
     (call_person_location_constraint ?a - CallAction ?p - Person ?loc - Landmark)
