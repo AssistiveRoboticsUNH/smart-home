@@ -47,7 +47,7 @@ public:
         return shr_utils::PointInMesh(point, verts, verts2d);
     }
 
-    bool check_person_at_loc(const std::string& loc){
+    bool check_person_at_loc(const std::string& loc) {
         if (mesh_vert_map_.find(loc) == mesh_vert_map_.end()){
             return false;
         }

@@ -54,7 +54,7 @@ class shr_parameters:
                 outside_location = ["outside"]
                 door_location = ["door"]
                 bedroom_location = ["bedroom"]
-                too_late_to_leave_time = ["17h0m0s/8h0m0s"]
+                too_late_to_leave_time = ["22h0m0s/6h0m0s"]
                 check_bed_after_return_wait_times = ["0h1m0s"]
                 detect_person_left_house_times = ["0h10m0s"]
                 wait_for_person_to_return_times = ["0h0m30s"]

@@ -209,13 +209,29 @@ namespace pddl_lib {
             auto &kb = KnowledgeBase::getInstance();
             auto active_protocol = ProtocolState::getInstance().active_protocol;
             if (active_protocol.type == "MedicineProtocol"){
-                InstantiatedPredicate pred{"already_called_about_medicine", {active_protocol}};
-                kb.insert_predicate(pred);
+                kb.insert_predicate({"already_called_about_medicine", {active_protocol}});
+                kb.erase_predicate({"medicine_protocol_enabled", {active_protocol}});
             } else if (active_protocol.type == "FoodProtocol"){
-                InstantiatedPredicate pred{"already_called_about_eating", {active_protocol}};
-                kb.insert_predicate(pred);
+                kb.insert_predicate({"already_called_about_eating", {active_protocol}});
+                kb.erase_predicate({"food_protocol_enabled", {active_protocol}});
             } else if (active_protocol.type == "WanderingProtocol"){
-                assert(0);
+                kb.erase_predicate({"wandering_protocol_enabled", {active_protocol}});
+            }
+
+            return BT::NodeStatus::SUCCESS;
+        }
+
+        BT::NodeStatus shr_domain_PersonAtSuccess(const InstantiatedAction &action) override {
+            auto &kb = KnowledgeBase::getInstance();
+            auto active_protocol = ProtocolState::getInstance().active_protocol;
+            if (active_protocol.type == "MedicineProtocol"){
+                kb.insert_predicate({"already_called_about_medicine", {active_protocol}});
+                kb.erase_predicate({"medicine_protocol_enabled", {active_protocol}});
+            } else if (active_protocol.type == "FoodProtocol"){
+                kb.insert_predicate({"already_called_about_eating", {active_protocol}});
+                kb.erase_predicate({"food_protocol_enabled", {active_protocol}});
+            } else if (active_protocol.type == "WanderingProtocol"){
+                kb.erase_predicate({"wandering_protocol_enabled", {active_protocol}});
             }
 
             return BT::NodeStatus::SUCCESS;
@@ -230,6 +246,10 @@ namespace pddl_lib {
             return BT::NodeStatus::FAILURE;
         }
 
+        BT::NodeStatus shr_domain_DetectPersonLocation(const InstantiatedAction &action) override {
+
+            return BT::NodeStatus::FAILURE;
+        }
 
     };
 }

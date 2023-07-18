@@ -114,7 +114,7 @@ public:
     }
 
     TRUTH_VALUE robot_at(TRUTH_VALUE val, Landmark lm) const override {
-        if (world_state_converter->check_robot_at_loc(lm) || lm=="couch") {
+        if (world_state_converter->check_robot_at_loc(lm)) {
             return TRUTH_VALUE::TRUE;
         } else {
             return TRUTH_VALUE::FALSE;
@@ -123,10 +123,10 @@ public:
 
 
     TRUTH_VALUE person_at(TRUTH_VALUE val, Time t, Person p, Landmark lm) const override {
-        auto msg = world_state_converter->get_world_state_msg();
-        auto params = world_state_converter->get_params();
-        if (world_state_converter->check_person_at_loc(lm) &&
-            lm != params.pddl.WanderingProtocols.outside_location[0]) {// TODO this is hack
+        if (val == TRUTH_VALUE::UNKNOWN) {
+            return val;
+        }
+        if (world_state_converter->check_person_at_loc(lm)) {
             return TRUTH_VALUE::TRUE;
         } else {
             return TRUTH_VALUE::FALSE;
