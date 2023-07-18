@@ -74,8 +74,8 @@ namespace pddl_lib {
         throw std::runtime_error("abort: higher priority protocol detected");
     }
 
-    InstantiatedParameter get_active_protocol() {
-        InstantiatedParameter out = {"idle", ""};
+    std::optional<InstantiatedParameter> get_active_protocol() {
+        std::optional<InstantiatedParameter> out;
         auto &kb = KnowledgeBase::getInstance();
         kb.knownPredicates.lock();
         for (const auto &pred: kb.knownPredicates) {

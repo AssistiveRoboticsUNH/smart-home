@@ -199,7 +199,13 @@
 	:precondition (and
 	    (priority_5)
 		)
-	:effect (and (success) (not (priority_5)) )
+	:effect (and (success)
+	              (not (priority_5))
+                (forall (?med - MedicineProtocol) (not (medicine_protocol_enabled ?med)) )
+                (forall (?wond - WanderingProtocol) (not (wandering_protocol_enabled ?wond)) )
+                (forall (?food - FoodProtocol) (not (food_protocol_enabled ?food)) )
+                (forall (?fall - FallProtocol) (not (fall_protocol_enabled ?fall)) )
+          )
 )
 
 

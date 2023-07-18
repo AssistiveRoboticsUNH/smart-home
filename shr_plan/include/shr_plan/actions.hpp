@@ -13,6 +13,7 @@ namespace pddl_lib {
 
     class ProtocolState {
     public:
+        InstantiatedParameter active_protocol;
         std::shared_ptr<WorldStateListener> world_state_converter;
         // midnight
         std::chrono::steady_clock::time_point time_wandering_protocol_detectPersonLeftHouse1 = {};
@@ -62,7 +63,7 @@ namespace pddl_lib {
         }
 
         while (std::chrono::steady_clock::now() < init_time) {
-            auto active_protocol = get_active_protocol();
+            auto active_protocol = get_active_protocol().value();
             if (active_protocol.type != action.parameters[0].type) {
                 abort();
             }
@@ -191,6 +192,16 @@ namespace pddl_lib {
             kb.knownPredicates.concurrent_erase({"guide_to_succeeded_attempt_2", {inst}});
             kb.knownPredicates.concurrent_erase({"remind_food_succeeded", {inst}});
             kb.knownPredicates.concurrent_erase({"remind_food_succeeded2", {inst}});
+
+            ProtocolState::getInstance().active_protocol = inst;
+
+            return BT::NodeStatus::SUCCESS;
+        }
+
+        BT::NodeStatus shr_domain_MessageGivenSuccess(const InstantiatedAction &action) override {
+            auto &kb = KnowledgeBase::getInstance();
+            InstantiatedPredicate pred{"already_ate", {ProtocolState::getInstance().active_protocol}};
+            kb.unknownPredicates.concurrent_insert(pred);
 
             return BT::NodeStatus::SUCCESS;
         }

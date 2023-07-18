@@ -33,7 +33,25 @@ Domain load_domain(const std::string &domain_file) {
 }
 
 std::optional<std::string> getPlan(const std::string &domain, const std::string &problem) {
-    return {};
+    static std::mutex mutex;
+    std::lock_guard<std::mutex> lock(mutex);
+
+    {
+        std::ofstream domainFile("/tmp/plan_solver/domain.pddl");
+        domainFile << domain;
+        std::ofstream problemFile("/tmp/plan_solver/problem.pddl");
+        problemFile << problem;
+    }
+    std::string cmd = "ros2 run plan_solver_py plan_solver -o /tmp/plan_solver/domain.pddl -f /tmp/plan_solver/problem.pddl > /dev/null";
+    std::system(cmd.c_str());
+
+    std::ifstream file("/tmp/plan_solver/bt.xml");
+    if (!file) {
+        return {};
+    }
+    std::stringstream ss;
+    ss << file.rdbuf();
+    return ss.str();
 }
 
 class HighLevelBT {
@@ -277,40 +295,26 @@ int main(int argc, char **argv) {
         rclcpp::sleep_for(std::chrono::seconds(1));
 
         std::string active_domain;
-        InstantiatedParameter protocol = get_active_protocol();
-        if (protocol.type == "FallProtocol") {
-            active_domain = "fall_domain.pddl";
-        } else if (protocol.type == "FoodProtocol") {
-            active_domain = "food_domain.pddl";
-        } else if (protocol.type == "MedicineProtocol") {
-            active_domain = "medicine_domain.pddl";
-        } else if (protocol.type == "WanderingProtocol") {
-            active_domain = "wandering_domain.pddl";
-        } else {
-            // no work to do
-            continue;
-        }
-
-        // updater.update(); needs to be called, but that is done by the high level bt
-        auto domain = load_domain(active_domain);
-        auto problem_str = kb.convert_to_problem(domain);
-        if (auto config = getPlan(domain.str(), problem_str)) {
-            auto tree = factory.createTreeFromText(config.value());
-            BT::NodeStatus res;
-            try {
-                do {
-                    res = tree.tickRoot();
-                    printf("running.. \n");
-                } while (res == BT::NodeStatus::RUNNING);
-            } catch (const std::runtime_error &ex) {
-                std::cout << ex.what() << std::endl;
-                res = BT::NodeStatus::FAILURE;
+        if (auto protocol = get_active_protocol()) {
+            active_domain = "low_level_domain.pddl";
+            // updater.update(); needs to be called, but that is done by the high level bt
+            auto domain = load_domain(active_domain);
+            auto problem_str = kb.convert_to_problem(domain);
+            if (auto config = getPlan(domain.str(), problem_str)) {
+                auto tree = factory.createTreeFromText(config.value());
+                BT::NodeStatus res;
+                try {
+                    do {
+                        res = tree.tickRoot();
+                        printf("running.. \n");
+                    } while (res == BT::NodeStatus::RUNNING);
+                } catch (const std::runtime_error &ex) {
+                    std::cout << ex.what() << std::endl;
+                    res = BT::NodeStatus::FAILURE;
+                }
+                kb.knownPredicates.concurrent_erase({"success", {}});
             }
-            kb.knownPredicates.concurrent_erase({"success", {}});
-
         }
-
-
     }
 
     world_state_converter->terminate_node();
