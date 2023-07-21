@@ -45,6 +45,10 @@ rosdep install --from-paths src --ignore-src -y
 
 Note, the above command must be run at the root of the ROS workspace. 
 
+## Managing meshes
+Use Blender to view and edit mesh files. When exporting .obj files, make sure that Z is "up" and Y is "forward". 
+The values can be chosen from the export options.  
+
 
 # Smart Home Robot
 The project is about i) designing a smart home equipped with a socially assistive robot (SAR) and serval

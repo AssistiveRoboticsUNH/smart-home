@@ -19,13 +19,9 @@ class shr_parameters:
         stamp_ = Time()
 
         caregiver_phone_number = "6038514204"
-        sensor_pills_motion_topic = "smartthings_sensors_motion_pills"
-        sensor_eat_motion_topic = "smartthings_sensors_motion_eat"
-        sensors_door_motion_topic = "smartthings_sensors_motion_door"
-        sensors_door_open_topic = "smartthings_sensors_door"
-        update_protocol_topic = "update_protocol"
-        world_state_topic = "world_state"
         tf_frames = ["bedroom", "kitchen", "couch", "door"]
+        person_tf = "nathan"
+        robot_tf = "base_link"
         class __Pddl:
             class __Instances:
                 Landmarks = ["kitchen", "couch", "home", "door", "outside"]
@@ -72,9 +68,8 @@ class shr_parameters:
             door = [-2.89, 0.59, 0.0, 0.0, 0.0, 0.0, 1.0]
         tf_values = __TfValues()
         class __Topics:
-            medicine_sensor = "/smartthings_sensors_motion_pills"
-            food_sensor = "/smartthings_sensors_motion_food"
-            bed_side_sensor = "/smartthings_sensors_bed_side"
+            person_taking_medicine = "/person_taking_medicine"
+            person_eating = "/person_eating"
         topics = __Topics()
 
 
@@ -226,30 +221,6 @@ class shr_parameters:
                     updated_params.caregiver_phone_number = param.value
                     self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
 
-                if param.name == self.prefix_ + "sensor_pills_motion_topic":
-                    updated_params.sensor_pills_motion_topic = param.value
-                    self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
-
-                if param.name == self.prefix_ + "sensor_eat_motion_topic":
-                    updated_params.sensor_eat_motion_topic = param.value
-                    self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
-
-                if param.name == self.prefix_ + "sensors_door_motion_topic":
-                    updated_params.sensors_door_motion_topic = param.value
-                    self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
-
-                if param.name == self.prefix_ + "sensors_door_open_topic":
-                    updated_params.sensors_door_open_topic = param.value
-                    self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
-
-                if param.name == self.prefix_ + "update_protocol_topic":
-                    updated_params.update_protocol_topic = param.value
-                    self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
-
-                if param.name == self.prefix_ + "world_state_topic":
-                    updated_params.world_state_topic = param.value
-                    self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
-
                 if param.name == self.prefix_ + "tf_frames":
                     updated_params.tf_frames = param.value
                     self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
@@ -270,16 +241,20 @@ class shr_parameters:
                     updated_params.tf_values.door = param.value
                     self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
 
-                if param.name == self.prefix_ + "topics.medicine_sensor":
-                    updated_params.topics.medicine_sensor = param.value
+                if param.name == self.prefix_ + "topics.person_taking_medicine":
+                    updated_params.topics.person_taking_medicine = param.value
                     self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
 
-                if param.name == self.prefix_ + "topics.food_sensor":
-                    updated_params.topics.food_sensor = param.value
+                if param.name == self.prefix_ + "topics.person_eating":
+                    updated_params.topics.person_eating = param.value
                     self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
 
-                if param.name == self.prefix_ + "topics.bed_side_sensor":
-                    updated_params.topics.bed_side_sensor = param.value
+                if param.name == self.prefix_ + "person_tf":
+                    updated_params.person_tf = param.value
+                    self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
+
+                if param.name == self.prefix_ + "robot_tf":
+                    updated_params.robot_tf = param.value
                     self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
 
 
@@ -434,36 +409,6 @@ class shr_parameters:
                 parameter = updated_params.caregiver_phone_number
                 self.node_.declare_parameter(self.prefix_ + "caregiver_phone_number", parameter, descriptor)
 
-            if not self.node_.has_parameter(self.prefix_ + "sensor_pills_motion_topic"):
-                descriptor = ParameterDescriptor(description="topic for detecting pills being taken", read_only = False)
-                parameter = updated_params.sensor_pills_motion_topic
-                self.node_.declare_parameter(self.prefix_ + "sensor_pills_motion_topic", parameter, descriptor)
-
-            if not self.node_.has_parameter(self.prefix_ + "sensor_eat_motion_topic"):
-                descriptor = ParameterDescriptor(description="topic for detecting person is eating", read_only = False)
-                parameter = updated_params.sensor_eat_motion_topic
-                self.node_.declare_parameter(self.prefix_ + "sensor_eat_motion_topic", parameter, descriptor)
-
-            if not self.node_.has_parameter(self.prefix_ + "sensors_door_motion_topic"):
-                descriptor = ParameterDescriptor(description="topic for person going to door", read_only = False)
-                parameter = updated_params.sensors_door_motion_topic
-                self.node_.declare_parameter(self.prefix_ + "sensors_door_motion_topic", parameter, descriptor)
-
-            if not self.node_.has_parameter(self.prefix_ + "sensors_door_open_topic"):
-                descriptor = ParameterDescriptor(description="topic for detecting if door is open", read_only = False)
-                parameter = updated_params.sensors_door_open_topic
-                self.node_.declare_parameter(self.prefix_ + "sensors_door_open_topic", parameter, descriptor)
-
-            if not self.node_.has_parameter(self.prefix_ + "update_protocol_topic"):
-                descriptor = ParameterDescriptor(description="topic updating active protocol", read_only = False)
-                parameter = updated_params.update_protocol_topic
-                self.node_.declare_parameter(self.prefix_ + "update_protocol_topic", parameter, descriptor)
-
-            if not self.node_.has_parameter(self.prefix_ + "world_state_topic"):
-                descriptor = ParameterDescriptor(description="topic for world state", read_only = False)
-                parameter = updated_params.world_state_topic
-                self.node_.declare_parameter(self.prefix_ + "world_state_topic", parameter, descriptor)
-
             if not self.node_.has_parameter(self.prefix_ + "tf_frames"):
                 descriptor = ParameterDescriptor(description="list of tf frame locations that the robot can visit", read_only = False)
                 parameter = updated_params.tf_frames
@@ -489,20 +434,25 @@ class shr_parameters:
                 parameter = updated_params.tf_values.door
                 self.node_.declare_parameter(self.prefix_ + "tf_values.door", parameter, descriptor)
 
-            if not self.node_.has_parameter(self.prefix_ + "topics.medicine_sensor"):
+            if not self.node_.has_parameter(self.prefix_ + "topics.person_taking_medicine"):
                 descriptor = ParameterDescriptor(description="topic for sensor that detect if medication is taken", read_only = False)
-                parameter = updated_params.topics.medicine_sensor
-                self.node_.declare_parameter(self.prefix_ + "topics.medicine_sensor", parameter, descriptor)
+                parameter = updated_params.topics.person_taking_medicine
+                self.node_.declare_parameter(self.prefix_ + "topics.person_taking_medicine", parameter, descriptor)
 
-            if not self.node_.has_parameter(self.prefix_ + "topics.food_sensor"):
+            if not self.node_.has_parameter(self.prefix_ + "topics.person_eating"):
                 descriptor = ParameterDescriptor(description="topic for sensor that detect if patient is eating", read_only = False)
-                parameter = updated_params.topics.food_sensor
-                self.node_.declare_parameter(self.prefix_ + "topics.food_sensor", parameter, descriptor)
+                parameter = updated_params.topics.person_eating
+                self.node_.declare_parameter(self.prefix_ + "topics.person_eating", parameter, descriptor)
 
-            if not self.node_.has_parameter(self.prefix_ + "topics.bed_side_sensor"):
-                descriptor = ParameterDescriptor(description="topic for sensor that detect if patient is eating", read_only = False)
-                parameter = updated_params.topics.bed_side_sensor
-                self.node_.declare_parameter(self.prefix_ + "topics.bed_side_sensor", parameter, descriptor)
+            if not self.node_.has_parameter(self.prefix_ + "person_tf"):
+                descriptor = ParameterDescriptor(description="person tf frame id", read_only = False)
+                parameter = updated_params.person_tf
+                self.node_.declare_parameter(self.prefix_ + "person_tf", parameter, descriptor)
+
+            if not self.node_.has_parameter(self.prefix_ + "robot_tf"):
+                descriptor = ParameterDescriptor(description="robot tf frame id", read_only = False)
+                parameter = updated_params.robot_tf
+                self.node_.declare_parameter(self.prefix_ + "robot_tf", parameter, descriptor)
 
             # TODO: need validation
             # get parameters and fill struct fields
@@ -590,24 +540,6 @@ class shr_parameters:
             param = self.node_.get_parameter(self.prefix_ + "caregiver_phone_number")
             self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
             updated_params.caregiver_phone_number = param.value
-            param = self.node_.get_parameter(self.prefix_ + "sensor_pills_motion_topic")
-            self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
-            updated_params.sensor_pills_motion_topic = param.value
-            param = self.node_.get_parameter(self.prefix_ + "sensor_eat_motion_topic")
-            self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
-            updated_params.sensor_eat_motion_topic = param.value
-            param = self.node_.get_parameter(self.prefix_ + "sensors_door_motion_topic")
-            self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
-            updated_params.sensors_door_motion_topic = param.value
-            param = self.node_.get_parameter(self.prefix_ + "sensors_door_open_topic")
-            self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
-            updated_params.sensors_door_open_topic = param.value
-            param = self.node_.get_parameter(self.prefix_ + "update_protocol_topic")
-            self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
-            updated_params.update_protocol_topic = param.value
-            param = self.node_.get_parameter(self.prefix_ + "world_state_topic")
-            self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
-            updated_params.world_state_topic = param.value
             param = self.node_.get_parameter(self.prefix_ + "tf_frames")
             self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
             updated_params.tf_frames = param.value
@@ -623,15 +555,18 @@ class shr_parameters:
             param = self.node_.get_parameter(self.prefix_ + "tf_values.door")
             self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
             updated_params.tf_values.door = param.value
-            param = self.node_.get_parameter(self.prefix_ + "topics.medicine_sensor")
+            param = self.node_.get_parameter(self.prefix_ + "topics.person_taking_medicine")
             self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
-            updated_params.topics.medicine_sensor = param.value
-            param = self.node_.get_parameter(self.prefix_ + "topics.food_sensor")
+            updated_params.topics.person_taking_medicine = param.value
+            param = self.node_.get_parameter(self.prefix_ + "topics.person_eating")
             self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
-            updated_params.topics.food_sensor = param.value
-            param = self.node_.get_parameter(self.prefix_ + "topics.bed_side_sensor")
+            updated_params.topics.person_eating = param.value
+            param = self.node_.get_parameter(self.prefix_ + "person_tf")
             self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
-            updated_params.topics.bed_side_sensor = param.value
+            updated_params.person_tf = param.value
+            param = self.node_.get_parameter(self.prefix_ + "robot_tf")
+            self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
+            updated_params.robot_tf = param.value
 
 
             self.update_internal_params(updated_params)

@@ -219,8 +219,8 @@ int main(int argc, char **argv) {
     std::thread thread_1(
             [&world_state_converter]() {
                 while (!world_state_converter->should_terminate_node()) {
-                    rclcpp::spin_some(world_state_converter->get_node_base_interface());
-                    rclcpp::sleep_for(std::chrono::milliseconds(200));
+                    rclcpp::spin_some(world_state_converter);
+//                    rclcpp::sleep_for(std::chrono::milliseconds(10));
                 }
             }
     );

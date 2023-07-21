@@ -1,13 +1,19 @@
 #include "rclcpp/rclcpp.hpp"
 #include "shr_msgs/msg/world_state.hpp"
 #include <memory>
+#include "tf2_ros/buffer.h"
 #include <shr_parameters.hpp>
+#include <std_msgs/msg/int32.hpp>
+#include <tf2_ros/transform_listener.h>
 
 #pragma once
 
 class WorldStateListener : public rclcpp::Node {
 private:
-    rclcpp::Subscription<shr_msgs::msg::WorldState>::SharedPtr world_state_sub_;
+    rclcpp::Subscription<std_msgs::msg::Int32>::SharedPtr eating_sub_;
+    rclcpp::Subscription<std_msgs::msg::Int32>::SharedPtr taking_medicine_sub_;
+    std::unique_ptr<tf2_ros::Buffer> tf_buffer_;
+    std::shared_ptr<tf2_ros::TransformListener> tf_listener_;
     std::shared_ptr<shr_msgs::msg::WorldState> world_state_;
     std::mutex mtx;
     bool terminate_node_;
@@ -19,12 +25,22 @@ public:
             : rclcpp::Node(
             node_name) {
         terminate_node_ = false;
-        world_state_ = nullptr;
+        world_state_ = std::make_shared<shr_msgs::msg::WorldState>();
         param_listener_ = param_listener;
         auto params = param_listener->get_params();
-        world_state_sub_ = create_subscription<shr_msgs::msg::WorldState>(
-                params.world_state_topic, 10, [this](const shr_msgs::msg::WorldState::SharedPtr msg) {
-                    set_world_state_msg(msg);
+
+        tf_buffer_ = std::make_unique<tf2_ros::Buffer>(get_clock());
+        tf_listener_ = std::make_shared<tf2_ros::TransformListener>(*tf_buffer_, true);
+
+        eating_sub_ = create_subscription<std_msgs::msg::Int32>(
+                params.topics.person_eating, 10, [this](const std_msgs::msg::Int32::SharedPtr msg) {
+                    std::lock_guard<std::mutex> lock(mtx);
+                    world_state_->person_taking_medicine = msg->data;
+                });
+        taking_medicine_sub_ = create_subscription<std_msgs::msg::Int32>(
+                params.topics.person_taking_medicine, 10, [this](const std_msgs::msg::Int32::SharedPtr msg) {
+                    std::lock_guard<std::mutex> lock(mtx);
+                    world_state_->person_eating = msg->data;
                 });
 
         std::filesystem::path pkg_dir = ament_index_cpp::get_package_share_directory("shr_resources");
@@ -37,23 +53,47 @@ public:
         }
     }
 
-    bool check_robot_at_loc(const std::string& loc){
-        if (mesh_vert_map_.find(loc) == mesh_vert_map_.end()){
+    bool check_robot_at_loc(const std::string &loc) {
+        if (mesh_vert_map_.find(loc) == mesh_vert_map_.end()) {
             return false;
         }
         auto verts = mesh_vert_map_.at(loc);
         Eigen::MatrixXd verts2d = verts.block(0, 0, 2, verts.cols());
-        Eigen::Vector3d point = {world_state_->robot_location.x, world_state_->robot_location.y, world_state_->robot_location.z};
+
+        auto params = param_listener_->get_params();
+        geometry_msgs::msg::TransformStamped robot_location;
+        std::lock_guard<std::mutex> lock(mtx);
+        try {
+            robot_location = tf_buffer_->lookupTransform("odom", params.robot_tf, tf2::TimePointZero); //TODO fix
+        } catch (const tf2::TransformException & ex) {
+            RCLCPP_INFO(get_logger(), "Could not transform %s to %s: %s", "odom", params.robot_tf.c_str(), ex.what());
+            return false;
+        }
+
+        Eigen::Vector3d point = {robot_location.transform.translation.x, robot_location.transform.translation.y,
+                                 robot_location.transform.translation.z};
         return shr_utils::PointInMesh(point, verts, verts2d);
     }
 
-    bool check_person_at_loc(const std::string& loc) {
-        if (mesh_vert_map_.find(loc) == mesh_vert_map_.end()){
+    bool check_person_at_loc(const std::string &loc) {
+        if (mesh_vert_map_.find(loc) == mesh_vert_map_.end()) {
             return false;
         }
         auto verts = mesh_vert_map_.at(loc);
         Eigen::MatrixXd verts2d = verts.block(0, 0, 2, verts.cols());
-        Eigen::Vector3d point = {world_state_->patient_location.x, world_state_->patient_location.y, world_state_->patient_location.z};
+
+        auto params = param_listener_->get_params();
+        geometry_msgs::msg::TransformStamped patient_location;
+        std::lock_guard<std::mutex> lock(mtx);
+        try {
+            patient_location = tf_buffer_->lookupTransform("odom", params.person_tf, tf2::TimePointZero); //TODO fix
+        } catch (const tf2::TransformException & ex) {
+            RCLCPP_INFO(get_logger(), "Could not transform %s to %s: %s", "odom", params.person_tf.c_str(), ex.what());
+            return false;
+        }
+
+        Eigen::Vector3d point = {patient_location.transform.translation.x, patient_location.transform.translation.y,
+                                 patient_location.transform.translation.z};
         return shr_utils::PointInMesh(point, verts, verts2d);
     }
 
@@ -71,11 +111,6 @@ public:
     bool should_terminate_node() {
         std::lock_guard<std::mutex> lock(mtx);
         return terminate_node_;
-    }
-
-    void set_world_state_msg(const std::shared_ptr<shr_msgs::msg::WorldState> &msg) {
-        std::lock_guard<std::mutex> lock(mtx);
-        world_state_ = msg;
     }
 
     std::shared_ptr<shr_msgs::msg::WorldState> get_world_state_msg() {

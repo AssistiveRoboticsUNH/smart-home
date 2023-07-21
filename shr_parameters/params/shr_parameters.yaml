@@ -146,38 +146,6 @@ shr_parameters:
     default_value: "6038514204",
     description: "time to wait for observation",
   }
-
-  # ros topics
-  sensor_pills_motion_topic: {
-    type: string,
-    default_value: "smartthings_sensors_motion_pills",
-    description: "topic for detecting pills being taken",
-  }
-  sensor_eat_motion_topic: {
-    type: string,
-    default_value: "smartthings_sensors_motion_eat",
-    description: "topic for detecting person is eating",
-  }
-  sensors_door_motion_topic: {
-    type: string,
-    default_value: "smartthings_sensors_motion_door",
-    description: "topic for person going to door",
-  }
-  sensors_door_open_topic: {
-    type: string,
-    default_value: "smartthings_sensors_door",
-    description: "topic for detecting if door is open",
-  }
-  update_protocol_topic: {
-    type: string,
-    default_value: "update_protocol",
-    description: "topic updating active protocol",
-  }
-  world_state_topic: {
-    type: string,
-    default_value: "world_state",
-    description: "topic for world state",
-  }
   tf_frames: {
     type: string_array,
     default_value: [ "bedroom", "kitchen", "couch", "door" ],
@@ -206,21 +174,26 @@ shr_parameters:
       description: "TF for couch",
     }
   topics:
-    medicine_sensor: {
+    person_taking_medicine: {
       type: string,
-      default_value: "/smartthings_sensors_motion_pills",
+      default_value: "/person_taking_medicine",
       description: "topic for sensor that detect if medication is taken",
     }
-    food_sensor: {
+    person_eating: {
       type: string,
-      default_value: "/smartthings_sensors_motion_food",
+      default_value: "/person_eating",
       description: "topic for sensor that detect if patient is eating",
     }
-    bed_side_sensor: {
-      type: string,
-      default_value: "/smartthings_sensors_bed_side",
-      description: "topic for sensor that detect if patient is eating",
-    }
+  person_tf: {
+    type: string,
+    default_value: "nathan",
+    description: "person tf frame id",
+  }
+  robot_tf: {
+    type: string,
+    default_value: "base_link",
+    description: "robot tf frame id",
+  }
 
 
 
