@@ -19,6 +19,7 @@ class shr_parameters:
         stamp_ = Time()
 
         caregiver_phone_number = "6038514204"
+        emergency_phone_number = "6038514204"
         tf_frames = ["bedroom", "kitchen", "couch", "door"]
         person_tf = "nathan"
         robot_tf = "base_link"
@@ -68,6 +69,7 @@ class shr_parameters:
             door = [-2.89, 0.59, 0.0, 0.0, 0.0, 0.0, 1.0]
         tf_values = __TfValues()
         class __Topics:
+            time = "/protocol_time"
             person_taking_medicine = "/person_taking_medicine"
             person_eating = "/person_eating"
         topics = __Topics()
@@ -221,6 +223,10 @@ class shr_parameters:
                     updated_params.caregiver_phone_number = param.value
                     self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
 
+                if param.name == self.prefix_ + "emergency_phone_number":
+                    updated_params.emergency_phone_number = param.value
+                    self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
+
                 if param.name == self.prefix_ + "tf_frames":
                     updated_params.tf_frames = param.value
                     self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
@@ -239,6 +245,10 @@ class shr_parameters:
 
                 if param.name == self.prefix_ + "tf_values.door":
                     updated_params.tf_values.door = param.value
+                    self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
+
+                if param.name == self.prefix_ + "topics.time":
+                    updated_params.topics.time = param.value
                     self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
 
                 if param.name == self.prefix_ + "topics.person_taking_medicine":
@@ -405,9 +415,14 @@ class shr_parameters:
                 self.node_.declare_parameter(self.prefix_ + "pddl.FallProtocols.wait_times", parameter, descriptor)
 
             if not self.node_.has_parameter(self.prefix_ + "caregiver_phone_number"):
-                descriptor = ParameterDescriptor(description="time to wait for observation", read_only = False)
+                descriptor = ParameterDescriptor(description="caregiver phone number", read_only = False)
                 parameter = updated_params.caregiver_phone_number
                 self.node_.declare_parameter(self.prefix_ + "caregiver_phone_number", parameter, descriptor)
+
+            if not self.node_.has_parameter(self.prefix_ + "emergency_phone_number"):
+                descriptor = ParameterDescriptor(description="emergency phone number", read_only = False)
+                parameter = updated_params.emergency_phone_number
+                self.node_.declare_parameter(self.prefix_ + "emergency_phone_number", parameter, descriptor)
 
             if not self.node_.has_parameter(self.prefix_ + "tf_frames"):
                 descriptor = ParameterDescriptor(description="list of tf frame locations that the robot can visit", read_only = False)
@@ -433,6 +448,11 @@ class shr_parameters:
                 descriptor = ParameterDescriptor(description="TF for couch", read_only = False)
                 parameter = updated_params.tf_values.door
                 self.node_.declare_parameter(self.prefix_ + "tf_values.door", parameter, descriptor)
+
+            if not self.node_.has_parameter(self.prefix_ + "topics.time"):
+                descriptor = ParameterDescriptor(description="topic for protocol clock time", read_only = False)
+                parameter = updated_params.topics.time
+                self.node_.declare_parameter(self.prefix_ + "topics.time", parameter, descriptor)
 
             if not self.node_.has_parameter(self.prefix_ + "topics.person_taking_medicine"):
                 descriptor = ParameterDescriptor(description="topic for sensor that detect if medication is taken", read_only = False)
@@ -540,6 +560,9 @@ class shr_parameters:
             param = self.node_.get_parameter(self.prefix_ + "caregiver_phone_number")
             self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
             updated_params.caregiver_phone_number = param.value
+            param = self.node_.get_parameter(self.prefix_ + "emergency_phone_number")
+            self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
+            updated_params.emergency_phone_number = param.value
             param = self.node_.get_parameter(self.prefix_ + "tf_frames")
             self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
             updated_params.tf_frames = param.value
@@ -555,6 +578,9 @@ class shr_parameters:
             param = self.node_.get_parameter(self.prefix_ + "tf_values.door")
             self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
             updated_params.tf_values.door = param.value
+            param = self.node_.get_parameter(self.prefix_ + "topics.time")
+            self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
+            updated_params.topics.time = param.value
             param = self.node_.get_parameter(self.prefix_ + "topics.person_taking_medicine")
             self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
             updated_params.topics.person_taking_medicine = param.value

@@ -10,10 +10,13 @@
   FoodProtocol
   MedicineProtocol
   WanderingProtocol
+  Landmark
+  Time
+  Person
 )
 
 (:predicates
-	;; medicine
+  ;; medicine
 	(time_to_take_medicine ?m - MedicineProtocol)
 	(already_took_medicine ?m - MedicineProtocol)
 	(already_called_about_medicine ?m - MedicineProtocol)

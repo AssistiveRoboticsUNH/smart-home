@@ -144,7 +144,13 @@ shr_parameters:
   caregiver_phone_number: {
     type: string,
     default_value: "6038514204",
-    description: "time to wait for observation",
+    description: "caregiver phone number",
+  }
+
+  emergency_phone_number: {
+    type: string,
+    default_value: "6038514204",
+    description: "emergency phone number",
   }
   tf_frames: {
     type: string_array,
@@ -174,6 +180,11 @@ shr_parameters:
       description: "TF for couch",
     }
   topics:
+    time: {
+      type: string,
+      default_value: "/protocol_time",
+      description: "topic for protocol clock time",
+    }
     person_taking_medicine: {
       type: string,
       default_value: "/person_taking_medicine",

@@ -126,6 +126,7 @@ public:
         if (val == TRUTH_VALUE::UNKNOWN) {
             return val;
         }
+
         if (world_state_converter->check_person_at_loc(lm)) {
             return TRUTH_VALUE::TRUE;
         } else {
@@ -218,9 +219,10 @@ int main(int argc, char **argv) {
     auto world_state_converter = std::make_shared<WorldStateListener>("WorldStatePDDLConverter", param_listener_);
     std::thread thread_1(
             [&world_state_converter]() {
+                rclcpp::executors::MultiThreadedExecutor executor;
+                executor.add_node(world_state_converter);
                 while (!world_state_converter->should_terminate_node()) {
-                    rclcpp::spin_some(world_state_converter);
-//                    rclcpp::sleep_for(std::chrono::milliseconds(10));
+                    executor.spin_some();
                 }
             }
     );
@@ -228,17 +230,30 @@ int main(int argc, char **argv) {
     ProtocolState::getInstance().world_state_converter = world_state_converter;
     ProtocolState::getInstance().call_client_ = rclcpp_action::create_client<shr_msgs::action::CallRequest>(
             world_state_converter, "make_call");
+    while (!ProtocolState::getInstance().call_client_->wait_for_action_server(std::chrono::seconds(5))){
+        RCLCPP_INFO(rclcpp::get_logger("planning_controller"), "Waiting for /make_call action server...");
+    }
     ProtocolState::getInstance().nav_client_ = rclcpp_action::create_client<nav2_msgs::action::NavigateToPose>(
             world_state_converter, "navigate_to_pose");
+    while (!ProtocolState::getInstance().nav_client_->wait_for_action_server(std::chrono::seconds(5))){
+        RCLCPP_INFO(rclcpp::get_logger("planning_controller"), "Waiting for /navigate_to_pose action server...");
+    }
     ProtocolState::getInstance().read_action_client_ = rclcpp_action::create_client<shr_msgs::action::ReadScriptRequest>(
             world_state_converter, "read_script");
+    while (!ProtocolState::getInstance().read_action_client_->wait_for_action_server(std::chrono::seconds(5))){
+        RCLCPP_INFO(rclcpp::get_logger("planning_controller"), "Waiting for /read_script action server...");
+    }
+    ProtocolState::getInstance().video_action_client_ = rclcpp_action::create_client<shr_msgs::action::PlayVideoRequest>(
+            world_state_converter, "play_video");
+    while (!ProtocolState::getInstance().read_action_client_->wait_for_action_server(std::chrono::seconds(5))){
+        RCLCPP_INFO(rclcpp::get_logger("planning_controller"), "Waiting for /play_video action server...");
+    }
 
 
     while (world_state_converter->get_world_state_msg() == nullptr) {
         RCLCPP_INFO_STREAM(rclcpp::get_logger(node->get_name()), "waiting for first world state message");
         rclcpp::sleep_for(std::chrono::seconds(1));
     }
-
 
     instantiate_protocol("high_level.pddl");
 

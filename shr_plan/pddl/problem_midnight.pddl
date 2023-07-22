@@ -1,7 +1,7 @@
 (define (problem midnight_wandering)
 (:domain shr_domain)
 (:objects
-    bed door outside home - Landmark
+    bed door outside couch living_room dinning_room kitchen bathroom - Landmark
     nathan - Person
     t1 t2 t3 t4 t5 - Time
     automated_msg recorded_msg call_caregiver_outside_msg call_caregiver_bed_msg call_emergency_msg - Msg
@@ -22,14 +22,17 @@
     (next_time t4 t5)
     (time_critical)
 
-    (robot_at home)
-    (oneof (person_at t1 nathan door) (person_at t1 nathan outside) )
+    ;; (robot_at living_room)
+    ;; (oneof (person_at t1 nathan door) (person_at t1 nathan outside) )
     (oneof (person_at t2 nathan door) (person_at t2 nathan outside) (person_at t2 nathan bed) )
     (oneof (person_at t3 nathan door) (person_at t3 nathan outside) (person_at t3 nathan bed) )
     (oneof (person_at t4 nathan door) (person_at t4 nathan outside) (person_at t4 nathan bed) )
     (oneof (person_at t5 nathan door) (person_at t5 nathan outside) (person_at t5 nathan bed) )
 
-    (traversable home door)
+    (traversable living_room door)
+    (traversable dinning_room door)
+    (traversable kitchen door)
+    (traversable couch door)
 
     ;;success states
     (message_given_success call_emergency_msg)

@@ -11,11 +11,14 @@
 class WorldStateListener : public rclcpp::Node {
 private:
     rclcpp::Subscription<std_msgs::msg::Int32>::SharedPtr eating_sub_;
+    rclcpp::Subscription<builtin_interfaces::msg::Time>::SharedPtr time_sub_;
     rclcpp::Subscription<std_msgs::msg::Int32>::SharedPtr taking_medicine_sub_;
     std::unique_ptr<tf2_ros::Buffer> tf_buffer_;
     std::shared_ptr<tf2_ros::TransformListener> tf_listener_;
     std::shared_ptr<shr_msgs::msg::WorldState> world_state_;
-    std::mutex mtx;
+    std::mutex tf_buffer_mtx;
+    std::mutex terminate_mtx;
+    std::mutex world_state_mtx;
     bool terminate_node_;
     std::shared_ptr<shr_parameters::ParamListener> param_listener_;
     std::unordered_map<std::string, Eigen::MatrixXd> mesh_vert_map_;
@@ -34,13 +37,18 @@ public:
 
         eating_sub_ = create_subscription<std_msgs::msg::Int32>(
                 params.topics.person_eating, 10, [this](const std_msgs::msg::Int32::SharedPtr msg) {
-                    std::lock_guard<std::mutex> lock(mtx);
+                    std::lock_guard<std::mutex> lock(world_state_mtx);
                     world_state_->person_taking_medicine = msg->data;
                 });
         taking_medicine_sub_ = create_subscription<std_msgs::msg::Int32>(
                 params.topics.person_taking_medicine, 10, [this](const std_msgs::msg::Int32::SharedPtr msg) {
-                    std::lock_guard<std::mutex> lock(mtx);
+                    std::lock_guard<std::mutex> lock(world_state_mtx);
                     world_state_->person_eating = msg->data;
+                });
+        time_sub_ = create_subscription<builtin_interfaces::msg::Time>(
+                params.topics.time, 10, [this](const builtin_interfaces::msg::Time::SharedPtr msg) {
+                    std::lock_guard<std::mutex> lock(world_state_mtx);
+                    world_state_->time = *msg;
                 });
 
         std::filesystem::path pkg_dir = ament_index_cpp::get_package_share_directory("shr_resources");
@@ -62,10 +70,10 @@ public:
 
         auto params = param_listener_->get_params();
         geometry_msgs::msg::TransformStamped robot_location;
-        std::lock_guard<std::mutex> lock(mtx);
+        std::lock_guard<std::mutex> lock(tf_buffer_mtx);
         try {
             robot_location = tf_buffer_->lookupTransform("odom", params.robot_tf, tf2::TimePointZero); //TODO fix
-        } catch (const tf2::TransformException & ex) {
+        } catch (const tf2::TransformException &ex) {
             RCLCPP_INFO(get_logger(), "Could not transform %s to %s: %s", "odom", params.robot_tf.c_str(), ex.what());
             return false;
         }
@@ -84,10 +92,10 @@ public:
 
         auto params = param_listener_->get_params();
         geometry_msgs::msg::TransformStamped patient_location;
-        std::lock_guard<std::mutex> lock(mtx);
+        std::lock_guard<std::mutex> lock(tf_buffer_mtx);
         try {
             patient_location = tf_buffer_->lookupTransform("odom", params.person_tf, tf2::TimePointZero); //TODO fix
-        } catch (const tf2::TransformException & ex) {
+        } catch (const tf2::TransformException &ex) {
             RCLCPP_INFO(get_logger(), "Could not transform %s to %s: %s", "odom", params.person_tf.c_str(), ex.what());
             return false;
         }
@@ -97,24 +105,35 @@ public:
         return shr_utils::PointInMesh(point, verts, verts2d);
     }
 
+    std::optional<geometry_msgs::msg::TransformStamped> get_tf(const std::string &base, const std::string &frame) {
+        geometry_msgs::msg::TransformStamped robot_location;
+        std::lock_guard<std::mutex> lock(tf_buffer_mtx);
+        try {
+            robot_location = tf_buffer_->lookupTransform(base, frame, tf2::TimePointZero); //TODO fix
+        } catch (const tf2::TransformException &ex) {
+            RCLCPP_INFO(get_logger(), "Could not transform %s to %s: %s", base.c_str(), frame.c_str(), ex.what());
+            return {};
+        }
+        return robot_location;
+    }
 
     shr_parameters::Params get_params() {
-        std::lock_guard<std::mutex> lock(mtx);
+        std::lock_guard<std::mutex> lock(world_state_mtx);
         return param_listener_->get_params();
     }
 
     void terminate_node() {
-        std::lock_guard<std::mutex> lock(mtx);
+        std::lock_guard<std::mutex> lock(terminate_mtx);
         terminate_node_ = true;
     }
 
     bool should_terminate_node() {
-        std::lock_guard<std::mutex> lock(mtx);
+        std::lock_guard<std::mutex> lock(terminate_mtx);
         return terminate_node_;
     }
 
     std::shared_ptr<shr_msgs::msg::WorldState> get_world_state_msg() {
-        std::lock_guard<std::mutex> lock(mtx);
+        std::lock_guard<std::mutex> lock(world_state_mtx);
         return world_state_;
     }
 };

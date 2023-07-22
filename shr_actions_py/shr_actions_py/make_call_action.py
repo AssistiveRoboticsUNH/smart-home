@@ -1,4 +1,6 @@
 import os
+import time
+
 from shr_msgs.action import CallRequest
 from rclpy.action import ActionServer, ActionClient
 from rclpy.node import Node
@@ -43,6 +45,7 @@ class MakeCallActionServer(Node):
             result.status = "failed: " + str(e)
             goal_handle.abort()
             return result
+
         self.get_logger().info('Making call succeeded')
         result.status = "success"
         goal_handle.succeed()
