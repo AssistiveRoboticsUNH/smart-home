@@ -1,13 +1,13 @@
 (define (problem high_level)
   (:domain high_level_domain)
   (:objects
-     daily - MedicineProtocol
+     daily_med - MedicineProtocol
      breakfast - FoodProtocol
      lunch - FoodProtocol
      dinner - FoodProtocol
-     daily - WanderingProtocol
+     daily_wand - WanderingProtocol
      ;; bed door couch outside living_room kitchen bathroom dinning_room - Landmark
-     ;; t1 - Time
+     ;; t1 t2 t3 t4 t5 - Time
      ;; nathan - Person
   )
   (:init

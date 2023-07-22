@@ -38,12 +38,12 @@ public:
         eating_sub_ = create_subscription<std_msgs::msg::Int32>(
                 params.topics.person_eating, 10, [this](const std_msgs::msg::Int32::SharedPtr msg) {
                     std::lock_guard<std::mutex> lock(world_state_mtx);
-                    world_state_->person_taking_medicine = msg->data;
+                    world_state_->person_eating = msg->data;
                 });
         taking_medicine_sub_ = create_subscription<std_msgs::msg::Int32>(
                 params.topics.person_taking_medicine, 10, [this](const std_msgs::msg::Int32::SharedPtr msg) {
                     std::lock_guard<std::mutex> lock(world_state_mtx);
-                    world_state_->person_eating = msg->data;
+                    world_state_->person_taking_medicine = msg->data;
                 });
         time_sub_ = create_subscription<builtin_interfaces::msg::Time>(
                 params.topics.time, 10, [this](const builtin_interfaces::msg::Time::SharedPtr msg) {

@@ -28,6 +28,9 @@
     (bed_location ?lm - Landmark)
     (door_location ?lm - Landmark)
 
+    ;; control flow
+    (abort)
+
     ;; effects of actions
     (message_given ?m - Msg)
 
@@ -89,6 +92,7 @@
     :precondition (and
                     (DetectTakingMedicine_enabled)
                     (current_time ?t)
+                    (not (abort))
 	                )
     :observe (person_taking_medicine ?t)
 )
@@ -99,6 +103,7 @@
     :precondition (and
                     (DetectEatingFood_enabled)
                     (current_time ?t)
+                    (not (abort))
 	                )
     :observe (person_eating_food ?t)
 )
@@ -109,6 +114,7 @@
     :precondition (and
                     (current_time ?t)
                     (DetectPerson_enabled)
+                    (not (abort))
 	                )
     :observe (person_at ?t ?p ?loc)
 )
@@ -145,6 +151,7 @@
             (forall (?loc - Landmark)
               (not (and (person_at ?t ?p ?loc) (reminder_not_person_location_constraint ?a ?p ?loc) ) )
             )
+            (not (abort))
 		)
     :effect (and (message_given ?m)  (executed_reminder ?a)
               (forall (?tn - Time)
@@ -161,6 +168,7 @@
                   (forall (?ai - WaitAction)
                     (not (and (wait_blocks_wait ?ai ?a)  (not (executed_wait ?ai) ) ) )
                   )
+                  (not (abort))
 	             )
 	:effect (and (executed_wait ?a)
             (forall (?tn - Time)
@@ -177,6 +185,7 @@
 	                (not (used_move ?t))
 	                (robot_at ?from)
 	                (traversable ?from ?to)
+	                (not (abort))
 	          )
 	:effect (and (robot_at ?to) (not (robot_at ?from)) (used_move ?t)
 	          (when (time_critical)
@@ -215,6 +224,7 @@
             (forall (?loc - Landmark)
               (not (and (person_at ?t ?p ?loc) (call_not_person_location_constraint ?a ?p ?loc) ) )
             )
+            (not (abort))
 		)
     :effect (and (message_given ?m)  (executed_call ?a)
               (forall (?tn - Time)
@@ -232,6 +242,7 @@
                           (not (and (message_given_success ?m) (message_given ?m) ) )
                         )
                     )
+                    (not (abort))
                   )
     :effect (success)
 )
@@ -244,6 +255,7 @@
                           (not (and (medicine_taken_success) (person_taking_medicine ?t) ) )
                        )
 	                )
+	                (not (abort))
                 )
     :effect (success)
 )
@@ -256,6 +268,7 @@
 	                        (not (and (food_eaten_success) (person_eating_food ?t) ) )
                        )
 	                )
+	                (not (abort))
                 )
     :effect (success)
 )
@@ -267,6 +280,7 @@
 	                (current_time ?t)
 	                (person_at ?t ?p ?loc)
 	                (person_at_success ?p ?loc)
+	                (not (abort))
                   )
     :effect (success)
 )

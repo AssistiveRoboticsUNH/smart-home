@@ -37,6 +37,8 @@
   (priority_4)
   (priority_5)
 
+  (low_level_failed)
+
   (fall_protocol_enabled ?f - FallProtocol)
   (food_protocol_enabled ?f - FoodProtocol)
   (medicine_protocol_enabled ?m - MedicineProtocol)
@@ -88,6 +90,7 @@
 	          (success)
             (not (priority_2))
             (medicine_protocol_enabled ?m)
+            (not (low_level_failed))
             (forall (?fall - FallProtocol) (not (fall_protocol_enabled ?fall)) )
             (forall (?food - FoodProtocol) (not (food_protocol_enabled ?food)) )
             (forall (?wond - WanderingProtocol) (not (wandering_protocol_enabled ?wond)) )
@@ -98,6 +101,7 @@
 	:parameters (?m - MedicineProtocol)
 	:precondition (and
 	    (priority_2)
+	    (not (low_level_failed))
       (time_to_take_medicine ?m)
       (not (already_took_medicine ?m))
       (not (already_called_about_medicine ?m))
@@ -119,6 +123,7 @@
 	          (success)
             (not (priority_2))
             (food_protocol_enabled ?f)
+            (not (low_level_failed))
             (forall (?fall - FallProtocol) (not (fall_protocol_enabled ?fall)) )
             (forall (?med - MedicineProtocol) (not (medicine_protocol_enabled ?med)) )
             (forall (?wond - WanderingProtocol) (not (wandering_protocol_enabled ?wond)) )
@@ -128,6 +133,7 @@
 	:parameters (?f - FoodProtocol)
 	:precondition (and
 	    (priority_2)
+	    (not (low_level_failed))
       (time_to_eat ?f)
       (not (already_ate ?f))
       (not (already_called_about_eating ?f))
@@ -147,6 +153,7 @@
 	          (success)
 	          (not (priority_1))
 	          (fall_protocol_enabled ?f)
+	          (not (low_level_failed))
             (forall (?med - MedicineProtocol) (not (medicine_protocol_enabled ?med)) )
             (forall (?wond - WanderingProtocol) (not (wandering_protocol_enabled ?wond)) )
             (forall (?food - FoodProtocol) (not (food_protocol_enabled ?food)) )
@@ -157,6 +164,7 @@
 	:parameters (?f - FallProtocol)
 	:precondition (and
 	    (priority_1)
+	    (not (low_level_failed))
       (person_on_ground ?f)
       (fall_protocol_enabled ?f)
 		)
@@ -177,6 +185,7 @@
 	          (success)
 	          (not (priority_1))
 	          (wandering_protocol_enabled ?w)
+	          (not (low_level_failed))
             (forall (?fall - FallProtocol) (not (fall_protocol_enabled ?fall)) )
             (forall (?med - MedicineProtocol) (not (medicine_protocol_enabled ?med)) )
             (forall (?food - FoodProtocol) (not (food_protocol_enabled ?food)) )
@@ -187,6 +196,7 @@
 	:parameters (?w - WanderingProtocol)
 	:precondition (and
 	    (priority_1)
+	    (not (low_level_failed))
       (not
         (and (not (person_at_door ?w) ) (not (person_outside ?w) ) )
       )
@@ -208,10 +218,9 @@
                 (forall (?wond - WanderingProtocol) (not (wandering_protocol_enabled ?wond)) )
                 (forall (?food - FoodProtocol) (not (food_protocol_enabled ?food)) )
                 (forall (?fall - FallProtocol) (not (fall_protocol_enabled ?fall)) )
+                (not (low_level_failed))
           )
 )
-
-
 
 )
 

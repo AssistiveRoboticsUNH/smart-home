@@ -38,27 +38,19 @@ class shr_parameters:
                 remind_automated_food_at_2_times = ["0h10m0s", "0h1m0s", "0h10m0s"]
             FoodProtocols = __Foodprotocols()
             class __Medicineprotocols:
-                instances = ["daily"]
+                instances = ["daily_med"]
                 medicine_location = ["kitchen"]
                 take_medication_time = ["8h0m0s/9h0m0s"]
-                check_guide_to_succeeded_times = ["0h0m2s"]
-                notify_automated_medicine_at_times = ["0h0m2s"]
-                ask_caregiver_help_medicine = ["call_msg_medical.xml"]
-                medicine_reminder = ["medicine_reminder.txt"]
             MedicineProtocols = __Medicineprotocols()
             class __Wanderingprotocols:
-                instances = ["daily"]
+                instances = ["daily_wand"]
                 outside_location = ["outside"]
                 door_location = ["door"]
                 bedroom_location = ["bedroom"]
                 too_late_to_leave_time = ["22h0m0s/6h0m0s"]
-                check_bed_after_return_wait_times = ["0h1m0s"]
-                detect_person_left_house_times = ["0h10m0s"]
-                wait_for_person_to_return_times = ["0h0m30s"]
-                check_if_person_went_to_bed_times = ["0h0m30s"]
             WanderingProtocols = __Wanderingprotocols()
             class __Fallprotocols:
-                instances = ["daily"]
+                instances = ["daily_fall"]
                 wait_times = ["0h10m0s"]
             FallProtocols = __Fallprotocols()
         pddl = __Pddl()
@@ -159,22 +151,6 @@ class shr_parameters:
                     updated_params.pddl.MedicineProtocols.take_medication_time = param.value
                     self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
 
-                if param.name == self.prefix_ + "pddl.MedicineProtocols.check_guide_to_succeeded_times":
-                    updated_params.pddl.MedicineProtocols.check_guide_to_succeeded_times = param.value
-                    self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
-
-                if param.name == self.prefix_ + "pddl.MedicineProtocols.notify_automated_medicine_at_times":
-                    updated_params.pddl.MedicineProtocols.notify_automated_medicine_at_times = param.value
-                    self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
-
-                if param.name == self.prefix_ + "pddl.MedicineProtocols.ask_caregiver_help_medicine":
-                    updated_params.pddl.MedicineProtocols.ask_caregiver_help_medicine = param.value
-                    self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
-
-                if param.name == self.prefix_ + "pddl.MedicineProtocols.medicine_reminder":
-                    updated_params.pddl.MedicineProtocols.medicine_reminder = param.value
-                    self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
-
                 if param.name == self.prefix_ + "pddl.WanderingProtocols.instances":
                     updated_params.pddl.WanderingProtocols.instances = param.value
                     self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
@@ -193,22 +169,6 @@ class shr_parameters:
 
                 if param.name == self.prefix_ + "pddl.WanderingProtocols.too_late_to_leave_time":
                     updated_params.pddl.WanderingProtocols.too_late_to_leave_time = param.value
-                    self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
-
-                if param.name == self.prefix_ + "pddl.WanderingProtocols.check_bed_after_return_wait_times":
-                    updated_params.pddl.WanderingProtocols.check_bed_after_return_wait_times = param.value
-                    self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
-
-                if param.name == self.prefix_ + "pddl.WanderingProtocols.detect_person_left_house_times":
-                    updated_params.pddl.WanderingProtocols.detect_person_left_house_times = param.value
-                    self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
-
-                if param.name == self.prefix_ + "pddl.WanderingProtocols.wait_for_person_to_return_times":
-                    updated_params.pddl.WanderingProtocols.wait_for_person_to_return_times = param.value
-                    self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
-
-                if param.name == self.prefix_ + "pddl.WanderingProtocols.check_if_person_went_to_bed_times":
-                    updated_params.pddl.WanderingProtocols.check_if_person_went_to_bed_times = param.value
                     self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
 
                 if param.name == self.prefix_ + "pddl.FallProtocols.instances":
@@ -339,26 +299,6 @@ class shr_parameters:
                 parameter = updated_params.pddl.MedicineProtocols.take_medication_time
                 self.node_.declare_parameter(self.prefix_ + "pddl.MedicineProtocols.take_medication_time", parameter, descriptor)
 
-            if not self.node_.has_parameter(self.prefix_ + "pddl.MedicineProtocols.check_guide_to_succeeded_times"):
-                descriptor = ParameterDescriptor(description="time to wait for observation", read_only = False)
-                parameter = updated_params.pddl.MedicineProtocols.check_guide_to_succeeded_times
-                self.node_.declare_parameter(self.prefix_ + "pddl.MedicineProtocols.check_guide_to_succeeded_times", parameter, descriptor)
-
-            if not self.node_.has_parameter(self.prefix_ + "pddl.MedicineProtocols.notify_automated_medicine_at_times"):
-                descriptor = ParameterDescriptor(description="time to wait for observation", read_only = False)
-                parameter = updated_params.pddl.MedicineProtocols.notify_automated_medicine_at_times
-                self.node_.declare_parameter(self.prefix_ + "pddl.MedicineProtocols.notify_automated_medicine_at_times", parameter, descriptor)
-
-            if not self.node_.has_parameter(self.prefix_ + "pddl.MedicineProtocols.ask_caregiver_help_medicine"):
-                descriptor = ParameterDescriptor(description="time to wait for observation", read_only = False)
-                parameter = updated_params.pddl.MedicineProtocols.ask_caregiver_help_medicine
-                self.node_.declare_parameter(self.prefix_ + "pddl.MedicineProtocols.ask_caregiver_help_medicine", parameter, descriptor)
-
-            if not self.node_.has_parameter(self.prefix_ + "pddl.MedicineProtocols.medicine_reminder"):
-                descriptor = ParameterDescriptor(description="time to wait for observation", read_only = False)
-                parameter = updated_params.pddl.MedicineProtocols.medicine_reminder
-                self.node_.declare_parameter(self.prefix_ + "pddl.MedicineProtocols.medicine_reminder", parameter, descriptor)
-
             if not self.node_.has_parameter(self.prefix_ + "pddl.WanderingProtocols.instances"):
                 descriptor = ParameterDescriptor(description="wandering protocols", read_only = False)
                 parameter = updated_params.pddl.WanderingProtocols.instances
@@ -383,26 +323,6 @@ class shr_parameters:
                 descriptor = ParameterDescriptor(description="time that the person must not go outside", read_only = False)
                 parameter = updated_params.pddl.WanderingProtocols.too_late_to_leave_time
                 self.node_.declare_parameter(self.prefix_ + "pddl.WanderingProtocols.too_late_to_leave_time", parameter, descriptor)
-
-            if not self.node_.has_parameter(self.prefix_ + "pddl.WanderingProtocols.check_bed_after_return_wait_times"):
-                descriptor = ParameterDescriptor(description="time to wait for observation", read_only = False)
-                parameter = updated_params.pddl.WanderingProtocols.check_bed_after_return_wait_times
-                self.node_.declare_parameter(self.prefix_ + "pddl.WanderingProtocols.check_bed_after_return_wait_times", parameter, descriptor)
-
-            if not self.node_.has_parameter(self.prefix_ + "pddl.WanderingProtocols.detect_person_left_house_times"):
-                descriptor = ParameterDescriptor(description="time to wait for observation", read_only = False)
-                parameter = updated_params.pddl.WanderingProtocols.detect_person_left_house_times
-                self.node_.declare_parameter(self.prefix_ + "pddl.WanderingProtocols.detect_person_left_house_times", parameter, descriptor)
-
-            if not self.node_.has_parameter(self.prefix_ + "pddl.WanderingProtocols.wait_for_person_to_return_times"):
-                descriptor = ParameterDescriptor(description="time to wait for observation", read_only = False)
-                parameter = updated_params.pddl.WanderingProtocols.wait_for_person_to_return_times
-                self.node_.declare_parameter(self.prefix_ + "pddl.WanderingProtocols.wait_for_person_to_return_times", parameter, descriptor)
-
-            if not self.node_.has_parameter(self.prefix_ + "pddl.WanderingProtocols.check_if_person_went_to_bed_times"):
-                descriptor = ParameterDescriptor(description="time to wait for observation", read_only = False)
-                parameter = updated_params.pddl.WanderingProtocols.check_if_person_went_to_bed_times
-                self.node_.declare_parameter(self.prefix_ + "pddl.WanderingProtocols.check_if_person_went_to_bed_times", parameter, descriptor)
 
             if not self.node_.has_parameter(self.prefix_ + "pddl.FallProtocols.instances"):
                 descriptor = ParameterDescriptor(description="wandering protocols", read_only = False)
@@ -512,18 +432,6 @@ class shr_parameters:
             param = self.node_.get_parameter(self.prefix_ + "pddl.MedicineProtocols.take_medication_time")
             self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
             updated_params.pddl.MedicineProtocols.take_medication_time = param.value
-            param = self.node_.get_parameter(self.prefix_ + "pddl.MedicineProtocols.check_guide_to_succeeded_times")
-            self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
-            updated_params.pddl.MedicineProtocols.check_guide_to_succeeded_times = param.value
-            param = self.node_.get_parameter(self.prefix_ + "pddl.MedicineProtocols.notify_automated_medicine_at_times")
-            self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
-            updated_params.pddl.MedicineProtocols.notify_automated_medicine_at_times = param.value
-            param = self.node_.get_parameter(self.prefix_ + "pddl.MedicineProtocols.ask_caregiver_help_medicine")
-            self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
-            updated_params.pddl.MedicineProtocols.ask_caregiver_help_medicine = param.value
-            param = self.node_.get_parameter(self.prefix_ + "pddl.MedicineProtocols.medicine_reminder")
-            self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
-            updated_params.pddl.MedicineProtocols.medicine_reminder = param.value
             param = self.node_.get_parameter(self.prefix_ + "pddl.WanderingProtocols.instances")
             self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
             updated_params.pddl.WanderingProtocols.instances = param.value
@@ -539,18 +447,6 @@ class shr_parameters:
             param = self.node_.get_parameter(self.prefix_ + "pddl.WanderingProtocols.too_late_to_leave_time")
             self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
             updated_params.pddl.WanderingProtocols.too_late_to_leave_time = param.value
-            param = self.node_.get_parameter(self.prefix_ + "pddl.WanderingProtocols.check_bed_after_return_wait_times")
-            self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
-            updated_params.pddl.WanderingProtocols.check_bed_after_return_wait_times = param.value
-            param = self.node_.get_parameter(self.prefix_ + "pddl.WanderingProtocols.detect_person_left_house_times")
-            self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
-            updated_params.pddl.WanderingProtocols.detect_person_left_house_times = param.value
-            param = self.node_.get_parameter(self.prefix_ + "pddl.WanderingProtocols.wait_for_person_to_return_times")
-            self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
-            updated_params.pddl.WanderingProtocols.wait_for_person_to_return_times = param.value
-            param = self.node_.get_parameter(self.prefix_ + "pddl.WanderingProtocols.check_if_person_went_to_bed_times")
-            self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
-            updated_params.pddl.WanderingProtocols.check_if_person_went_to_bed_times = param.value
             param = self.node_.get_parameter(self.prefix_ + "pddl.FallProtocols.instances")
             self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
             updated_params.pddl.FallProtocols.instances = param.value

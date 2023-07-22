@@ -55,58 +55,20 @@ std::optional<std::string> getPlan(const std::string &domain, const std::string 
     return ss.str();
 }
 
-class HighLevelBT {
-private:
-    std::mutex mtx;
-    bool terminate_thread_;
-    const UpdatePredicates &updater_;
-    Domain domain_;
-    BT::BehaviorTreeFactory factory_;
-public:
-
-    HighLevelBT(const UpdatePredicates &updater) : updater_{updater} {
-        terminate_thread_ = false;
-        domain_ = load_domain("high_level_domain.pddl");
-        factory_ = create_tree_factory<ProtocolActions>();
-    }
-
-    void tick_tree() {
-        updater_.update();
-        auto &kb = KnowledgeBase::getInstance();
-        kb.insert_predicate({"priority_1", {}});
-
-        auto problem_str = kb.convert_to_problem(domain_);
-
-        if (auto config = getPlan(domain_.str(), problem_str)) {
-            auto tree = factory_.createTreeFromText(config.value());
-            BT::NodeStatus res;
-            do {
-                res = tree.tickRoot();
-                printf("running.. \n");
-            } while (res == BT::NodeStatus::RUNNING);
-        }
-        kb.erase_predicate({"success", {}});
-    }
-
-    void terminate_thread() {
-        std::lock_guard<std::mutex> lock(mtx);
-        terminate_thread_ = true;
-    }
-
-    bool should_terminate_thread() {
-        std::lock_guard<std::mutex> lock(mtx);
-        return terminate_thread_;
-    }
-};
 
 class UpdatePredicatesImpl : public UpdatePredicates {
     std::shared_ptr<WorldStateListener> world_state_converter;
+    std::mutex mtx;
 
 
 public:
     UpdatePredicatesImpl(std::shared_ptr<WorldStateListener> &world_state_converter) : world_state_converter(
             world_state_converter) {
+    }
 
+    void concurrent_update() {
+        std::lock_guard<std::mutex> lock_guard(mtx);
+        update();
     }
 
     TRUTH_VALUE success(TRUTH_VALUE val) const override {
@@ -123,7 +85,7 @@ public:
 
 
     TRUTH_VALUE person_at(TRUTH_VALUE val, Time t, Person p, Landmark lm) const override {
-        if (val == TRUTH_VALUE::UNKNOWN) {
+        if (val == TRUTH_VALUE::UNKNOWN || t != "t1") {
             return val;
         }
 
@@ -189,6 +151,27 @@ public:
         return TRUTH_VALUE::FALSE;
     }
 
+    TRUTH_VALUE person_taking_medicine(TRUTH_VALUE val, Time t) const override {
+        if (val == TRUTH_VALUE::TRUE) {
+            return TRUTH_VALUE::TRUE;
+        }
+        if (world_state_converter->get_world_state_msg()->person_taking_medicine == 1) {
+            return TRUTH_VALUE::TRUE;
+        }
+        return val;
+    }
+
+    TRUTH_VALUE already_took_medicine(TRUTH_VALUE val, MedicineProtocol m) const override {
+        if (val == TRUTH_VALUE::TRUE) {
+            return TRUTH_VALUE::TRUE;
+        }
+        if (world_state_converter->get_world_state_msg()->person_taking_medicine == 1) {
+            return TRUTH_VALUE::TRUE;
+        }
+        return val;
+    }
+
+
 private:
     bool compare_time(std::string param_time) const {
         auto msg = world_state_converter->get_world_state_msg();
@@ -211,6 +194,54 @@ private:
 
 };
 
+class HighLevelBT {
+private:
+    std::mutex mtx;
+    bool terminate_thread_;
+    UpdatePredicatesImpl &updater_;
+    Domain domain_;
+    BT::BehaviorTreeFactory factory_;
+public:
+
+    HighLevelBT(UpdatePredicatesImpl &updater) : updater_{updater} {
+        terminate_thread_ = false;
+        domain_ = load_domain("high_level_domain.pddl");
+        factory_ = create_tree_factory<ProtocolActions>();
+    }
+
+    void tick_tree() {
+        updater_.concurrent_update();
+        auto &kb = KnowledgeBase::getInstance();
+        kb.insert_predicate({"priority_1", {}});
+
+        auto problem_str = kb.convert_to_problem(domain_);
+
+        if (auto config = getPlan(domain_.str(), problem_str)) {
+            auto tree = factory_.createTreeFromText(config.value());
+            BT::NodeStatus res;
+            try {
+                res = tree.tickRoot();
+                printf("high level running.. \n");
+            } catch (const std::exception &ex) {
+                std::cout << ex.what() << std::endl;
+                res = BT::NodeStatus::FAILURE;
+            }
+        }
+        kb.erase_predicate({"success", {}});
+    }
+
+    void terminate_thread() {
+        std::lock_guard<std::mutex> lock(mtx);
+        terminate_thread_ = true;
+    }
+
+    bool should_terminate_thread() {
+        std::lock_guard<std::mutex> lock(mtx);
+        return terminate_thread_;
+    }
+};
+
+
 int main(int argc, char **argv) {
     rclcpp::init(argc, argv);
     auto node = std::make_shared<rclcpp::Node>("shrParameterNode");
@@ -227,32 +258,29 @@ int main(int argc, char **argv) {
             }
     );
 
-    ProtocolState::getInstance().world_state_converter = world_state_converter;
-    ProtocolState::getInstance().call_client_ = rclcpp_action::create_client<shr_msgs::action::CallRequest>(
-            world_state_converter, "make_call");
-    while (!ProtocolState::getInstance().call_client_->wait_for_action_server(std::chrono::seconds(5))){
-        RCLCPP_INFO(rclcpp::get_logger("planning_controller"), "Waiting for /make_call action server...");
-    }
-    ProtocolState::getInstance().nav_client_ = rclcpp_action::create_client<nav2_msgs::action::NavigateToPose>(
-            world_state_converter, "navigate_to_pose");
-    while (!ProtocolState::getInstance().nav_client_->wait_for_action_server(std::chrono::seconds(5))){
-        RCLCPP_INFO(rclcpp::get_logger("planning_controller"), "Waiting for /navigate_to_pose action server...");
-    }
-    ProtocolState::getInstance().read_action_client_ = rclcpp_action::create_client<shr_msgs::action::ReadScriptRequest>(
-            world_state_converter, "read_script");
-    while (!ProtocolState::getInstance().read_action_client_->wait_for_action_server(std::chrono::seconds(5))){
-        RCLCPP_INFO(rclcpp::get_logger("planning_controller"), "Waiting for /read_script action server...");
-    }
-    ProtocolState::getInstance().video_action_client_ = rclcpp_action::create_client<shr_msgs::action::PlayVideoRequest>(
-            world_state_converter, "play_video");
-    while (!ProtocolState::getInstance().read_action_client_->wait_for_action_server(std::chrono::seconds(5))){
-        RCLCPP_INFO(rclcpp::get_logger("planning_controller"), "Waiting for /play_video action server...");
-    }
-
-
-    while (world_state_converter->get_world_state_msg() == nullptr) {
-        RCLCPP_INFO_STREAM(rclcpp::get_logger(node->get_name()), "waiting for first world state message");
-        rclcpp::sleep_for(std::chrono::seconds(1));
+    {
+        auto [ps, lock] = ProtocolState::getConcurrentInstance();
+        ps.world_state_converter = world_state_converter;
+        ps.call_client_ = rclcpp_action::create_client<shr_msgs::action::CallRequest>(
+                world_state_converter, "make_call");
+        while (!ps.call_client_->wait_for_action_server(std::chrono::seconds(5))) {
+            RCLCPP_INFO(rclcpp::get_logger("planning_controller"), "Waiting for /make_call action server...");
+        }
+        ps.nav_client_ = rclcpp_action::create_client<nav2_msgs::action::NavigateToPose>(
+                world_state_converter, "navigate_to_pose");
+        while (!ps.nav_client_->wait_for_action_server(std::chrono::seconds(5))) {
+            RCLCPP_INFO(rclcpp::get_logger("planning_controller"), "Waiting for /navigate_to_pose action server...");
+        }
+        ps.read_action_client_ = rclcpp_action::create_client<shr_msgs::action::ReadScriptRequest>(
+                world_state_converter, "read_script");
+        while (!ps.read_action_client_->wait_for_action_server(std::chrono::seconds(5))) {
+            RCLCPP_INFO(rclcpp::get_logger("planning_controller"), "Waiting for /read_script action server...");
+        }
+        ps.video_action_client_ = rclcpp_action::create_client<shr_msgs::action::PlayVideoRequest>(
+                world_state_converter, "play_video");
+        while (!ps.read_action_client_->wait_for_action_server(std::chrono::seconds(5))) {
+            RCLCPP_INFO(rclcpp::get_logger("planning_controller"), "Waiting for /play_video action server...");
+        }
     }
 
     instantiate_protocol("high_level.pddl");
@@ -277,24 +305,28 @@ int main(int argc, char **argv) {
         rclcpp::sleep_for(std::chrono::seconds(1));
 
         std::string active_domain;
-        if (auto protocol = get_active_protocol()) {
+        auto protocol = ProtocolState::getActiveProtocol();
+        if (!protocol.name.empty()) {
             active_domain = "low_level_domain.pddl";
-            // updater.update(); needs to be called, but that is done by the high level bt
+            updater.concurrent_update();
             auto domain = load_domain(active_domain);
             auto problem_str = kb.convert_to_problem(domain);
             if (auto config = getPlan(domain.str(), problem_str)) {
                 auto tree = factory.createTreeFromText(config.value());
                 BT::NodeStatus res;
                 try {
-                    do {
+                    if (ProtocolState::getActiveProtocol() == protocol) {
                         res = tree.tickRoot();
-                        printf("running.. \n");
-                    } while (res == BT::NodeStatus::RUNNING);
-                } catch (const std::runtime_error &ex) {
+                        printf("low level running.. \n");
+                    }
+                } catch (const std::exception &ex) {
                     std::cout << ex.what() << std::endl;
                     res = BT::NodeStatus::FAILURE;
                 }
                 kb.erase_predicate({"success", {}});
+            } else {
+                std::cout << "failed to find low level plan!.\n";
+                kb.insert_predicate({"low_level_failed", {}});
             }
         }
     }

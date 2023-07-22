@@ -50,7 +50,7 @@ shr_parameters:
     MedicineProtocols:
       instances: {
         type: string_array,
-        default_value: [ "daily" ],
+        default_value: [ "daily_med" ],
         description: "medicine protocols",
       }
       medicine_location: {
@@ -63,30 +63,10 @@ shr_parameters:
         default_value: [ "8h0m0s/9h0m0s" ],
         description: "time that each protocol is triggered",
       }
-      check_guide_to_succeeded_times: {
-        type: string_array,
-        default_value: [ "0h0m2s" ],
-        description: "time to wait for observation",
-      }
-      notify_automated_medicine_at_times: {
-        type: string_array,
-        default_value: [ "0h0m2s" ],
-        description: "time to wait for observation",
-      }
-      ask_caregiver_help_medicine: {
-        type: string_array,
-        default_value: [ "call_msg_medical.xml" ],
-        description: "time to wait for observation",
-      }
-      medicine_reminder: {
-        type: string_array,
-        default_value: [ "medicine_reminder.txt" ],
-        description: "time to wait for observation",
-      }
     WanderingProtocols:
       instances: {
         type: string_array,
-        default_value: [ "daily" ],
+        default_value: [ "daily_wand" ],
         description: "wandering protocols",
       }
       outside_location: {
@@ -109,30 +89,10 @@ shr_parameters:
         default_value: [ "22h0m0s/6h0m0s" ],
         description: "time that the person must not go outside",
       }
-      check_bed_after_return_wait_times: {
-        type: string_array,
-        default_value: [ "0h1m0s" ],
-        description: "time to wait for observation",
-      }
-      detect_person_left_house_times: {
-        type: string_array,
-        default_value: [ "0h10m0s" ],
-        description: "time to wait for observation",
-      }
-      wait_for_person_to_return_times: {
-        type: string_array,
-        default_value: [ "0h0m30s" ],
-        description: "time to wait for observation",
-      }
-      check_if_person_went_to_bed_times: {
-        type: string_array,
-        default_value: [ "0h0m30s" ],
-        description: "time to wait for observation",
-      }
     FallProtocols:
       instances: {
         type: string_array,
-        default_value: [ "daily" ],
+        default_value: [ "daily_fall" ],
         description: "wandering protocols",
       }
       wait_times: {

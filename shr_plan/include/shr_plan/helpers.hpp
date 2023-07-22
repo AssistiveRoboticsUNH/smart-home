@@ -74,16 +74,16 @@ namespace pddl_lib {
         throw std::runtime_error("abort: higher priority protocol detected");
     }
 
-    std::optional<InstantiatedParameter> get_active_protocol() {
-        std::optional<InstantiatedParameter> out;
-        auto &kb = KnowledgeBase::getInstance();
-        for (const auto &pred: kb.get_known_predicates()) {
-            if ((pred.name == "fall_protocol_enabled") || (pred.name == "medicine_protocol_enabled")
-                || (pred.name == "wandering_protocol_enabled") || (pred.name == "food_protocol_enabled")) {
-                out = pred.parameters[0];
-            }
-        }
-        return out;
-    }
+//    std::optional<InstantiatedParameter> get_active_protocol() {
+//        std::optional<InstantiatedParameter> out;
+//        auto &kb = KnowledgeBase::getInstance();
+//        for (const auto &pred: kb.get_known_predicates()) {
+//            if ((pred.name == "fall_protocol_enabled") || (pred.name == "medicine_protocol_enabled")
+//                || (pred.name == "wandering_protocol_enabled") || (pred.name == "food_protocol_enabled")) {
+//                out = pred.parameters[0];
+//            }
+//        }
+//        return out;
+//    }
 
 } // pddl_lib
