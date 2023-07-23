@@ -36,6 +36,20 @@ namespace pddl_lib {
                                                               {"recorded_msg",       {10, 0}},
                                                               {"call_caregiver_guide_msg", {10, 0}},
                                                               {"call_caregiver_msg", {10, 0}},
+                                                      }},
+                {{"lunch",      "FoodProtocol"},      {{"guide_1_msg",   {0, 10}},
+                                                              {"guide_2_msg",  {0,  10}},
+                                                              {"automated_msg",              {0, 0}},
+                                                              {"recorded_msg",       {10, 0}},
+                                                              {"call_caregiver_guide_msg", {10, 0}},
+                                                              {"call_caregiver_msg", {10, 0}},
+                                                      }},
+                {{"breakfast",  "FoodProtocol"},      {{"guide_1_msg",   {0, 10}},
+                                                              {"guide_2_msg",  {0,  10}},
+                                                              {"automated_msg",              {0, 0}},
+                                                              {"recorded_msg",       {10, 0}},
+                                                              {"call_caregiver_guide_msg", {10, 0}},
+                                                              {"call_caregiver_msg", {10, 0}},
                                                       }}
         };
 
@@ -44,10 +58,16 @@ namespace pddl_lib {
                                                               {"call_caregiver_bed_msg", {"call_msg_will_not_go_to_bed.xml", "6038514204"}},
                                                               {"call_emergency_msg", {"call_msg_911.xml", "6038514204"}},
                                                       }},
-                {{"daily_med",  "MedicineProtocol"},  {{"call_caregiver_guide_msg",   {"call_msg_medical.xml",       "6038514204"}}, //TODO fix these
+                {{"daily_med",  "MedicineProtocol"},  {{"call_caregiver_guide_msg",   {"call_msg_medical.xml",       "6038514204"}}, 
                                                               {"call_caregiver_msg",     {"call_msg_medical.xml",            "6038514204"}},
                                                       }},
-                {{"dinner",     "FoodProtocol"},      {{"call_caregiver_guide_msg",   {"call_msg_food.xml",          "6038514204"}}, //TODO fix these
+                {{"dinner",     "FoodProtocol"},      {{"call_caregiver_guide_msg",   {"call_msg_food.xml",          "6038514204"}}, 
+                                                              {"call_caregiver_msg",     {"call_msg_food.xml",               "6038514204"}},
+                                                      }},
+                {{"lunch",      "FoodProtocol"},      {{"call_caregiver_guide_msg",   {"call_msg_food.xml",          "6038514204"}}, 
+                                                              {"call_caregiver_msg",     {"call_msg_food.xml",               "6038514204"}},
+                                                      }},
+                {{"breakfast",  "FoodProtocol"},      {{"call_caregiver_guide_msg",   {"call_msg_food.xml",          "6038514204"}}, 
                                                               {"call_caregiver_msg",     {"call_msg_food.xml",               "6038514204"}},
                                                       }}
         };
@@ -55,22 +75,30 @@ namespace pddl_lib {
         const std::unordered_map<InstantiatedParameter, std::unordered_map<std::string, std::string>> automated_reminder_msgs = {
                 {{"daily_wand", "WanderingProtocol"}, {{"automated_msg", "midnight_reminder.txt"},
                                                       }},
-                {{"daily_med",  "MedicineProtocol"},  {{"guide_1_msg",   "follow_me.txt"},//TODO fix these
-                                                              {"guide_2_msg", "follow_me.txt"},//TODO fix these
-                                                              {"automated_msg", "medicine_reminder.txt"},//TODO fix these
+                {{"daily_med",  "MedicineProtocol"},  {{"guide_1_msg",   "medicine_follow_me.txt"},
+                                                              {"guide_2_msg", "medicine_follow_me.txt"},
+                                                              {"automated_msg", "medicine_reminder.txt"},
                                                       }},
-                {{"dinner",     "FoodProtocol"},      {{"guide_1_msg",   "follow_me.txt"},//TODO fix these
-                                                              {"guide_2_msg", "follow_me.txt"},//TODO fix these
-                                                              {"automated_msg", "food_reminder.txt"},//TODO fix these
+                {{"dinner",     "FoodProtocol"},      {{"guide_1_msg",   "food_follow_me.txt"},
+                                                              {"guide_2_msg", "food_follow_me.txt"},
+                                                              {"automated_msg", "food_reminder.txt"},
+                                                      }},
+                {{"lunch",     "FoodProtocol"},      {{"guide_1_msg",   "food_follow_me.txt"},
+                                                              {"guide_2_msg", "food_follow_me.txt"},
+                                                              {"automated_msg", "food_reminder.txt"},
+                                                      }},
+                {{"breakfast",     "FoodProtocol"},      {{"guide_1_msg",   "food_follow_me.txt"},
+                                                              {"guide_2_msg", "food_follow_me.txt"},
+                                                              {"automated_msg", "food_reminder.txt"},
                                                       }}
         };
 
         const std::unordered_map<InstantiatedParameter, std::unordered_map<std::string, std::string>> recorded_reminder_msgs = {
-                {{"daily_wand", "WanderingProtocol"}, {{"recorded_msg", "midnight_reminder.mp3"},//TODO fix these
+                {{"daily_wand", "WanderingProtocol"}, {{"recorded_msg", "midnight_reminder.mp3"},
                                                       }},
-                {{"daily_med",  "MedicineProtocol"},  {{"recorded_msg", "medicine_reminder.mp3"},//TODO fix these
+                {{"daily_med",  "MedicineProtocol"},  {{"recorded_msg", "medicine_reminder.mp3"},
                                                       }},
-                {{"dinner",     "FoodProtocol"},      {{"recorded_msg", "food_reminder.mp3"},//TODO fix these
+                {{"dinner",     "FoodProtocol"},      {{"recorded_msg", "food_reminder.mp3"},
                                                       }}
         };
 

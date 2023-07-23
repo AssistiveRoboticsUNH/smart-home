@@ -19,6 +19,7 @@
     <depend>behaviortree_cpp_v3</depend>
     <depend>pddl2cpp</depend>
     <depend>plan_solver_py</depend>
+    <depend>pddl_parser</depend>
     <depend>rclcpp</depend>
     <depend>rclcpp_action</depend>
     <depend>tf2_ros</depend>
