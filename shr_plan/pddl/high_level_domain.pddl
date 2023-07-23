@@ -25,6 +25,7 @@
 	(already_took_medicine ?m - MedicineProtocol)
 	(already_called_about_medicine ?m - MedicineProtocol)
   ;; eating
+  (food_location ?lm - Landmark)
   (time_to_eat ?f - FoodProtocol)
   (already_ate  ?f - FoodProtocol)
   (already_called_about_eating  ?f - FoodProtocol)
@@ -126,10 +127,13 @@
 )
 
 (:action StartFoodProtocol
-	:parameters (?f - FoodProtocol)
+	:parameters (?f - FoodProtocol  ?p - Person ?cur ?dest - Landmark)
 	:precondition (and
 	    (priority_2)
       (time_to_eat ?f)
+      (person_currently_at ?p ?cur)
+      (robot_at ?cur)
+      (food_location ?dest)
       (not (already_ate ?f))
       (not (already_called_about_eating ?f))
       (forall (?food - FoodProtocol) (not (food_protocol_enabled ?food)) )

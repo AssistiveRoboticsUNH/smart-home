@@ -1,7 +1,7 @@
 (define (problem food_reminder)
 (:domain shr_domain)
 (:objects
-    couch kitchen - Landmark
+    current_loc dest_loc - Landmark
     nathan - Person
     t1 t2 t3 t4 t5 - Time
     guide_1_msg guide_2_msg automated_msg recorded_msg call_caregiver_guide_msg call_caregiver_msg - Msg
@@ -22,13 +22,13 @@
     (next_time t3 t4)
     (next_time t4 t5)
 
-    (oneof (person_at t2 nathan couch) (person_at t2 nathan kitchen) )
-    (oneof (person_at t3 nathan couch) (person_at t3 nathan kitchen) )
-    (oneof (person_at t4 nathan couch) (person_at t4 nathan kitchen) )
-    (oneof (person_at t5 nathan couch) (person_at t5 nathan kitchen) )
+    (oneof (person_at t2 nathan current_loc) (person_at t2 nathan dest_loc) )
+    (oneof (person_at t3 nathan current_loc) (person_at t3 nathan dest_loc) )
+    (oneof (person_at t4 nathan current_loc) (person_at t4 nathan dest_loc) )
+    (oneof (person_at t5 nathan current_loc) (person_at t5 nathan dest_loc) )
 
-    (traversable kitchen couch)
-    (traversable couch kitchen)
+    (traversable dest_loc current_loc)
+    (traversable current_loc dest_loc)
 
     ;;success states
     (message_given_success call_caregiver_msg)
@@ -50,15 +50,15 @@
     (valid_reminder_message guide_reminder_2 guide_2_msg)
 
     ;; specify world state constraints for all actions
-    (reminder_person_location_constraint automated_reminder nathan kitchen)
+    (reminder_person_location_constraint automated_reminder nathan dest_loc)
     (reminder_person_not_eating_food_constraint automated_reminder nathan)
-    (reminder_person_location_constraint recorded_reminder nathan kitchen)
+    (reminder_person_location_constraint recorded_reminder nathan dest_loc)
     (reminder_person_not_eating_food_constraint recorded_reminder nathan)
-    (reminder_not_person_location_constraint guide_reminder_1 nathan kitchen)
+    (reminder_not_person_location_constraint guide_reminder_1 nathan dest_loc)
     (reminder_person_not_eating_food_constraint guide_reminder_1 nathan)
-    (reminder_not_person_location_constraint guide_reminder_2 nathan kitchen)
+    (reminder_not_person_location_constraint guide_reminder_2 nathan dest_loc)
     (reminder_person_not_eating_food_constraint guide_reminder_2 nathan)
-    (call_not_person_location_constraint caregiver_call_guide nathan kitchen)
+    (call_not_person_location_constraint caregiver_call_guide nathan dest_loc)
     (call_person_not_eating_food_constraint caregiver_call nathan)
 
 )

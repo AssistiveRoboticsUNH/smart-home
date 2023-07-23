@@ -141,6 +141,17 @@ public:
         return TRUTH_VALUE::FALSE;
     }
 
+    TRUTH_VALUE already_ate(TRUTH_VALUE val, FoodProtocol f) const override {
+        if (val == TRUTH_VALUE::TRUE) {
+            return TRUTH_VALUE::TRUE;
+        }
+        //TODO this is not right. It should check if the current time window corresponds to f
+        if (world_state_converter->get_world_state_msg()->person_eating == 1) {
+            return TRUTH_VALUE::TRUE;
+        }
+        return val;
+    }
+
     TRUTH_VALUE too_late_to_go_outside(TRUTH_VALUE val, WanderingProtocol w) const override {
         auto params = world_state_converter->get_params();
         if (auto index = get_inst_index(w, params)) {

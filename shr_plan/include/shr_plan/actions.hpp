@@ -40,14 +40,14 @@ namespace pddl_lib {
         };
 
         const std::unordered_map<InstantiatedParameter, std::unordered_map<std::string, std::pair<std::string, std::string>>> call_msgs = {
-                {{"daily_wand", "WanderingProtocol"}, {{"call_caregiver_outside_msg", {"call_msg_leaving_house.xml",      "6038514204"}},
+                {{"daily_wand", "WanderingProtocol"}, {{"call_caregiver_outside_msg", {"call_msg_leaving_house.xml", "6038514204"}},
                                                               {"call_caregiver_bed_msg", {"call_msg_will_not_go_to_bed.xml", "6038514204"}},
                                                               {"call_emergency_msg", {"call_msg_911.xml", "6038514204"}},
                                                       }},
-                {{"daily_med",  "MedicineProtocol"},  {{"call_caregiver_guide_msg",   {"call_msg_medical.xml", "6038514204"}}, //TODO fix these
+                {{"daily_med",  "MedicineProtocol"},  {{"call_caregiver_guide_msg",   {"call_msg_medical.xml",       "6038514204"}}, //TODO fix these
                                                               {"call_caregiver_msg",     {"call_msg_medical.xml",            "6038514204"}},
                                                       }},
-                {{"dinner",     "FoodProtocol"},      {{"call_caregiver_guide_msg",   {"call_msg_food.xml", "6038514204"}}, //TODO fix these
+                {{"dinner",     "FoodProtocol"},      {{"call_caregiver_guide_msg",   {"call_msg_food.xml",          "6038514204"}}, //TODO fix these
                                                               {"call_caregiver_msg",     {"call_msg_food.xml",               "6038514204"}},
                                                       }}
         };
@@ -310,42 +310,43 @@ namespace pddl_lib {
             InstantiatedParameter protocol = action.parameters[0];
             InstantiatedParameter cur = action.parameters[2];
             InstantiatedParameter dest = action.parameters[3];
-            if (dest.name == "kitchen" && cur.name == "kitchen") {
-                instantiate_protocol("medicine.pddl");
-            } else {
-                instantiate_protocol("medicine.pddl", {{"couch",   cur.name},
-                                                       {"kitchen", dest.name}});
+            if (dest.name == cur.name) {
+                cur.name = "couch";
             }
-
-//            InstantiatedParameter t1 = {"t1", "Time"};
-//            InstantiatedAction action_inst = {"MoveToLandmark",
-//                                              {t1, {"", ""}, cur}}; // ?t - Time ?from - Landmark ?to - Landmark
-//            auto ret = shr_domain_MoveToLandmark(action_inst);
-//            if (ret == BT::NodeStatus::SUCCESS) {
+            instantiate_protocol("food.pddl", {{"current_loc", cur.name},
+                                               {"dest_loc",    dest.name}});
             auto [ps, lock] = ProtocolState::getConcurrentInstance();
             ps.active_protocol = protocol;
-//            }
+
             return BT::NodeStatus::SUCCESS;
         }
 
         BT::NodeStatus high_level_domain_MoveToLandmark(const InstantiatedAction &action) override {
             InstantiatedParameter from = action.parameters[0];
             InstantiatedParameter to = action.parameters[1];
-
             InstantiatedParameter t1 = {"t1", "Time"};
             InstantiatedAction action_inst = {"MoveToLandmark",
-                                              {t1, from, to}}; // ?t - Time ?from - Landmark ?to - Landmark
+                                              {t1, from, to}};
             return shr_domain_MoveToLandmark(action_inst);
         }
 
 
         // food_protocol
         BT::NodeStatus high_level_domain_StartFoodProtocol(const InstantiatedAction &action) override {
+
             auto &kb = KnowledgeBase::getInstance();
-            InstantiatedParameter inst = action.parameters[0];
-            instantiate_protocol("food.pddl");
+            InstantiatedParameter protocol = action.parameters[0];
+            InstantiatedParameter cur = action.parameters[2];
+            InstantiatedParameter dest = action.parameters[3];
+            if (dest.name == cur.name) {
+                cur.name = "couch";
+            }
+            instantiate_protocol("food.pddl", {{"current_loc", cur.name},
+                                               {"dest_loc",    dest.name}});
+
             auto [ps, lock] = ProtocolState::getConcurrentInstance();
-            ps.active_protocol = inst;
+            ps.active_protocol = protocol;
+
             return BT::NodeStatus::SUCCESS;
         }
 
