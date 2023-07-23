@@ -219,13 +219,9 @@ public:
         if (auto config = getPlan(domain_.str(), problem_str)) {
             auto tree = factory_.createTreeFromText(config.value());
             BT::NodeStatus res;
-            try {
-                res = tree.tickRoot();
-                printf("high level running.. \n");
-            } catch (const std::exception &ex) {
-                std::cout << ex.what() << std::endl;
-                res = BT::NodeStatus::FAILURE;
-            }
+            res = tree.tickRoot();
+            printf("high level running.. \n");
+
         }
         kb.erase_predicate({"success", {}});
     }
@@ -311,17 +307,14 @@ int main(int argc, char **argv) {
             updater.concurrent_update();
             auto domain = load_domain(active_domain);
             auto problem_str = kb.convert_to_problem(domain);
+            // it would be nice if the planner ran on a fix interval checking to see if the new plan is different.
+            // That way, the plan could be aborted since the new one is more optimal.
             if (auto config = getPlan(domain.str(), problem_str)) {
                 auto tree = factory.createTreeFromText(config.value());
                 BT::NodeStatus res;
-                try {
-                    if (ProtocolState::getActiveProtocol() == protocol) {
-                        res = tree.tickRoot();
-                        printf("low level running.. \n");
-                    }
-                } catch (const std::exception &ex) {
-                    std::cout << ex.what() << std::endl;
-                    res = BT::NodeStatus::FAILURE;
+                if (ProtocolState::getActiveProtocol() == protocol) {
+                    res = tree.tickRoot();
+                    printf("low level running.. \n");
                 }
                 kb.erase_predicate({"success", {}});
             } else {

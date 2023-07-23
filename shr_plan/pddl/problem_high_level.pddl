@@ -6,9 +6,9 @@
      lunch - FoodProtocol
      dinner - FoodProtocol
      daily_wand - WanderingProtocol
-     ;; bed door couch outside living_room kitchen bathroom dinning_room - Landmark
-     ;; t1 t2 t3 t4 t5 - Time
-     ;; nathan - Person
+     bed door couch outside living_room kitchen bathroom dinning_room - Landmark
+     t1 - Time ;;t2 t3 t4 t5
+     nathan - Person
   )
   (:init
       (priority_1)

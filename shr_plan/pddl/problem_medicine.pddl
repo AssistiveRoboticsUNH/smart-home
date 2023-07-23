@@ -22,14 +22,6 @@
     (next_time t3 t4)
     (next_time t4 t5)
 
-    (unknown (person_taking_medicine t1))
-    (unknown (person_taking_medicine t2))
-    (unknown (person_taking_medicine t3))
-    (unknown (person_taking_medicine t4))
-    (unknown (person_taking_medicine t5))
-
-    (robot_at couch)
-    (oneof (person_at t1 nathan couch) (person_at t1 nathan kitchen) )
     (oneof (person_at t2 nathan couch) (person_at t2 nathan kitchen) )
     (oneof (person_at t3 nathan couch) (person_at t3 nathan kitchen) )
     (oneof (person_at t4 nathan couch) (person_at t4 nathan kitchen) )

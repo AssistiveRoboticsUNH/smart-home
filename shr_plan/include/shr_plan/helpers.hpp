@@ -70,9 +70,6 @@ namespace pddl_lib {
         return {};
     }
 
-    void abort() {
-        throw std::runtime_error("abort: higher priority protocol detected");
-    }
 
 //    std::optional<InstantiatedParameter> get_active_protocol() {
 //        std::optional<InstantiatedParameter> out;

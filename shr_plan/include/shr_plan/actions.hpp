@@ -133,86 +133,86 @@ namespace pddl_lib {
     int send_goal_blocking(const shr_msgs::action::CallRequest::Goal &goal, const InstantiatedAction &action) {
         auto [ps, lock] = ProtocolState::getConcurrentInstance();
         auto &kb = KnowledgeBase::getInstance();
-        std::atomic<int> success = -1;
+        auto success = std::make_shared<std::atomic<int>>(-1);
         auto send_goal_options = rclcpp_action::Client<shr_msgs::action::CallRequest>::SendGoalOptions();
         send_goal_options.result_callback = [&success](
                 const rclcpp_action::ClientGoalHandle<shr_msgs::action::CallRequest>::WrappedResult result) {
-            success = result.code == rclcpp_action::ResultCode::SUCCEEDED;
+            *success = result.code == rclcpp_action::ResultCode::SUCCEEDED;
         };
         ps.call_client_->async_send_goal(goal, send_goal_options);
         rclcpp::sleep_for(std::chrono::seconds(15)); //automatically wait because call is not blocking
         auto tmp = ps.active_protocol;
-        while (success == -1) {
+        while (*success == -1) {
             if (!(tmp == ps.active_protocol)) {
-                ps.call_client_->async_cancel_all_goals().wait();
+                ps.call_client_->async_cancel_all_goals();
                 return false;
             }
             rclcpp::sleep_for(std::chrono::seconds(1));
         }
-        return success;
+        return *success;
     }
 
     int send_goal_blocking(const nav2_msgs::action::NavigateToPose::Goal &goal, const InstantiatedAction &action) {
         auto [ps, lock] = ProtocolState::getConcurrentInstance();
         auto &kb = KnowledgeBase::getInstance();
-        std::atomic<int> success = -1;
+        auto success = std::make_shared<std::atomic<int>>(-1);
         auto send_goal_options = rclcpp_action::Client<nav2_msgs::action::NavigateToPose>::SendGoalOptions();
         send_goal_options.result_callback = [&success](
                 const rclcpp_action::ClientGoalHandle<nav2_msgs::action::NavigateToPose>::WrappedResult result) {
-            success = result.code == rclcpp_action::ResultCode::SUCCEEDED;
+            *success = result.code == rclcpp_action::ResultCode::SUCCEEDED;
         };
         ps.nav_client_->async_send_goal(goal, send_goal_options);
         auto tmp = ps.active_protocol;
-        while (success == -1) {
+        while (*success == -1) {
             if (!(tmp == ps.active_protocol)) {
-                ps.nav_client_->async_cancel_all_goals().wait();
+                ps.nav_client_->async_cancel_all_goals();
                 return false;
             }
             rclcpp::sleep_for(std::chrono::seconds(1));
         }
-        return success;
+        return *success;
     }
 
     int send_goal_blocking(const shr_msgs::action::ReadScriptRequest::Goal &goal, const InstantiatedAction &action) {
         auto [ps, lock] = ProtocolState::getConcurrentInstance();
         auto &kb = KnowledgeBase::getInstance();
-        std::atomic<int> success = -1;
+        auto success = std::make_shared<std::atomic<int>>(-1);
         auto send_goal_options = rclcpp_action::Client<shr_msgs::action::ReadScriptRequest>::SendGoalOptions();
-        send_goal_options.result_callback = [&success](
+        send_goal_options.result_callback = [success](
                 const rclcpp_action::ClientGoalHandle<shr_msgs::action::ReadScriptRequest>::WrappedResult result) {
-            success = result.code == rclcpp_action::ResultCode::SUCCEEDED;
+            *success = result.code == rclcpp_action::ResultCode::SUCCEEDED;
         };
         ps.read_action_client_->async_send_goal(goal, send_goal_options);
         auto tmp = ps.active_protocol;
-        while (success == -1) {
+        while (*success == -1) {
             if (!(tmp == ps.active_protocol)) {
-                ps.read_action_client_->async_cancel_all_goals().wait();
+                ps.read_action_client_->async_cancel_all_goals();
                 return false;
             }
             rclcpp::sleep_for(std::chrono::seconds(1));
         }
-        return success;
+        return *success;
     }
 
     int send_goal_blocking(const shr_msgs::action::PlayVideoRequest::Goal &goal, const InstantiatedAction &action) {
         auto [ps, lock] = ProtocolState::getConcurrentInstance();
         auto &kb = KnowledgeBase::getInstance();
-        std::atomic<int> success = -1;
+        auto success = std::make_shared<std::atomic<int>>(-1);
         auto send_goal_options = rclcpp_action::Client<shr_msgs::action::PlayVideoRequest>::SendGoalOptions();
         send_goal_options.result_callback = [&success](
                 const rclcpp_action::ClientGoalHandle<shr_msgs::action::PlayVideoRequest>::WrappedResult result) {
-            success = result.code == rclcpp_action::ResultCode::SUCCEEDED;
+            *success = result.code == rclcpp_action::ResultCode::SUCCEEDED;
         };
         ps.video_action_client_->async_send_goal(goal, send_goal_options);
         auto tmp = ps.active_protocol;
-        while (success == -1) {
+        while (*success == -1) {
             if (!(tmp == ps.active_protocol)) {
-                ps.video_action_client_->async_cancel_all_goals().wait();
+                ps.video_action_client_->async_cancel_all_goals();
                 return false;
             }
             rclcpp::sleep_for(std::chrono::seconds(1));
         }
-        return success;
+        return *success;
     }
 
     long get_inst_index_helper(const InstantiatedAction &action) {
@@ -264,9 +264,11 @@ namespace pddl_lib {
             auto [ps, lock] = ProtocolState::getConcurrentInstance();
             auto &kb = KnowledgeBase::getInstance();
             kb.insert_predicate({"abort", {}});
-            ps.call_client_->async_cancel_all_goals().wait();
-            ps.read_action_client_->async_cancel_all_goals().wait();
-            ps.video_action_client_->async_cancel_all_goals().wait();
+            kb.clear_unknowns();
+
+            ps.call_client_->async_cancel_all_goals();
+            ps.read_action_client_->async_cancel_all_goals();
+            ps.video_action_client_->async_cancel_all_goals();
             nav2_msgs::action::NavigateToPose::Goal navigation_goal_;
             navigation_goal_.pose.header.frame_id = "map";
             navigation_goal_.pose.header.stamp = ps.world_state_converter->now();
@@ -280,6 +282,12 @@ namespace pddl_lib {
             ps.active_protocol = {};
 
             return BT::NodeStatus::SUCCESS;
+        }
+
+        void abort(const InstantiatedAction &action) override {
+            std::cout << "abort: higher priority protocol detected\n";
+            auto &kb = KnowledgeBase::getInstance();
+            kb.insert_predicate({"abort", {}});
         }
 
         BT::NodeStatus high_level_domain_StartWanderingProtocol(const InstantiatedAction &action) override {
@@ -385,7 +393,8 @@ namespace pddl_lib {
             int wait_time = ps.wait_times.at(ps.active_protocol).at(msg);
             for (int i = 0; i < wait_time; i++) {
                 if (!kb.check_conditions(action.precondtions)) {
-                    abort();
+                    abort(action);
+                    return BT::NodeStatus::FAILURE;
                 }
                 rclcpp::sleep_for(std::chrono::seconds(1));
             }
@@ -410,7 +419,8 @@ namespace pddl_lib {
             int wait_time = ps.wait_times.at(ps.active_protocol).at(msg);
             for (int i = 0; i < wait_time; i++) {
                 if (!kb.check_conditions(action.precondtions)) {
-                    abort();
+                    abort(action);
+                    return BT::NodeStatus::FAILURE;
                 }
                 rclcpp::sleep_for(std::chrono::seconds(1));
             }

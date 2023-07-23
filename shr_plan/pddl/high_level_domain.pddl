@@ -16,6 +16,7 @@
 )
 
 (:predicates
+  (person_at ?t - Time ?p - Person ?lm - Landmark)
   ;; medicine
 	(time_to_take_medicine ?m - MedicineProtocol)
 	(already_took_medicine ?m - MedicineProtocol)
