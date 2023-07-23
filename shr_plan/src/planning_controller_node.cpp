@@ -88,7 +88,17 @@ public:
         if (val == TRUTH_VALUE::UNKNOWN || t != "t1") {
             return val;
         }
+        if (world_state_converter->check_person_at_loc(lm)) {
+            return TRUTH_VALUE::TRUE;
+        } else {
+            return TRUTH_VALUE::FALSE;
+        }
+    }
 
+    TRUTH_VALUE person_currently_at(TRUTH_VALUE val,Person p, Landmark lm) const override {
+        if (val == TRUTH_VALUE::UNKNOWN) {
+            return val;
+        }
         if (world_state_converter->check_person_at_loc(lm)) {
             return TRUTH_VALUE::TRUE;
         } else {
@@ -279,7 +289,7 @@ int main(int argc, char **argv) {
         }
     }
 
-    instantiate_protocol("high_level.pddl");
+    instantiate_high_level_problem();
 
     auto &kb = KnowledgeBase::getInstance();
     UpdatePredicatesImpl updater(world_state_converter);

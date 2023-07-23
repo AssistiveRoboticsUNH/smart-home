@@ -16,8 +16,11 @@
 )
 
 (:predicates
+  (robot_at ?lm - Landmark)
   (person_at ?t - Time ?p - Person ?lm - Landmark)
+  (person_currently_at ?p - Person ?lm - Landmark)
   ;; medicine
+  (medicine_location ?lm - Landmark)
 	(time_to_take_medicine ?m - MedicineProtocol)
 	(already_took_medicine ?m - MedicineProtocol)
 	(already_called_about_medicine ?m - MedicineProtocol)
@@ -47,6 +50,14 @@
 
 	(success)
 
+)
+
+(:action MoveToLandmark
+	:parameters (?from - Landmark ?to - Landmark)
+	:precondition (and
+	                (robot_at ?from)
+	          )
+	:effect (and (robot_at ?to) (not (robot_at ?from)) )
 )
 
 (:action ChangePriority_1_2
@@ -79,10 +90,13 @@
 )
 
 (:action StartMedicineProtocol
-	:parameters (?m - MedicineProtocol)
+	:parameters (?m - MedicineProtocol ?p - Person ?cur ?dest - Landmark)
 	:precondition (and
 	    (priority_2)
       (time_to_take_medicine ?m)
+      (person_currently_at ?p ?cur)
+      (robot_at ?cur)
+      (medicine_location ?dest)
       (not (already_took_medicine ?m))
       (not (already_called_about_medicine ?m))
       (forall (?med - MedicineProtocol) (not (medicine_protocol_enabled ?med)) )

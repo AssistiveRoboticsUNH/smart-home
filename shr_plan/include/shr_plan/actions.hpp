@@ -16,26 +16,26 @@ namespace pddl_lib {
     public:
         InstantiatedParameter active_protocol;
         std::shared_ptr<WorldStateListener> world_state_converter;
-        const std::unordered_map<InstantiatedParameter, std::unordered_map<std::string, int>> wait_times = {
-                {{"daily_wand", "WanderingProtocol"}, {{"automated_msg", 0},
-                                                              {"recorded_msg", 30},
-                                                              {"call_caregiver_outside_msg", 0},
-                                                              {"call_emergency_msg", 60},
-                                                              {"call_caregiver_bed_msg",   30},
+        const std::unordered_map<InstantiatedParameter, std::unordered_map<std::string, std::pair<int, int>>> wait_times = {
+                {{"daily_wand", "WanderingProtocol"}, {{"automated_msg", {0, 0}},
+                                                              {"recorded_msg", {10, 0}},
+                                                              {"call_caregiver_outside_msg", {0, 0}},
+                                                              {"call_emergency_msg", {60, 0}},
+                                                              {"call_caregiver_bed_msg",   {30, 0}},
                                                       }},
-                {{"daily_med",  "MedicineProtocol"},  {{"guide_1_msg",   10},
-                                                              {"guide_2_msg",  10},
-                                                              {"automated_msg",              10},
-                                                              {"recorded_msg",       10},
-                                                              {"call_caregiver_guide_msg", 10},
-                                                              {"call_caregiver_msg", 10},
+                {{"daily_med",  "MedicineProtocol"},  {{"guide_1_msg",   {0, 10}},
+                                                              {"guide_2_msg",  {0,  10}},
+                                                              {"automated_msg",              {0, 0}},
+                                                              {"recorded_msg",       {10, 0}},
+                                                              {"call_caregiver_guide_msg", {30, 0}},
+                                                              {"call_caregiver_msg", {30, 0}},
                                                       }},
-                {{"dinner",     "FoodProtocol"},      {{"guide_1_msg",   10},
-                                                              {"guide_2_msg",  10},
-                                                              {"automated_msg",              10},
-                                                              {"recorded_msg",       10},
-                                                              {"call_caregiver_guide_msg", 10},
-                                                              {"call_caregiver_msg", 10},
+                {{"dinner",     "FoodProtocol"},      {{"guide_1_msg",   {0, 10}},
+                                                              {"guide_2_msg",  {0,  10}},
+                                                              {"automated_msg",              {0, 0}},
+                                                              {"recorded_msg",       {10, 0}},
+                                                              {"call_caregiver_guide_msg", {10, 0}},
+                                                              {"call_caregiver_msg", {10, 0}},
                                                       }}
         };
 
@@ -44,10 +44,10 @@ namespace pddl_lib {
                                                               {"call_caregiver_bed_msg", {"call_msg_will_not_go_to_bed.xml", "6038514204"}},
                                                               {"call_emergency_msg", {"call_msg_911.xml", "6038514204"}},
                                                       }},
-                {{"daily_med",  "MedicineProtocol"},  {{"call_caregiver_guide_msg",   {"call_msg_will_not_go_to_bed.xml", "6038514204"}}, //TODO fix these
+                {{"daily_med",  "MedicineProtocol"},  {{"call_caregiver_guide_msg",   {"call_msg_medical.xml", "6038514204"}}, //TODO fix these
                                                               {"call_caregiver_msg",     {"call_msg_medical.xml",            "6038514204"}},
                                                       }},
-                {{"dinner",     "FoodProtocol"},      {{"call_caregiver_guide_msg",   {"call_msg_will_not_go_to_bed.xml", "6038514204"}}, //TODO fix these
+                {{"dinner",     "FoodProtocol"},      {{"call_caregiver_guide_msg",   {"call_msg_food.xml", "6038514204"}}, //TODO fix these
                                                               {"call_caregiver_msg",     {"call_msg_food.xml",               "6038514204"}},
                                                       }}
         };
@@ -55,22 +55,22 @@ namespace pddl_lib {
         const std::unordered_map<InstantiatedParameter, std::unordered_map<std::string, std::string>> automated_reminder_msgs = {
                 {{"daily_wand", "WanderingProtocol"}, {{"automated_msg", "midnight_reminder.txt"},
                                                       }},
-                {{"daily_med",  "MedicineProtocol"},  {{"guide_1_msg",   "midnight_reminder.txt"},//TODO fix these
-                                                              {"guide_2_msg", "midnight_reminder.txt"},//TODO fix these
-                                                              {"automated_msg", "midnight_reminder.txt"},//TODO fix these
+                {{"daily_med",  "MedicineProtocol"},  {{"guide_1_msg",   "follow_me.txt"},//TODO fix these
+                                                              {"guide_2_msg", "follow_me.txt"},//TODO fix these
+                                                              {"automated_msg", "medicine_reminder.txt"},//TODO fix these
                                                       }},
-                {{"dinner",     "FoodProtocol"},      {{"guide_1_msg",   "midnight_reminder.txt"},//TODO fix these
-                                                              {"guide_2_msg", "midnight_reminder.txt"},//TODO fix these
-                                                              {"automated_msg", "midnight_reminder.txt"},//TODO fix these
+                {{"dinner",     "FoodProtocol"},      {{"guide_1_msg",   "follow_me.txt"},//TODO fix these
+                                                              {"guide_2_msg", "follow_me.txt"},//TODO fix these
+                                                              {"automated_msg", "food_reminder.txt"},//TODO fix these
                                                       }}
         };
 
         const std::unordered_map<InstantiatedParameter, std::unordered_map<std::string, std::string>> recorded_reminder_msgs = {
                 {{"daily_wand", "WanderingProtocol"}, {{"recorded_msg", "midnight_reminder.mp3"},//TODO fix these
                                                       }},
-                {{"daily_med",  "MedicineProtocol"},  {{"recorded_msg", "midnight_reminder.mp3"},//TODO fix these
+                {{"daily_med",  "MedicineProtocol"},  {{"recorded_msg", "medicine_reminder.mp3"},//TODO fix these
                                                       }},
-                {{"dinner",     "FoodProtocol"},      {{"recorded_msg", "midnight_reminder.mp3"},//TODO fix these
+                {{"dinner",     "FoodProtocol"},      {{"recorded_msg", "food_reminder.mp3"},//TODO fix these
                                                       }}
         };
 
@@ -232,29 +232,34 @@ namespace pddl_lib {
         return ss.str();
     }
 
-    void instantiate_protocol(const std::string &protocol_name) {
+    void instantiate_high_level_problem() {
         auto &kb = KnowledgeBase::getInstance();
-        if (protocol_name != "high_level.pddl") {
-            auto high_level_domain_content = get_file_content("high_level_domain.pddl");
-            auto high_level_domain = parse_domain(high_level_domain_content).value();
-            auto current_high_level = parse_problem(kb.convert_to_problem(high_level_domain),
-                                                    high_level_domain_content).value();
+        auto protocol_content = get_file_content("problem_high_level.pddl");
+        auto domain_content = get_file_content("high_level_domain.pddl");
+        auto prob = parse_problem(protocol_content, domain_content).value();
+        kb.clear();
+        kb.load_kb(prob);
+    }
 
-            auto protocol_content = get_file_content("problem_" + protocol_name);
-            auto domain_content = get_file_content("low_level_domain.pddl");
-            auto prob = parse_problem(protocol_content, domain_content).value();
 
-            kb.clear();
-            kb.load_kb(current_high_level);
-            kb.load_kb(prob);
-        } else {
-            auto protocol_content = get_file_content("problem_" + protocol_name);
-            auto domain_content = get_file_content("high_level_domain.pddl");
-            auto prob = parse_problem(protocol_content, domain_content).value();
+    void instantiate_protocol(const std::string &protocol_name,
+                              const std::vector<std::pair<std::string, std::string>> &replacements = {}) {
+        auto &kb = KnowledgeBase::getInstance();
+        auto high_level_domain_content = get_file_content("high_level_domain.pddl");
+        auto high_level_domain = parse_domain(high_level_domain_content).value();
+        auto current_high_level = parse_problem(kb.convert_to_problem(high_level_domain),
+                                                high_level_domain_content).value();
 
-            kb.clear();
-            kb.load_kb(prob);
+        auto protocol_content = get_file_content("problem_" + protocol_name);
+        auto domain_content = get_file_content("low_level_domain.pddl");
+        for (const auto &replacement: replacements) {
+            protocol_content = replace_token(protocol_content, replacement.first, replacement.second);
         }
+        auto prob = parse_problem(protocol_content, domain_content).value();
+
+        kb.clear();
+        kb.load_kb(current_high_level);
+        kb.load_kb(prob);
 
     }
 
@@ -302,12 +307,37 @@ namespace pddl_lib {
         // medicine_protocol
         BT::NodeStatus high_level_domain_StartMedicineProtocol(const InstantiatedAction &action) override {
             auto &kb = KnowledgeBase::getInstance();
-            InstantiatedParameter inst = action.parameters[0];
-            instantiate_protocol("medicine.pddl");
+            InstantiatedParameter protocol = action.parameters[0];
+            InstantiatedParameter cur = action.parameters[2];
+            InstantiatedParameter dest = action.parameters[3];
+            if (dest.name == "kitchen" && cur.name == "kitchen") {
+                instantiate_protocol("medicine.pddl");
+            } else {
+                instantiate_protocol("medicine.pddl", {{"couch",   cur.name},
+                                                       {"kitchen", dest.name}});
+            }
+
+//            InstantiatedParameter t1 = {"t1", "Time"};
+//            InstantiatedAction action_inst = {"MoveToLandmark",
+//                                              {t1, {"", ""}, cur}}; // ?t - Time ?from - Landmark ?to - Landmark
+//            auto ret = shr_domain_MoveToLandmark(action_inst);
+//            if (ret == BT::NodeStatus::SUCCESS) {
             auto [ps, lock] = ProtocolState::getConcurrentInstance();
-            ps.active_protocol = inst;
+            ps.active_protocol = protocol;
+//            }
             return BT::NodeStatus::SUCCESS;
         }
+
+        BT::NodeStatus high_level_domain_MoveToLandmark(const InstantiatedAction &action) override {
+            InstantiatedParameter from = action.parameters[0];
+            InstantiatedParameter to = action.parameters[1];
+
+            InstantiatedParameter t1 = {"t1", "Time"};
+            InstantiatedAction action_inst = {"MoveToLandmark",
+                                              {t1, from, to}}; // ?t - Time ?from - Landmark ?to - Landmark
+            return shr_domain_MoveToLandmark(action_inst);
+        }
+
 
         // food_protocol
         BT::NodeStatus high_level_domain_StartFoodProtocol(const InstantiatedAction &action) override {
@@ -390,7 +420,7 @@ namespace pddl_lib {
             auto [ps, lock] = ProtocolState::getConcurrentInstance();
             auto &kb = KnowledgeBase::getInstance();
             std::string msg = action.parameters[3].name;
-            int wait_time = ps.wait_times.at(ps.active_protocol).at(msg);
+            int wait_time = ps.wait_times.at(ps.active_protocol).at(msg).first;
             for (int i = 0; i < wait_time; i++) {
                 if (!kb.check_conditions(action.precondtions)) {
                     abort(action);
@@ -399,16 +429,21 @@ namespace pddl_lib {
                 rclcpp::sleep_for(std::chrono::seconds(1));
             }
 
+            BT::NodeStatus ret;
             if (ps.automated_reminder_msgs.at(ps.active_protocol).find(msg) !=
                 ps.automated_reminder_msgs.at(ps.active_protocol).end()) {
                 shr_msgs::action::ReadScriptRequest::Goal read_goal_;
                 read_goal_.script_name = ps.automated_reminder_msgs.at(ps.active_protocol).at(msg);
-                return send_goal_blocking(read_goal_, action) ? BT::NodeStatus::SUCCESS : BT::NodeStatus::FAILURE;
+                ret = send_goal_blocking(read_goal_, action) ? BT::NodeStatus::SUCCESS : BT::NodeStatus::FAILURE;
             } else {
                 shr_msgs::action::PlayVideoRequest::Goal video_goal_;
                 video_goal_.file_name = ps.recorded_reminder_msgs.at(ps.active_protocol).at(msg);
-                return send_goal_blocking(video_goal_, action) ? BT::NodeStatus::SUCCESS : BT::NodeStatus::FAILURE;
+                ret = send_goal_blocking(video_goal_, action) ? BT::NodeStatus::SUCCESS : BT::NodeStatus::FAILURE;
             }
+            if (ret == BT::NodeStatus::SUCCESS) {
+                rclcpp::sleep_for(std::chrono::seconds(ps.wait_times.at(ps.active_protocol).at(msg).second));
+            }
+            return ret;
         }
 
         BT::NodeStatus shr_domain_MakeCall(const InstantiatedAction &action) override {
@@ -416,7 +451,7 @@ namespace pddl_lib {
             auto params = ps.world_state_converter->get_params();
             auto &kb = KnowledgeBase::getInstance();
             std::string msg = action.parameters[3].name;
-            int wait_time = ps.wait_times.at(ps.active_protocol).at(msg);
+            int wait_time = ps.wait_times.at(ps.active_protocol).at(msg).first;
             for (int i = 0; i < wait_time; i++) {
                 if (!kb.check_conditions(action.precondtions)) {
                     abort(action);
@@ -428,7 +463,11 @@ namespace pddl_lib {
             shr_msgs::action::CallRequest::Goal call_goal_;
             call_goal_.script_name = ps.call_msgs.at(ps.active_protocol).at(msg).first;
             call_goal_.phone_number = ps.call_msgs.at(ps.active_protocol).at(msg).second;
-            return send_goal_blocking(call_goal_, action) ? BT::NodeStatus::SUCCESS : BT::NodeStatus::FAILURE;
+            auto ret = send_goal_blocking(call_goal_, action) ? BT::NodeStatus::SUCCESS : BT::NodeStatus::FAILURE;
+            if (ret == BT::NodeStatus::SUCCESS) {
+                rclcpp::sleep_for(std::chrono::seconds(ps.wait_times.at(ps.active_protocol).at(msg).second));
+            }
+            return ret;
         }
 
         BT::NodeStatus shr_domain_DetectTakingMedicine(const InstantiatedAction &action) override {
