@@ -1,32 +1,8 @@
 repositories:
-  external/people:
-    type: git
-    url: https://github.com/wg-perception/people.git
-    version: ros2
   external/audio_common:
     type: git
     url: https://github.com/AssistiveRoboticsUNH/audio_common.git
     version: ros2
-  external/sick_scan_xd:
-    type: git
-    url: https://github.com/AssistiveRoboticsUNH/sick_scan_xd.git
-    version: ros2
-  external/p2os:
-    type: git
-    url: https://github.com/AssistiveRoboticsUNH/p2os.git
-    version: ros2
-  external/openni2_camera:
-    type: git
-    url: https://github.com/mikeferguson/openni2_camera.git
-    version: ros2
-  external/ros2_planning_system:
-    type: git
-    url: https://github.com/olaghattas/ros2_planning_system.git
-    version: add-cff-planner-ament-format
-  external/plansys2_cff_plan_solver:
-    type: git
-    url: https://github.com/pac48/plansys2_cff_plan_solver.git
-    version: main
   external/smartthings_ros:
     type: git
     url: https://github.com/AssistiveRoboticsUNH/smartthings_ros.git
@@ -39,19 +15,19 @@ repositories:
     type: git
     url:  https://github.com/olaghattas/tapo_cam_ros_wrapper.git
     version: master
-  external/generate_parameter_library:
-    type: git
-    url: https://github.com/PickNikRobotics/generate_parameter_library.git
-    version: main
   external/ros2_unity_bridge:
     type: git
     url: https://github.com/AssistiveRoboticsUNH/ros2_unity_bridge.git
     version: main
-  external/ros2_pioneer:
-    type: git
-    url: https://github.com/AssistiveRoboticsUNH/ros2_pioneer.git
-    version: main
   external/ros2_jackal:
     type: git
     url: https://github.com/AssistiveRoboticsUNH/ros2_jackal.git
+    version: main
+  external/generate_parameter_library:
+    type: git
+    url: https://github.com/PickNikRobotics/generate_parameter_library.git
+    version: main
+  external/pddl_executor:
+    type: git
+    url: https://github.com/pac48/PDDL-Executor.git
     version: main

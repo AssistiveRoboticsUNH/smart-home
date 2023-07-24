@@ -1,0 +1,178 @@
+shr_parameters:
+  pddl:
+    instances:
+      Landmarks: {
+        type: string_array,
+        default_value: [ "kitchen", "couch", "home" , "door", "outside" ],
+        description: "all landmarks in protocols",
+      }
+      Robots: {
+        type: string_array,
+        default_value: [ "jackel" ],
+        description: "all robots in protocols",
+      }
+      Persons: {
+        type: string_array,
+        default_value: [ "nathan" ],
+        description: "all people in protocols",
+      }
+    FoodProtocols:
+      instances: {
+        type: string_array,
+        default_value: [ "breakfast", "lunch", "dinner" ],
+        description: "food protocols",
+      }
+      eat_times: {
+        type: string_array,
+        default_value: [ "7h0m0s/8h0m0s", "14h30m0s/15h30m0s", "18h00m0s/19h0m0s" ],
+        description: "time that each protocol is triggered",
+      }
+      eat_locations: {
+        type: string_array,
+        default_value: [ "kitchen", "kitchen", "kitchen" ],
+        description: "topic for detecting pills being taken",
+      }
+      check_guide_to_succeeded_times: {
+        type: string_array,
+        default_value: [ "0h1m0s", "0h1m0s", "0h1m0s" ],
+        description: "time to wait for observation",
+      }
+      remind_automated_food_at_times: {
+        type: string_array,
+        default_value: [ "0h10m0s", "0h10m0s", "0h10m0s" ],
+        description: "time to wait for observation",
+      }
+      remind_automated_food_at_2_times: {
+        type: string_array,
+        default_value: [ "0h10m0s", "0h1m0s", "0h10m0s" ],
+        description: "time to wait for observation",
+      }
+    MedicineProtocols:
+      instances: {
+        type: string_array,
+        default_value: [ "daily_med" ],
+        description: "medicine protocols",
+      }
+      medicine_location: {
+        type: string_array,
+        default_value: [ "kitchen" ],
+        description: "location of medicine",
+      }
+      take_medication_time: {
+        type: string_array,
+        default_value: [ "8h0m0s/9h0m0s" ],
+        description: "time that each protocol is triggered",
+      }
+    WanderingProtocols:
+      instances: {
+        type: string_array,
+        default_value: [ "daily_wand" ],
+        description: "wandering protocols",
+      }
+      outside_location: {
+        type: string_array,
+        default_value: [ "outside" ],
+        description: "topic for detecting pills being taken",
+      }
+      door_location: {
+        type: string_array,
+        default_value: [ "door" ],
+        description: "topic for detecting pills being taken",
+      }
+      bedroom_location: {
+        type: string_array,
+        default_value: [ "bedroom" ],
+        description: "topic for detecting pills being taken",
+      }
+      too_late_to_leave_time: {
+        type: string_array,
+        default_value: [ "22h0m0s/6h0m0s" ],
+        description: "time that the person must not go outside",
+      }
+    FallProtocols:
+      instances: {
+        type: string_array,
+        default_value: [ "daily_fall" ],
+        description: "wandering protocols",
+      }
+      wait_times: {
+        type: string_array,
+        default_value: [ "0h10m0s" ],
+        description: "time to wait for observation",
+      }
+
+  caregiver_phone_number: {
+    type: string,
+    default_value: "6038514204",
+    description: "caregiver phone number",
+  }
+
+  emergency_phone_number: {
+    type: string,
+    default_value: "6038514204",
+    description: "emergency phone number",
+  }
+  tf_frames: {
+    type: string_array,
+    default_value: [ "bedroom", "kitchen", "couch", "door" ],
+    description: "list of tf frame locations that the robot can visit",
+  }
+  # at danes house
+  tf_values:
+    bedroom: {
+      type: double_array,
+      default_value: [ -2, -3.69, 0, 0, 0, 0, 1 ],
+      description: "TF for kitchen",
+    }
+    kitchen: {
+      type: double_array,
+      default_value: [ 1.9, -0.27, 0, 0, 0, 0, 1 ],
+      description: "TF for kitchen",
+    }
+    couch: {
+      type: double_array,
+      default_value: [ 0, 1.6, -0.0, 0, 0, 0, 1 ],
+      description: "TF for couch",
+    }
+    door: {
+      type: double_array,
+      default_value: [ -2.89, 0.59, 0, 0, 0, 0, 1 ],
+      description: "TF for couch",
+    }
+  topics:
+    time: {
+      type: string,
+      default_value: "/protocol_time",
+      description: "topic for protocol clock time",
+    }
+    person_taking_medicine: {
+      type: string,
+      default_value: "/person_taking_medicine",
+      description: "topic for sensor that detect if medication is taken",
+    }
+    person_eating: {
+      type: string,
+      default_value: "/person_eating",
+      description: "topic for sensor that detect if patient is eating",
+    }
+  person_tf: {
+    type: string,
+    default_value: "nathan",
+    description: "person tf frame id",
+  }
+  robot_tf: {
+    type: string,
+    default_value: "base_link",
+    description: "robot tf frame id",
+  }
+
+
+
+
+
+
+
+
+
+
+

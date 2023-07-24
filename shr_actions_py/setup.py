@@ -22,6 +22,7 @@ setup(
         'console_scripts': ['recognize_face_action = shr_actions_py.recognize_face_action:main',
                             'read_script_action = shr_actions_py.read_script_action:main',
                             'make_call_action = shr_actions_py.make_call_action:main',
+                            'send_text_action = shr_actions_py.send_text_action:main',
                             'play_audio_action = shr_actions_py.play_audio_action:main',
                             'play_video_action = shr_actions_py.play_video_action:main',
                             'open_image_action = shr_actions_py.open_image_action:main',
