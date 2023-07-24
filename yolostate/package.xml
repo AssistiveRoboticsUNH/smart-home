@@ -14,6 +14,9 @@
   <depend>sensor_msgs</depend>
   <depend>std_msgs</depend>
   <depend>shr_msgs</depend>
+  <depend>opencv</depend>
+  <depend>vision_opencv</depend>
+
   <!-- <depend>opencv2</depend> -->
   <exec_depend>python3-requests</exec_depend>
 

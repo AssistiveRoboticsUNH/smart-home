@@ -113,6 +113,7 @@ class RecognizeFaceActionServer(Node):
             # rclpy.spin_once(self)
 
         # timeout
+        self.get_logger().info('Recognize face was aborted')
         goal_handle.abort()
         result.names = [""]
 

@@ -119,7 +119,11 @@ class WorldStateNode(Node):
         self.subscriber_debug_time_to_eat_dinner = self.create_subscription(Bool, '/time_to_eat_dinner',
                                                                             self.debug_time_to_eat_dinner_callback, 10)
 
-        self.subscriber_debug_too_late_to_leave = 0
+        self.too_late_to_leave_debug = 0
+        self.time_to_take_medicine_debug = 0
+        self.time_to_eat_breakfast_debug = 0
+        self.time_to_eat_lunch_debug = 0
+        self.time_to_eat_dinner_debug = 0
 
     def indicate_success_protocol(self, msg):
 
@@ -210,30 +214,27 @@ class WorldStateNode(Node):
     ## for debugging
     def debug_too_late_to_leave_callback(self, msg):
         print('here')
-
-        self.world_state.too_late_to_leave = msg.data
-        print('lllllllll', self.world_state.too_late_to_leave)
+        self.too_late_to_leave_debug = msg.data
 
     def debug_time_to_take_medicine_callback(self, msg):
         print('_to_take_medicine', msg.data)
         if msg:
-            self.world_state.time_to_take_medicine = msg.data
-            print(self.world_state.time_to_take_medicine)
+            self.time_to_take_medicine_debug = msg.data
 
     def debug_time_to_eat_breakfast_callback(self, msg):
         print('time_to_eat_breakfast', msg.data)
         if msg:
-            self.world_state.time_to_eat_breakfast = msg.data
+            self.time_to_eat_breakfast_debug = msg.data
 
     def debug_time_to_eat_lunch_callback(self, msg):
         print('time_to_eat_lunch', msg.data)
         if msg:
-            self.world_state.time_to_eat_lunch = msg.data
+            self.time_to_eat_lunch_debug = msg.data
 
     def debug_time_to_eat_dinner_callback(self, msg):
         print('time_to_eat_dinner', msg.data)
         if msg:
-            self.world_state.time_to_eat_dinner = msg.data
+            self.time_to_eat_dinner_debug = msg.data
 
     def publish_world_state(self, sensor_data=None, patient_location=None):
         if patient_location:
@@ -264,11 +265,36 @@ class WorldStateNode(Node):
             self.world_state.patient_location = ""
 
         ## check time
-        self.world_state.too_late_to_leave = datetime.datetime.now().hour >= self.too_late_to_leave
-        self.world_state.time_to_take_medicine = datetime.datetime.now().hour * 60 + datetime.datetime.now().minute > self.take_medication_time and datetime.datetime.now().hour * 60 + datetime.datetime.now().minute < self.take_medication_time + 30
-        self.world_state.time_to_eat_breakfast = datetime.datetime.now().hour * 60 + datetime.datetime.now().minute > self.eat_time_breakfast and datetime.datetime.now().hour * 60 + datetime.datetime.now().minute < self.eat_time_breakfast + 30
-        #self.world_state.time_to_eat_lunch = datetime.datetime.now().hour * 60 + datetime.datetime.now().minute > self.eat_time_lunch and datetime.datetime.now().hour * 60 + datetime.datetime.now().minute < self.eat_time_lunch + 30
-        self.world_state.time_to_eat_dinner = datetime.datetime.now().hour * 60 + datetime.datetime.now().minute > self.eat_time_dinner and datetime.datetime.now().hour * 60 + datetime.datetime.now().minute < self.eat_time_dinner + 30
+        print("checking time")
+        if self.too_late_to_leave_debug:
+            self.world_state.too_late_to_leave = self.too_late_to_leave_debug
+        else:
+            # before midnight
+            if datetime.datetime.now().hour * 60 + datetime.datetime.now().minute >= self.too_late_to_leave or datetime.datetime.now().hour * 60 + datetime.datetime.now().minute <= 5*60:
+                self.world_state.too_late_to_leave = True
+            # after midnight till 5am
+            else:
+                self.world_state.too_late_to_leave = False
+
+        if self.time_to_take_medicine_debug:
+            self.world_state.time_to_take_medicine = self.time_to_take_medicine_debug
+        else:
+            self.world_state.time_to_take_medicine = datetime.datetime.now().hour * 60 + datetime.datetime.now().minute > self.take_medication_time and datetime.datetime.now().hour * 60 + datetime.datetime.now().minute < self.take_medication_time + 30
+
+        if self.time_to_eat_breakfast_debug:
+            self.world_state.time_to_eat_breakfast = self.time_to_eat_breakfast_debug
+        else:
+            self.world_state.time_to_eat_breakfast = datetime.datetime.now().hour * 60 + datetime.datetime.now().minute > self.eat_time_breakfast and datetime.datetime.now().hour * 60 + datetime.datetime.now().minute < self.eat_time_breakfast + 30
+
+        if self.time_to_eat_lunch_debug:
+            self.world_state.time_to_eat_lunch = self.time_to_eat_lunch_debug
+        #else:
+            #self.world_state.time_to_eat_lunch = datetime.datetime.now().hour * 60 + datetime.datetime.now().minute > self.eat_time_lunch and datetime.datetime.now().hour * 60 + datetime.datetime.now().minute < self.eat_time_lunch + 30
+
+        if self.time_to_eat_dinner_debug:
+            self.world_state.time_to_eat_dinner = self.time_to_eat_dinner_debug
+        else:
+            self.world_state.time_to_eat_dinner = datetime.datetime.now().hour * 60 + datetime.datetime.now().minute > self.eat_time_dinner and datetime.datetime.now().hour * 60 + datetime.datetime.now().minute < self.eat_time_dinner + 30
 
         ## this is to stop the wandering protocol from getting triggered again when person is at the door and the robot already called the caregiver. It will be stopped for 5 mins
         ## wandering protocol eventually stops when the person is no longer cdetected by the door sensor so no other stopping condition needs to be added

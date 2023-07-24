@@ -19,6 +19,15 @@ def generate_launch_description():
 
     ld.add_action(world_state_node)
 
+    simple_logger = Node(
+        package="simple_logger",
+        executable="simple_logger",
+        name="simple_logger",
+        output="log"
+    )
+
+    ld.add_action(simple_logger)
+
     detect_eating_node = Node(
         package="shr_world_state",
         executable="detect_eating_node",

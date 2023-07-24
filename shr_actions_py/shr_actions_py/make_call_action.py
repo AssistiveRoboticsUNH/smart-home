@@ -16,7 +16,7 @@ class MakeCallActionServer(Node):
                                                       self.make_call_callback)
 
     def make_call_callback(self, goal_handle):
-        self.get_logger().info('Reading script...')
+        self.get_logger().info('Making call...')
         result = CallRequest.Result()
 
         account_sid = os.environ['TWILIO_ACCOUNT_SID']
@@ -29,10 +29,11 @@ class MakeCallActionServer(Node):
                 to=goal_handle.request.phone_number,
                 from_='+18332484379')
         except Exception as e:
+            self.get_logger().info('Making call failed')
             result.status = "failed: " + str(e)
             goal_handle.abort()
             return result
-
+        self.get_logger().info('Making call succeeded')
         result.status = "success"
         goal_handle.succeed()
 
