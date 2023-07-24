@@ -52,25 +52,8 @@ class LogSubscriber(Node):
         name=msg.name
         file=msg.file 
         data=msg.msg 
-        
-        td=datetime.fromtimestamp(stamp.sec).strftime("%m/%d/%Y : %H:%M:%S")
-
-        date=datetime.fromtimestamp(stamp.sec).strftime("%m/%d/%Y")
-        # print(f'\ntime={td}')
-        # print(f'name={name}')
-        # print(f'file={file}')
-        # print(f'data={data}')
-
-        packat={}
-        packat['time']=td
-        packat['name']=name
-        packat['file']=file
-        packat['data']=data
-
-        # data=json.dumps(packat)
-        # data={td:data} 
-        # jackal_ref.set(data)
-        print("td=",td)
+        function=msg.function
+ 
 
         # db.collection('hello').document('jackal').set({
         #     "time": td,
@@ -80,11 +63,16 @@ class LogSubscriber(Node):
         # }, merge=True)
 
         # db.collection("hello").document().set(packat);
-        today=time.strftime("%m-%d-%Y", time.gmtime())
-        stamp=str(stamp.sec)+'_'+str(stamp.nanosec)
-        print('stamp=',stamp)
-        dref = collection_ref.document(today)
-        dref.set({stamp: {'name':name,'file':file, "data":data} }, merge=True )
+
+        magic_key='weblog='
+        if data.startswith(magic_key):
+            data=data.replace(magic_key,'')
+
+            today=time.strftime("%m-%d-%Y", time.gmtime())
+            stamp=str(stamp.sec)+'_'+str(stamp.nanosec)
+            print('stamp=',stamp)
+            dref = collection_ref.document(today)
+            dref.set({stamp: {'name':name,'file':file, "data":data , "function":function } }, merge=True )
 
 
 

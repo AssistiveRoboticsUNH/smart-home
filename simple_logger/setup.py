@@ -20,7 +20,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'simple_logger=simple_logger.log_rosout:main'
+            'simple_logger=simple_logger.log_rosout:main',
+            'logweb=simple_logger.logweb_rosout:main'
         ],
     },
 )
