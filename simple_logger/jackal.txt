@@ -1,0 +1,7 @@
+cd ~/docker/smart-home-jackal
+docker compose up
+
+#another terminal
+docker exec -it smart-home-jackal-smart-home-noetic-1 bash
+source install/setup.bash
+
