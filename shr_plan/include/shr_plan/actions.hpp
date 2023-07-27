@@ -451,7 +451,7 @@ namespace pddl_lib {
             std::string msg = action.parameters[3].name;
             int wait_time = ps.wait_times.at(ps.active_protocol).at(msg).first;
             for (int i = 0; i < wait_time; i++) {
-                if (!kb.check_conditions(action.precondtions)) {
+                if (kb.check_conditions(action.precondtions) == TRUTH_VALUE::FALSE) {
                     abort(action);
                     return BT::NodeStatus::FAILURE;
                 }
@@ -482,7 +482,7 @@ namespace pddl_lib {
             std::string msg = action.parameters[3].name;
             int wait_time = ps.wait_times.at(ps.active_protocol).at(msg).first;
             for (int i = 0; i < wait_time; i++) {
-                if (!kb.check_conditions(action.precondtions)) {
+                if (kb.check_conditions(action.precondtions) == TRUTH_VALUE::FALSE) {
                     abort(action);
                     return BT::NodeStatus::FAILURE;
                 }

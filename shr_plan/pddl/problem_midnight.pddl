@@ -1,7 +1,7 @@
 (define (problem midnight_wandering)
 (:domain shr_domain)
 (:objects
-    bed door outside couch living_room dinning_room kitchen bathroom - Landmark
+    bed door outside couch living_room dining_room kitchen bathroom - Landmark
     nathan - Person
     t1 t2 t3 t4 t5 - Time
     automated_msg recorded_msg call_caregiver_outside_msg call_caregiver_bed_msg call_emergency_msg - Msg
@@ -28,7 +28,7 @@
     (oneof (person_at t5 nathan door) (person_at t5 nathan outside) (person_at t5 nathan bed) )
 
     (traversable living_room door)
-    (traversable dinning_room door)
+    (traversable dining_room door)
     (traversable kitchen door)
     (traversable couch door)
 
