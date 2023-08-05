@@ -31,3 +31,23 @@ repositories:
     type: git
     url: https://github.com/pac48/PDDL-Executor.git
     version: main
+  external/apriltag:
+    type: git
+    url: https://github.com/AprilRobotics/apriltag.git
+    version: origin
+  external/apriltag_ros:
+    type: git
+    url: https://github.com/olaghattas/apriltag_ros.git
+    version: origin
+  external/aptags_tf_broadcast:
+    type: git
+    url: https://github.com/olaghattas/aptags_tf_broadcast.git
+    version: origin
+  external/localization_py:
+    type: git
+    url: https://github.com/olaghattas/localization_py.git
+    version: origin
+  external/tf_to_yaml:
+    type: git
+    url: https://github.com/olaghattas/tf_to_yaml.git
+    version: origin
