@@ -18,7 +18,6 @@
 #include <map>
 #include <vector>
 //
-#include "plansys2_executor/ActionExecutorClient.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_action/rclcpp_action.hpp"
 #include "shr_msgs/action/read_script_request.hpp"

@@ -31,13 +31,13 @@ generate_bt_header(bt_shr_actions
 set(dependencies
     ament_index_cpp
     nav2_msgs
-    plansys2_msgs
     rclcpp
     rclcpp_action
     shr_msgs
     shr_parameters
     shr_utils
     tf2_ros
+    behaviortree_cpp_v3
     )
 
 add_executable(planning_controller_node src/planning_controller_node.cpp)

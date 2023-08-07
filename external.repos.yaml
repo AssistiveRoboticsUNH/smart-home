@@ -34,20 +34,20 @@ repositories:
   external/apriltag:
     type: git
     url: https://github.com/AprilRobotics/apriltag.git
-    version: origin
+    version: master
   external/apriltag_ros:
     type: git
     url: https://github.com/olaghattas/apriltag_ros.git
-    version: origin
+    version: foxy-devel
   external/aptags_tf_broadcast:
     type: git
     url: https://github.com/olaghattas/aptags_tf_broadcast.git
-    version: origin
+    version: main
   external/localization_py:
     type: git
     url: https://github.com/olaghattas/localization_py.git
-    version: origin
+    version: main
   external/tf_to_yaml:
     type: git
     url: https://github.com/olaghattas/tf_to_yaml.git
-    version: origin
+    version: main
