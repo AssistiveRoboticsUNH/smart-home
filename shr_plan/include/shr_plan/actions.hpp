@@ -358,7 +358,6 @@ namespace pddl_lib {
             return shr_domain_MoveToLandmark(action_inst);
         }
 
-
         // food_protocol
         BT::NodeStatus high_level_domain_StartFoodProtocol(const InstantiatedAction &action) override {
 
@@ -421,12 +420,22 @@ namespace pddl_lib {
             return BT::NodeStatus::SUCCESS;
         }
 
-
         BT::NodeStatus shr_domain_DetectEatingFood(const InstantiatedAction &action) override {
+            auto &kb = KnowledgeBase::getInstance();
+            auto t = action.parameters[0];
+            InstantiatedPredicate ate_food = {"person_eating", {t}};
+            if (kb.find_predicate(ate_food)) {
+                return BT::NodeStatus::SUCCESS;
+            }
             return BT::NodeStatus::FAILURE;
         }
 
         BT::NodeStatus shr_domain_MoveToLandmark(const InstantiatedAction &action) override {
+            /// added to check navigation first
+
+
+
+            /// move robot to location
             auto [ps, lock] = ProtocolState::getConcurrentInstance();
             std::string location = action.parameters[2].name;
 
@@ -451,7 +460,7 @@ namespace pddl_lib {
             std::string msg = action.parameters[3].name;
             int wait_time = ps.wait_times.at(ps.active_protocol).at(msg).first;
             for (int i = 0; i < wait_time; i++) {
-                if (!kb.check_conditions(action.precondtions)) {
+                if (kb.check_conditions(action.precondtions) == TRUTH_VALUE::FALSE) {
                     abort(action);
                     return BT::NodeStatus::FAILURE;
                 }
@@ -482,7 +491,7 @@ namespace pddl_lib {
             std::string msg = action.parameters[3].name;
             int wait_time = ps.wait_times.at(ps.active_protocol).at(msg).first;
             for (int i = 0; i < wait_time; i++) {
-                if (!kb.check_conditions(action.precondtions)) {
+                if (kb.check_conditions(action.precondtions) == TRUTH_VALUE::FALSE) {
                     abort(action);
                     return BT::NodeStatus::FAILURE;
                 }

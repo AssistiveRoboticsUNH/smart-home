@@ -8,7 +8,7 @@ shr_parameters:
       }
       Robots: {
         type: string_array,
-        default_value: [ "jackel" ],
+        default_value: [ "jackal" ],
         description: "all robots in protocols",
       }
       Persons: {
@@ -103,42 +103,16 @@ shr_parameters:
 
   caregiver_phone_number: {
     type: string,
-    default_value: "6038514204",
+    default_value: "7742257735",
     description: "caregiver phone number",
   }
 
   emergency_phone_number: {
     type: string,
-    default_value: "6038514204",
+    default_value: "7742257735",
     description: "emergency phone number",
   }
-  tf_frames: {
-    type: string_array,
-    default_value: [ "bedroom", "kitchen", "couch", "door" ],
-    description: "list of tf frame locations that the robot can visit",
-  }
-  # at danes house
-  tf_values:
-    bedroom: {
-      type: double_array,
-      default_value: [ -2, -3.69, 0, 0, 0, 0, 1 ],
-      description: "TF for kitchen",
-    }
-    kitchen: {
-      type: double_array,
-      default_value: [ 1.9, -0.27, 0, 0, 0, 0, 1 ],
-      description: "TF for kitchen",
-    }
-    couch: {
-      type: double_array,
-      default_value: [ 0, 1.6, -0.0, 0, 0, 0, 1 ],
-      description: "TF for couch",
-    }
-    door: {
-      type: double_array,
-      default_value: [ -2.89, 0.59, 0, 0, 0, 0, 1 ],
-      description: "TF for couch",
-    }
+
   topics:
     time: {
       type: string,
