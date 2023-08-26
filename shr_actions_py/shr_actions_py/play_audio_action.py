@@ -9,7 +9,7 @@ import rclpy
 class PlayAudioActionServer(Node):
     def __init__(self):
         super().__init__('play_audio_action')
-        self.read_script_action_server = ActionServer(self, PlayAudioRequest, 'play_audio',
+        self.play_audio_action_server = ActionServer(self, PlayAudioRequest, 'play_audio',
                                                       self.play_audio_callback)
 
     def play_audio_callback(self, goal_handle):

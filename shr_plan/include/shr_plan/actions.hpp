@@ -181,6 +181,9 @@ namespace pddl_lib {
     }
 
     int send_goal_blocking(const nav2_msgs::action::NavigateToPose::Goal &goal, const InstantiatedAction &action) {
+
+        /// OLA TODO: add an if satemnt to check if robot lost if yes use action service to localize it with localization_py get pose
+
         auto [ps, lock] = ProtocolState::getConcurrentInstance();
         auto &kb = KnowledgeBase::getInstance();
         auto success = std::make_shared<std::atomic<int>>(-1);
@@ -294,6 +297,9 @@ namespace pddl_lib {
     class ProtocolActions : public pddl_lib::ActionInterface {
     public:
         BT::NodeStatus high_level_domain_Idle(const InstantiatedAction &action) override {
+
+            /// OLA TODO: add docking action and logger
+
             auto [ps, lock] = ProtocolState::getConcurrentInstance();
             auto &kb = KnowledgeBase::getInstance();
             kb.insert_predicate({"abort", {}});

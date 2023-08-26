@@ -11,6 +11,9 @@
   <buildtool_depend>rosidl_default_generators</buildtool_depend>
 
   <!-- <depend>opencv-contrib-python</depend> -->
+  <depend>apriltag_msgs</depend>
+  <depend>apriltag_ros</depend>
+
   <depend>action_msgs</depend>
   <depend>geometry_msgs</depend>
   <depend>nav2_msgs</depend>

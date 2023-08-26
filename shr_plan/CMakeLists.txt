@@ -47,8 +47,7 @@ target_link_libraries(planning_controller_node
     bt_shr_actions
     )
 
-add_executable(tf_broadcaster_node src/tf_broadcaster.cpp)
-ament_target_dependencies(tf_broadcaster_node ${dependencies})
+
 
 include_directories(
     include

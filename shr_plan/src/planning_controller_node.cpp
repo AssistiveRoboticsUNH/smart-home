@@ -284,7 +284,7 @@ int main(int argc, char **argv) {
             RCLCPP_INFO(rclcpp::get_logger("planning_controller"), "Waiting for /make_call action server...");
         }
         ps.nav_client_ = rclcpp_action::create_client<nav2_msgs::action::NavigateToPose>(
-                world_state_converter, "navigate_to_pose");
+                world_state_converter, "navigate_to_pose_with_localization");
         while (!ps.nav_client_->wait_for_action_server(std::chrono::seconds(5))) {
             RCLCPP_INFO(rclcpp::get_logger("planning_controller"), "Waiting for /navigate_to_pose action server...");
         }

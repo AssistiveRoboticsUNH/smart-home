@@ -32,7 +32,7 @@ setup(
                             'check_person_bed_action = shr_actions_py.check_person_bed_action:main',
                             'detect_person_left_house_action = shr_actions_py.detect_person_left_house_action:main',
                             'wait_for_person_to_return_action = shr_actions_py.wait_for_person_to_return_action:main',
-                            'nav2_zmq_action = shr_actions_py.nav2_zmq_action:main'
+                            'navigate_with_localization_action_server = shr_actions_py.navigate_with_localization_action_server:main',
                             ],
     },
 )

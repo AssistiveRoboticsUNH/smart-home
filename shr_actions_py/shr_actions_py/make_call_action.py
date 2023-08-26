@@ -15,7 +15,7 @@ class MakeCallActionServer(Node):
     def __init__(self):
         super().__init__('make_call_action')
         self.soundhandle = SoundClient(self, blocking=True)
-        self.read_script_action_server = ActionServer(self, CallRequest, 'make_call',
+        self.make_call_action_server = ActionServer(self, CallRequest, 'make_call',
                                                       self.make_call_callback)
 
     def make_call_callback(self, goal_handle):
