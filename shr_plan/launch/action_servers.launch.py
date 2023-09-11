@@ -58,8 +58,21 @@ def generate_launch_description():
         name='detect_person_action',
         output='screen')
 
+    apriltag_port_server_cmd = Node(
+        package='test_docking',
+        executable='apriltag_port_server',
+        name='apriltag_port_server',
+        output='screen')
+
+    navigate_with_localization_cmd = Node(
+        package='shr_actions_py',
+        executable='navigate_with_localization_action_server',
+        name='navigate_with_localization_action_server',
+        output='screen')
+
     ld = LaunchDescription()
     ld.add_action(read_script_node_cmd)
+    ld.add_action(apriltag_port_server_cmd)
     ld.add_action(play_audio_node_cmd)
     ld.add_action(play_video_node_cmd)
     ld.add_action(open_image_node_cmd)
@@ -67,5 +80,6 @@ def generate_launch_description():
     ld.add_action(send_text_node_cmd)
     ld.add_action(rotate_node_cmd)
     ld.add_action(detect_person_cmd)
+    ld.add_action(navigate_with_localization_cmd)
 
     return ld

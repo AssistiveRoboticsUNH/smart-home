@@ -1,5 +1,5 @@
 import rclpy
-from rclpy.action import ActionServer, CancelResponse
+from rclpy.action import ActionServer, CancelResponse, ActionClient
 from rclpy.node import Node
 
 from rclpy.qos import QoSProfile, ReliabilityPolicy, HistoryPolicy, DurabilityPolicy
@@ -20,19 +20,21 @@ import math
 
 class MoveToGoalwithLocalizationActionServer(Node):
     def __init__(self):
-        super().__init__('move_to_goal_with_localization_action')
+        super().__init__('move_to_goal_with_localization_action_server')
 
         # Configure QoS profile for publishing and subscribing
         qos_profile = QoSProfile(
             reliability=ReliabilityPolicy.BEST_EFFORT,
-            durability=DurabilityPolicy.TRANSIENT_LOCAL,
+            durability=DurabilityPolicy.VOLATILE,
             history=HistoryPolicy.KEEP_LAST,
             depth=1
         )
 
+        self.publisher_ = self.create_publisher(PoseWithCovarianceStamped, "initialpose", 10)
+
         self.vel_pub = self.create_publisher(Twist, 'cmd_vel', 10)
 
-        subscriber = self.create_subscription(ParticleCloud, 'particle_cloud', self.pf_callback, qos_profile)
+        self.subscriber = self.create_subscription(ParticleCloud, 'particle_cloud', self.pf_callback, qos_profile)
 
         self._action_server = ActionServer(
             self,
@@ -45,7 +47,7 @@ class MoveToGoalwithLocalizationActionServer(Node):
         self.subscription = self.create_subscription(AprilTagDetectionArray, '/apriltag_detections',
                                                      self.apriltag_callback, 10)
 
-        self.nav2_to_goal_client = self.create_client(NavigateToPose, 'navigate_to_pose')
+        self.nav2_to_goal_client = ActionClient(self, NavigateToPose, 'navigate_to_pose')
 
         self.get_tf_info = False
         self.aptags_detected = False
@@ -128,7 +130,7 @@ class MoveToGoalwithLocalizationActionServer(Node):
                         self.transform_aptag_in_cam_dict[at.id] = transform_aptag_in_cam
                         print('self.transform_aptag_in_cam_dict[at.id]', self.transform_aptag_in_cam_dict[at.id])
                         # self.get_logger().info(f'transform ready from {frame} to {source_frame}')
-
+                        print("aptag detected!!!!!!")
                     except tf2_ros.TransformException as ex:
 
                         # pass
@@ -272,17 +274,32 @@ class MoveToGoalwithLocalizationActionServer(Node):
         if particles_count>0 :
             self.get_logger().info('no particles')
 
+        print(self.max_weight , '**************************')
+
     def send_goal_nav2(self, nav_goal):
-        while not self.nav2_to_goal_client.wait_for_service(timeout_sec=1.0):
+        self.get_logger().info(f'Sending navigation goal')
+        while not self.nav2_to_goal_client.wait_for_server(timeout_sec=1.0):
             self.get_logger().info('NavigateToPose action client not available, waiting...')
 
             # Send the goal to the action client
-        self.nav2_to_goal_client.send_goal_async(nav_goal)
+        goal_handle = self.nav2_to_goal_client.send_goal_async(nav_goal)
+        goal_handle.add_done_callback(self.navigation_goal_done_callback)
+
+    def navigation_goal_done_callback(self, future) -> None:
+        """
+        Callback function that is called when a navigation goal is done.
+
+        :param future: A Future object that contains the result of the goal.
+        """
+        goal_handle = future.result()
+        if not goal_handle.accepted:
+            self.get_logger().info('Goal rejected :(')
+            return
+
+        self.get_logger().info('Goal accepted :)')
 
     def execute_callback(self, goal_handle):
         self.get_logger().info('Executing LOCALIZATION...')
-
-        result = NavigateToPose.Result()
 
         # Create a new goal for the action client
         nav_goal = NavigateToPose.Goal()
@@ -290,14 +307,10 @@ class MoveToGoalwithLocalizationActionServer(Node):
         nav_goal.behavior_tree = goal_handle.request.behavior_tree
 
         ## WHEN ROBOT IS NOT LOST
-        if (self.max_weight <= 0.005):
+        if (self.max_weight <= 0.001):
             self.get_logger().info('Robot is not lost; continuing without localizing')
 
             self.send_goal_nav2(nav_goal)
-
-            result.status = "success"
-            goal_handle.succeed()
-            return result
 
         ## LOCALIZE
         start_time = time.time()
@@ -335,9 +348,10 @@ class MoveToGoalwithLocalizationActionServer(Node):
                         if self.cam_to_base_link is None:
                             self.get_logger().info('NO transformation cam_to_base_link')
 
-
                     if self.successfully_localized:
+                        self.get_logger().info('goal sent to nav2')
                         self.send_goal_nav2(nav_goal)
+
 
     def transform_cam_world_frame(self):
         robot_position = []
@@ -345,7 +359,7 @@ class MoveToGoalwithLocalizationActionServer(Node):
         transform_aptag_in_world_dict = self.transform_aptag_in_world_dict
 
         for aptag in transform_aptag_in_cam_dict.keys():
-            # print(aptag)
+            # print(aptag)te
             t_apriltag_to_world = transform_aptag_in_world_dict[aptag]
             t_apriltag_in_camera = transform_aptag_in_cam_dict[aptag]
 

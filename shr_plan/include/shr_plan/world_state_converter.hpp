@@ -72,7 +72,9 @@ public:
         geometry_msgs::msg::TransformStamped robot_location;
         std::lock_guard<std::mutex> lock(tf_buffer_mtx);
         try {
-            robot_location = tf_buffer_->lookupTransform("odom", params.robot_tf, tf2::TimePointZero); //TODO fix
+//            robot_location = tf_buffer_->lookupTransform("odom", params.robot_tf, tf2::TimePointZero); //TODO fix
+
+            robot_location = tf_buffer_->lookupTransform("odom", params.robot_tf, tf2::TimePointZero, std::chrono::seconds(10)); //TODO fix
         } catch (const tf2::TransformException &ex) {
             RCLCPP_INFO(get_logger(), "Could not transform %s to %s: %s", "odom", params.robot_tf.c_str(), ex.what());
             return false;
@@ -94,7 +96,9 @@ public:
         geometry_msgs::msg::TransformStamped patient_location;
         std::lock_guard<std::mutex> lock(tf_buffer_mtx);
         try {
-            patient_location = tf_buffer_->lookupTransform("odom", params.person_tf, tf2::TimePointZero); //TODO fix
+//            patient_location = tf_buffer_->lookupTransform("odom", params.person_tf, tf2::TimePointZero); //TODO fix
+            patient_location = tf_buffer_->lookupTransform("odom", params.person_tf, tf2::TimePointZero, std::chrono::seconds(10)); //TODO fix
+
         } catch (const tf2::TransformException &ex) {
             RCLCPP_INFO(get_logger(), "Could not transform %s to %s: %s", "odom", params.person_tf.c_str(), ex.what());
             return false;
@@ -109,7 +113,7 @@ public:
         geometry_msgs::msg::TransformStamped robot_location;
         std::lock_guard<std::mutex> lock(tf_buffer_mtx);
         try {
-            robot_location = tf_buffer_->lookupTransform(base, frame, tf2::TimePointZero); //TODO fix
+            robot_location = tf_buffer_->lookupTransform(base, frame, tf2::TimePointZero, std::chrono::seconds(10)); //TODO fix
         } catch (const tf2::TransformException &ex) {
             RCLCPP_INFO(get_logger(), "Could not transform %s to %s: %s", base.c_str(), frame.c_str(), ex.what());
             return {};

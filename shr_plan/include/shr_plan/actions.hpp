@@ -3,6 +3,7 @@
 #include "rclcpp_action/rclcpp_action.hpp"
 #include "shr_msgs/action/call_request.hpp"
 #include "shr_msgs/action/text_request.hpp"
+#include "shr_msgs/action/docking_request.hpp"
 #include "nav2_msgs/action/navigate_to_pose.hpp"
 #include "shr_msgs/action/read_script_request.hpp"
 #include "shr_msgs/action/play_video_request.hpp"
@@ -105,6 +106,7 @@ namespace pddl_lib {
         // action servers
         rclcpp_action::Client<shr_msgs::action::CallRequest>::SharedPtr call_client_ = {};
         rclcpp_action::Client<nav2_msgs::action::NavigateToPose>::SharedPtr nav_client_ = {};
+        rclcpp_action::Client<shr_msgs::action::DockingRequest>::SharedPtr docking_ = {};
         rclcpp_action::Client<shr_msgs::action::ReadScriptRequest>::SharedPtr read_action_client_ = {};
         rclcpp_action::Client<shr_msgs::action::PlayVideoRequest>::SharedPtr video_action_client_ = {};
 
@@ -181,8 +183,6 @@ namespace pddl_lib {
     }
 
     int send_goal_blocking(const nav2_msgs::action::NavigateToPose::Goal &goal, const InstantiatedAction &action) {
-
-        /// OLA TODO: add an if satemnt to check if robot lost if yes use action service to localize it with localization_py get pose
 
         auto [ps, lock] = ProtocolState::getConcurrentInstance();
         auto &kb = KnowledgeBase::getInstance();
@@ -272,7 +272,6 @@ namespace pddl_lib {
         kb.load_kb(prob);
     }
 
-
     void instantiate_protocol(const std::string &protocol_name,
                               const std::vector<std::pair<std::string, std::string>> &replacements = {}) {
         auto &kb = KnowledgeBase::getInstance();
@@ -298,7 +297,7 @@ namespace pddl_lib {
     public:
         BT::NodeStatus high_level_domain_Idle(const InstantiatedAction &action) override {
 
-            /// OLA TODO: add docking action and logger
+            /// TODO: change this to have one action server by adding goign home to the docking action server
 
             auto [ps, lock] = ProtocolState::getConcurrentInstance();
             auto &kb = KnowledgeBase::getInstance();
@@ -318,6 +317,10 @@ namespace pddl_lib {
                 navigation_goal_.pose.pose.position.z = transform.value().transform.translation.z;
             }
             ps.nav_client_->async_send_goal(navigation_goal_, {});
+
+            // added to dock the robot
+            ps.docking_->async_send_goal({}, {});
+
             ps.active_protocol = {};
 
             return BT::NodeStatus::SUCCESS;

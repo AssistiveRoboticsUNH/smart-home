@@ -47,6 +47,7 @@ set(action_files
         action/CheckPersonInBedRequest.action
         action/NavigateToPose.action
         action/TextRequest.action
+        action/DockingRequest.action
         )
 
 rosidl_generate_interfaces(shr_msgs

@@ -286,7 +286,7 @@ int main(int argc, char **argv) {
         ps.nav_client_ = rclcpp_action::create_client<nav2_msgs::action::NavigateToPose>(
                 world_state_converter, "navigate_to_pose_with_localization");
         while (!ps.nav_client_->wait_for_action_server(std::chrono::seconds(5))) {
-            RCLCPP_INFO(rclcpp::get_logger("planning_controller"), "Waiting for /navigate_to_pose action server...");
+            RCLCPP_INFO(rclcpp::get_logger("planning_controller"), "Waiting for /navigate_to_pose_with_localization action server...");
         }
         ps.read_action_client_ = rclcpp_action::create_client<shr_msgs::action::ReadScriptRequest>(
                 world_state_converter, "read_script");
@@ -299,6 +299,21 @@ int main(int argc, char **argv) {
             RCLCPP_INFO(rclcpp::get_logger("planning_controller"), "Waiting for /play_video action server...");
         }
     }
+
+    // localize to start navigation and move to home position
+    auto [ps, lock] = ProtocolState::getConcurrentInstance();
+
+    nav2_msgs::action::NavigateToPose::Goal navigation_goal_;
+    std::cout << "before starting Btree" << std::endl ;
+    navigation_goal_.pose.header.frame_id = "map";
+    navigation_goal_.pose.header.stamp = ps.world_state_converter->now();
+    if (auto transform = ps.world_state_converter->get_tf("map", "home")) {
+        navigation_goal_.pose.pose.orientation = transform.value().transform.rotation;
+        navigation_goal_.pose.pose.position.x = transform.value().transform.translation.x;
+        navigation_goal_.pose.pose.position.y = transform.value().transform.translation.y;
+        navigation_goal_.pose.pose.position.z = transform.value().transform.translation.z;
+    }
+    ps.nav_client_->async_send_goal(navigation_goal_, {});
 
     instantiate_high_level_problem();
 
