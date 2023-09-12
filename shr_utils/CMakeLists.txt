@@ -36,6 +36,7 @@ target_include_directories(${PROJECT_NAME}
         PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:include>)
+target_include_directories(${PROJECT_NAME} PUBLIC $<BUILD_INTERFACE:${nav2_msgs_INCLUDE_DIRS}>)
 
 if (BUILD_TESTING)
     add_executable(${PROJECT_NAME}_test test/test.cpp)
