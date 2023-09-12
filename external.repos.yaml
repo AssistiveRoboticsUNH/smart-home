@@ -51,10 +51,6 @@ repositories:
     type: git
     url: https://github.com/olaghattas/tf_to_yaml.git
     version: main
-  external/nav2_msgs:
-    type: git
-    url: https://github.com/olaghattas/nav2_msgs.git
-    version: master
   external/Automatic_docking:
     type: git
     url: https://github.com/MarzanShuvo/Automatic_docking.git
