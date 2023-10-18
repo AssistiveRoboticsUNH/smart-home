@@ -1,6 +1,7 @@
 import rclpy
 from rclpy.action import ActionServer, CancelResponse, ActionClient
 from rclpy.node import Node
+from action_msgs.msg import GoalStatus
 
 from rclpy.qos import QoSProfile, ReliabilityPolicy, HistoryPolicy, DurabilityPolicy
 
@@ -48,7 +49,7 @@ class MoveToGoalwithLocalizationActionServer(Node):
                                                      self.apriltag_callback, 10)
 
         self.nav2_to_goal_client = ActionClient(self, NavigateToPose, 'navigate_to_pose')
-
+        self.successfully_navigating = False
         self.get_tf_info = False
         self.aptags_detected = False
         self.time_out = 20
@@ -71,7 +72,6 @@ class MoveToGoalwithLocalizationActionServer(Node):
         return np.linalg.norm([x, y, z])
 
     def publish_tf(self, x, y, z, rot_mat, child_frame_id, frame_id):
-
         quat = Quaternion()
         quat_ = self.rotation_matrix_to_quaternion(np.array(rot_mat))
         quat.x = quat_[0]
@@ -276,13 +276,13 @@ class MoveToGoalwithLocalizationActionServer(Node):
 
         print(self.max_weight , '**************************')
 
-    def send_goal_nav2(self, nav_goal):
+    def send_goal_nav2(self):
         self.get_logger().info(f'Sending navigation goal')
         while not self.nav2_to_goal_client.wait_for_server(timeout_sec=1.0):
             self.get_logger().info('NavigateToPose action client not available, waiting...')
 
-            # Send the goal to the action client
-        goal_handle = self.nav2_to_goal_client.send_goal_async(nav_goal)
+        # Send the goal to the action client
+        goal_handle = self.nav2_to_goal_client.send_goal_async(self.nav_goal)
         goal_handle.add_done_callback(self.navigation_goal_done_callback)
 
     def navigation_goal_done_callback(self, future) -> None:
@@ -293,64 +293,66 @@ class MoveToGoalwithLocalizationActionServer(Node):
         """
         goal_handle = future.result()
         if not goal_handle.accepted:
-            self.get_logger().info('Goal rejected :(')
+            self.get_logger().info('Goal rejected')
+            self.localize()
+            if self.successfully_localized:
+                self.get_logger().info('Robot is not localized, goal sent to nav2')
+                self.send_goal_nav2()
             return
 
-        self.get_logger().info('Goal accepted :)')
+        self.get_logger().info('Goal accepted')
+
+        self._get_result_future = goal_handle.get_result_async()
+        self._get_result_future.add_done_callback(self.get_result_callback)
+
+    def get_result_callback(self, future):
+        result = future.get_result()
+        if result.result.status == GoalStatus.STATUS_SUCCEEDED:
+            self.get_logger().info('Goal succeeded!')
+            self.successfully_navigating = True
+        else:
+            self.get_logger().info('Goal failed')
+            self.successfully_navigating = False
+
+        self.localize()
+        if self.successfully_localized:
+            self.get_logger().info('Robot is not localized, goal sent to nav2')
+            self.send_goal_nav2()
 
     def execute_callback(self, goal_handle):
         self.get_logger().info('Executing LOCALIZATION...')
 
         # Create a new goal for the action client
-        nav_goal = NavigateToPose.Goal()
-        nav_goal.pose = goal_handle.request.pose
-        nav_goal.behavior_tree = goal_handle.request.behavior_tree
+        self.nav_goal = NavigateToPose.Goal()
+
+
+        self.nav_goal.pose.header.frame_id = goal_handle.request.pose.header.frame_id
+        self.nav_goal.pose.header.stamp = self.get_clock().now().to_msg()
+
+        # Update the goal with the transformed pose
+        self.nav_goal.pose.pose.orientation = goal_handle.request.pose.pose.orientation
+        self.nav_goal.pose.pose.position.x = goal_handle.request.pose.pose.position.x
+        self.nav_goal.pose.pose.position.y = goal_handle.request.pose.pose.position.y
+        self.nav_goal.pose.pose.position.z = goal_handle.request.pose.pose.position.z
 
         ## WHEN ROBOT IS NOT LOST
         if (self.max_weight <= 0.001):
             self.get_logger().info('Robot is not lost; continuing without localizing')
+            self.send_goal_nav2()
 
-            self.send_goal_nav2(nav_goal)
+        else:
+            self.localize()
 
-        ## LOCALIZE
-        start_time = time.time()
-        speed = 3.14 / 5.0
-        msg = Twist()
-        msg.angular.z = speed
 
-        ## CHECK IF THERE ARE ANY APRILTAGS
-        if not self.aptags_detected:
-            ## rotate until you find one
-            while time.time() - start_time < self.time_out:
-                self.get_logger().info('no aptags detected will start looking for one')
-                ## change this to VECTOR FIELD HISTOGRAM exploration
-                self.vel_pub.publish(msg)
-                if self.aptags_detected:
-                    ## STOP
-                    msg.angular.z = 0.0
-                    self.vel_pub.publish(msg)
-                    ## localize
-                    self.get_tf_info = True
-                    if self.transform_aptag_in_cam_dict and self.transform_aptag_in_world_dict:
-                        # publish the pose that can be subscribed to by nav2 for initial position or we can change setup to service
-                        robot_pose_aptags, rotation_matrix = self.transform_cam_world_frame()
+            if self.successfully_localized:
+                self.get_logger().info('Robot is not localized, goal sent to nav2')
+                self.send_goal_nav2()
+            else:
+                self.localize()
 
-                        self.publish_pose(robot_pose_aptags, rotation_matrix)
-                        self.publish_tf(robot_pose_aptags[0], robot_pose_aptags[1], robot_pose_aptags[2], rotation_matrix,
-                                        'base_link', 'map')
-                        self.successfully_localized = True
-
-                    else:
-                        if not self.transform_aptag_in_cam_dict:
-                            self.get_logger().info('NO apriltags detected')
-                        if not self.transform_aptag_in_world_dict:
-                            self.get_logger().info('NO transform_aptag_in_world_dict')
-                        if self.cam_to_base_link is None:
-                            self.get_logger().info('NO transformation cam_to_base_link')
-
-                    if self.successfully_localized:
-                        self.get_logger().info('goal sent to nav2')
-                        self.send_goal_nav2(nav_goal)
+        if self.successfully_navigating:
+            goal_handle.succeed()
+            self.get_logger().info('localization with navigation succeeded')
 
 
     def transform_cam_world_frame(self):
@@ -392,12 +394,51 @@ class MoveToGoalwithLocalizationActionServer(Node):
         mean_values = np.mean(robot_position_array, axis=0)
 
         return mean_values, rotation_matrix
+    def localize(self):
+        ## LOCALIZE
+        start_time = time.time()
+        speed = 3.14 / 5.0
+        msg = Twist()
+        msg.angular.z = speed
+
+        ## CHECK IF THERE ARE ANY APRILTAGS
+        if not self.aptags_detected:
+            ## rotate until you find one
+            while time.time() - start_time < self.time_out:
+                self.get_logger().info('no aptags detected will start looking for one')
+                ## change this to VECTOR FIELD HISTOGRAM exploration
+                self.vel_pub.publish(msg)
+                if self.aptags_detected:
+                    ## STOP
+                    msg.angular.z = 0.0
+                    self.vel_pub.publish(msg)
+                    ## localize
+                    self.get_tf_info = True
+                    if self.transform_aptag_in_cam_dict and self.transform_aptag_in_world_dict:
+                        # publish the pose that can be subscribed to by nav2 for initial position or we can change setup to service
+                        robot_pose_aptags, rotation_matrix = self.transform_cam_world_frame()
+
+                        self.publish_pose(robot_pose_aptags, rotation_matrix)
+                        self.publish_tf(robot_pose_aptags[0], robot_pose_aptags[1], robot_pose_aptags[2], rotation_matrix,
+                                        'base_link', 'map')
+                        self.successfully_localized = True
+                        return
+
+                    else:
+                        if not self.transform_aptag_in_cam_dict:
+                            self.get_logger().info('NO apriltags detected')
+                        if not self.transform_aptag_in_world_dict:
+                            self.get_logger().info('NO transform_aptag_in_world_dict')
+                        if self.cam_to_base_link is None:
+                            self.get_logger().info('NO transformation cam_to_base_link')
+
 
 
 def main(args=None):
     rclpy.init(args=None)
     loc_action_server = MoveToGoalwithLocalizationActionServer()
     rclpy.spin(loc_action_server)
+    rclpy.shutdown()
 
 
 if __name__ == '__main__':

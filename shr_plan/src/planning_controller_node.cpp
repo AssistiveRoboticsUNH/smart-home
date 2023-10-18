@@ -303,8 +303,10 @@ int main(int argc, char **argv) {
     // localize to start navigation and move to home position
     auto [ps, lock] = ProtocolState::getConcurrentInstance();
 
+
     nav2_msgs::action::NavigateToPose::Goal navigation_goal_;
-    std::cout << "before starting Btree" << std::endl ;
+    std::cout << "before starting Btree localize and go home" << std::endl ;
+    auto success = std::make_shared<std::atomic<int>>(-1);
     navigation_goal_.pose.header.frame_id = "map";
     navigation_goal_.pose.header.stamp = ps.world_state_converter->now();
     if (auto transform = ps.world_state_converter->get_tf("map", "home")) {
@@ -313,7 +315,21 @@ int main(int argc, char **argv) {
         navigation_goal_.pose.pose.position.y = transform.value().transform.translation.y;
         navigation_goal_.pose.pose.position.z = transform.value().transform.translation.z;
     }
-    ps.nav_client_->async_send_goal(navigation_goal_, {});
+    // for blocking
+    auto send_goal_options = rclcpp_action::Client<nav2_msgs::action::NavigateToPose>::SendGoalOptions();
+    send_goal_options.result_callback = [&success](
+            const rclcpp_action::ClientGoalHandle<nav2_msgs::action::NavigateToPose>::WrappedResult result) {
+        *success = result.code == rclcpp_action::ResultCode::SUCCEEDED;
+    };
+    ps.nav_client_->async_send_goal(navigation_goal_, send_goal_options);
+    auto tmp = ps.active_protocol;
+    // blocking
+    while (*success == -1) {
+        if (!(tmp == ps.active_protocol)) {
+            ps.nav_client_->async_cancel_all_goals();
+        }
+        rclcpp::sleep_for(std::chrono::seconds(1));
+    }
 
     instantiate_high_level_problem();
 
