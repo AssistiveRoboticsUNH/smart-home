@@ -309,12 +309,19 @@ int main(int argc, char **argv) {
     auto success = std::make_shared<std::atomic<int>>(-1);
     navigation_goal_.pose.header.frame_id = "map";
     navigation_goal_.pose.header.stamp = ps.world_state_converter->now();
-    if (auto transform = ps.world_state_converter->get_tf("map", "home")) {
-        navigation_goal_.pose.pose.orientation = transform.value().transform.rotation;
-        navigation_goal_.pose.pose.position.x = transform.value().transform.translation.x;
-        navigation_goal_.pose.pose.position.y = transform.value().transform.translation.y;
-        navigation_goal_.pose.pose.position.z = transform.value().transform.translation.z;
-    }
+//    if (auto transform = ps.world_state_converter->get_tf("map", "home")) {
+//        navigation_goal_.pose.pose.orientation = transform.value().transform.rotation;
+//        navigation_goal_.pose.pose.position.x = transform.value().transform.translation.x;
+//        navigation_goal_.pose.pose.position.y = transform.value().transform.translation.y;
+//        navigation_goal_.pose.pose.position.z = transform.value().transform.translation.z;
+//    }
+    navigation_goal_.pose.pose.orientation.x = 0.0;
+    navigation_goal_.pose.pose.orientation.y = 0.0;
+    navigation_goal_.pose.pose.orientation.z = 0.707;
+    navigation_goal_.pose.pose.orientation.w= 0.707;
+    navigation_goal_.pose.pose.position.x = -0.3;
+    navigation_goal_.pose.pose.position.y = -3.6;
+    navigation_goal_.pose.pose.position.z = -1;
     // for blocking
     auto send_goal_options = rclcpp_action::Client<nav2_msgs::action::NavigateToPose>::SendGoalOptions();
     send_goal_options.result_callback = [&success](

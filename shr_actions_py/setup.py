@@ -33,6 +33,8 @@ setup(
                             'detect_person_left_house_action = shr_actions_py.detect_person_left_house_action:main',
                             'wait_for_person_to_return_action = shr_actions_py.wait_for_person_to_return_action:main',
                             'navigate_with_localization_action_server = shr_actions_py.navigate_with_localization_action_server:main',
+                            'client__ = shr_actions_py.client:main',
+
                             ],
     },
 )

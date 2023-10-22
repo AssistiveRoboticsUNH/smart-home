@@ -319,7 +319,7 @@ namespace pddl_lib {
             ps.nav_client_->async_send_goal(navigation_goal_, {});
 
             // added to dock the robot
-            ps.docking_->async_send_goal({}, {});
+//            ps.docking_->async_send_goal({}, {});
 
             ps.active_protocol = {};
 
@@ -441,7 +441,6 @@ namespace pddl_lib {
 
         BT::NodeStatus shr_domain_MoveToLandmark(const InstantiatedAction &action) override {
             /// added to check navigation first
-
 
 
             /// move robot to location

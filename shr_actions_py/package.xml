@@ -24,6 +24,8 @@
   <depend>tf2_ros</depend>
   <depend>vlc</depend>
   <depend>shr_msgs</depend>
+<!--  <depend>dt_apriltags</depend>-->
+
 
   <exec_depend>rosidl_default_runtime</exec_depend>
   <exec_depend>python-gTTS-pip</exec_depend>

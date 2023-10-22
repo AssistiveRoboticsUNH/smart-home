@@ -113,7 +113,7 @@ public:
         geometry_msgs::msg::TransformStamped robot_location;
         std::lock_guard<std::mutex> lock(tf_buffer_mtx);
         try {
-            robot_location = tf_buffer_->lookupTransform(base, frame, tf2::TimePointZero, std::chrono::seconds(10)); //TODO fix
+            robot_location = tf_buffer_->lookupTransform(base, frame, tf2::TimePointZero, std::chrono::seconds(50000)); //TODO fix
         } catch (const tf2::TransformException &ex) {
             RCLCPP_INFO(get_logger(), "Could not transform %s to %s: %s", base.c_str(), frame.c_str(), ex.what());
             return {};
