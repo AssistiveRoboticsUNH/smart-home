@@ -1,4 +1,4 @@
-import rclpy
+﻿import rclpy
 from rclpy.action import ActionServer, GoalResponse, ActionClient
 from rclpy.node import Node
 
@@ -70,7 +70,7 @@ class MoveToGoalwithLocalizationActionServer(Node):
         self.transform_aptag_in_world_dict = {}  # global location of apriltags
         self.tf_broadcaster = tf2_ros.StaticTransformBroadcaster(self)
         self.closest_aptag = None
-        self.cam_to_base_link = None
+        # self.cam_to_base_link = None
 
         self.successfully_navigating = False
         self.result_future = None
@@ -147,10 +147,9 @@ class MoveToGoalwithLocalizationActionServer(Node):
                         # print("aptag detected!!!!!!")
                         self.aptags_detected_inside_callback = True
 
-                    except tf2_ros.TransformException as ex:
-                        pass
-                        # self.get_logger().info(
-                            # f'Could not transform {frame} to {source_frame}: {ex}')
+                    except Exception as ex:
+                        # pass
+                        self.get_logger().info(f'Error ***************: {ex}')
         else:
             # pass
             print('No aptags from callback')
@@ -215,6 +214,7 @@ class MoveToGoalwithLocalizationActionServer(Node):
         return [qx, qy, qz, qw]
 
     def get_transform_matrix_cam_to_base_link(self):
+
         frame = "camera_color_optical_frame"  # to
         source_frame = "base_link"  # from
 
@@ -231,7 +231,7 @@ class MoveToGoalwithLocalizationActionServer(Node):
                  transformation.transform.rotation.z, transformation.transform.rotation.w])
 
             # Get the homogeneous transformation matrix
-            self.cam_to_base_link = np.dot(translation, rotation)
+            # self.cam_to_base_link = np.dot(translation, rotation)
 
             # transform_cam_to_base_link = np.array([[0.0, 0.0, 1.0, 0.0],
             #                                        [1.0, 0.0, 0.0, 0.0],
@@ -336,7 +336,7 @@ class MoveToGoalwithLocalizationActionServer(Node):
         if not self.aptags_detected:
             # rotate until you find one
             while time.time() - start_time < self.time_out:
-                self.get_logger().info('no aptags detected will start looking for one')
+                # self.get_logger().info('no aptags detected will start looking for one')
                 # change this to VECTOR FIELD HISTOGRAM exploration
                 # TODO: uncomment
                 self.vel_pub.publish(msg)
@@ -365,8 +365,8 @@ class MoveToGoalwithLocalizationActionServer(Node):
                             self.get_logger().info('NO apriltags detected')
                         if not self.transform_aptag_in_world_dict:
                             self.get_logger().info('NO transform_aptag_in_world_dict')
-                        if self.cam_to_base_link is None:
-                            self.get_logger().info('NO transformation cam_to_base_link')
+                        # if self.cam_to_base_link is None:
+                        #     self.get_logger().info('NO transformation cam_to_base_link')
         else:
             # localize
             self.get_tf_info = True
@@ -388,8 +388,8 @@ class MoveToGoalwithLocalizationActionServer(Node):
                     self.get_logger().info('NO apriltags detected')
                 if not self.transform_aptag_in_world_dict:
                     self.get_logger().info('NO transform_aptag_in_world_dict')
-                if self.cam_to_base_link is None:
-                    self.get_logger().info('NO transformation cam_to_base_link')
+                # if self.cam_to_base_link is None:
+                #     self.get_logger().info('NO transformation cam_to_base_link')
 
     ##### Action Server #####
 
@@ -483,7 +483,7 @@ class MoveToGoalwithLocalizationActionServer(Node):
         # You can set the goal state to succeeded or aborted based on your logic.
 
         self.get_logger().info('Sending goal')
-        self.get_logger().info('Debugging localization so robot shouldnt move commnet this if the line below is uncommented')
+        # self.get_logger().info('Debugging localization so robot shouldn't move commnet this if the line below is uncommented')
         self.send_goal_nav2(goal_pose)
 
         result = NavigateToPose.Result()
@@ -496,7 +496,7 @@ class MoveToGoalwithLocalizationActionServer(Node):
 
         # If you want to set the goal state to aborted in case of an error, use:
         # goal_handle.abort(result)
-        # self.get_logger().info('Goal Executed...')
+        self.get_logger().info('Goal Executed...')
 
         return result
 
