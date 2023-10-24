@@ -75,7 +75,7 @@ class MoveToGoalwithLocalizationActionServer(Node):
         self.successfully_navigating = False
         self.result_future = None
         self.max_weight = 0
-        self.time_out = 20
+        self.time_out = 200
         self.get_tf_info = True
 
         self.get_transform_matrix_aptags_in_world_from_tf()
@@ -109,7 +109,7 @@ class MoveToGoalwithLocalizationActionServer(Node):
 
     def apriltag_callback(self, msg):
         ### THIS SHOULD HAVE A FLAG IF APRILTAG CALLBACK CALCULATE TF IS TRUE THEN DO THE CLACULATION BUT FIRST IJUST WANT TO CHECK IF THERE ARE TAGS DETECTED
-
+        print("cjcsdcnjksac")
         if msg.detections:
             self.aptags_detected = True
 
@@ -117,13 +117,15 @@ class MoveToGoalwithLocalizationActionServer(Node):
             if self.get_tf_info:
                 self.transform_aptag_in_cam_dict = {}
                 source_frame = msg.header.frame_id  # to
-                for at in msg.detections:
 
-                    frame = "tag_" + str(at.id)  # from
-                    # print(frame)
-                    try:
+                try:
+                    for at in msg.detections:
+                        # if at.id != "203":
+                        frame = "tag_" + str(at.id)  # from
+                        # print(frame)
+                        # try:
                         transformation = self.tf_buffer.lookup_transform(source_frame, frame, rclpy.time.Time(),
-                                                                         timeout=rclpy.duration.Duration(seconds=1.0))
+                                                                         timeout=rclpy.duration.Duration(seconds=1000.0))
 
                         dist = self.get_dist(transformation.transform.translation.x, transformation.transform.translation.y,
                                              transformation.transform.translation.z)
@@ -146,13 +148,17 @@ class MoveToGoalwithLocalizationActionServer(Node):
                         # self.get_logger().info(f'transform ready from {frame} to {source_frame}')
                         # print("aptag detected!!!!!!")
                         self.aptags_detected_inside_callback = True
+                        print('********** apriltag detectedd: ' + str(at.id))
 
-                    except Exception as ex:
-                        # pass
-                        self.get_logger().info(f'Error ***************: {ex}')
+                except Exception as ex:
+                    # pass
+                    self.get_logger().info(f'Error ***************: {ex}')
+                    # else:
+                    #     print('id 203')
+
         else:
             # pass
-            print('No aptags from callback')
+            # print('No aptags from callback')
             self.aptags_detected = False
 
     def get_transform_matrix_aptags_in_world_from_tf(self):
@@ -268,6 +274,8 @@ class MoveToGoalwithLocalizationActionServer(Node):
     def publish_pose(self, robot_pose_aptags, rotation_matrix):
         robot_pose = PoseWithCovarianceStamped()
 
+        self.get_logger().info(f'Publishiungg g POSEEEEE')
+
         quat = Quaternion()
         quat_ = self.rotation_matrix_to_quaternion(np.array(rotation_matrix))
         quat.x = quat_[0]
@@ -284,6 +292,8 @@ class MoveToGoalwithLocalizationActionServer(Node):
         robot_pose.pose.pose.orientation = quat
 
         self.publisher_initial_pose.publish(robot_pose)
+        self.get_logger().info(f'FINISH   Publishingg POSEEEEE')
+
 
     def transform_cam_world_frame(self):
         robot_position = []
@@ -432,7 +442,7 @@ class MoveToGoalwithLocalizationActionServer(Node):
             self.get_logger().info('Goal accepted. Trying to reach goal')
 
     def feedback_callback(self, msg):
-        self.get_logger().info('Received action feedback message')
+        # self.get_logger().info('Received action feedback message')
         self.feedback = msg.feedback
         return
 
@@ -506,8 +516,10 @@ def main(args=None):
 
     nav_action_server = MoveToGoalwithLocalizationActionServer()
 
+    exe = rclpy.executors.MultiThreadedExecutor()
+    exe.add_node(nav_action_server)
     while True:
-        rclpy.spin_once(nav_action_server)
+        exe.spin_once()
 
 
 if __name__ == '__main__':

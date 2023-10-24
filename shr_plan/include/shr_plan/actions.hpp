@@ -7,6 +7,7 @@
 #include "nav2_msgs/action/navigate_to_pose.hpp"
 #include "shr_msgs/action/read_script_request.hpp"
 #include "shr_msgs/action/play_video_request.hpp"
+#include "shr_msgs/action/docking_request.hpp"
 
 #include <shr_plan/world_state_converter.hpp>
 #include "shr_plan/helpers.hpp"
@@ -319,7 +320,8 @@ namespace pddl_lib {
             ps.nav_client_->async_send_goal(navigation_goal_, {});
 
             // added to dock the robot
-//            ps.docking_->async_send_goal({}, {});
+            shr_msgs::action::DockingRequest::Goal goal_msg;
+            ps.docking_->async_send_goal(goal_msg);
 
             ps.active_protocol = {};
 
