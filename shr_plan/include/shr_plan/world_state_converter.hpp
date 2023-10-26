@@ -97,7 +97,7 @@ public:
         std::lock_guard<std::mutex> lock(tf_buffer_mtx);
         try {
 //            patient_location = tf_buffer_->lookupTransform("odom", params.person_tf, tf2::TimePointZero); //TODO fix
-            patient_location = tf_buffer_->lookupTransform("odom", params.person_tf, tf2::TimePointZero, std::chrono::seconds(10)); //TODO fix
+            patient_location = tf_buffer_->lookupTransform("odom", params.person_tf, tf2::TimePointZero, std::chrono::seconds(100000)); //TODO fix
 
         } catch (const tf2::TransformException &ex) {
             RCLCPP_INFO(get_logger(), "Could not transform %s to %s: %s", "odom", params.person_tf.c_str(), ex.what());

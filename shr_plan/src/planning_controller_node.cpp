@@ -100,6 +100,7 @@ public:
             return val;
         }
         if (world_state_converter->check_person_at_loc(lm)) {
+            std::cout << "person_At " << lm << std::endl;
             return TRUTH_VALUE::TRUE;
         } else {
             return TRUTH_VALUE::FALSE;
@@ -117,7 +118,6 @@ public:
         }
         return TRUTH_VALUE::FALSE;
     }
-
 
     TRUTH_VALUE person_outside(TRUTH_VALUE val, WanderingProtocol w) const override {
         auto params = world_state_converter->get_params();
@@ -284,7 +284,7 @@ int main(int argc, char **argv) {
             RCLCPP_INFO(rclcpp::get_logger("planning_controller"), "Waiting for /make_call action server...");
         }
         ps.nav_client_ = rclcpp_action::create_client<nav2_msgs::action::NavigateToPose>(
-                world_state_converter, "navigate_to_pose_with_localization");
+                world_state_converter, "navigate_to_pose");
         while (!ps.nav_client_->wait_for_action_server(std::chrono::seconds(5))) {
             RCLCPP_INFO(rclcpp::get_logger("planning_controller"), "Waiting for /navigate_to_pose_with_localization action server...");
         }
@@ -337,7 +337,7 @@ int main(int argc, char **argv) {
         }
         rclcpp::sleep_for(std::chrono::seconds(1));
     }
-
+    std::cout << "after localizing " << std::endl ;
     instantiate_high_level_problem();
 
     auto &kb = KnowledgeBase::getInstance();

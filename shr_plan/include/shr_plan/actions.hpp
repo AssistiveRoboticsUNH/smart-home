@@ -298,7 +298,7 @@ namespace pddl_lib {
     public:
         BT::NodeStatus high_level_domain_Idle(const InstantiatedAction &action) override {
 
-            /// TODO: change this to have one action server by adding goign home to the docking action server
+            /// TODO: change this to have one action server by adding going home to the docking action server
 
             auto [ps, lock] = ProtocolState::getConcurrentInstance();
             auto &kb = KnowledgeBase::getInstance();
@@ -320,8 +320,8 @@ namespace pddl_lib {
             ps.nav_client_->async_send_goal(navigation_goal_, {});
 
             // added to dock the robot
-            shr_msgs::action::DockingRequest::Goal goal_msg;
-            ps.docking_->async_send_goal(goal_msg);
+//            shr_msgs::action::DockingRequest::Goal goal_msg;
+//            ps.docking_->async_send_goal(goal_msg);
 
             ps.active_protocol = {};
 
