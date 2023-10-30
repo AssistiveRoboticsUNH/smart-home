@@ -106,6 +106,4 @@ namespace shr_utils {
         }
         return {};
     }
-
-
 }

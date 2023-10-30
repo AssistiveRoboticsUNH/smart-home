@@ -74,14 +74,16 @@ public:
         try {
 //            robot_location = tf_buffer_->lookupTransform("odom", params.robot_tf, tf2::TimePointZero); //TODO fix
 
-            robot_location = tf_buffer_->lookupTransform("odom", params.robot_tf, tf2::TimePointZero, std::chrono::seconds(10)); //TODO fix
+            robot_location = tf_buffer_->lookupTransform("unity", params.robot_tf, tf2::TimePointZero, std::chrono::seconds(10)); //TODO fix
+            RCLCPP_INFO(get_logger(), "Could transform %s to %s ", "unity", params.robot_tf.c_str());
+
         } catch (const tf2::TransformException &ex) {
-            RCLCPP_INFO(get_logger(), "Could not transform %s to %s: %s", "odom", params.robot_tf.c_str(), ex.what());
+            RCLCPP_INFO(get_logger(), "Could not transform %s to %s: %s", "unity", params.robot_tf.c_str(), ex.what());
             return false;
         }
 
-        Eigen::Vector3d point = {robot_location.transform.translation.x, robot_location.transform.translation.y,
-                                 robot_location.transform.translation.z};
+        Eigen::Vector3d point = {robot_location.transform.translation.x, robot_location.transform.translation.y, 0.0};
+                                 // cause it doesnt matter sice its 2D robot_location.transform.translation.z};
         return shr_utils::PointInMesh(point, verts, verts2d);
     }
 
@@ -97,15 +99,16 @@ public:
         std::lock_guard<std::mutex> lock(tf_buffer_mtx);
         try {
 //            patient_location = tf_buffer_->lookupTransform("odom", params.person_tf, tf2::TimePointZero); //TODO fix
-            patient_location = tf_buffer_->lookupTransform("odom", params.person_tf, tf2::TimePointZero, std::chrono::seconds(100000)); //TODO fix
+// changed from odom to unity because odom is
+            patient_location = tf_buffer_->lookupTransform("unity", params.person_tf, tf2::TimePointZero, std::chrono::seconds(100000)); //TODO fix
 
         } catch (const tf2::TransformException &ex) {
-            RCLCPP_INFO(get_logger(), "Could not transform %s to %s: %s", "odom", params.person_tf.c_str(), ex.what());
+            RCLCPP_INFO(get_logger(), "Could not transform %s to %s: %s", "unity", params.person_tf.c_str(), ex.what());
             return false;
         }
 
-        Eigen::Vector3d point = {patient_location.transform.translation.x, patient_location.transform.translation.y,
-                                 patient_location.transform.translation.z};
+        Eigen::Vector3d point = {patient_location.transform.translation.x, patient_location.transform.translation.y, 0.0};
+        // cause it doesnt matter sice its 2D robot_location.transform.translation.z};
         return shr_utils::PointInMesh(point, verts, verts2d);
     }
 

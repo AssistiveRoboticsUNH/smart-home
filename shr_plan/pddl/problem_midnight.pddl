@@ -1,7 +1,7 @@
 (define (problem midnight_wandering)
 (:domain shr_domain)
 (:objects
-    bed door outside couch living_room dinning_room kitchen bathroom - Landmark
+    bedroom door outside couch living_room dining_room kitchen bathroom - Landmark
     nathan - Person
     t1 t2 t3 t4 t5 - Time
     automated_msg recorded_msg call_caregiver_outside_msg call_caregiver_bed_msg call_emergency_msg - Msg
@@ -22,20 +22,20 @@
     (next_time t4 t5)
     (time_critical)
 
-    (oneof (person_at t2 nathan door) (person_at t2 nathan outside) (person_at t2 nathan bed) )
-    (oneof (person_at t3 nathan door) (person_at t3 nathan outside) (person_at t3 nathan bed) )
-    (oneof (person_at t4 nathan door) (person_at t4 nathan outside) (person_at t4 nathan bed) )
-    (oneof (person_at t5 nathan door) (person_at t5 nathan outside) (person_at t5 nathan bed) )
+    (oneof (person_at t2 nathan door) (person_at t2 nathan outside) (person_at t2 nathan bedroom) )
+    (oneof (person_at t3 nathan door) (person_at t3 nathan outside) (person_at t3 nathan bedroom) )
+    (oneof (person_at t4 nathan door) (person_at t4 nathan outside) (person_at t4 nathan bedroom) )
+    (oneof (person_at t5 nathan door) (person_at t5 nathan outside) (person_at t5 nathan bedroom) )
 
     (traversable living_room door)
-    (traversable dinning_room door)
+    (traversable dining_room door)
     (traversable kitchen door)
     (traversable couch door)
 
     ;;success states
     (message_given_success call_emergency_msg)
     (message_given_success call_caregiver_bed_msg)
-    (person_at_success nathan bed)
+    (person_at_success nathan bedroom)
 
     ;; specify which actions must come before others
     (call_blocks_call caregiver_call emergency_call)
