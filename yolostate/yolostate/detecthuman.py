@@ -26,7 +26,7 @@ class DetectHuman(Node):
         super().__init__('detecthuman')
 
         self.declare_parameter('view_camera', True)
-        self.declare_parameter('camera', '/camera/color/image_raw')
+        self.declare_parameter('camera', '/camera/camera/color/image_raw')
         self.declare_parameter('pub_human', '/detecthuman')
 
         param_camera_topic = self.get_parameter('camera').value

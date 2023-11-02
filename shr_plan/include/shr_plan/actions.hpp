@@ -85,11 +85,11 @@ namespace pddl_lib {
                                                               {"guide_2_msg", "food_follow_me.txt"},
                                                               {"automated_msg", "food_reminder.txt"},
                                                       }},
-                {{"lunch",     "FoodProtocol"},      {{"guide_1_msg",   "food_follow_me.txt"},
+                {{"lunch",      "FoodProtocol"},      {{"guide_1_msg",   "food_follow_me.txt"},
                                                               {"guide_2_msg", "food_follow_me.txt"},
                                                               {"automated_msg", "food_reminder.txt"},
                                                       }},
-                {{"breakfast",     "FoodProtocol"},      {{"guide_1_msg",   "food_follow_me.txt"},
+                {{"breakfast",  "FoodProtocol"},      {{"guide_1_msg",   "food_follow_me.txt"},
                                                               {"guide_2_msg", "food_follow_me.txt"},
                                                               {"automated_msg", "food_reminder.txt"},
                                                       }}
@@ -296,35 +296,58 @@ namespace pddl_lib {
 
     class ProtocolActions : public pddl_lib::ActionInterface {
     public:
+//        bool docked = false;
+
         BT::NodeStatus high_level_domain_Idle(const InstantiatedAction &action) override {
-
+//            std::cout << "docked" << docked << std::endl;
             /// TODO: change this to have one action server by adding going home to the docking action server
+//            if (!docked) {
+                auto [ps, lock] = ProtocolState::getConcurrentInstance();
+                auto &kb = KnowledgeBase::getInstance();
+                kb.insert_predicate({"abort", {}});
+                kb.clear_unknowns();
 
-            auto [ps, lock] = ProtocolState::getConcurrentInstance();
-            auto &kb = KnowledgeBase::getInstance();
-            kb.insert_predicate({"abort", {}});
-            kb.clear_unknowns();
+                ps.call_client_->async_cancel_all_goals();
+                ps.read_action_client_->async_cancel_all_goals();
+                ps.video_action_client_->async_cancel_all_goals();
 
-            ps.call_client_->async_cancel_all_goals();
-            ps.read_action_client_->async_cancel_all_goals();
-            ps.video_action_client_->async_cancel_all_goals();
-            nav2_msgs::action::NavigateToPose::Goal navigation_goal_;
-            navigation_goal_.pose.header.frame_id = "map";
-            navigation_goal_.pose.header.stamp = ps.world_state_converter->now();
-            if (auto transform = ps.world_state_converter->get_tf("map", "home")) {
-                navigation_goal_.pose.pose.orientation = transform.value().transform.rotation;
-                navigation_goal_.pose.pose.position.x = transform.value().transform.translation.x;
-                navigation_goal_.pose.pose.position.y = transform.value().transform.translation.y;
-                navigation_goal_.pose.pose.position.z = transform.value().transform.translation.z;
-            }
-            ps.nav_client_->async_send_goal(navigation_goal_, {});
+                auto success = std::make_shared<std::atomic<int>>(-1);
+                auto send_goal_options = rclcpp_action::Client<nav2_msgs::action::NavigateToPose>::SendGoalOptions();
+                send_goal_options.result_callback = [&success](
+                        const rclcpp_action::ClientGoalHandle<nav2_msgs::action::NavigateToPose>::WrappedResult result) {
+                    *success = result.code == rclcpp_action::ResultCode::SUCCEEDED;
+                };
 
-            // added to dock the robot
-//            shr_msgs::action::DockingRequest::Goal goal_msg;
-//            ps.docking_->async_send_goal(goal_msg);
+                nav2_msgs::action::NavigateToPose::Goal navigation_goal_;
+                navigation_goal_.pose.header.frame_id = "map";
+                navigation_goal_.pose.header.stamp = ps.world_state_converter->now();
+                if (auto transform = ps.world_state_converter->get_tf("map", "home")) {
+                    navigation_goal_.pose.pose.orientation = transform.value().transform.rotation;
+                    navigation_goal_.pose.pose.position.x = transform.value().transform.translation.x;
+                    navigation_goal_.pose.pose.position.y = transform.value().transform.translation.y;
+                    navigation_goal_.pose.pose.position.z = transform.value().transform.translation.z;
+                }
 
-            ps.active_protocol = {};
+                ps.nav_client_->async_send_goal(navigation_goal_, send_goal_options);
+                auto tmp = ps.active_protocol;
+            // TODO take this out // it is causing an infinite loop Add docking
+                int count_max = 30;
+                int count = 0;
+                while (*success == -1 && count_max > count) {
+                    if (!(tmp == ps.active_protocol)) {
+                        ps.nav_client_->async_cancel_all_goals();
+                        // goal not reached TODO change to retry going to goal
+                    }
+                    count++;
+                    rclcpp::sleep_for(std::chrono::seconds(1));
+                }
 
+//             added to dock the robot
+//                shr_msgs::action::DockingRequest::Goal goal_msg;
+//                ps.docking_->async_send_goal(goal_msg);
+//                docked = true;
+                ps.active_protocol = {};
+//            }
             return BT::NodeStatus::SUCCESS;
         }
 
@@ -442,8 +465,6 @@ namespace pddl_lib {
         }
 
         BT::NodeStatus shr_domain_MoveToLandmark(const InstantiatedAction &action) override {
-            /// added to check navigation first
-
 
             /// move robot to location
             auto [ps, lock] = ProtocolState::getConcurrentInstance();

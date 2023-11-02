@@ -60,7 +60,7 @@ class MoveToGoalwithLocalizationActionServer(Node):
         self.publisher_initial_pose = self.create_publisher(PoseWithCovarianceStamped, "initialpose", 10)
 
         # For April tags
-        self.subscription = self.create_subscription(AprilTagDetectionArray, '/apriltag_detections',
+        self.subscription = self.create_subscription(AprilTagDetectionArray, '/apriltag_detections_loc',
                                                      self.apriltag_callback, 10)
         self.aptags_detected = False
         self.tf_buffer = tf2_ros.Buffer()

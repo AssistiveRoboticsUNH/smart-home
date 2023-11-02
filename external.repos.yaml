@@ -33,7 +33,7 @@ repositories:
     version: main
   external/apriltag:
     type: git
-    url: https://github.com/AprilRobotics/apriltag.git
+    url: https://github.com/MarzanShuvo/apriltag.git
     version: master
   external/apriltag_ros:
     type: git
@@ -50,8 +50,4 @@ repositories:
   external/tf_to_yaml:
     type: git
     url: https://github.com/olaghattas/tf_to_yaml.git
-    version: main
-  external/Automatic_docking:
-    type: git
-    url: https://github.com/MarzanShuvo/Automatic_docking.git
     version: main

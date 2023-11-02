@@ -1,0 +1,61 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://wiki.ros.org/xacro" name="robot">
+  <!-- helper macro -->
+  <xacro:include filename="$(find charger_description)/urdf/inc/create_link.xacro"/>
+
+  <xacro:create_link
+      link_name="base"
+      xyz_offset="0 0 0"
+      rpy_offset="0 0 0"
+      mesh_package="charger_description"
+      mesh_name="base"
+  />
+
+  <xacro:create_link
+      link_name="bar"
+      xyz_offset="0 0 0"
+      rpy_offset="0 0 0"
+      mesh_package="charger_description"
+      mesh_name="bar"
+  />
+
+  <xacro:create_link
+      link_name="port"
+      xyz_offset="0 0 0"
+      rpy_offset="0 0 0"
+      mesh_package="charger_description"
+      mesh_name="port"
+  />
+
+  <xacro:create_link
+      link_name="tag_203"
+      xyz_offset="0 0 0"
+      rpy_offset="0 0 0"
+      mesh_package="charger_description"
+      mesh_name="tag"
+  />
+
+
+  <!-- joints - main serial chain -->
+  <joint name="joint_1" type="fixed">
+    <parent link="bar"/>
+    <child link="base"/>
+    <origin xyz="-0.026013 0 -0.235144" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+
+  <joint name="joint_2" type="fixed">
+    <parent link="bar"/>
+    <child link="port"/>
+    <origin xyz="0.068162 0 0.053566" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+
+  <joint name="joint_3" type="fixed">
+    <parent link="tag_203"/>
+    <child link="bar"/>
+    <origin xyz="-0.013006 0 -0.257653" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+
+</robot>

@@ -315,13 +315,7 @@ int main(int argc, char **argv) {
         navigation_goal_.pose.pose.position.y = transform.value().transform.translation.y;
         navigation_goal_.pose.pose.position.z = transform.value().transform.translation.z;
     }
-//    navigation_goal_.pose.pose.orientation.x = 0.0;
-//    navigation_goal_.pose.pose.orientation.y = 0.0;
-//    navigation_goal_.pose.pose.orientation.z = 0.707;
-//    navigation_goal_.pose.pose.orientation.w= 0.707;
-//    navigation_goal_.pose.pose.position.x = -0.3;
-//    navigation_goal_.pose.pose.position.y = -3.6;
-//    navigation_goal_.pose.pose.position.z = -1;
+
     // for blocking
     auto send_goal_options = rclcpp_action::Client<nav2_msgs::action::NavigateToPose>::SendGoalOptions();
     send_goal_options.result_callback = [&success](
@@ -331,13 +325,21 @@ int main(int argc, char **argv) {
     ps.nav_client_->async_send_goal(navigation_goal_, send_goal_options);
     auto tmp = ps.active_protocol;
     // blocking
-    while (*success == -1) {
+    // TODO take this out // it is causing an infinite loop
+    int count_max = 30;
+    int count = 0;
+    while (*success == -1 && count_max > count) {
         if (!(tmp == ps.active_protocol)) {
             ps.nav_client_->async_cancel_all_goals();
         }
+        count++;
         rclcpp::sleep_for(std::chrono::seconds(1));
     }
-    std::cout << "after localizing " << std::endl ;
+    std::cout << "after localizing " << std::endl;
+
+//    shr_msgs::action::DockingRequest::Goal goal_msg;
+//    ps.docking_->async_send_goal(goal_msg);
+
     instantiate_high_level_problem();
 
     auto &kb = KnowledgeBase::getInstance();

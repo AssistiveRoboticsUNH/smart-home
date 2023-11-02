@@ -34,7 +34,9 @@ setup(
                             'wait_for_person_to_return_action = shr_actions_py.wait_for_person_to_return_action:main',
                             'navigate_with_localization_action_server = shr_actions_py.navigate_with_localization_action_server:main',
                             'client__ = shr_actions_py.client:main',
-
+                            'client_dock = shr_actions_py.client_dock:main',
+                            'apriltag_port_server = shr_actions_py.docking_action:main',
+                            'apriltag_port = shr_actions_py.docking_main:main',
                             ],
     },
 )

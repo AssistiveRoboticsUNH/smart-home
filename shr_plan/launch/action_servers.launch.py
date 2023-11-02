@@ -59,7 +59,7 @@ def generate_launch_description():
         output='screen')
 
     apriltag_port_server_cmd = Node(
-        package='test_docking',
+        package='shr_actions_py',
         executable='apriltag_port_server',
         name='apriltag_port_server',
         output='screen')

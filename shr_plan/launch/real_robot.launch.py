@@ -38,15 +38,29 @@ def generate_launch_description():
     #         get_package_share_directory('jackal_navigation'), 'launch', 'navigation2_jackal.launch.py']))
     # )
 
-    apriltags_realsense = IncludeLaunchDescription(
+    apriltags_realsense_docking = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(PathJoinSubstitution([
-            get_package_share_directory('apriltag_ros'), 'launch', 'tag_realsense.launch.py']))
+            get_package_share_directory('apriltag_ros'), 'launch', 'tag_realsense_docking.launch.py']))
     )
+
+    apriltags_realsense_loc = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(PathJoinSubstitution([
+            get_package_share_directory('apriltag_ros'), 'launch', 'tag_realsense_loc.launch.py']))
+    )
+
 
     tf_broadcast = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(PathJoinSubstitution([
             get_package_share_directory('aptags_tf_broadcast'), 'launch', 'tf_broadcast.launch.py']))
     )
+
+
+    charger = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(PathJoinSubstitution([
+            get_package_share_directory('charger_description'), 'launch', 'view_charger.launch.py']))
+    )
+
+
 
     #     package='shr_plan
     #
@@ -82,7 +96,9 @@ def generate_launch_description():
     # ld.add_action(logger_node)
     # ld.add_action(jackal_navigation)
     # ld.add_action(realsense_cam)
-    ld.add_action(apriltags_realsense)
+    ld.add_action(apriltags_realsense_docking)
+    ld.add_action(charger)
+    ld.add_action(apriltags_realsense_loc)
     ld.add_action(tf_broadcast)
     ld.add_action(smartthings_node)
 
