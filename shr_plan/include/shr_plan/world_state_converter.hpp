@@ -11,6 +11,7 @@
 class WorldStateListener : public rclcpp::Node {
 private:
     rclcpp::Subscription<std_msgs::msg::Int32>::SharedPtr eating_sub_;
+    rclcpp::Subscription<std_msgs::msg::Int32>::SharedPtr charging_sub_;
     rclcpp::Subscription<builtin_interfaces::msg::Time>::SharedPtr time_sub_;
     rclcpp::Subscription<std_msgs::msg::Int32>::SharedPtr taking_medicine_sub_;
     std::unique_ptr<tf2_ros::Buffer> tf_buffer_;
@@ -49,6 +50,11 @@ public:
                 params.topics.time, 10, [this](const builtin_interfaces::msg::Time::SharedPtr msg) {
                     std::lock_guard<std::mutex> lock(world_state_mtx);
                     world_state_->time = *msg;
+                });
+        charging_sub_ = create_subscription<std_msgs::msg::Int32>(
+                params.topics.robot_charging, 10, [this](const std_msgs::msg::Int32::SharedPtr msg) {
+                    std::lock_guard<std::mutex> lock(world_state_mtx);
+                    world_state_->robot_charging = msg->data;
                 });
 
         std::filesystem::path pkg_dir = ament_index_cpp::get_package_share_directory("shr_resources");

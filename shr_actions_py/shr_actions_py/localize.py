@@ -1,37 +1,31 @@
 ﻿import rclpy
-from rclpy.action import ActionServer, GoalResponse, ActionClient
+from rclpy.action import ActionServer, GoalResponse
 from rclpy.node import Node
 
-from nav2_msgs.action import NavigateToPose
+from shr_msgs.action import LocalizeRequest
 from nav2_msgs.msg import ParticleCloud
-from geometry_msgs.msg import PoseStamped
-from action_msgs.msg import GoalStatus
-
-from rclpy.qos import QoSProfile
 
 import numpy as np
 import math
 import time
-from geometry_msgs.msg import Twist, Quaternion, TransformStamped, PoseWithCovarianceStamped, PoseStamped
+from geometry_msgs.msg import Twist, Quaternion, TransformStamped, PoseWithCovarianceStamped
 
 from rclpy.qos import QoSProfile, ReliabilityPolicy, HistoryPolicy, DurabilityPolicy
 
 import tf2_ros
 import tf_transformations as tr
-from apriltag_msgs.msg import AprilTagDetectionArray, AprilTagDetection
+from apriltag_msgs.msg import AprilTagDetectionArray
 
 
-
-
-class MoveToGoalwithLocalizationActionServer(Node):
+class LocalizationActionServer(Node):
 
     def __init__(self):
-        super().__init__('MoveToGoalwithLocalization_action_server')
+        super().__init__('Localization_action_server')
         self.nav2_to_goal_client = None
         self._action_server = ActionServer(
             self,
-            NavigateToPose,
-            'navigate_to_pose_with_localization',
+            LocalizeRequest,
+            'localize',
             self.execute_callback,
             goal_callback=self.goal_callback)  # Add goal_callback
 
@@ -42,16 +36,6 @@ class MoveToGoalwithLocalizationActionServer(Node):
             history=HistoryPolicy.KEEP_LAST,
             depth=1
         )
-
-        # from dt_apriltags import Detector
-        # at_detector = Detector(searchpath=['apriltags'],
-        #                        families='tag36h11',
-        #                        nthreads=1,
-        #                        quad_decimate=1.0,
-        #                        quad_sigma=0.0,
-        #                        refine_edges=1,
-        #                        decode_sharpening=0.25,
-        #                        debug=0)
 
         # For localization
         self.vel_pub = self.create_publisher(Twist, 'cmd_vel', 10)
@@ -65,18 +49,18 @@ class MoveToGoalwithLocalizationActionServer(Node):
         self.aptags_detected = False
         self.tf_buffer = tf2_ros.Buffer()
         self.tf_listener = tf2_ros.transform_listener.TransformListener(self.tf_buffer, self, spin_thread=True)
-        self.used_apriltags = [0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 11 ,12 ,13, 14, 15, 16, 18]  # add the apriltag ids that you used
+        self.used_apriltags = [0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 12, 13, 14, 15, 16,
+                               18]  # add the apriltag ids that you used
         self.transform_aptag_in_cam_dict = {}  # location of apriltags in camera frame
         self.transform_aptag_in_world_dict = {}  # global location of apriltags
         self.tf_broadcaster = tf2_ros.StaticTransformBroadcaster(self)
         self.closest_aptag = None
-        # self.cam_to_base_link = None
 
-        self.successfully_navigating = False
         self.result_future = None
         self.max_weight = 0
         self.time_out = 200
         self.get_tf_info = True
+        self.successfully_localized = False
 
         self.get_transform_matrix_aptags_in_world_from_tf()
         self.aptags_detected_inside_callback = False
@@ -109,7 +93,7 @@ class MoveToGoalwithLocalizationActionServer(Node):
 
     def apriltag_callback(self, msg):
         ### THIS SHOULD HAVE A FLAG IF APRILTAG CALLBACK CALCULATE TF IS TRUE THEN DO THE CLACULATION BUT FIRST IJUST WANT TO CHECK IF THERE ARE TAGS DETECTED
-        # print("cjcsdcnjksac")
+
         if msg.detections:
             self.aptags_detected = True
 
@@ -120,14 +104,13 @@ class MoveToGoalwithLocalizationActionServer(Node):
 
                 try:
                     for at in msg.detections:
-                        # if at.id != "203":
                         frame = "tag_" + str(at.id)  # from
-                        # print(frame)
-                        # try:
                         transformation = self.tf_buffer.lookup_transform(source_frame, frame, rclpy.time.Time(),
-                                                                         timeout=rclpy.duration.Duration(seconds=1000.0))
+                                                                         timeout=rclpy.duration.Duration(
+                                                                             seconds=1000.0))
 
-                        dist = self.get_dist(transformation.transform.translation.x, transformation.transform.translation.y,
+                        dist = self.get_dist(transformation.transform.translation.x,
+                                             transformation.transform.translation.y,
                                              transformation.transform.translation.z)
                         if dist < min_distance:
                             min_distance = dist
@@ -151,14 +134,11 @@ class MoveToGoalwithLocalizationActionServer(Node):
                         # print('********** apriltag detectedd: ' + str(at.id))
 
                 except Exception as ex:
-                    pass
-                    # self.get_logger().info(f'Error ***************: {ex}')
-                    # else:
-                    #     print('id 203')
+                    self.get_logger().info(f'Error ***************: {ex}')
 
         else:
             # pass
-            # print('No aptags from callback')
+            print('No aptags from callback')
             self.aptags_detected = False
 
     def get_transform_matrix_aptags_in_world_from_tf(self):
@@ -184,7 +164,7 @@ class MoveToGoalwithLocalizationActionServer(Node):
 
                 self.transform_aptag_in_world_dict[aptag] = transform_aptag_in_world
 
-                # self.get_logger().info(f'transform ready from {frame} to {source_frame}')
+                self.get_logger().info(f'transform ready from {frame} to {source_frame}')
 
             except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
                 pass
@@ -218,41 +198,6 @@ class MoveToGoalwithLocalizationActionServer(Node):
             qz = 0.25 * S
 
         return [qx, qy, qz, qw]
-
-    def get_transform_matrix_cam_to_base_link(self):
-
-        frame = "camera_color_optical_frame"  # to
-        source_frame = "base_link"  # from
-
-        try:
-            transformation = self.tf_buffer.lookup_transform(source_frame, frame, rclpy.time.Time(),
-                                                             timeout=rclpy.duration.Duration(seconds=5.0))
-            ## TODO check why trasnformation from tf broadcast is wrong
-            translation = tr.translation_matrix(
-                [transformation.transform.translation.x, transformation.transform.translation.y,
-                 transformation.transform.translation.z])
-
-            rotation = tr.quaternion_matrix(
-                [transformation.transform.rotation.x, transformation.transform.rotation.y,
-                 transformation.transform.rotation.z, transformation.transform.rotation.w])
-
-            # Get the homogeneous transformation matrix
-            # self.cam_to_base_link = np.dot(translation, rotation)
-
-            # transform_cam_to_base_link = np.array([[0.0, 0.0, 1.0, 0.0],
-            #                                        [1.0, 0.0, 0.0, 0.0],
-            #                                        [0.0, -1.0, 0.0, 0.0],
-            #                                        [0.0, 0.0, 0.0, 1.0]])
-            # self.cam_to_base_link = transform_cam_to_base_link
-            # quat = Quaternion()
-            # quat.x = 0.5
-            # quat.y = -0.5
-            # quat.z = 0.5
-            # quat.w = 0.5
-            # print('cam_to_base_link', self.cam_to_base_link)
-        except:
-            pass
-            # print('No aptags from callback')
 
     def particles_callback(self, msg):
         max_weight = 0.0  # Initialize with a double value
@@ -295,7 +240,6 @@ class MoveToGoalwithLocalizationActionServer(Node):
         self.publisher_initial_pose.publish(robot_pose)
         # self.get_logger().info(f'FINISH   Publishingg POSEEEEE')
 
-
     def transform_cam_world_frame(self):
         robot_position = []
         transform_aptag_in_cam_dict = self.transform_aptag_in_cam_dict
@@ -312,7 +256,8 @@ class MoveToGoalwithLocalizationActionServer(Node):
                                                    [-1.0, 0.0, 0.0, 0.0],
                                                    [0.0, -1.0, 0.0, 0.0],
                                                    [0.0, 0.0, 0.0, 1.0]])
-            self.publish_tf(transform_cam_to_base_link[0, 3], transform_cam_to_base_link[1, 3], transform_cam_to_base_link[2, 3], transform_cam_to_base_link[:3,:3],
+            self.publish_tf(transform_cam_to_base_link[0, 3], transform_cam_to_base_link[1, 3],
+                            transform_cam_to_base_link[2, 3], transform_cam_to_base_link[:3, :3],
                             'camera_color_optical_frame', 'base_link')
 
             t_robot_in_world = np.dot(t_cam_in_world, transform_cam_to_base_link.T)
@@ -347,7 +292,7 @@ class MoveToGoalwithLocalizationActionServer(Node):
         if not self.aptags_detected:
             # rotate until you find one
             while time.time() - start_time < self.time_out:
-                # self.get_logger().info('no aptags detected will start looking for one')
+                self.get_logger().info('no aptags detected will start looking for one')
                 # change this to VECTOR FIELD HISTOGRAM exploration
                 # TODO: uncomment
                 self.vel_pub.publish(msg)
@@ -365,19 +310,23 @@ class MoveToGoalwithLocalizationActionServer(Node):
 
                         self.publish_pose(robot_pose_aptags, rotation_matrix)
                         # print("published_pose")
-                        self.publish_tf(robot_pose_aptags[0], robot_pose_aptags[1], robot_pose_aptags[2], rotation_matrix,
+                        self.publish_tf(robot_pose_aptags[0], robot_pose_aptags[1], robot_pose_aptags[2],
+                                        rotation_matrix,
                                         'base_link', 'map')
                         self.successfully_localized = True
 
                         return
 
                     else:
+                        # self.successfully_localized = False
                         if not self.transform_aptag_in_cam_dict:
                             self.get_logger().info('NO apriltags detected')
                         if not self.transform_aptag_in_world_dict:
+                            self.get_transform_matrix_aptags_in_world_from_tf()
                             self.get_logger().info('NO transform_aptag_in_world_dict')
                         # if self.cam_to_base_link is None:
                         #     self.get_logger().info('NO transformation cam_to_base_link')
+                        # return
         else:
             # localize
             self.get_tf_info = True
@@ -395,10 +344,15 @@ class MoveToGoalwithLocalizationActionServer(Node):
                 return
 
             else:
+                # self.successfully_localized = False
+
                 if not self.transform_aptag_in_cam_dict:
                     self.get_logger().info('NO apriltags detected')
                 if not self.transform_aptag_in_world_dict:
+                    self.get_transform_matrix_aptags_in_world_from_tf()
                     self.get_logger().info('NO transform_aptag_in_world_dict')
+                # return
+
                 # if self.cam_to_base_link is None:
                 #     self.get_logger().info('NO transformation cam_to_base_link')
 
@@ -413,62 +367,10 @@ class MoveToGoalwithLocalizationActionServer(Node):
         self.get_logger().info(f'ACCEPTED navigation goal')
         return GoalResponse.ACCEPT
 
-    def send_goal_nav2(self, pose):
-        self.get_logger().info(f'Sending navigation goal')
-        self.nav2_to_goal_client = ActionClient(self, NavigateToPose, 'navigate_to_pose')
-
-        while not self.nav2_to_goal_client.wait_for_server(timeout_sec=1.0):
-            self.get_logger().info('NavigateToPose action client not available, waiting...')
-
-        nav_goal = NavigateToPose.Goal()
-        pose.header.stamp = self.get_clock().now().to_msg()
-        nav_goal.pose = pose
-
-        self.get_logger().info('Navigating to goal: ' + str(nav_goal.pose.pose.position.x) + ' ' +
-                               str(nav_goal.pose.pose.position.y) + '...')
-
-        # Send the goal to the action client
-        send_goal_future = self.nav2_to_goal_client.send_goal_async(nav_goal, self.feedback_callback)
-        rclpy.spin_until_future_complete(self, send_goal_future)
-        goal_handle = send_goal_future.result()
-
-        if not goal_handle.accepted:
-            # self.error('Goal to ' + str(pose.pose.position.x) + ' ' +
-            #            str(pose.pose.position.y) + ' was rejected!')
-            self.get_logger().info('Goal was rejected!')
-
-        self.result_future = goal_handle.get_result_async()
-
-        while not self.is_nav_complete():
-            self.get_logger().info('Goal accepted. Trying to reach goal')
-
     def feedback_callback(self, msg):
         # self.get_logger().info('Received action feedback message')
         self.feedback = msg.feedback
         return
-
-    def is_nav_complete(self):
-        # Check if the result future has a result (completed) or is None (timed out or canceled)
-        if not self.result_future:
-            self.get_logger().info('Goal failed')
-            # task was cancelled or completed
-            self.successfully_navigating = False
-            return True
-
-        # Spin until the result future is complete or a timeout is reached
-        rclpy.spin_until_future_complete(self, self.result_future)  # , timeout_sec=100)
-
-        # Extract the status from the result
-        status = self.result_future.result().status
-
-        if status == GoalStatus.STATUS_SUCCEEDED:
-            self.get_logger().info('Goal succeeded')
-            self.successfully_navigating = True
-            return True
-        else:
-            self.get_logger().info('Goal failed with status code: {0}'.format(status))
-            self.successfully_navigating = False
-            return True
 
     def execute_callback(self, goal_handle):
         self.get_logger().info('Executing goal...')
@@ -485,22 +387,12 @@ class MoveToGoalwithLocalizationActionServer(Node):
             self.localize()
             self.get_logger().info('Robot Localized')
 
-        # send goal to nav2
-        goal_pose = PoseStamped()
-        goal_pose.header.frame_id = 'map'
-        goal_pose.header.stamp = self.get_clock().now().to_msg()
-        goal_pose.pose.position = goal_handle.request.pose.pose.position
-        goal_pose.pose.orientation = goal_handle.request.pose.pose.orientation
-        # You can set the goal state to succeeded or aborted based on your logic.
-
         self.get_logger().info('Sending goal')
-        # self.get_logger().info('Debugging localization so robot shouldn't move commnet this if the line below is uncommented')
-        self.send_goal_nav2(goal_pose)
 
-        result = NavigateToPose.Result()
+        result = LocalizeRequest.Result()
 
         # Assuming you successfully navigated and localized, set the goal state to succeeded or abort since the code is already in executing state
-        if self.successfully_navigating:
+        if self.successfully_localized:
             goal_handle.succeed()
             result.result = True
         else:
@@ -517,10 +409,10 @@ class MoveToGoalwithLocalizationActionServer(Node):
 def main(args=None):
     rclpy.init(args=args)
 
-    nav_action_server = MoveToGoalwithLocalizationActionServer()
+    loc_action_server = LocalizationActionServer()
 
     exe = rclpy.executors.MultiThreadedExecutor()
-    exe.add_node(nav_action_server)
+    exe.add_node(loc_action_server)
     while True:
         exe.spin_once()
 

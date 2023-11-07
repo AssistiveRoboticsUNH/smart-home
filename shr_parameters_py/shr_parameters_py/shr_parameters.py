@@ -24,7 +24,7 @@ class shr_parameters:
         robot_tf = "base_link"
         class __Pddl:
             class __Instances:
-                Landmarks = ["kitchen", "couch", "home", "door", "outside"]
+                Landmarks = ["kitchen", "couch", "home", "door", "outside", "hallway", "bedroom", "dining_room"]
                 Robots = ["jackal"]
                 Persons = ["nathan"]
             instances = __Instances()
@@ -57,6 +57,7 @@ class shr_parameters:
             time = "/protocol_time"
             person_taking_medicine = "/person_taking_medicine"
             person_eating = "/person_eating"
+            robot_charging = "/charging"
         topics = __Topics()
 
 
@@ -190,6 +191,10 @@ class shr_parameters:
 
                 if param.name == self.prefix_ + "topics.person_eating":
                     updated_params.topics.person_eating = param.value
+                    self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
+
+                if param.name == self.prefix_ + "topics.robot_charging":
+                    updated_params.topics.robot_charging = param.value
                     self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
 
                 if param.name == self.prefix_ + "person_tf":
@@ -332,6 +337,11 @@ class shr_parameters:
                 parameter = updated_params.topics.person_eating
                 self.node_.declare_parameter(self.prefix_ + "topics.person_eating", parameter, descriptor)
 
+            if not self.node_.has_parameter(self.prefix_ + "topics.robot_charging"):
+                descriptor = ParameterDescriptor(description="topic for smart plug that detect if robot is charging", read_only = False)
+                parameter = updated_params.topics.robot_charging
+                self.node_.declare_parameter(self.prefix_ + "topics.robot_charging", parameter, descriptor)
+
             if not self.node_.has_parameter(self.prefix_ + "person_tf"):
                 descriptor = ParameterDescriptor(description="person tf frame id", read_only = False)
                 parameter = updated_params.person_tf
@@ -416,6 +426,9 @@ class shr_parameters:
             param = self.node_.get_parameter(self.prefix_ + "topics.person_eating")
             self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
             updated_params.topics.person_eating = param.value
+            param = self.node_.get_parameter(self.prefix_ + "topics.robot_charging")
+            self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
+            updated_params.topics.robot_charging = param.value
             param = self.node_.get_parameter(self.prefix_ + "person_tf")
             self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
             updated_params.person_tf = param.value

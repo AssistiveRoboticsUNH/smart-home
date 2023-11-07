@@ -3,7 +3,7 @@ shr_parameters:
     instances:
       Landmarks: {
         type: string_array,
-        default_value: [ "kitchen", "couch", "home" , "door", "outside" ],
+        default_value: [ "kitchen", "couch", "home" , "door", "outside", "hallway", "bedroom", "dining_room" ],
         description: "all landmarks in protocols",
       }
       Robots: {
@@ -129,6 +129,12 @@ shr_parameters:
       default_value: "/person_eating",
       description: "topic for sensor that detect if patient is eating",
     }
+    robot_charging: {
+      type: string,
+      default_value: "/charging",
+      description: "topic for smart plug that detect if robot is charging",
+    }
+
   person_tf: {
     type: string,
     default_value: "nathan",

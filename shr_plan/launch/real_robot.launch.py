@@ -16,6 +16,11 @@ def generate_launch_description():
         executable='smartthings_node',
         output='screen'
     )
+    # smartthings_node_plug = Node(
+    #     package='smartthings_ros_plug',
+    #     executable='smartplug_node',
+    #     output='screen'
+    # )
 
     # logger_node = Node(
     #     package='simple_logger',
@@ -101,5 +106,6 @@ def generate_launch_description():
     ld.add_action(apriltags_realsense_loc)
     ld.add_action(tf_broadcast)
     ld.add_action(smartthings_node)
+    # ld.add_action(smartthings_node_plug)
 
     return ld

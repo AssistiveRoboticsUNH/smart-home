@@ -283,10 +283,15 @@ int main(int argc, char **argv) {
         while (!ps.call_client_->wait_for_action_server(std::chrono::seconds(5))) {
             RCLCPP_INFO(rclcpp::get_logger("planning_controller"), "Waiting for /make_call action server...");
         }
+//        ps.nav_client_ = rclcpp_action::create_client<nav2_msgs::action::NavigateToPose>(
+//                world_state_converter, "navigate_to_pose_with_localization");
+//        while (!ps.nav_client_->wait_for_action_server(std::chrono::seconds(5))) {
+//            RCLCPP_INFO(rclcpp::get_logger("planning_controller"), "Waiting for /navigate_to_pose_with_localization action server...");
+//        }
         ps.nav_client_ = rclcpp_action::create_client<nav2_msgs::action::NavigateToPose>(
-                world_state_converter, "navigate_to_pose_with_localization");
+                world_state_converter, "navigate_to_pose");
         while (!ps.nav_client_->wait_for_action_server(std::chrono::seconds(5))) {
-            RCLCPP_INFO(rclcpp::get_logger("planning_controller"), "Waiting for /navigate_to_pose_with_localization action server...");
+            RCLCPP_INFO(rclcpp::get_logger("planning_controller"), "Waiting for /navigate_to_pose action server...");
         }
         ps.read_action_client_ = rclcpp_action::create_client<shr_msgs::action::ReadScriptRequest>(
                 world_state_converter, "read_script");
@@ -298,44 +303,54 @@ int main(int argc, char **argv) {
         while (!ps.read_action_client_->wait_for_action_server(std::chrono::seconds(5))) {
             RCLCPP_INFO(rclcpp::get_logger("planning_controller"), "Waiting for /play_video action server...");
         }
+        ps.docking_ = rclcpp_action::create_client<shr_msgs::action::DockingRequest>(
+                world_state_converter, "docking");
+        while (!ps.read_action_client_->wait_for_action_server(std::chrono::seconds(5))) {
+            RCLCPP_INFO(rclcpp::get_logger("planning_controller"), "Waiting for /docking action server...");
+        }
+        ps.localize_ = rclcpp_action::create_client<shr_msgs::action::LocalizeRequest>(
+                world_state_converter, "localize");
+        while (!ps.read_action_client_->wait_for_action_server(std::chrono::seconds(5))) {
+            RCLCPP_INFO(rclcpp::get_logger("planning_controller"), "Waiting for /localize action server...");
+        }
     }
 
     // localize to start navigation and move to home position
     auto [ps, lock] = ProtocolState::getConcurrentInstance();
 
 
-    nav2_msgs::action::NavigateToPose::Goal navigation_goal_;
-    std::cout << "before starting Btree localize and go home" << std::endl ;
-    auto success = std::make_shared<std::atomic<int>>(-1);
-    navigation_goal_.pose.header.frame_id = "map";
-    navigation_goal_.pose.header.stamp = ps.world_state_converter->now();
-    if (auto transform = ps.world_state_converter->get_tf("map", "home")) {
-        navigation_goal_.pose.pose.orientation = transform.value().transform.rotation;
-        navigation_goal_.pose.pose.position.x = transform.value().transform.translation.x;
-        navigation_goal_.pose.pose.position.y = transform.value().transform.translation.y;
-        navigation_goal_.pose.pose.position.z = transform.value().transform.translation.z;
-    }
-
-    // for blocking
-    auto send_goal_options = rclcpp_action::Client<nav2_msgs::action::NavigateToPose>::SendGoalOptions();
-    send_goal_options.result_callback = [&success](
-            const rclcpp_action::ClientGoalHandle<nav2_msgs::action::NavigateToPose>::WrappedResult result) {
-        *success = result.code == rclcpp_action::ResultCode::SUCCEEDED;
-    };
-    ps.nav_client_->async_send_goal(navigation_goal_, send_goal_options);
-    auto tmp = ps.active_protocol;
-    // blocking
-    // TODO take this out // it is causing an infinite loop
-    int count_max = 30;
-    int count = 0;
-    while (*success == -1 && count_max > count) {
-        if (!(tmp == ps.active_protocol)) {
-            ps.nav_client_->async_cancel_all_goals();
-        }
-        count++;
-        rclcpp::sleep_for(std::chrono::seconds(1));
-    }
-    std::cout << "after localizing " << std::endl;
+//    nav2_msgs::action::NavigateToPose::Goal navigation_goal_;
+//    std::cout << "before starting Btree localize and go home" << std::endl ;
+//    auto success = std::make_shared<std::atomic<int>>(-1);
+//    navigation_goal_.pose.header.frame_id = "map";
+//    navigation_goal_.pose.header.stamp = ps.world_state_converter->now();
+//    if (auto transform = ps.world_state_converter->get_tf("map", "home")) {
+//        navigation_goal_.pose.pose.orientation = transform.value().transform.rotation;
+//        navigation_goal_.pose.pose.position.x = transform.value().transform.translation.x;
+//        navigation_goal_.pose.pose.position.y = transform.value().transform.translation.y;
+//        navigation_goal_.pose.pose.position.z = transform.value().transform.translation.z;
+//    }
+//
+//    // for blocking
+//    auto send_goal_options = rclcpp_action::Client<nav2_msgs::action::NavigateToPose>::SendGoalOptions();
+//    send_goal_options.result_callback = [&success](
+//            const rclcpp_action::ClientGoalHandle<nav2_msgs::action::NavigateToPose>::WrappedResult result) {
+//        *success = result.code == rclcpp_action::ResultCode::SUCCEEDED;
+//    };
+//    ps.nav_client_->async_send_goal(navigation_goal_, send_goal_options);
+//    auto tmp = ps.active_protocol;
+//    // blocking
+//    // TODO take this out // it is causing an infinite loop
+//    int count_max = 30;
+//    int count = 0;
+//    while (*success == -1 && count_max > count) {
+//        if (!(tmp == ps.active_protocol)) {
+//            ps.nav_client_->async_cancel_all_goals();
+//        }
+//        count++;
+//        rclcpp::sleep_for(std::chrono::seconds(1));
+//    }
+//    std::cout << "after localizing " << std::endl;
 
 //    shr_msgs::action::DockingRequest::Goal goal_msg;
 //    ps.docking_->async_send_goal(goal_msg);

@@ -1,0 +1,5 @@
+bool force_localize
+---
+bool result
+---
+bool running # returns true if running
