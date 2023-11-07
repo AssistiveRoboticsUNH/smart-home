@@ -309,7 +309,7 @@ namespace pddl_lib {
             kb.insert_predicate({"abort", {}});
             kb.clear_unknowns();
 
-            if (!ps.world_state_converter->get_world_state_msg()->robot_charging == 1){
+//            if (!ps.world_state_converter->get_world_state_msg()->robot_charging == 1){
                 ps.call_client_->async_cancel_all_goals();
                 ps.read_action_client_->async_cancel_all_goals();
                 ps.video_action_client_->async_cancel_all_goals();
@@ -378,31 +378,31 @@ namespace pddl_lib {
                 std::cout << "dock " << std::endl;
 
                 //// TODO :: stop if not docked
-                shr_msgs::action::DockingRequest::Goal goal_msg;
+//                shr_msgs::action::DockingRequest::Goal goal_msg;
+//
+//                auto success_dock = std::make_shared<std::atomic<int>>(-1);
+//                auto send_goal_options_dock = rclcpp_action::Client<shr_msgs::action::DockingRequest>::SendGoalOptions();
+//                send_goal_options_dock.result_callback = [&success_dock](
+//                        const rclcpp_action::ClientGoalHandle<shr_msgs::action::DockingRequest>::WrappedResult result) {
+//                    *success_dock = result.code == rclcpp_action::ResultCode::SUCCEEDED;
+//                };
 
-                auto success_dock = std::make_shared<std::atomic<int>>(-1);
-                auto send_goal_options_dock = rclcpp_action::Client<shr_msgs::action::DockingRequest>::SendGoalOptions();
-                send_goal_options_dock.result_callback = [&success_dock](
-                        const rclcpp_action::ClientGoalHandle<shr_msgs::action::DockingRequest>::WrappedResult result) {
-                    *success_dock = result.code == rclcpp_action::ResultCode::SUCCEEDED;
-                };
+//                ps.docking_->async_send_goal(goal_msg, send_goal_options_dock);
+//                auto tmp_dock = ps.active_protocol;
+//
+//                int count_ = 0;
+//                while (*success_dock == -1 && count_max > count_) {
+//                    if (!(tmp_dock == ps.active_protocol)) {
+//                        ps.docking_->async_cancel_all_goals();
+//                        std::cout << " Failed " << std::endl;
+//                    }
+//                    count_++;
+//                    rclcpp::sleep_for(std::chrono::seconds(1));
+//                }
+//
+//                ps.active_protocol = {};
 
-                ps.docking_->async_send_goal(goal_msg, send_goal_options_dock);
-                auto tmp_dock = ps.active_protocol;
-
-                int count_ = 0;
-                while (*success_dock == -1 && count_max > count_) {
-                    if (!(tmp_dock == ps.active_protocol)) {
-                        ps.docking_->async_cancel_all_goals();
-                        std::cout << " Failed " << std::endl;
-                    }
-                    count_++;
-                    rclcpp::sleep_for(std::chrono::seconds(1));
-                }
-
-                ps.active_protocol = {};
-
-            }
+//            }
 
             return BT::NodeStatus::SUCCESS;
         }
