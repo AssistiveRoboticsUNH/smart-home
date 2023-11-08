@@ -316,7 +316,7 @@ namespace pddl_lib {
 //            ps.docking_->async_cancel_all_goals();
 //            ps.localize_->async_cancel_all_goals();
 
-                int count_max = 30;
+                int count_max = 120;
 
                 std::cout << "localize " << std::endl;
                 shr_msgs::action::LocalizeRequest::Goal goal_msg_loc;
