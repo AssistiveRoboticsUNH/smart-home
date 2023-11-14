@@ -36,6 +36,7 @@ setup(
                             'client__ = shr_actions_py.client:main',
                             'client_dock = shr_actions_py.client_dock:main',
                             'apriltag_port_server = shr_actions_py.docking_action:main',
+                            'undocking = shr_actions_py.undocking_action:main',
                             'apriltag_port = shr_actions_py.docking_main:main',
                             'localize = shr_actions_py.localize:main',
                             ],

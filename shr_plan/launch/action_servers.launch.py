@@ -76,6 +76,12 @@ def generate_launch_description():
         name='localize',
         output='screen')
 
+    undock_cmd = Node(
+        package='shr_actions_py',
+        executable='undocking',
+        name='undock',
+        output='screen')
+
     ld = LaunchDescription()
     ld.add_action(read_script_node_cmd)
     ld.add_action(apriltag_port_server_cmd)
@@ -88,5 +94,6 @@ def generate_launch_description():
     ld.add_action(detect_person_cmd)
     # ld.add_action(navigate_with_localization_cmd)
     ld.add_action(localize_cmd)
+    ld.add_action(undock_cmd)
 
     return ld

@@ -109,6 +109,7 @@ namespace pddl_lib {
         rclcpp_action::Client<shr_msgs::action::CallRequest>::SharedPtr call_client_ = {};
         rclcpp_action::Client<nav2_msgs::action::NavigateToPose>::SharedPtr nav_client_ = {};
         rclcpp_action::Client<shr_msgs::action::DockingRequest>::SharedPtr docking_ = {};
+        rclcpp_action::Client<shr_msgs::action::DockingRequest>::SharedPtr undocking_ = {};
         rclcpp_action::Client<shr_msgs::action::ReadScriptRequest>::SharedPtr read_action_client_ = {};
         rclcpp_action::Client<shr_msgs::action::LocalizeRequest>::SharedPtr localize_ = {};
         rclcpp_action::Client<shr_msgs::action::PlayVideoRequest>::SharedPtr video_action_client_ = {};
@@ -341,7 +342,7 @@ namespace pddl_lib {
                     count__++;
                     rclcpp::sleep_for(std::chrono::seconds(1));
                 }
-
+                ps.localize_->async_cancel_all_goals();
 
                 std::cout << "navigate " << std::endl;
                 auto success = std::make_shared<std::atomic<int>>(-1);
@@ -363,21 +364,20 @@ namespace pddl_lib {
 
                 ps.nav_client_->async_send_goal(navigation_goal_, send_goal_options);
                 auto tmp = ps.active_protocol;
-                // TODO take this out // it is causing an infinite loop Add docking
+
 
                 int count = 0;
                 while (*success == -1 && count_max > count) {
                     if (!(tmp == ps.active_protocol)) {
                         ps.nav_client_->async_cancel_all_goals();
-                        // goal not reached TODO change to retry going to goal
                     }
                     count++;
                     rclcpp::sleep_for(std::chrono::seconds(1));
                 }
+                ps.nav_client_->async_cancel_all_goals();
 
                 std::cout << "dock " << std::endl;
 
-                //// TODO :: stop if not docked
                 shr_msgs::action::DockingRequest::Goal goal_msg;
 
                 auto success_dock = std::make_shared<std::atomic<int>>(-1);
@@ -399,6 +399,7 @@ namespace pddl_lib {
                     count_++;
                     rclcpp::sleep_for(std::chrono::seconds(1));
                 }
+                ps.docking_->async_cancel_all_goals();
 
                 ps.active_protocol = {};
 
@@ -440,6 +441,37 @@ namespace pddl_lib {
         }
 
         BT::NodeStatus high_level_domain_MoveToLandmark(const InstantiatedAction &action) override {
+            // if movetolandmark is claled when the robot is docked it needs to undock first
+            auto [ps, lock] = ProtocolState::getConcurrentInstance();
+            if (ps.world_state_converter->get_world_state_msg()->robot_charging == 1){
+                std::cout << "dock " << std::endl;
+
+                //// TODO :: stop if not docked
+                shr_msgs::action::DockingRequest::Goal goal_msg;
+
+                auto success_undock = std::make_shared<std::atomic<int>>(-1);
+                auto send_goal_options_dock = rclcpp_action::Client<shr_msgs::action::DockingRequest>::SendGoalOptions();
+                send_goal_options_dock.result_callback = [&success_undock](
+                        const rclcpp_action::ClientGoalHandle<shr_msgs::action::DockingRequest>::WrappedResult result) {
+                    *success_undock = result.code == rclcpp_action::ResultCode::SUCCEEDED;
+                };
+
+                ps.undocking_->async_send_goal(goal_msg, send_goal_options_dock);
+                auto tmp_dock = ps.active_protocol;
+
+
+                while (*success_undock == -1) {
+                    if (!(tmp_dock == ps.active_protocol)) {
+                        ps.undocking_->async_cancel_all_goals();
+                        std::cout << " Failed " << std::endl;
+                    }
+                    rclcpp::sleep_for(std::chrono::seconds(1));
+                }
+                ps.undocking_->async_cancel_all_goals();
+
+            }
+
+
             InstantiatedParameter from = action.parameters[0];
             InstantiatedParameter to = action.parameters[1];
             InstantiatedParameter t1 = {"t1", "Time"};

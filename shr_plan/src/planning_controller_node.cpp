@@ -308,6 +308,11 @@ int main(int argc, char **argv) {
         while (!ps.read_action_client_->wait_for_action_server(std::chrono::seconds(5))) {
             RCLCPP_INFO(rclcpp::get_logger("planning_controller"), "Waiting for /docking action server...");
         }
+        ps.undocking_ = rclcpp_action::create_client<shr_msgs::action::DockingRequest>(
+                world_state_converter, "undocking");
+        while (!ps.read_action_client_->wait_for_action_server(std::chrono::seconds(5))) {
+            RCLCPP_INFO(rclcpp::get_logger("planning_controller"), "Waiting for /undocking action server...");
+        }
         ps.localize_ = rclcpp_action::create_client<shr_msgs::action::LocalizeRequest>(
                 world_state_converter, "localize");
         while (!ps.read_action_client_->wait_for_action_server(std::chrono::seconds(5))) {
