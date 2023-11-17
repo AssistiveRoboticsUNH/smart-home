@@ -300,7 +300,6 @@ namespace pddl_lib {
     class ProtocolActions : public pddl_lib::ActionInterface {
     public:
 
-
         BT::NodeStatus high_level_domain_Idle(const InstantiatedAction &action) override {
 
             // CHECKING IF ROBOT IS CHARGING FIRST
@@ -314,10 +313,12 @@ namespace pddl_lib {
                 ps.call_client_->async_cancel_all_goals();
                 ps.read_action_client_->async_cancel_all_goals();
                 ps.video_action_client_->async_cancel_all_goals();
-//            ps.docking_->async_cancel_all_goals();
-//            ps.localize_->async_cancel_all_goals();
+                ps.undocking_->async_cancel_all_goals();
+                ps.docking_->async_cancel_all_goals();
+                ps.localize_->async_cancel_all_goals();
+                ps.docking_->async_cancel_all_goals();
 
-                int count_max = 120;
+                int count_max = 50;
 
                 std::cout << "localize " << std::endl;
                 shr_msgs::action::LocalizeRequest::Goal goal_msg_loc;
@@ -336,12 +337,16 @@ namespace pddl_lib {
                 int count__ = 0;
                 while (*success_loc == -1 && count_max > count__) {
                     if (!(tmp_loc == ps.active_protocol)) {
-                        ps.docking_->async_cancel_all_goals();
+
                         std::cout << " Failed " << std::endl;
                     }
                     count__++;
                     rclcpp::sleep_for(std::chrono::seconds(1));
+                    if (count_max -1 == count__){
+                        ps.localize_->async_cancel_all_goals();
+                        return BT::NodeStatus::FAILURE;}
                 }
+
                 ps.localize_->async_cancel_all_goals();
 
                 std::cout << "navigate " << std::endl;
@@ -367,13 +372,20 @@ namespace pddl_lib {
 
 
                 int count = 0;
-                while (*success == -1 && count_max > count) {
+                int count_max_ = 50;
+                while (*success == -1 && count_max_ > count) {
                     if (!(tmp == ps.active_protocol)) {
                         ps.nav_client_->async_cancel_all_goals();
                     }
                     count++;
                     rclcpp::sleep_for(std::chrono::seconds(1));
+                    if (count_max_ -1 == count){
+                        ps.nav_client_->async_cancel_all_goals();
+                        return BT::NodeStatus::FAILURE;}
+
                 }
+
+
                 ps.nav_client_->async_cancel_all_goals();
 
                 std::cout << "dock " << std::endl;
@@ -385,6 +397,7 @@ namespace pddl_lib {
                 send_goal_options_dock.result_callback = [&success_dock](
                         const rclcpp_action::ClientGoalHandle<shr_msgs::action::DockingRequest>::WrappedResult result) {
                     *success_dock = result.code == rclcpp_action::ResultCode::SUCCEEDED;
+
                 };
 
                 ps.docking_->async_send_goal(goal_msg, send_goal_options_dock);
@@ -398,10 +411,17 @@ namespace pddl_lib {
                     }
                     count_++;
                     rclcpp::sleep_for(std::chrono::seconds(1));
+                    if (count_max -1 == count_){
+                        ps.docking_->async_cancel_all_goals();
+                        return BT::NodeStatus::FAILURE;}
                 }
+
                 ps.docking_->async_cancel_all_goals();
 
                 ps.active_protocol = {};
+                // sleep for 60 seconds to deal with the delay from //charging topic
+                std::cout << " waiting  " << std::endl;
+                rclcpp::sleep_for(std::chrono::seconds(30));
 
             }
 
