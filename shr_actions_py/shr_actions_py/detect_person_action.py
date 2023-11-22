@@ -70,9 +70,9 @@ def main(args=None):
     executor = MultiThreadedExecutor()
     executor.add_node(action_server)
 
-    executor.spin()
-    # while True:
-    #     executor.spin_once()
+    #executor.spin()
+    while True:
+        executor.spin_once(timeout_sec=1.0)
 
 
 if __name__ == '__main__':

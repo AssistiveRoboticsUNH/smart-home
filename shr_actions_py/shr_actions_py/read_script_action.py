@@ -78,7 +78,7 @@ def main(args=None):
     x.start()
 
     while True:
-        rclpy.spin_once(read_script_action_server)
+        rclpy.spin_once(read_script_action_server, timeout_sec=1.0)
 
 
 if __name__ == '__main__':

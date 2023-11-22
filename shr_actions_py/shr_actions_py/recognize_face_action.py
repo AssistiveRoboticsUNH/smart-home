@@ -230,7 +230,7 @@ def main(args=None):
     executor.add_node(recognize_face_action_server)
 
     while True:
-        executor.spin_once()
+        executor.spin_once(timeout_sec=1.0)
 
 
 if __name__ == '__main__':

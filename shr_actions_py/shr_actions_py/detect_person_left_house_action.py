@@ -65,8 +65,9 @@ def main(args=None):
     action_server = DetectLeftHouseActionServer()
     executor = MultiThreadedExecutor()
     executor.add_node(action_server)
+    while True:
+        executor.spin_once(timeout_sec=1.0)
 
-    executor.spin()
 
 
 if __name__ == '__main__':

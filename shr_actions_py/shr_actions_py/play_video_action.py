@@ -41,7 +41,7 @@ def main(args=None):
     play_video_action_server = PlayVideoActionServer()
 
     while True:
-        rclpy.spin_once(play_video_action_server)
+        rclpy.spin_once(play_video_action_server, timeout_sec=1.0)
 
 
 if __name__ == '__main__':

@@ -128,7 +128,8 @@ def main(args=None):
 
     action_server = DeepFakeActionServer()
 
-    rclpy.spin(action_server)
+    while rclpy.ok():
+        rclpy.spin_once(action_server, timeout_sec=1.0)
 
 
 if __name__ == '__main__':

@@ -59,12 +59,18 @@ class DockingActionServer(Node):
         return
 
 
+
+
+
 def main(args=None):
     rclpy.init(args=args)
     subscriber_node = DockingActionServer()
-    rclpy.spin(subscriber_node)
-    subscriber_node.destroy_node()
-    rclpy.shutdown()
+    try:
+        while rclpy.ok():
+            rclpy.spin_once(subscriber_node, timeout_sec=1.0)
+    finally:
+        subscriber_node.destroy_node()
+        rclpy.shutdown()
 
 
 if __name__ == '__main__':

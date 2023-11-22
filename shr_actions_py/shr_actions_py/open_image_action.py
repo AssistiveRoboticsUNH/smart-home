@@ -49,7 +49,7 @@ def main(args=None):
     open_image_action_server = OpenImageActionServer()
 
     while True:
-        rclpy.spin_once(open_image_action_server)
+        rclpy.spin_once(open_image_action_server,timeout_sec=1.0)
 
 
 if __name__ == '__main__':
