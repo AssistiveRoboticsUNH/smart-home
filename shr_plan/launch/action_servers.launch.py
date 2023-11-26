@@ -40,23 +40,11 @@ def generate_launch_description():
         name='send_text_action',
         output='screen')
 
-    rotate_node_cmd = Node(
-        package='shr_actions_py',
-        executable='rotate_action',
-        name='rotate_action',
-        output='screen')
-
     apriltag_port_server_cmd = Node(
         package='shr_actions_py',
         executable='apriltag_port_server',
         name='apriltag_port_server',
         output='screen')
-
-    # navigate_with_localization_cmd = Node(
-    #     package='shr_actions_py',
-    #     executable='navigate_with_localization_action_server',
-    #     name='navigate_with_localization_action_server',
-    #     output='screen')
 
     localize_cmd = Node(
         package='shr_actions_py',
@@ -76,9 +64,7 @@ def generate_launch_description():
     ld.add_action(play_audio_node_cmd)
     ld.add_action(play_video_node_cmd)
     ld.add_action(make_call_node_cmd)
-    ld.add_action(send_text_node_cmd)
-    ld.add_action(rotate_node_cmd)
-    # ld.add_action(navigate_with_localization_cmd)
+    #ld.add_action(send_text_node_cmd)
     ld.add_action(localize_cmd)
     ld.add_action(undock_cmd)
 

@@ -17,7 +17,7 @@ class MakeCallActionServer(Node):
                                                       self.make_call_callback)
 
     def make_call_callback(self, goal_handle):
-        self.get_logger().info('Sending text...')
+        self.get_logger().info("weblog="+'Sending text...')
         result = TextRequest.Result()
 
         try:
@@ -27,12 +27,12 @@ class MakeCallActionServer(Node):
                 'key': 'textbelt'
             })
         except Exception as e:
-            self.get_logger().info('Making call failed')
+            self.get_logger().info("weblog="+'Making call failed')
             result.status = "failed: " + str(e)
             goal_handle.abort()
             return result
 
-        self.get_logger().info('Making text succeeded')
+        self.get_logger().info("weblog="+'Making text succeeded')
         result.status = "success"
         goal_handle.succeed()
 
@@ -44,7 +44,7 @@ def main(args=None):
     make_call_action_server = MakeCallActionServer()
 
     while True:
-        rclpy.spin_once(make_call_action_server)
+        rclpy.spin_once(make_call_action_server, timeout_sec=5.0)
 
 
 if __name__ == '__main__':

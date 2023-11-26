@@ -29,12 +29,12 @@ class UnDockingActionServer(Node):
 
         # If you want to accept the goal, return GoalResponse.ACCEPT
         # If you want to reject the goal, return GoalResponse.REJECT
-        self.get_logger().info(f'ACCEPTED undocking goal')
+        self.get_logger().info("weblog="+'ACCEPTED undocking goal')
         return GoalResponse.ACCEPT
 
     def execute_callback(self, goal_handle):
         print("executing callback")
-
+        self.get_logger().info("weblog="+'starting undocking!')
         start_time = time.time()
         speed = 3.14 / 15.0
         msg = Twist()
@@ -49,7 +49,7 @@ class UnDockingActionServer(Node):
         goal_handle.succeed()
         result = DockingRequest.Result()
         result.result = True
-
+        self.get_logger().info("weblog="+'undocking is successful')
         return result
 
         # else:
@@ -67,9 +67,12 @@ class UnDockingActionServer(Node):
 def main(args=None):
     rclpy.init(args=args)
     subscriber_node = UnDockingActionServer()
-    rclpy.spin(subscriber_node)
-    subscriber_node.destroy_node()
-    rclpy.shutdown()
+    try:
+        while rclpy.ok():
+            rclpy.spin_once(subscriber_node, timeout_sec=5.0)
+    finally:
+        subscriber_node.destroy_node()
+        rclpy.shutdown()
 
 
 if __name__ == '__main__':

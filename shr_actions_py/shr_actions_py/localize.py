@@ -382,7 +382,8 @@ class LocalizationActionServer(Node):
         # If you want to accept the goal, return GoalResponse.ACCEPT
         # If you want to reject the goal, return GoalResponse.REJECT
 
-        self.get_logger().info(f'ACCEPTED navigation goal')
+        self.get_logger().info("weblog="+'ACCEPTED navigation goal')
+
         return GoalResponse.ACCEPT
 
     def feedback_callback(self, msg):
@@ -391,8 +392,13 @@ class LocalizationActionServer(Node):
         return
 
     def execute_callback(self, goal_handle):
+
         self.get_logger().info('Executing goal...')
         result = LocalizeRequest.Result()
+
+        self.get_logger().info("weblog="+'Executing goal...')
+
+
         # Perform the navigation and localization logic here.
         # Access the goal from the goal handle
 
@@ -404,10 +410,11 @@ class LocalizationActionServer(Node):
             goal_handle.succeed()
             result.result = True
             return result
+
         else:
-            self.get_logger().info('Robot is lost; Localizing')
+            self.get_logger().info("weblog="+'Robot is lost; Localizing')
             self.localize()
-            self.get_logger().info('Robot Localized')
+            self.get_logger().info("weblog="+'Robot Localized')
 
         self.get_logger().info('Sending goal')
 
@@ -421,7 +428,7 @@ class LocalizationActionServer(Node):
 
         # If you want to set the goal state to aborted in case of an error, use:
         # goal_handle.abort(result)
-        self.get_logger().info('Goal Executed...')
+        self.get_logger().info("weblog="+'Goal Executed...')
 
         return result
 
@@ -434,7 +441,7 @@ def main(args=None):
     exe = rclpy.executors.MultiThreadedExecutor()
     exe.add_node(loc_action_server)
     while True:
-        exe.spin_once()
+        exe.spin_once(timeout_sec=5.0)
 
     loc_action_server.destroy_node()
     rclpy.shutdown()

@@ -28,7 +28,7 @@ class DockingActionServer(Node):
 
         # If you want to accept the goal, return GoalResponse.ACCEPT
         # If you want to reject the goal, return GoalResponse.REJECT
-        self.get_logger().info(f'ACCEPTED navigation goal')
+        self.get_logger().info("weblog="+'ACCEPTED docking goal')
         return GoalResponse.ACCEPT
 
     def execute_callback(self, goal_handle):
@@ -42,6 +42,7 @@ class DockingActionServer(Node):
         print(self.docking.bumped)
         if self.docking.bumped:
             print("Bumped!!")
+            self.get_logger().info("weblog="+'charger and port bumped!')
             goal_handle.succeed()
             result = DockingRequest.Result()
             result.result = True
@@ -50,21 +51,28 @@ class DockingActionServer(Node):
         else:
             goal_handle.abort()
             result = DockingRequest.Result()
+            self.get_logger().info("weblog="+' docking aborted!')
             result.result = False
             return result
 
     def feedback_callback(self, msg):
-        # self.get_logger().info('Received action feedback message')
+        #self.get_logger().info('Received action feedback message')
         self.feedback = msg.feedback
         return
+
+
+
 
 
 def main(args=None):
     rclpy.init(args=args)
     subscriber_node = DockingActionServer()
-    rclpy.spin(subscriber_node)
-    subscriber_node.destroy_node()
-    rclpy.shutdown()
+    try:
+        while rclpy.ok():
+            rclpy.spin_once(subscriber_node, timeout_sec=5.0)
+    finally:
+        subscriber_node.destroy_node()
+        rclpy.shutdown()
 
 
 if __name__ == '__main__':

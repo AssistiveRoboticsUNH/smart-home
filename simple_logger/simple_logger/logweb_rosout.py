@@ -43,7 +43,7 @@ class LogSubscriber(Node):
             'rosout',
             self.listener_callback,
             10)
-        self.subscription    
+
 
 
     def listener_callback(self, msg):
@@ -53,7 +53,6 @@ class LogSubscriber(Node):
         file=msg.file 
         data=msg.msg 
         function=msg.function
- 
 
         # db.collection('hello').document('jackal').set({
         #     "time": td,
@@ -67,11 +66,10 @@ class LogSubscriber(Node):
         magic_key='weblog='
         if data.startswith(magic_key):
             data=data.replace(magic_key,'')
-
-            today=time.strftime("%m-%d-%Y", time.gmtime())
+            timestamp = datetime.now().strftime("%Y-%m-%d")
             stamp=str(stamp.sec)+'_'+str(stamp.nanosec)
             print('stamp=',stamp)
-            dref = collection_ref.document(today)
+            dref = collection_ref.document(timestamp)
             dref.set({stamp: {'name':name,'file':file, "data":data , "function":function } }, merge=True )
 
 
@@ -79,13 +77,8 @@ class LogSubscriber(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-
     minimal_subscriber = LogSubscriber() 
     rclpy.spin(minimal_subscriber)
-
-    # Destroy the node explicitly
-    # (optional - otherwise it will be done automatically
-    # when the garbage collector destroys the node object)
     minimal_subscriber.destroy_node()
     rclpy.shutdown()
 

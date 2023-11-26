@@ -21,21 +21,22 @@ class ReadScriptActionServer(Node):
                                                       self.read_script_callback)
 
     def read_script_callback(self, goal_handle):
-        self.get_logger().info('Reading script...')
+        self.get_logger().info("weblog="+'Reading script...')
         result = ReadScriptRequest.Result()
 
         file_name = goal_handle.request.script_name
         file_path = os.path.join(get_package_share_directory('shr_resources'), 'resources', file_name)
+        self.get_logger().info("weblog="+"script_file:"+file_path)
 
         if not os.path.isfile(file_path):
             result.status = "file '" + file_path + "' does not exist"
             goal_handle.abort()
-            self.get_logger().info('Reading script was aborted')
+            self.get_logger().info("weblog="+'Reading script was aborted')
             return result
 
         wavfilename = self.create_wav_from_text(file_path)
         os.system('vlc ' + wavfilename + ' vlc://quit')
-        self.get_logger().info('Reading script was successful')
+        self.get_logger().info("weblog="+'Reading script was successful')
         result.status = "success"
         goal_handle.succeed()
 
@@ -78,7 +79,7 @@ def main(args=None):
     x.start()
 
     while True:
-        rclpy.spin_once(read_script_action_server)
+        rclpy.spin_once(read_script_action_server, timeout_sec=5.0)
 
 
 if __name__ == '__main__':
