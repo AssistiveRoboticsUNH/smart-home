@@ -69,7 +69,7 @@ def main(args=None):
     subscriber_node = DockingActionServer()
     try:
         while rclpy.ok():
-            rclpy.spin_once(subscriber_node, timeout_sec=1.0)
+            rclpy.spin_once(subscriber_node, timeout_sec=5.0)
     finally:
         subscriber_node.destroy_node()
         rclpy.shutdown()

@@ -66,7 +66,7 @@ def main(args=None):
     executor = MultiThreadedExecutor()
     executor.add_node(action_server)
     while True:
-        executor.spin_once(timeout_sec=1.0)
+        executor.spin_once(timeout_sec=5.0)
 
 
 

@@ -414,7 +414,7 @@ def main(args=None):
     exe = rclpy.executors.MultiThreadedExecutor()
     exe.add_node(loc_action_server)
     while True:
-        exe.spin_once(timeout_sec=1.0)
+        exe.spin_once(timeout_sec=5.0)
 
 
 if __name__ == '__main__':

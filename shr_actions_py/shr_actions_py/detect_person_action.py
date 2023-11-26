@@ -72,7 +72,7 @@ def main(args=None):
 
     #executor.spin()
     while True:
-        executor.spin_once(timeout_sec=1.0)
+        executor.spin_once(timeout_sec=5.0)
 
 
 if __name__ == '__main__':
