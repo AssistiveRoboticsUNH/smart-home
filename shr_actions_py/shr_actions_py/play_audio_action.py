@@ -40,7 +40,7 @@ def main(args=None):
     play_audio_action_server = PlayAudioActionServer()
 
     while True:
-        rclpy.spin_once(play_audio_action_server)
+        rclpy.spin_once(play_audio_action_server, timeout_sec= 5)
 
 
 if __name__ == '__main__':

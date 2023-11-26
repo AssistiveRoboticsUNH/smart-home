@@ -9,12 +9,12 @@ from launch_ros.actions import Node
 
 
 def generate_launch_description():
-    # read script with deep fake
-    read_script_node_cmd = Node(
-        package='shr_actions_py',
-        executable='read_script_action',
-        name='read_script_action',
-        output='screen')
+    # # read script with deep fake
+    # read_script_node_cmd = Node(
+    #     package='shr_actions_py',
+    #     executable='read_script_action',
+    #     name='read_script_action',
+    #     output='screen')
 
     play_audio_node_cmd = Node(
         package='shr_actions_py',
@@ -26,12 +26,6 @@ def generate_launch_description():
         package='shr_actions_py',
         executable='play_video_action',
         name='play_video_action',
-        output='screen')
-
-    open_image_node_cmd = Node(
-        package='shr_actions_py',
-        executable='open_image_action',
-        name='open_image_action',
         output='screen')
 
     make_call_node_cmd = Node(
@@ -50,12 +44,6 @@ def generate_launch_description():
         package='shr_actions_py',
         executable='rotate_action',
         name='rotate_action',
-        output='screen')
-
-    detect_person_cmd = Node(
-        package='shr_actions_py',
-        executable='detect_person_action',
-        name='detect_person_action',
         output='screen')
 
     apriltag_port_server_cmd = Node(
@@ -83,15 +71,13 @@ def generate_launch_description():
         output='screen')
 
     ld = LaunchDescription()
-    ld.add_action(read_script_node_cmd)
+    # ld.add_action(read_script_node_cmd)
     ld.add_action(apriltag_port_server_cmd)
     ld.add_action(play_audio_node_cmd)
     ld.add_action(play_video_node_cmd)
-    ld.add_action(open_image_node_cmd)
     ld.add_action(make_call_node_cmd)
     ld.add_action(send_text_node_cmd)
     ld.add_action(rotate_node_cmd)
-    ld.add_action(detect_person_cmd)
     # ld.add_action(navigate_with_localization_cmd)
     ld.add_action(localize_cmd)
     ld.add_action(undock_cmd)

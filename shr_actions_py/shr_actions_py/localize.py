@@ -36,6 +36,8 @@ class LocalizationActionServer(Node):
             history=HistoryPolicy.KEEP_LAST,
             depth=1
         )
+        self.subscriber = self.create_subscription(ParticleCloud, 'particle_cloud', self.particles_callback,
+                                                   qos_profile)
 
         # For localization
         self.vel_pub = self.create_publisher(Twist, 'cmd_vel', 10)
@@ -95,8 +97,6 @@ class LocalizationActionServer(Node):
         ### THIS SHOULD HAVE A FLAG IF APRILTAG CALLBACK CALCULATE TF IS TRUE THEN DO THE CLACULATION BUT FIRST IJUST WANT TO CHECK IF THERE ARE TAGS DETECTED
 
         if msg.detections:
-            self.aptags_detected = True
-
             min_distance = np.inf
             if self.get_tf_info:
                 self.transform_aptag_in_cam_dict = {}
@@ -104,6 +104,9 @@ class LocalizationActionServer(Node):
 
                 try:
                     for at in msg.detections:
+                        if at.id == 203:
+                            continue
+                        self.aptags_detected = True
                         frame = "tag_" + str(at.id)  # from
                         transformation = self.tf_buffer.lookup_transform(source_frame, frame, rclpy.time.Time(),
                                                                          timeout=rclpy.duration.Duration(
@@ -358,12 +361,27 @@ class LocalizationActionServer(Node):
 
     ##### Action Server #####
 
+    def particles_callback(self, msg):
+        max_weight = 0.0  # Initialize with a double value
+        particles_count = 0.0
+        for particle in msg.particles:
+            weight = particle.weight
+            if weight > max_weight:
+                max_weight = weight
+            particles_count = particles_count + 1
+        self.max_weight = max_weight
+
+        # print("1/particles_count" , 1/particles_count)
+        if particles_count == 0:
+            self.get_logger().info('no particles')
+
     def goal_callback(self, goal_request):
         # You can add logic here to decide whether to accept or reject the goal.
         # For example, you might check if the goal is valid or if the robot is ready.
 
         # If you want to accept the goal, return GoalResponse.ACCEPT
         # If you want to reject the goal, return GoalResponse.REJECT
+
         self.get_logger().info(f'ACCEPTED navigation goal')
         return GoalResponse.ACCEPT
 
@@ -374,22 +392,24 @@ class LocalizationActionServer(Node):
 
     def execute_callback(self, goal_handle):
         self.get_logger().info('Executing goal...')
-
+        result = LocalizeRequest.Result()
         # Perform the navigation and localization logic here.
+        # Access the goal from the goal handle
 
-        ### debugging
-        self.max_weight = 0.0
+        if goal_handle.request.force_localize:
+            self.max_weight = 0.0
 
-        if (self.max_weight >= 0.001):
+        if (self.max_weight >= 0.0015):  #0.0015):
             self.get_logger().info('Robot is not lost; continuing without localizing')
+            goal_handle.succeed()
+            result.result = True
+            return result
         else:
             self.get_logger().info('Robot is lost; Localizing')
             self.localize()
             self.get_logger().info('Robot Localized')
 
         self.get_logger().info('Sending goal')
-
-        result = LocalizeRequest.Result()
 
         # Assuming you successfully navigated and localized, set the goal state to succeeded or abort since the code is already in executing state
         if self.successfully_localized:
@@ -416,6 +436,8 @@ def main(args=None):
     while True:
         exe.spin_once()
 
+    loc_action_server.destroy_node()
+    rclpy.shutdown()
 
 if __name__ == '__main__':
     main()

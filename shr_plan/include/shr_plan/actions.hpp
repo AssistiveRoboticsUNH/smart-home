@@ -322,7 +322,7 @@ namespace pddl_lib {
 
                 std::cout << "localize " << std::endl;
                 shr_msgs::action::LocalizeRequest::Goal goal_msg_loc;
-                goal_msg_loc.force_localize = false;
+                goal_msg_loc.force_localize = true;
 
                 auto success_loc = std::make_shared<std::atomic<int>>(-1);
                 auto send_goal_options_loc = rclcpp_action::Client<shr_msgs::action::LocalizeRequest>::SendGoalOptions();
@@ -499,7 +499,6 @@ namespace pddl_lib {
                                               {t1, from, to}};
             return shr_domain_MoveToLandmark(action_inst);
         }
-
         // food_protocol
         BT::NodeStatus high_level_domain_StartFoodProtocol(const InstantiatedAction &action) override {
 

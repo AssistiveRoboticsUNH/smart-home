@@ -10,7 +10,7 @@
 )
 (:init
 
-	  ;; needed actions
+	;; needed actions
     (DetectPerson_enabled)
     (GiveReminder_enabled)
     (MakeCall_enabled)
