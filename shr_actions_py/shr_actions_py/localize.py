@@ -364,7 +364,7 @@ class LocalizationActionServer(Node):
 
         # If you want to accept the goal, return GoalResponse.ACCEPT
         # If you want to reject the goal, return GoalResponse.REJECT
-        self.get_logger().info(f'ACCEPTED navigation goal')
+        self.get_logger().info("weblog="+'ACCEPTED navigation goal')
         return GoalResponse.ACCEPT
 
     def feedback_callback(self, msg):
@@ -373,7 +373,7 @@ class LocalizationActionServer(Node):
         return
 
     def execute_callback(self, goal_handle):
-        self.get_logger().info('Executing goal...')
+        self.get_logger().info("weblog="+'Executing goal...')
 
         # Perform the navigation and localization logic here.
 
@@ -381,11 +381,11 @@ class LocalizationActionServer(Node):
         self.max_weight = 0.0
 
         if (self.max_weight >= 0.001):
-            self.get_logger().info('Robot is not lost; continuing without localizing')
+            self.get_logger().info("weblog="+'Robot is not lost; continuing without localizing')
         else:
-            self.get_logger().info('Robot is lost; Localizing')
+            self.get_logger().info("weblog="+'Robot is lost; Localizing')
             self.localize()
-            self.get_logger().info('Robot Localized')
+            self.get_logger().info("weblog="+'Robot Localized')
 
         self.get_logger().info('Sending goal')
 
@@ -401,7 +401,7 @@ class LocalizationActionServer(Node):
 
         # If you want to set the goal state to aborted in case of an error, use:
         # goal_handle.abort(result)
-        self.get_logger().info('Goal Executed...')
+        self.get_logger().info("weblog="+'Goal Executed...')
 
         return result
 

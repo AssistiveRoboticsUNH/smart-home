@@ -13,21 +13,21 @@ class PlayAudioActionServer(Node):
                                                       self.play_audio_callback)
 
     def play_audio_callback(self, goal_handle):
-        self.get_logger().info('Playing audio...')
+        self.get_logger().info("weblog="+'Playing audio...')
         result = PlayAudioRequest.Result()
 
         file_name = goal_handle.request.file_name
         file_path = os.path.join(get_package_share_directory('shr_resources'), 'resources', file_name)
-
+        self.get_logger().info("weblog="+"audio_file_path:"+file_path)
         if not os.path.isfile(file_path):
-            self.get_logger().info('Playing audio was aborted')
+            self.get_logger().info("weblog="+'Playing audio was aborted')
             result.status = "file '" + file_path + "' does not exist"
             goal_handle.abort()
             return result
 
         command = 'mpg321 ' + file_path
         os.system(command)
-        self.get_logger().info('Playing audio was successful')
+        self.get_logger().info("weblog="+'Playing audio was successful')
         result.status = "success"
         goal_handle.succeed()
 
@@ -40,7 +40,7 @@ def main(args=None):
     play_audio_action_server = PlayAudioActionServer()
 
     while True:
-        rclpy.spin_once(play_audio_action_server, timeout_sec=1.0)
+        rclpy.spin_once(play_audio_action_server, timeout_sec=5.0)
 
 
 if __name__ == '__main__':

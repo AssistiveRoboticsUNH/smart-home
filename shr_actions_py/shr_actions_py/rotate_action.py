@@ -17,7 +17,7 @@ class RotateActionServer(Node):
         self.vel_pub = self.create_publisher(Twist, 'cmd_vel', 10)
 
     def cancel_callback(self, goal_handle):
-        self.get_logger().info('Received cancel request')
+        self.get_logger().info("weblog="+'Received cancel request')
         return CancelResponse.ACCEPT
 
     def rotate_callback(self, goal_handle):
@@ -34,7 +34,7 @@ class RotateActionServer(Node):
                 msg.angular.z = 0.0
                 self.vel_pub.publish(msg)
                 goal_handle.canceled()
-                self.get_logger().info('Goal canceled')
+                self.get_logger().info("weblog="+'Goal canceled')
                 return RotateRequest.Result()
 
             self.vel_pub.publish(msg)
@@ -44,6 +44,7 @@ class RotateActionServer(Node):
         self.vel_pub.publish(msg)
 
         result.status = "success"
+        self.get_logger().info("weblog="+'Goal succeeded!')
         goal_handle.succeed()
 
         return result

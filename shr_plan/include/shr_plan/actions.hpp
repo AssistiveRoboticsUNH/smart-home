@@ -308,7 +308,7 @@ namespace pddl_lib {
             auto &kb = KnowledgeBase::getInstance();
             kb.insert_predicate({"abort", {}});
             kb.clear_unknowns();
-
+            rclcpp::get_logger(std::string("weblog=")+"high_level_domain_Idle"+"started");
             if (!ps.world_state_converter->get_world_state_msg()->robot_charging == 1){
                 ps.call_client_->async_cancel_all_goals();
                 ps.read_action_client_->async_cancel_all_goals();
@@ -321,6 +321,7 @@ namespace pddl_lib {
                 int count_max = 50;
 
                 std::cout << "localize " << std::endl;
+                rclcpp::get_logger(std::string("weblog=")+"high_level_domain_Idle"+"localizing started");
                 shr_msgs::action::LocalizeRequest::Goal goal_msg_loc;
                 goal_msg_loc.force_localize = false;
 
@@ -328,7 +329,15 @@ namespace pddl_lib {
                 auto send_goal_options_loc = rclcpp_action::Client<shr_msgs::action::LocalizeRequest>::SendGoalOptions();
                 send_goal_options_loc.result_callback = [&success_loc](
                         const rclcpp_action::ClientGoalHandle<shr_msgs::action::LocalizeRequest>::WrappedResult result) {
-                    *success_loc = result.code == rclcpp_action::ResultCode::SUCCEEDED;
+                    //*success_loc = result.code == rclcpp_action::ResultCode::SUCCEEDED;
+                    if (result.code == rclcpp_action::ResultCode::SUCCEEDED) {
+                        *success_loc = 1;
+                        rclcpp::get_logger(std::string("weblog=")+"high_level_domain_Idle"+"localizing goal Succeeded.");
+                    } else {
+                        *success_loc = 0;
+                        rclcpp::get_logger(std::string("weblog=")+"high_level_domain_Idle"+"localizing goal aborted.");
+                        std::cout << "Navigation goal aborted." << std::endl;
+                    }
                 };
 
                 ps.localize_->async_send_goal(goal_msg_loc, send_goal_options_loc);
@@ -339,22 +348,32 @@ namespace pddl_lib {
                     if (!(tmp_loc == ps.active_protocol)) {
 
                         std::cout << " Failed " << std::endl;
+                        rclcpp::get_logger(std::string("weblog=")+"high_level_domain_Idle"+"localizing failed for protocol mismatched.");
                     }
                     count__++;
                     rclcpp::sleep_for(std::chrono::seconds(1));
                     if (count_max -1 == count__){
                         ps.localize_->async_cancel_all_goals();
+                        rclcpp::get_logger(std::string("weblog=")+"high_level_domain_Idle"+"localization failed for exceed time.");
                         return BT::NodeStatus::FAILURE;}
                 }
 
                 ps.localize_->async_cancel_all_goals();
-
+                rclcpp::get_logger(std::string("weblog=")+"high_level_domain_Idle"+"Navigation started");
                 std::cout << "navigate " << std::endl;
                 auto success = std::make_shared<std::atomic<int>>(-1);
                 auto send_goal_options = rclcpp_action::Client<nav2_msgs::action::NavigateToPose>::SendGoalOptions();
                 send_goal_options.result_callback = [&success](
                         const rclcpp_action::ClientGoalHandle<nav2_msgs::action::NavigateToPose>::WrappedResult result) {
-                    *success = result.code == rclcpp_action::ResultCode::SUCCEEDED;
+                    if (result.code == rclcpp_action::ResultCode::SUCCEEDED) {
+                        *success = 1;
+                        rclcpp::get_logger(std::string("weblog=")+"high_level_domain_Idle"+"Navigation goal Succeeded.");
+                    } else {
+                        *success = 0;
+                        rclcpp::get_logger(std::string("weblog=")+"high_level_domain_Idle"+"Navigation goal aborted.");
+                        std::cout << "Navigation goal aborted." << std::endl;
+                    }
+
                 };
 
                 nav2_msgs::action::NavigateToPose::Goal navigation_goal_;
@@ -376,10 +395,12 @@ namespace pddl_lib {
                 while (*success == -1 && count_max_ > count) {
                     if (!(tmp == ps.active_protocol)) {
                         ps.nav_client_->async_cancel_all_goals();
+                        rclcpp::get_logger(std::string("weblog=")+"high_level_domain_Idle"+"Navigation failed for protocol mismatched.");
                     }
                     count++;
                     rclcpp::sleep_for(std::chrono::seconds(1));
                     if (count_max_ -1 == count){
+                        rclcpp::get_logger(std::string("weblog=")+"high_level_domain_Idle"+"Navigation failed for exceed time.");
                         ps.nav_client_->async_cancel_all_goals();
                         return BT::NodeStatus::FAILURE;}
 
@@ -397,6 +418,12 @@ namespace pddl_lib {
                 send_goal_options_dock.result_callback = [&success_dock](
                         const rclcpp_action::ClientGoalHandle<shr_msgs::action::DockingRequest>::WrappedResult result) {
                     *success_dock = result.code == rclcpp_action::ResultCode::SUCCEEDED;
+                    if(*success_dock==1){
+                        rclcpp::get_logger(std::string("weblog=")+"high_level_domain_Idle"+"Docking goal Succeeded.");
+                    } else{
+                        rclcpp::get_logger(std::string("weblog=")+"high_level_domain_Idle"+"Docking goal aborted!.");
+                    }
+
 
                 };
 
@@ -408,11 +435,13 @@ namespace pddl_lib {
                     if (!(tmp_dock == ps.active_protocol)) {
                         ps.docking_->async_cancel_all_goals();
                         std::cout << " Failed " << std::endl;
+                        rclcpp::get_logger(std::string("weblog=")+"high_level_domain_Idle"+"Docking failed for protocol mismatched.");
                     }
                     count_++;
                     rclcpp::sleep_for(std::chrono::seconds(1));
                     if (count_max -1 == count_){
                         ps.docking_->async_cancel_all_goals();
+                        rclcpp::get_logger(std::string("weblog=")+"high_level_domain_Idle"+"Docking failed for exceed time.");
                         return BT::NodeStatus::FAILURE;}
                 }
 
@@ -430,6 +459,7 @@ namespace pddl_lib {
 
         void abort(const InstantiatedAction &action) override {
             std::cout << "abort: higher priority protocol detected\n";
+            rclcpp::get_logger(std::string("weblog=")+"aborted"+"higher priority protocol detected");
             auto &kb = KnowledgeBase::getInstance();
             kb.insert_predicate({"abort", {}});
         }
@@ -437,6 +467,7 @@ namespace pddl_lib {
         BT::NodeStatus high_level_domain_StartWanderingProtocol(const InstantiatedAction &action) override {
             auto &kb = KnowledgeBase::getInstance();
             InstantiatedParameter inst = action.parameters[0];
+            rclcpp::get_logger(std::string("weblog=")+"high_level_domain_StartWanderingProtocol"+"started");
             instantiate_protocol("midnight.pddl");
             auto [ps, lock] = ProtocolState::getConcurrentInstance();
             ps.active_protocol = inst;
@@ -447,6 +478,7 @@ namespace pddl_lib {
         BT::NodeStatus high_level_domain_StartMedicineProtocol(const InstantiatedAction &action) override {
             auto &kb = KnowledgeBase::getInstance();
             InstantiatedParameter protocol = action.parameters[0];
+            rclcpp::get_logger(std::string("weblog=")+"high_level_domain_StartMedicineProtocol"+"started");
             InstantiatedParameter cur = action.parameters[2];
             InstantiatedParameter dest = action.parameters[3];
             if (dest.name == cur.name) {
@@ -463,6 +495,7 @@ namespace pddl_lib {
         BT::NodeStatus high_level_domain_MoveToLandmark(const InstantiatedAction &action) override {
             // if movetolandmark is claled when the robot is docked it needs to undock first
             auto [ps, lock] = ProtocolState::getConcurrentInstance();
+            rclcpp::get_logger(std::string("weblog=")+"high_level_domain_MoveToLandmark"+" started");
             if (ps.world_state_converter->get_world_state_msg()->robot_charging == 1){
                 std::cout << "dock " << std::endl;
 
@@ -474,6 +507,12 @@ namespace pddl_lib {
                 send_goal_options_dock.result_callback = [&success_undock](
                         const rclcpp_action::ClientGoalHandle<shr_msgs::action::DockingRequest>::WrappedResult result) {
                     *success_undock = result.code == rclcpp_action::ResultCode::SUCCEEDED;
+                    if(*success_undock==1){
+                        rclcpp::get_logger(std::string("weblog=")+"high_level_domain_MoveToLandmark"+"UnDocking goal Succeeded.");
+                    } else{
+                        rclcpp::get_logger(std::string("weblog=")+"high_level_domain_MoveToLandmark"+"UnDocking goal aborted!.");
+                    }
+
                 };
 
                 ps.undocking_->async_send_goal(goal_msg, send_goal_options_dock);
@@ -484,6 +523,7 @@ namespace pddl_lib {
                     if (!(tmp_dock == ps.active_protocol)) {
                         ps.undocking_->async_cancel_all_goals();
                         std::cout << " Failed " << std::endl;
+                        rclcpp::get_logger(std::string("weblog=")+"high_level_domain_MoveToLandmark"+"UnDocking failed for protocol mismatched.");
                     }
                     rclcpp::sleep_for(std::chrono::seconds(1));
                 }
@@ -505,6 +545,7 @@ namespace pddl_lib {
 
             auto &kb = KnowledgeBase::getInstance();
             InstantiatedParameter protocol = action.parameters[0];
+            rclcpp::get_logger(std::string("weblog=")+"high_level_domain_StartFoodProtocol"+"started");
             InstantiatedParameter cur = action.parameters[2];
             InstantiatedParameter dest = action.parameters[3];
             if (dest.name == cur.name) {
@@ -524,6 +565,7 @@ namespace pddl_lib {
             auto [ps, lock] = ProtocolState::getConcurrentInstance();
             InstantiatedPredicate pred{"already_ate", {ps.active_protocol}};
             kb.insert_predicate(pred);
+            rclcpp::get_logger(std::string("weblog=")+"shr_domain_FoodEatenSuccess");
 
             return BT::NodeStatus::SUCCESS;
         }
@@ -541,6 +583,7 @@ namespace pddl_lib {
             } else if (active_protocol.type == "WanderingProtocol") {
                 kb.erase_predicate({"wandering_protocol_enabled", {active_protocol}});
             }
+            rclcpp::get_logger(std::string("weblog=")+"shr_domain_MessageGivenSuccess"+active_protocol.type);
 
             return BT::NodeStatus::SUCCESS;
         }
@@ -558,6 +601,7 @@ namespace pddl_lib {
             } else if (active_protocol.type == "WanderingProtocol") {
                 kb.erase_predicate({"wandering_protocol_enabled", {active_protocol}});
             }
+            rclcpp::get_logger(std::string("weblog=")+"shr_domain_PersonAtSuccess"+active_protocol.type);
 
             return BT::NodeStatus::SUCCESS;
         }
@@ -567,14 +611,17 @@ namespace pddl_lib {
             auto t = action.parameters[0];
             InstantiatedPredicate ate_food = {"person_eating", {t}};
             if (kb.find_predicate(ate_food)) {
+                rclcpp::get_logger(std::string("weblog=")+"shr_domain_DetectEatingFood"+"ate food success");
                 return BT::NodeStatus::SUCCESS;
             }
+            rclcpp::get_logger(std::string("weblog=")+"shr_domain_DetectEatingFood"+"ate food failure");
             return BT::NodeStatus::FAILURE;
         }
 
         BT::NodeStatus shr_domain_MoveToLandmark(const InstantiatedAction &action) override {
 
             /// move robot to location
+            rclcpp::get_logger(std::string("weblog=")+"shr_domain_MoveToLandmark"+"moving to land mark");
             auto [ps, lock] = ProtocolState::getConcurrentInstance();
             std::string location = action.parameters[2].name;
 
@@ -614,8 +661,11 @@ namespace pddl_lib {
                 navigation_goal_.pose.pose.position.y = transform.value().transform.translation.y;
                 navigation_goal_.pose.pose.position.z = transform.value().transform.translation.z;
             } else {
+                rclcpp::get_logger(std::string("weblog=")+"shr_domain_MoveToLandmark"+"moving to land mark failed");
                 return BT::NodeStatus::FAILURE;
             }
+
+            rclcpp::get_logger(std::string("weblog=")+"shr_domain_MoveToLandmark"+"moving to land mark succeed");
 
             return send_goal_blocking(navigation_goal_, action) ? BT::NodeStatus::SUCCESS : BT::NodeStatus::FAILURE;
         }
@@ -628,6 +678,7 @@ namespace pddl_lib {
             for (int i = 0; i < wait_time; i++) {
                 if (kb.check_conditions(action.precondtions) == TRUTH_VALUE::FALSE) {
                     abort(action);
+                    rclcpp::get_logger(std::string("weblog=")+"shr_domain_GiveReminder"+"failed");
                     return BT::NodeStatus::FAILURE;
                 }
                 rclcpp::sleep_for(std::chrono::seconds(1));
@@ -645,8 +696,13 @@ namespace pddl_lib {
                 ret = send_goal_blocking(video_goal_, action) ? BT::NodeStatus::SUCCESS : BT::NodeStatus::FAILURE;
             }
             if (ret == BT::NodeStatus::SUCCESS) {
+                rclcpp::get_logger(std::string("weblog=")+"shr_domain_GiveReminder"+"succeed");
                 rclcpp::sleep_for(std::chrono::seconds(ps.wait_times.at(ps.active_protocol).at(msg).second));
             }
+            else{
+                rclcpp::get_logger(std::string("weblog=")+"shr_domain_GiveReminder"+"failed!");
+            }
+
             return ret;
         }
 
@@ -659,6 +715,7 @@ namespace pddl_lib {
             for (int i = 0; i < wait_time; i++) {
                 if (kb.check_conditions(action.precondtions) == TRUTH_VALUE::FALSE) {
                     abort(action);
+                    rclcpp::get_logger(std::string("weblog=")+"shr_domain_MakeCall"+"failed");
                     return BT::NodeStatus::FAILURE;
                 }
                 rclcpp::sleep_for(std::chrono::seconds(1));
@@ -669,7 +726,11 @@ namespace pddl_lib {
             call_goal_.phone_number = ps.call_msgs.at(ps.active_protocol).at(msg).second;
             auto ret = send_goal_blocking(call_goal_, action) ? BT::NodeStatus::SUCCESS : BT::NodeStatus::FAILURE;
             if (ret == BT::NodeStatus::SUCCESS) {
+                rclcpp::get_logger(std::string("weblog=")+"shr_domain_MakeCall"+"succeed");
                 rclcpp::sleep_for(std::chrono::seconds(ps.wait_times.at(ps.active_protocol).at(msg).second));
+            }
+            else{
+                rclcpp::get_logger(std::string("weblog=")+"shr_domain_MakeCall"+"failed");
             }
             return ret;
         }
@@ -679,8 +740,10 @@ namespace pddl_lib {
             auto t = action.parameters[0];
             InstantiatedPredicate took_medicine = {"person_taking_medicine", {t}};
             if (kb.find_predicate(took_medicine)) {
+                rclcpp::get_logger(std::string("weblog=")+"shr_domain_DetectTakingMedicine"+"succeeded");
                 return BT::NodeStatus::SUCCESS;
             }
+            rclcpp::get_logger(std::string("weblog=")+"shr_domain_DetectTakingMedicine"+"failed");
             return BT::NodeStatus::FAILURE;
         }
 
@@ -688,8 +751,10 @@ namespace pddl_lib {
             auto [ps, lock] = ProtocolState::getConcurrentInstance();
             std::string lm = action.parameters[2].name;
             if (ps.world_state_converter->check_person_at_loc(lm)) {
+                rclcpp::get_logger(std::string("weblog=")+"shr_domain_DetectPersonLocation"+"succeeded");
                 return BT::NodeStatus::SUCCESS;
             } else {
+                rclcpp::get_logger(std::string("weblog=")+"shr_domain_DetectTakingMedicine"+"failed");
                 return BT::NodeStatus::FAILURE;
             }
         }

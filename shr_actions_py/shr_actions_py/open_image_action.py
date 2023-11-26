@@ -20,24 +20,27 @@ class OpenImageActionServer(Node):
         file_name = goal_handle.request.file_name
 
         if goal_handle.request.open:
-            self.get_logger().info('Opening image...')
+            self.get_logger().info("weblog="+'Opening image...')
             file_path = os.path.join(get_package_share_directory('shr_resources'), 'resources', file_name)
-
+            self.get_logger().info("weblog="+"image_file_path:"+file_path)
             if not os.path.isfile(file_path):
+                self.get_logger().info("weblog="+'Opening image was abroad!')
                 result.status = "file '" + file_path + "' does not exist"
                 goal_handle.abort()
                 return result
 
             self.proc_dict[file_name] = Popen(['eog', '--fullscreen', file_path])
             result.status = "success"
+            self.get_logger().info("weblog="+'Opening image was successful')
             goal_handle.succeed()
 
         else:
-            self.get_logger().info('Closing image...')
+            self.get_logger().info("weblog="+'Closing image...')
 
             if file_name in self.proc_dict:
                 self.proc_dict[file_name].terminate()
             result.status = "success"
+            self.get_logger().info("weblog="+'Closing image was successful')
             goal_handle.succeed()
 
         return result
@@ -49,7 +52,7 @@ def main(args=None):
     open_image_action_server = OpenImageActionServer()
 
     while True:
-        rclpy.spin_once(open_image_action_server,timeout_sec=1.0)
+        rclpy.spin_once(open_image_action_server,timeout_sec=5.0)
 
 
 if __name__ == '__main__':

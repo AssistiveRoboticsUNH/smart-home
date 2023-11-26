@@ -14,21 +14,21 @@ class PlayVideoActionServer(Node):
                                                       self.play_audio_callback)
 
     def play_audio_callback(self, goal_handle):
-        self.get_logger().info('Playing video...')
+        self.get_logger().info("weblog="+'Playing video...')
         result = PlayVideoRequest.Result()
 
         file_name = goal_handle.request.file_name
         file_path = os.path.join(get_package_share_directory('shr_resources'), 'resources', file_name)
-
+        self.get_logger().info("weblog="+"video_file"+file_path)
         if not os.path.isfile(file_path):
             result.status = "file '" + file_path + "' does not exist"
-            self.get_logger().info('Playing video was aborted')
+            self.get_logger().info("weblog="+'Playing video was aborted')
             goal_handle.abort()
             return result
 
         command = 'vlc ' + file_path + ' --fullscreen vlc://quit'
         os.system(command)
-        self.get_logger().info('Playing video was successful')
+        self.get_logger().info("weblog="+'Playing video was successful')
         result.status = "success"
         goal_handle.succeed()
 
@@ -41,7 +41,7 @@ def main(args=None):
     play_video_action_server = PlayVideoActionServer()
 
     while True:
-        rclpy.spin_once(play_video_action_server, timeout_sec=1.0)
+        rclpy.spin_once(play_video_action_server, timeout_sec=5.0)
 
 
 if __name__ == '__main__':

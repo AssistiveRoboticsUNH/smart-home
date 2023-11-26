@@ -19,15 +19,16 @@ class MakeCallActionServer(Node):
                                                       self.make_call_callback)
 
     def make_call_callback(self, goal_handle):
-        self.get_logger().info('Making call...')
+        self.get_logger().info("weblog="+'Making call...')
         result = CallRequest.Result()
 
         file_name = goal_handle.request.script_name
         file_path = os.path.join(get_package_share_directory('shr_resources'), 'resources', 'phoneApp', file_name)
+        self.get_logger().info("weblog="+"make_call:"+file_path)
         if not os.path.isfile(file_path):
             result.status = "file '" + file_path + "' does not exist"
             goal_handle.abort()
-            self.get_logger().info('Reading script was aborted')
+            self.get_logger().info("weblog="+'Reading script was aborted')
             return result
 
         account_sid = os.environ['TWILIO_ACCOUNT_SID']
@@ -41,12 +42,13 @@ class MakeCallActionServer(Node):
                     to=goal_handle.request.phone_number,
                     from_='+18332447105')
         except Exception as e:
-            self.get_logger().info('Making call failed')
+
             result.status = "failed: " + str(e)
+            self.get_logger().info("weblog="+'Making call failed'+result.status)
             goal_handle.abort()
             return result
 
-        self.get_logger().info('Making call succeeded')
+        self.get_logger().info("weblog="+'Making call succeeded')
         result.status = "success"
         goal_handle.succeed()
 
@@ -58,7 +60,7 @@ def main(args=None):
     make_call_action_server = MakeCallActionServer()
 
     while True:
-        rclpy.spin_once(make_call_action_server, timeout_sec=1.0)
+        rclpy.spin_once(make_call_action_server, timeout_sec=5.0)
 
 
 if __name__ == '__main__':
