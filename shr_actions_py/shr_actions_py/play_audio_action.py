@@ -25,7 +25,7 @@ class PlayAudioActionServer(Node):
             goal_handle.abort()
             return result
 
-        command = 'mpg321 ' + file_path
+        command = 'mpg321 -o alsa ' + file_path
         os.system(command)
         self.get_logger().info("weblog="+'Playing audio was successful')
         result.status = "success"

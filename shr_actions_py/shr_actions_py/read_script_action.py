@@ -34,8 +34,8 @@ class ReadScriptActionServer(Node):
             self.get_logger().info("weblog="+'Reading script was aborted')
             return result
 
-        wavfilename = self.create_wav_from_text(file_path)
-        os.system('vlc ' + wavfilename + ' vlc://quit')
+        wavfilename = self.create_mp4_from_text(file_path)
+        os.system('mpg321 -o alsa ' + wavfilename)
         self.get_logger().info("weblog="+'Reading script was successful')
         result.status = "success"
         goal_handle.succeed()
@@ -43,27 +43,22 @@ class ReadScriptActionServer(Node):
         return result
         
     @functools.cache
-    def create_wav_from_text(self, file_path):
-        (wavfile, wavfilename) = tempfile.mkstemp(
-            prefix='sound_play', suffix='.wav')
+    def create_mp4_from_text(self, file_path):
+        (mp4file, mp4filename) = tempfile.mkstemp(
+            prefix='sound_play', suffix='.mp4')
 
         # Create a gTTS object with the text and language
-        # Path to the file containing the text you want to convert
-        # Open the text file and read its contents
         with open(file_path, 'r') as f:
             mytext = f.read()
         tts_obj = gTTS(text=mytext, lang='en', slow=False)
 
-        # Save the generated speech as a WAV file
-        with tempfile.NamedTemporaryFile(suffix='.wav', delete=False) as f:
-            wavfilename = f.name
-            tts_obj.save(wavfilename)
-        # os.system("pico2wave -l en-US -w" + wavfilename + f' "{data.arg}"')
-        wavfilename_new = wavfilename.replace('.wav', '')
-        wavfilename_new += '_new.wav'
-        os.system("ffmpeg -i " + wavfilename + " -af areverse,apad=pad_dur=500ms,areverse " + wavfilename_new)
-        wavfilename = wavfilename_new
-        return wavfilename
+        # Save the generated speech as an MP4 file
+        with tempfile.NamedTemporaryFile(suffix='.mp4', delete=False) as f:
+            mp4filename = f.name
+            tts_obj.save(mp4filename)
+
+        return mp4filename
+
 
     def thread_function(self):
         files = glob.glob(os.path.join(get_package_share_directory('shr_resources'), 'resources', '*.txt'))
