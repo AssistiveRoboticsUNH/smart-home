@@ -9,12 +9,12 @@ from launch_ros.actions import Node
 
 
 def generate_launch_description():
-    # # read script with deep fake
-    # read_script_node_cmd = Node(
-    #     package='shr_actions_py',
-    #     executable='read_script_action',
-    #     name='read_script_action',
-    #     output='screen')
+    # # read script
+    read_script_node_cmd = Node(
+        package='shr_actions_py',
+        executable='read_script_action',
+        name='read_script_action',
+        output='screen')
 
     play_audio_node_cmd = Node(
         package='shr_actions_py',
@@ -59,7 +59,7 @@ def generate_launch_description():
         output='screen')
 
     ld = LaunchDescription()
-    # ld.add_action(read_script_node_cmd)
+    ld.add_action(read_script_node_cmd)
     ld.add_action(apriltag_port_server_cmd)
     ld.add_action(play_audio_node_cmd)
     ld.add_action(play_video_node_cmd)

@@ -46,7 +46,7 @@ class LocalizationActionServer(Node):
         self.publisher_initial_pose = self.create_publisher(PoseWithCovarianceStamped, "initialpose", 10)
 
         # For April tags
-        self.subscription = self.create_subscription(AprilTagDetectionArray, '/apriltag_detections_loc',
+        self.subscription = self.create_subscription(AprilTagDetectionArray, '/apriltag_detections',
                                                      self.apriltag_callback, 10)
         self.aptags_detected = False
         self.tf_buffer = tf2_ros.Buffer()
@@ -143,6 +143,7 @@ class LocalizationActionServer(Node):
             # pass
             print('No aptags from callback')
             self.aptags_detected = False
+            self.aptags_detected_inside_callback = False
 
     def get_transform_matrix_aptags_in_world_from_tf(self):
         self.transform_aptag_in_cam_dict = {}
