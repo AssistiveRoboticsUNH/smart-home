@@ -6,7 +6,7 @@
      lunch - FoodProtocol
      dinner - FoodProtocol
      daily_wand - WanderingProtocol
-     bedroom door couch outside living_room kitchen bathroom dining_room hallway - Landmark
+     bedroom door outside living_room kitchen bathroom dining_room - Landmark
      t1 - Time ;;t2 t3 t4 t5
      nathan - Person
   )

@@ -40,7 +40,7 @@ int main(int argc, char *argv[]) {
 //        }
 //    }
 
-    std::string mesh_file = "/home/olagh/smart-home/src/smart-home/external/particle_filter_mesh/config/newcollision__.obj";
+    std::string mesh_file = "/home/olagh/smart-home/src/smart-home/external/particle_filter_mesh/config/labxf.obj";
     auto mesh_data_ = shr_utils::load_meshes(mesh_file);
 //    //door no collision
 //    // no hit
@@ -51,46 +51,46 @@ int main(int argc, char *argv[]) {
 //
 //    } else { std::cout << " wrong hit " << std::endl; }
 
-    // livingroom door
-    Eigen::Vector3d dining_point2 = {-0.347, 0.64, -0.5};
+    //bedroom
+    Eigen::Vector3d dining_point2 = {1.700, 0.130, -0.5};
     if (auto value = shr_utils::pointInMeshes(dining_point2, mesh_data_)) {
         auto val = shr_utils::pointInMeshes(dining_point2, mesh_data_).value();
         std::cout << " correct hit 2  " << val << std::endl;
     } else { std::cout << " wrong hit2 " << std::endl; }
 
-    // bedroom door
-    Eigen::Vector3d dining_point3 = {-0.39, -1.3618, -0.5};
+    // livingtoom door
+    Eigen::Vector3d dining_point3 = {1.700, 0.130, -0.5};
     if (auto value = shr_utils::pointInMeshes(dining_point3, mesh_data_)) {
         auto val = shr_utils::pointInMeshes(dining_point3, mesh_data_).value();
         std::cout << " correct hit 2  " << val << std::endl;
     } else { std::cout << " wrong hit2 " << std::endl; }
 
-    // bath door
-    Eigen::Vector3d dining_point4 = {-2.68, 3.7447, -0.5};
+    // kitchen door
+    Eigen::Vector3d dining_point4 = {1.700, 0.130, -0.5};
     if (auto value = shr_utils::pointInMeshes(dining_point4, mesh_data_)) {
         auto val = shr_utils::pointInMeshes(dining_point4, mesh_data_).value();
         std::cout << " correct hit 2  " << val << std::endl;
     } else { std::cout << " wrong hit2 " << std::endl; }
 
-    // main door
-    Eigen::Vector3d dining_point5 = {1.5315, 5.92066 , -0.5};
+    // bathroom door
+    Eigen::Vector3d dining_point5 = {1.700, 0.130 , -0.5};
     if (auto value = shr_utils::pointInMeshes(dining_point5, mesh_data_)) {
         auto val = shr_utils::pointInMeshes(dining_point5, mesh_data_).value();
         std::cout << " correct hit 2  " << val << std::endl;
     } else { std::cout << " wrong hit2 " << std::endl; }
 
-    // rand  non halway
-    Eigen::Vector3d dining_point6= {-1.4516, 3.7272, -0.5};
-    if (auto value = shr_utils::pointInMeshes(dining_point6, mesh_data_)) {
-        auto val = shr_utils::pointInMeshes(dining_point6, mesh_data_).value();
-        std::cout << " correct hit 2  " << val << std::endl;
-    } else { std::cout << " wrong hit2 " << std::endl; }
-    // rand non
-    Eigen::Vector3d dining_point7 = {-3.2751, -3.5666, -0.5};
-    if (auto value = shr_utils::pointInMeshes(dining_point7, mesh_data_)) {
-        auto val = shr_utils::pointInMeshes(dining_point7, mesh_data_).value();
-        std::cout << " correct hit 2  " << val << std::endl;
-    } else { std::cout << " wrong hit2 " << std::endl; }
+//    // rand  non halway
+//    Eigen::Vector3d dining_point6= {-1.4516, 3.7272, -0.5};
+//    if (auto value = shr_utils::pointInMeshes(dining_point6, mesh_data_)) {
+//        auto val = shr_utils::pointInMeshes(dining_point6, mesh_data_).value();
+//        std::cout << " correct hit 2  " << val << std::endl;
+//    } else { std::cout << " wrong hit2 " << std::endl; }
+//    // rand non
+//    Eigen::Vector3d dining_point7 = {-3.2751, -3.5666, -0.5};
+//    if (auto value = shr_utils::pointInMeshes(dining_point7, mesh_data_)) {
+//        auto val = shr_utils::pointInMeshes(dining_point7, mesh_data_).value();
+//        std::cout << " correct hit 2  " << val << std::endl;
+//    } else { std::cout << " wrong hit2 " << std::endl; }
 
     return 0;
 

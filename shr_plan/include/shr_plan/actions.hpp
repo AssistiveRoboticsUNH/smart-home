@@ -482,7 +482,7 @@ namespace pddl_lib {
             InstantiatedParameter cur = action.parameters[2];
             InstantiatedParameter dest = action.parameters[3];
             if (dest.name == cur.name) {
-                cur.name = "couch";
+                cur.name = "living_room"; // cause we took out couch
             }
             instantiate_protocol("food.pddl", {{"current_loc", cur.name},
                                                {"dest_loc",    dest.name}});
