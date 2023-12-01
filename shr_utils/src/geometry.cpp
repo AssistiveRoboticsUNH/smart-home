@@ -17,7 +17,7 @@ namespace shr_utils {
         // Load the first mesh
         const aiScene *scene = importer.ReadFile(file_name, aiProcess_Triangulate | aiProcess_JoinIdenticalVertices);
         if (!scene || !scene->mRootNode) {
-            throw std::runtime_error("Failed to load mesh1.obj");
+            throw std::runtime_error("Failed to load");
         }
 
         for (int i = 0; i < scene->mNumMeshes; i++) {
