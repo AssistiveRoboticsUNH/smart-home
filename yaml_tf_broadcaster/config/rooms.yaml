@@ -1,0 +1,62 @@
+transformations:
+  # translation xyz quaternion xyzw
+  - frame_id: map
+    id: dining
+    transform:
+      - -4.289
+      - -6.909
+      - -1
+      - 0.0
+      - 0.0
+      - 0.0
+      - 1.0
+  - frame_id: map
+    id: bedroom
+    transform:
+      - -2.829
+      - -3.43
+      - -1
+      - 0.0
+      - 0.0
+      - 0.0
+      - 1.0
+  - frame_id: map
+    id: livingroom
+    transform:
+      - 0.3
+      - -0.059
+      - -1
+      - 0.0
+      - 0.0
+      - 0.0
+      - 1.0
+  - frame_id: map
+    id: outside
+    transform:
+      - -0.75
+      - 3.65
+      - -1
+      - 0.0
+      - 0.0
+      - 0.0
+      - 1.0
+  - frame_id: map
+    id: kitchen
+    transform:
+      - -1.7
+      - -6.46
+      - -1
+      - 0.0
+      - 0.0
+      - 0.0
+      - 1.0
+  - frame_id: map
+    id: home
+    transform:
+      - -0.3
+      - -3.6
+      - -1
+      - 0.0
+      - 0.0
+      - 0.707
+      - 0.707
