@@ -21,14 +21,14 @@ set(dependencies
         ament_index_cpp
         )
 
-add_executable(aptag_broadcast_node src/aptag_broadcast.cpp)
-ament_target_dependencies(aptag_broadcast_node ${dependencies})
-target_include_directories(aptag_broadcast_node PUBLIC ${EIGEN3_INCLUDE_DIRS})
-target_include_directories(aptag_broadcast_node PUBLIC ${YAML_CPP_INCLUDE_DIRS})
-target_link_libraries(aptag_broadcast_node yaml-cpp)
+add_executable(yaml_broadcaster_node src/yaml_broadcaster.cpp)
+ament_target_dependencies(yaml_broadcaster_node ${dependencies})
+target_include_directories(yaml_broadcaster_node PUBLIC ${EIGEN3_INCLUDE_DIRS})
+target_include_directories(yaml_broadcaster_node PUBLIC ${YAML_CPP_INCLUDE_DIRS})
+target_link_libraries(yaml_broadcaster_node yaml-cpp)
 
 
-target_include_directories(aptag_broadcast_node  PUBLIC
+target_include_directories(yaml_broadcaster_node  PUBLIC
         ${YAML_CPP_LIBRARIES}
         )
 
@@ -47,7 +47,7 @@ install(DIRECTORY launch
 )
 
 install(TARGETS
-        aptag_broadcast_node
+        yaml_broadcaster_node
         DESTINATION lib/${PROJECT_NAME}
         )
 
