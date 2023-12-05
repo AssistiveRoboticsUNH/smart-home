@@ -19,8 +19,7 @@ def generate_launch_description():
     ld.add_action(aptags_file)
     aptags = Node(
         package="yaml_tf_broadcaster",
-        executable="yaml_broadcaster_node",
-        name="aptags_launch_",
+        name="yaml_broadcaster_node",
         parameters=[
             {"yaml_file_name": LaunchConfiguration("aptags_location")}
         ]
