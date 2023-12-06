@@ -49,7 +49,7 @@ class Docking(Node):
         super().__init__('docking')
         self.tf_buffer = Buffer()
         self.tf_listenser = TransformListener(self.tf_buffer, self, spin_thread=True)
-        self.pub = self.create_publisher(Twist, "cmd_vel", 1)
+        self.pub = self.create_publisher(Twist, "stretch/cmd_vel", 1)
         self.subscription = self.create_subscription(AprilTagDetectionArray, '/apriltag_detections',
                                                      self.apriltag_callback, 10)
         self.proxi = None

@@ -41,7 +41,7 @@ int main(int argc, char *argv[]) {
 //    }
 
 //    std::string mesh_file = "/home/olagh/smart-home/src/smart-home/external/particle_filter_mesh/config/labxf.obj";
-    std::string mesh_file = "/home/olagh/smart-home/src/smart-home/shr_utils/test/data/mesh_test/lab_mesh_x.obj";
+    std::string mesh_file = "/home/olagh/smart-home/src/smart-home/shr_utils/test/data/mesh_test/lab_mesh_neg_x.obj";
     auto mesh_data_ = shr_utils::load_meshes(mesh_file);
 //    //door no collision
 //    // no hit

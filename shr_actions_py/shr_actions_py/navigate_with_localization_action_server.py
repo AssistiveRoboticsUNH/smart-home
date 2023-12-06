@@ -54,7 +54,7 @@ class MoveToGoalwithLocalizationActionServer(Node):
         #                        debug=0)
 
         # For localization
-        self.vel_pub = self.create_publisher(Twist, 'cmd_vel', 10)
+        self.vel_pub = self.create_publisher(Twist, 'stretch/cmd_vel', 10)
         self.subscriber = self.create_subscription(ParticleCloud, 'particle_cloud', self.particles_callback,
                                                    qos_profile)
         self.publisher_initial_pose = self.create_publisher(PoseWithCovarianceStamped, "initialpose", 10)
