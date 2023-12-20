@@ -40,6 +40,7 @@ class LocalizationActionServer(Node):
                                                    qos_profile)
 
         # For localization
+
         self.vel_pub = self.create_publisher(Twist, os.getenv("cmd_vel"), 10)
         self.subscriber = self.create_subscription(ParticleCloud, 'particle_cloud', self.particles_callback,
                                                    qos_profile)

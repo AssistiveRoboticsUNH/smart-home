@@ -14,7 +14,7 @@ class RotateActionServer(Node):
         super().__init__('rotate_action')
         self.read_script_action_server = ActionServer(self, RotateRequest, 'rotate',
                                                       self.rotate_callback, cancel_callback=self.cancel_callback)
-        self.vel_pub = self.create_publisher(Twist, 'cmd_vel', 10)
+        self.vel_pub = self.create_publisher(Twist, 'stretch/cmd_vel', 10)
 
     def cancel_callback(self, goal_handle):
         self.get_logger().info("weblog="+'Received cancel request')

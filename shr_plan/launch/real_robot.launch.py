@@ -56,7 +56,7 @@ def generate_launch_description():
 
     tf_broadcast = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(PathJoinSubstitution([
-            get_package_share_directory('aptags_tf_broadcast'), 'launch', 'tf_broadcast.launch.py']))
+            get_package_share_directory('yaml_tf_broadcaster'), 'launch', 'tf_broadcast.launch.py']))
     )
 
 

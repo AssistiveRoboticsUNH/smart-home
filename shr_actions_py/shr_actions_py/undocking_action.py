@@ -21,7 +21,9 @@ class UnDockingActionServer(Node):
             goal_callback=self.goal_callback
         )
         # print("working action")
+
         self.vel_pub = self.create_publisher(Twist, os.getenv("cmd_vel"), 10)
+
         self.time_out = 2
     def goal_callback(self, goal_request):
         # You can add logic here to decide whether to accept or reject the goal.
