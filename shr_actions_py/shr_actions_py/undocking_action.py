@@ -5,7 +5,7 @@ from rclpy.action import ActionServer, GoalResponse
 from rclpy.node import Node
 from shr_msgs.action import DockingRequest
 from geometry_msgs.msg import Twist
-
+import os
 ## TODO: check if its about to hit anything
 
 class UnDockingActionServer(Node):
@@ -21,7 +21,7 @@ class UnDockingActionServer(Node):
             goal_callback=self.goal_callback
         )
         # print("working action")
-        self.vel_pub = self.create_publisher(Twist, 'cmd_vel', 10)
+        self.vel_pub = self.create_publisher(Twist, os.getenv("cmd_vel"), 10)
         self.time_out = 2
     def goal_callback(self, goal_request):
         # You can add logic here to decide whether to accept or reject the goal.

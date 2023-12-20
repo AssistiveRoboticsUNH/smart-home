@@ -19,7 +19,7 @@ class DetectLeftHouseActionServer(Node):
 
         self.human_loc = self.create_subscription(String, '/human_loc_from_cams', self.hum_loc_callback, 10)
         self.human_outside = False
-        print('started')
+        print('startedscksdckkadscmkaszszsmckdsmckd')
 
     def cancel_callback(self, goal_handle):
         self.get_logger().info('Received cancel request')

@@ -13,7 +13,7 @@ def generate_launch_description():
 
     aptags_file = DeclareLaunchArgument(
         "aptags_location",
-        default_value=pkg_path + "aptags_location.yaml",
+        default_value=pkg_path + "lab_211_aptags.yaml",
         description="aptags location"
     )
     ld.add_action(aptags_file)

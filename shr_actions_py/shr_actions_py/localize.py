@@ -9,7 +9,7 @@ import numpy as np
 import math
 import time
 from geometry_msgs.msg import Twist, Quaternion, TransformStamped, PoseWithCovarianceStamped
-
+import os
 from rclpy.qos import QoSProfile, ReliabilityPolicy, HistoryPolicy, DurabilityPolicy
 
 import tf2_ros
@@ -40,7 +40,7 @@ class LocalizationActionServer(Node):
                                                    qos_profile)
 
         # For localization
-        self.vel_pub = self.create_publisher(Twist, 'cmd_vel', 10)
+        self.vel_pub = self.create_publisher(Twist, os.getenv("cmd_vel"), 10)
         self.subscriber = self.create_subscription(ParticleCloud, 'particle_cloud', self.particles_callback,
                                                    qos_profile)
         self.publisher_initial_pose = self.create_publisher(PoseWithCovarianceStamped, "initialpose", 10)
@@ -51,8 +51,8 @@ class LocalizationActionServer(Node):
         self.aptags_detected = False
         self.tf_buffer = tf2_ros.Buffer()
         self.tf_listener = tf2_ros.transform_listener.TransformListener(self.tf_buffer, self, spin_thread=True)
-        self.used_apriltags = [0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 12, 13, 14, 15, 16,
-                               18]  # add the apriltag ids that you used
+        self.used_apriltags = [31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 16, 17, 18]
+        # add the apriltag ids that you used
         self.transform_aptag_in_cam_dict = {}  # location of apriltags in camera frame
         self.transform_aptag_in_world_dict = {}  # global location of apriltags
         self.tf_broadcaster = tf2_ros.StaticTransformBroadcaster(self)
@@ -63,9 +63,12 @@ class LocalizationActionServer(Node):
         self.time_out = 200
         self.get_tf_info = True
         self.successfully_localized = False
+        self.aptags_detected_inside_callback = False
+
+        print('%%%%%%%%%%%%% ehjkdasjkdfbadsfjnasdvlk')
 
         self.get_transform_matrix_aptags_in_world_from_tf()
-        self.aptags_detected_inside_callback = False
+
 
     ##### Localization Part #####
     def publish_tf(self, x, y, z, rot_mat, child_frame_id, frame_id):
@@ -137,6 +140,7 @@ class LocalizationActionServer(Node):
                         # print('********** apriltag detectedd: ' + str(at.id))
 
                 except Exception as ex:
+                    # self.aptags_detected_inside_callback = False
                     self.get_logger().info(f'Error ***************: {ex}')
 
         else:
@@ -383,7 +387,7 @@ class LocalizationActionServer(Node):
         # If you want to accept the goal, return GoalResponse.ACCEPT
         # If you want to reject the goal, return GoalResponse.REJECT
 
-        self.get_logger().info("weblog="+'ACCEPTED navigation goal')
+        self.get_logger().info("weblog=" + 'ACCEPTED navigation goal')
 
         return GoalResponse.ACCEPT
 
@@ -397,8 +401,7 @@ class LocalizationActionServer(Node):
         self.get_logger().info('Executing goal...')
         result = LocalizeRequest.Result()
 
-        self.get_logger().info("weblog="+'Executing goal...')
-
+        self.get_logger().info("weblog=" + 'Executing goal...')
 
         # Perform the navigation and localization logic here.
         # Access the goal from the goal handle
@@ -406,16 +409,16 @@ class LocalizationActionServer(Node):
         if goal_handle.request.force_localize:
             self.max_weight = 0.0
 
-        if (self.max_weight >= 0.0015):  #0.0015):
+        if (self.max_weight >= 0.0015):  # 0.0015):
             self.get_logger().info('Robot is not lost; continuing without localizing')
             goal_handle.succeed()
             result.result = True
             return result
 
         else:
-            self.get_logger().info("weblog="+'Robot is lost; Localizing')
+            self.get_logger().info("weblog=" + 'Robot is lost; Localizing')
             self.localize()
-            self.get_logger().info("weblog="+'Robot Localized')
+            self.get_logger().info("weblog=" + 'Robot Localized')
 
         self.get_logger().info('Sending goal')
 
@@ -429,7 +432,7 @@ class LocalizationActionServer(Node):
 
         # If you want to set the goal state to aborted in case of an error, use:
         # goal_handle.abort(result)
-        self.get_logger().info("weblog="+'Goal Executed...')
+        self.get_logger().info("weblog=" + 'Goal Executed...')
 
         return result
 
@@ -446,6 +449,7 @@ def main(args=None):
 
     loc_action_server.destroy_node()
     rclpy.shutdown()
+
 
 if __name__ == '__main__':
     main()
