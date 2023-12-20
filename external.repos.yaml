@@ -39,10 +39,6 @@ repositories:
     type: git
     url: https://github.com/olaghattas/apriltag_ros.git
     version: foxy-devel
-  external/aptags_tf_broadcast:
-    type: git
-    url: https://github.com/olaghattas/aptags_tf_broadcast.git
-    version: main
   external/localization_py:
     type: git
     url: https://github.com/olaghattas/localization_py.git

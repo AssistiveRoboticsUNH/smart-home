@@ -9,7 +9,7 @@ import numpy as np
 import math
 import time
 from geometry_msgs.msg import Twist, Quaternion, TransformStamped, PoseWithCovarianceStamped
-
+import os
 from rclpy.qos import QoSProfile, ReliabilityPolicy, HistoryPolicy, DurabilityPolicy
 
 import tf2_ros
@@ -40,7 +40,7 @@ class LocalizationActionServer(Node):
                                                    qos_profile)
 
         # For localization
-        self.vel_pub = self.create_publisher(Twist, 'cmd_vel', 10)
+        self.vel_pub = self.create_publisher(Twist, os.getenv("cmd_vel"), 10)
         self.subscriber = self.create_subscription(ParticleCloud, 'particle_cloud', self.particles_callback,
                                                    qos_profile)
         self.publisher_initial_pose = self.create_publisher(PoseWithCovarianceStamped, "initialpose", 10)
