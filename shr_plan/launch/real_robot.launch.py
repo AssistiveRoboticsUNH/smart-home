@@ -21,12 +21,28 @@ def generate_launch_description():
         executable='smartplug_node',
         output='screen'
     )
+    smartthings_initial_pose = Node(
+        package='smartthings_ros',
+        executable='initial_pose',
+        output='screen'
+    )
+    smartthings_initial_pose = Node(
+        package='smartthings_ros',
+        executable='initial_pose',
+        output='screen'
+    )
 
-    # logger_node = Node(
-    #     package='simple_logger',
-    #     executable='simple_logger_web',
-    #     output='screen'
-    # )
+    protocol_time_node = Node(
+        package='shr_plan',
+        executable='time_publisher_node',
+        output='screen'
+    )
+
+    logger_node = Node(
+        package='simple_logger',
+        executable='simple_logger_web',
+        output='screen'
+    )
 
     # nav_cmd = IncludeLaunchDescription(
     #     PythonLaunchDescriptionSource(PathJoinSubstitution([
@@ -41,11 +57,6 @@ def generate_launch_description():
     # jackal_navigation = IncludeLaunchDescription(
     #     PythonLaunchDescriptionSource(PathJoinSubstitution([
     #         get_package_share_directory('jackal_navigation'), 'launch', 'navigation2_jackal.launch.py']))
-    # )
-
-    # apriltags_realsense_docking = IncludeLaunchDescription(
-    #     PythonLaunchDescriptionSource(PathJoinSubstitution([
-    #         get_package_share_directory('apriltag_ros'), 'launch', 'tag_realsense_docking.launch.py']))
     # )
 
     apriltags_realsense_loc = IncludeLaunchDescription(
@@ -105,5 +116,7 @@ def generate_launch_description():
     ld.add_action(tf_broadcast)
     ld.add_action(smartthings_node)
     ld.add_action(smartthings_node_plug)
+    ld.add_action(smartthings_initial_pose)
+    ld.add_action(protocol_time_node)
 
     return ld

@@ -22,6 +22,8 @@ find_package(shr_msgs REQUIRED)
 find_package(shr_parameters REQUIRED)
 find_package(shr_utils REQUIRED)
 find_package(tf2_ros REQUIRED)
+find_package(builtin_interfaces REQUIRED)
+
 
 generate_bt_header(bt_shr_actions
     pddl/high_level_domain.pddl
@@ -38,16 +40,21 @@ set(dependencies
     shr_utils
     tf2_ros
     behaviortree_cpp_v3
+    builtin_interfaces
     )
 
 add_executable(planning_controller_node src/planning_controller_node.cpp)
 ament_target_dependencies(planning_controller_node ${dependencies})
 
+
+add_executable(time_publisher_node src/time_publisher_node.cpp)
+ament_target_dependencies(time_publisher_node ${dependencies})
+
+
+
 target_link_libraries(planning_controller_node
     bt_shr_actions
     )
-
-
 
 include_directories(
     include
@@ -59,6 +66,11 @@ install(TARGETS
     LIBRARY DESTINATION lib
     RUNTIME DESTINATION lib/${PROJECT_NAME}
     )
+    
+install(TARGETS
+    time_publisher_node
+    DESTINATION lib/${PROJECT_NAME}
+  )
 
 install(
     DIRECTORY launch pddl

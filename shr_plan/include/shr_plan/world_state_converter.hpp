@@ -58,7 +58,7 @@ public:
                 });
 
         std::filesystem::path pkg_dir = ament_index_cpp::get_package_share_directory("shr_resources");
-        auto mesh_file = (pkg_dir / "resources" / "lab_mesh_neg_xn.obj").string();
+        auto mesh_file = (pkg_dir / "resources" / "sajay_room_areas.obj").string();
         auto [mesh_verts, mesh_names] = shr_utils::load_meshes(mesh_file);
         for (int i = 0; i < mesh_names.size(); i++) {
             auto name = mesh_names[i];

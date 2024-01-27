@@ -8,6 +8,7 @@ import rclpy
 from geometry_msgs.msg import Twist
 from std_msgs.msg import Int32MultiArray
 from rclpy.executors import MultiThreadedExecutor
+import os
 
 
 class DetectPersonActionServer(Node):
@@ -15,7 +16,7 @@ class DetectPersonActionServer(Node):
         super().__init__('detect_person_action')
         self.action_server = ActionServer(self, DetectPersonRequest, 'detect_person',
                                           self.callback, cancel_callback=self.cancel_callback)
-        self.vel_pub = self.create_publisher(Twist, 'stretch/cmd_vel', 10)
+        self.vel_pub = self.create_publisher(Twist, os.getenv("cmd_vel"), 10)
         self.yolo_sub = self.create_subscription(Int32MultiArray, '/detecthuman', self.yolo_sub_callback, 10)
         self.human_coords = ""
 

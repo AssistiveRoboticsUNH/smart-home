@@ -50,9 +50,10 @@ class LocalizationActionServer(Node):
         self.subscription = self.create_subscription(AprilTagDetectionArray, '/apriltag_detections',
                                                      self.apriltag_callback, 10)
         self.aptags_detected = False
-        self.tf_buffer = tf2_ros.Buffer()
+        self.buffer = tf2_ros.Buffer()
+        self.tf_buffer = self.buffer
         self.tf_listener = tf2_ros.transform_listener.TransformListener(self.tf_buffer, self, spin_thread=True)
-        self.used_apriltags = [31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 16, 17, 18]
+        self.used_apriltags = [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 19, 20, 21, 22, 24, 25, 26, 27, 28, 29, 30]  # add the apriltag ids that you used
         # add the apriltag ids that you used
         self.transform_aptag_in_cam_dict = {}  # location of apriltags in camera frame
         self.transform_aptag_in_world_dict = {}  # global location of apriltags
@@ -65,8 +66,6 @@ class LocalizationActionServer(Node):
         self.get_tf_info = True
         self.successfully_localized = False
         self.aptags_detected_inside_callback = False
-
-        print('%%%%%%%%%%%%% ehjkdasjkdfbadsfjnasdvlk')
 
         self.get_transform_matrix_aptags_in_world_from_tf()
 
@@ -90,7 +89,6 @@ class LocalizationActionServer(Node):
         static_transform.transform.translation.z = z  # meters
 
         static_transform.transform.rotation = quat
-        # print('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%')
         self.tf_broadcaster.sendTransform(static_transform)
         # print(f'publishing child {child_frame_id} from {frame_id}')
 

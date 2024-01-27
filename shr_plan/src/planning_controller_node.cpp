@@ -83,7 +83,6 @@ public:
         }
     }
 
-
     TRUTH_VALUE person_at(TRUTH_VALUE val, Time t, Person p, Landmark lm) const override {
         if (val == TRUTH_VALUE::UNKNOWN || t != "t1") {
             return val;
@@ -145,7 +144,18 @@ public:
         if (val == TRUTH_VALUE::TRUE) {
             return TRUTH_VALUE::TRUE;
         }
+        // modification
+        auto params = world_state_converter->get_params();
+        if (auto index = get_inst_index(f, params)) {
+            if (compare_time(params.pddl.FoodProtocols.eat_times[index.value()])) {
+                return TRUTH_VALUE::TRUE;
+            }
+        }
+        return TRUTH_VALUE::FALSE;
+
+        // finish modification
         //TODO this is not right. It should check if the current time window corresponds to f
+
         if (world_state_converter->get_world_state_msg()->person_eating == 1) {
             return TRUTH_VALUE::TRUE;
         }
@@ -209,7 +219,6 @@ private:
         const int second_in_day = 60 * 60 * 24;
         double clock_distance = fmod((time_2_secs - time_1_secs + second_in_day), second_in_day);
         double time_to_check_normalized = fmod((time.sec - time_1_secs + second_in_day), second_in_day);
-
         return time_to_check_normalized <= clock_distance;
     }
 
@@ -283,11 +292,6 @@ int main(int argc, char **argv) {
         while (!ps.call_client_->wait_for_action_server(std::chrono::seconds(5))) {
             RCLCPP_INFO(rclcpp::get_logger("planning_controller"), "Waiting for /make_call action server...");
         }
-//        ps.nav_client_ = rclcpp_action::create_client<nav2_msgs::action::NavigateToPose>(
-//                world_state_converter, "navigate_to_pose_with_localization");
-//        while (!ps.nav_client_->wait_for_action_server(std::chrono::seconds(5))) {
-//            RCLCPP_INFO(rclcpp::get_logger("planning_controller"), "Waiting for /navigate_to_pose_with_localization action server...");
-//        }
         ps.nav_client_ = rclcpp_action::create_client<nav2_msgs::action::NavigateToPose>(
                 world_state_converter, "navigate_to_pose");
         while (!ps.nav_client_->wait_for_action_server(std::chrono::seconds(5))) {
@@ -323,43 +327,6 @@ int main(int argc, char **argv) {
     // localize to start navigation and move to home position
     auto [ps, lock] = ProtocolState::getConcurrentInstance();
 
-
-//    nav2_msgs::action::NavigateToPose::Goal navigation_goal_;
-//    std::cout << "before starting Btree localize and go home" << std::endl ;
-//    auto success = std::make_shared<std::atomic<int>>(-1);
-//    navigation_goal_.pose.header.frame_id = "map";
-//    navigation_goal_.pose.header.stamp = ps.world_state_converter->now();
-//    if (auto transform = ps.world_state_converter->get_tf("map", "home")) {
-//        navigation_goal_.pose.pose.orientation = transform.value().transform.rotation;
-//        navigation_goal_.pose.pose.position.x = transform.value().transform.translation.x;
-//        navigation_goal_.pose.pose.position.y = transform.value().transform.translation.y;
-//        navigation_goal_.pose.pose.position.z = transform.value().transform.translation.z;
-//    }
-//
-//    // for blocking
-//    auto send_goal_options = rclcpp_action::Client<nav2_msgs::action::NavigateToPose>::SendGoalOptions();
-//    send_goal_options.result_callback = [&success](
-//            const rclcpp_action::ClientGoalHandle<nav2_msgs::action::NavigateToPose>::WrappedResult result) {
-//        *success = result.code == rclcpp_action::ResultCode::SUCCEEDED;
-//    };
-//    ps.nav_client_->async_send_goal(navigation_goal_, send_goal_options);
-//    auto tmp = ps.active_protocol;
-//    // blocking
-//    // TODO take this out // it is causing an infinite loop
-//    int count_max = 30;
-//    int count = 0;
-//    while (*success == -1 && count_max > count) {
-//        if (!(tmp == ps.active_protocol)) {
-//            ps.nav_client_->async_cancel_all_goals();
-//        }
-//        count++;
-//        rclcpp::sleep_for(std::chrono::seconds(1));
-//    }
-//    std::cout << "after localizing " << std::endl;
-
-//    shr_msgs::action::DockingRequest::Goal goal_msg;
-//    ps.docking_->async_send_goal(goal_msg);
-
     instantiate_high_level_problem();
 
     auto &kb = KnowledgeBase::getInstance();
@@ -383,7 +350,10 @@ int main(int argc, char **argv) {
 
         std::string active_domain;
         auto protocol = ProtocolState::getActiveProtocol();
-        if (!protocol.name.empty()) {
+//        std::cout << "planner isRobotInUse called: " << std::endl;
+//        auto ola = ProtocolState::isRobotInUse();
+//        std::cout << "isRobotInUse :" << ola << std::endl;
+        if (!protocol.name.empty() && !ProtocolState::isRobotInUse()) {
             active_domain = "low_level_domain.pddl";
             updater.concurrent_update();
             auto domain = load_domain(active_domain);

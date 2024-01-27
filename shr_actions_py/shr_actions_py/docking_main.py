@@ -189,7 +189,7 @@ def main(args=None):
         tag_to_bar.get_transformation_from_aptag_to_port()
         tag_to_bar.move_towards_tag()
         print("I am calling")
-        rclpy.spin_once(tag_to_bar)
+        rclpy.spin_once(tag_to_bar, timeout_sec=3.0)
         
     
     tag_to_bar.destroy_node()

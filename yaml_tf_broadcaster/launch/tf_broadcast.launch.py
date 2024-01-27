@@ -9,20 +9,20 @@ import os
 def generate_launch_description():
     ld = LaunchDescription()
 
-    pkg_path = get_package_share_directory('yaml_tf_broadcaster') + "/config/"
+    pkg_path = get_package_share_directory('aptags_tf_broadcast') + "/config/"
     #
     aptags_file = DeclareLaunchArgument(
-        "lab_aptags",
-        default_value=pkg_path + "lab_211_aptags.yaml",
+        "aptags",
+        default_value=pkg_path + "sajay_aptags.yaml",
         description="aptags location"
     )
     ld.add_action(aptags_file)
     aptags = Node(
-        package="yaml_tf_broadcaster",
-        executable="yaml_broadcaster_node",
+        package="aptags_tf_broadcast",
+        executable="aptag_broadcast_node",
         name="aptags_launch",
         parameters=[
-            {"yaml_file_name": LaunchConfiguration("lab_aptags")}
+            {"yaml_file_name": LaunchConfiguration("aptags")}
         ]
     )
 
@@ -30,14 +30,14 @@ def generate_launch_description():
 
     room_file = DeclareLaunchArgument(
         "rooms_location",
-        default_value=pkg_path + "lab_211_rooms.yaml",
+        default_value=pkg_path + "sajay_rooms.yaml",
         description="rooms location"
     )
     ld.add_action(room_file)
     #
     rooms = Node(
-        package="yaml_tf_broadcaster",
-        executable="yaml_broadcaster_node",
+        package="aptags_tf_broadcast",
+        executable="aptag_broadcast_node",
         name="rooms_launch",
         parameters=[
             {"yaml_file_name": LaunchConfiguration("rooms_location")}
@@ -55,8 +55,8 @@ def generate_launch_description():
     ld.add_action(helper_file)
 
     helpers = Node(
-        package="yaml_tf_broadcaster",
-        executable="yaml_broadcaster_node",
+        package="aptags_tf_broadcast",
+        executable="aptag_broadcast_node",
         name="helper_launch_ll",
         parameters=[
             {"yaml_file_name": LaunchConfiguration("helper_location")}

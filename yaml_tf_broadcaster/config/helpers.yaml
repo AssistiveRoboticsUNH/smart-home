@@ -1,44 +1,44 @@
 transformations:
-#  - frame_id: charger
-#    id: camera_color_optical_frame
-#    transform:
-#    - -0.216
-#    - -0.045
-#    - 0.248
-#    - 0.5
-#    - -0.5
-#    - 0.5
-#    - -0.5
+  - frame_id: camera_color_optical_frame
+    id: charger
+    transform:
+      - 0.887
+      - 0.040
+      - 0.848
+      - -0.065
+      - 0.873
+      - 0.061
+      - -0.480
 
-#  - frame_id: zed2i_left_camera_optical_frame
-#    id: zed2i_left_camera_frame
-#    transform:
-#      - 0.000
-#      - 0.000
-#      - 0.000
-#      - 0.0
-#      - 0.0
-#      - 1.0
-#      - 0.0
+  - frame_id: zed_doorway_left_camera_frame
+    id: tag_38_zed
+    transform:
+      - 0.759
+      - 0.768
+      - 0.186
+      - 0.062
+      - 0.088
+      - -0.784
+      - 0.612
 
-#  - frame_id: unity
-#    id: aptag_18
-#    transform:
-#      - -2.691999912261963
-#      - -2.2760000228881836
-#      - -0.41600000858306885
-#      - 0.0
-#      - 0.0
-#      - -0.7071067811865475
-#      - 0.7071067811865476
+  - frame_id: zed_dining_room_left_camera_frame
+    id: tag_37_zed
+    transform:
+      - 1.915
+      - 1.500
+      - 0.320
+      - -0.229
+      - 0.199
+      - 0.825
+      - -0.477
 
-#  - frame_id: map
-#    id: nathan
-#    transform:
-#      - -0.09
-#      - 4.89
-#      - 0
-#      - 0.0
-#      - 0.0
-#      - 0.0
-#      - 1.0
+  - frame_id: zed_kitchen_left_camera_frame
+    id: tag_44_zed
+    transform:
+      - 1.259
+      - 0.990
+      - 0.625
+      - 0.178
+      - -0.150
+      - -0.754
+      - 0.615
