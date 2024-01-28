@@ -49,6 +49,7 @@ set(action_files
         action/TextRequest.action
         action/DockingRequest.action
         action/LocalizeRequest.action
+        action/WaypointRequest.action
         )
 
 rosidl_generate_interfaces(shr_msgs

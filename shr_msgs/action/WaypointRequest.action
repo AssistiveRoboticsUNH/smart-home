@@ -1,0 +1,6 @@
+string from_location
+string to_location
+---
+string status
+---
+bool complete
