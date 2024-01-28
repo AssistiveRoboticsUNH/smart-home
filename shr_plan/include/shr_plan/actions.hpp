@@ -530,17 +530,19 @@ namespace pddl_lib {
 
                 std::string from_location = find_robot_location();
                 std::string to_location = "home";
-                std::cout<<"In Idle from: "<<from_location<<" to: "<<to_location<<std::endl;
-                shr_msgs::action::WaypointRequest ::Goal waypoint_goal_;
-                waypoint_goal_.from_location = from_location;
-                waypoint_goal_.to_location = to_location;
-                auto status_nav = send_goal_blocking(waypoint_goal_, action);
+                if(from_location != to_location) {
+                    std::cout << "In Idle from: " << from_location << " to: " << to_location << std::endl;
+                    shr_msgs::action::WaypointRequest::Goal waypoint_goal_;
+                    waypoint_goal_.from_location = from_location;
+                    waypoint_goal_.to_location = to_location;
+                    auto status_nav = send_goal_blocking(waypoint_goal_, action);
 
-                if (!status_nav) {
-                    std::cout << "Fail: " << std::endl;
-                    return BT::NodeStatus::FAILURE;
+                    if (!status_nav) {
+                        std::cout << "Fail: " << std::endl;
+                        return BT::NodeStatus::FAILURE;
+                    }
+                    std::cout << "success navigation : " << std::endl;
                 }
-                std::cout << "success navigation : " << std::endl;
 
 
                 std::cout << "dock " << std::endl;
