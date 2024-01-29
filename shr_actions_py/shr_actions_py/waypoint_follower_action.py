@@ -125,48 +125,87 @@ class WaypointRequestActionServer(Node):
 
 
     def waypoint_request_callback(self, goal_handle):
+        """
+        Handle waypoint requests.
+
+        Args:
+            goal_handle: The goal handle containing the waypoint request.
+
+        Returns:
+            WaypointRequest.Result: The result of the waypoint execution.
+        """
         from_location = goal_handle.request.from_location
         to_location = goal_handle.request.to_location
 
         result_custom = WaypointRequest.Result()
 
         waypoints = None
-        if from_location in self.waypoint_routes and to_location in self.waypoint_routes[from_location]:
-            waypoints = self.waypoint_routes[from_location][to_location]
-        else:
-            print(f' From location {from_location} to {to_location} is not included in routes!')
-            pass
-
-        if waypoints is not None:
-            inspection_points = self.create_inspection_points(waypoints)
-
-            self.navigator.followWaypoints(inspection_points)
-
-            while not self.navigator.isTaskComplete():
-                feedback = self.navigator.getFeedback()
-                if feedback:
-                    print('Executing current waypoint:', feedback.current_waypoint + 1)
-                    result_custom.status = "Executing current waypoint: '{}' does not exist".format(feedback.current_waypoint + 1)
-
-            result = self.navigator.getResult()
-            if result == TaskResult.SUCCEEDED:
-                print(f'Inspection of {to_location} complete!')
-                result_custom.status = f'Inspection of {to_location} complete!'
-                #result_custom.result = True  # Set the 'result' field to True for success
-                goal_handle.succeed()
-
-            elif result == TaskResult.CANCELED:
-                print(f'Inspection of {to_location} was canceled.')
-                result_custom.status = f'Inspection of {to_location} was canceled.'
-                #result_custom.result = False  # Set the 'result' field to False for cancellation
+        try:
+            if from_location in self.waypoint_routes and to_location in self.waypoint_routes[from_location]:
+                waypoints = self.waypoint_routes[from_location][to_location]
+            else:
+                error_message = f'Route from {from_location} to {to_location} is not defined.'
+                print(error_message)
+                result_custom.status = error_message
                 goal_handle.abort()
-            elif result == TaskResult.FAILED:
-                print(f'Inspection of {to_location} failed! ')
-                result_custom.status = f'Inspection of {to_location} failed! '
-                #result_custom.result = False  # Set the 'result' field to False for failure
-                goal_handle.abort()
+                return result_custom
 
-            return result_custom
+            if waypoints is not None:
+                inspection_points = self.create_inspection_points(waypoints)
+                self.navigator.followWaypoints(inspection_points)
+
+                while not self.navigator.isTaskComplete():
+                    feedback = self.navigator.getFeedback()
+                    if feedback:
+                        print('Executing current waypoint:', feedback.current_waypoint + 1)
+                        result_custom.status = f"Executing waypoint {feedback.current_waypoint + 1}"
+
+                result = self.navigator.getResult()
+                if result == TaskResult.SUCCEEDED:
+                    print(f'Inspection of {to_location} complete!')
+                    result_custom.status = f'Inspection of {to_location} complete!'
+                    goal_handle.succeed()
+
+                elif result == TaskResult.CANCELED:
+                    print(f'Inspection of {to_location} was canceled.')
+                    result_custom.status = f'Inspection of {to_location} was canceled.'
+                    goal_handle.abort()
+                elif result == TaskResult.FAILED:
+                    print(f'Inspection of {to_location} failed!')
+                    result_custom.status = f'Inspection of {to_location} failed!'
+                    goal_handle.abort()
+
+        except Exception as e:
+            print("An error occurred:", e)
+            result_custom.status = "An error occurred during waypoint execution"
+            goal_handle.abort()
+
+        return result_custom
+
+
+
+    def create_inspection_points(self, waypoints):
+        inspection_points = []
+        for pt in waypoints:
+            pose = PoseStamped()
+            pose.header.frame_id = 'map'
+            pose.header.stamp = self.navigator.get_clock().now().to_msg()
+            pose.pose.position.x = pt[0]
+            pose.pose.position.y = pt[1]
+            pose.pose.orientation.z = pt[2]
+            pose.pose.orientation.w = pt[3]
+            inspection_points.append(pose)
+        return inspection_points
+
+def main(args=None):
+    rclpy.init(args=args)
+    waypoint_request_action_server = WaypointRequestActionServer()
+    rclpy.spin(waypoint_request_action_server)
+    rclpy.shutdown()
+
+if __name__ == '__main__':
+    main()
+
 
 
     def create_inspection_points(self, waypoints):
