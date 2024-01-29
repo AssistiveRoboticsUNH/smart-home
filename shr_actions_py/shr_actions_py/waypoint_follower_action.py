@@ -207,25 +207,3 @@ if __name__ == '__main__':
     main()
 
 
-
-    def create_inspection_points(self, waypoints):
-        inspection_points = []
-        for pt in waypoints:
-            pose = PoseStamped()
-            pose.header.frame_id = 'map'
-            pose.header.stamp = self.navigator.get_clock().now().to_msg()
-            pose.pose.position.x = pt[0]
-            pose.pose.position.y = pt[1]
-            pose.pose.orientation.z = pt[2]
-            pose.pose.orientation.w = pt[3]
-            inspection_points.append(pose)
-        return inspection_points
-
-def main(args=None):
-    rclpy.init(args=args)
-    waypoint_request_action_server = WaypointRequestActionServer()
-    rclpy.spin(waypoint_request_action_server)
-    rclpy.shutdown()
-
-if __name__ == '__main__':
-    main()
