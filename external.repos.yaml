@@ -11,10 +11,6 @@ repositories:
     type: git
     url: https://github.com/IntelRealSense/realsense-ros.git
     version: ros2-development
-  external/tapo_cam_ros_wrapper:
-    type: git
-    url:  https://github.com/olaghattas/tapo_cam_ros_wrapper.git
-    version: master
   external/ros2_unity_bridge:
     type: git
     url: https://github.com/AssistiveRoboticsUNH/ros2_unity_bridge.git
@@ -39,10 +35,6 @@ repositories:
     type: git
     url: https://github.com/olaghattas/apriltag_ros.git
     version: foxy-devel
-  external/localization_py:
-    type: git
-    url: https://github.com/olaghattas/localization_py.git
-    version: main
   external/tf_to_yaml:
     type: git
     url: https://github.com/olaghattas/tf_to_yaml.git
