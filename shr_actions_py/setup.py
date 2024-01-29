@@ -39,7 +39,7 @@ setup(
                             'undocking = shr_actions_py.undocking_action:main',
                             'apriltag_port = shr_actions_py.docking_main:main',
                             'localize = shr_actions_py.localize:main',
-                            'waypoint = shr_actions_py.waypoint_saver:main',
+                            'waypoint = shr_actions_py.waypoint_follower_action:main',
                             ],
     },
 )

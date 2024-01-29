@@ -26,11 +26,6 @@ def generate_launch_description():
         executable='initial_pose',
         output='screen'
     )
-    smartthings_initial_pose = Node(
-        package='smartthings_ros',
-        executable='initial_pose',
-        output='screen'
-    )
 
     protocol_time_node = Node(
         package='shr_plan',

@@ -147,20 +147,23 @@ public:
         // modification
         auto params = world_state_converter->get_params();
         if (auto index = get_inst_index(f, params)) {
-            if (compare_time(params.pddl.FoodProtocols.eat_times[index.value()])) {
+//            std::cout << "params.pddl.FoodProtocols.eat_times[index.value()]: " << params.pddl.FoodProtocols.eat_times[index.value()] << std::endl;
+//            std::cout << "compare_time(params.pddl.FoodProtocols.eat_times[index.value()]): " << compare_time(params.pddl.FoodProtocols.eat_times[index.value()]) << std::endl;
+//            std::cout << "world_state_converter->get_world_state_msg()->person_eating : " << world_state_converter->get_world_state_msg()->person_eating << std::endl;
+            if (world_state_converter->get_world_state_msg()->person_eating == 1 && compare_time(params.pddl.FoodProtocols.eat_times[index.value()])) {
                 return TRUTH_VALUE::TRUE;
             }
+            return val;
         }
-        return TRUTH_VALUE::FALSE;
-
         // finish modification
         //TODO this is not right. It should check if the current time window corresponds to f
 
-        if (world_state_converter->get_world_state_msg()->person_eating == 1) {
-            return TRUTH_VALUE::TRUE;
-        }
-        return val;
+//        if (world_state_converter->get_world_state_msg()->person_eating == 1) {
+//            return TRUTH_VALUE::TRUE;
+//        }
+//        return val;
     }
+
 
     TRUTH_VALUE too_late_to_go_outside(TRUTH_VALUE val, WanderingProtocol w) const override {
         auto params = world_state_converter->get_params();

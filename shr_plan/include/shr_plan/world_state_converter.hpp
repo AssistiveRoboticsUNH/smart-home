@@ -81,7 +81,6 @@ public:
 //            robot_location = tf_buffer_->lookupTransform("odom", params.robot_tf, tf2::TimePointZero); //TODO fix
 
             robot_location = tf_buffer_->lookupTransform("unity", params.robot_tf, tf2::TimePointZero, std::chrono::seconds(10)); //TODO fix
-            RCLCPP_INFO(get_logger(), "Could transform %s to %s ", "unity", params.robot_tf.c_str());
 
         } catch (const tf2::TransformException &ex) {
             RCLCPP_INFO(get_logger(), "Could not transform %s to %s: %s", "unity", params.robot_tf.c_str(), ex.what());

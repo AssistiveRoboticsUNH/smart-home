@@ -30,7 +30,7 @@ def generate_launch_description():
 
     room_file = DeclareLaunchArgument(
         "rooms_location",
-        default_value=pkg_path + "sajay_rooms.yaml",
+        default_value=pkg_path + "sajay_mod_house.yaml",
         description="rooms location"
     )
     ld.add_action(room_file)
