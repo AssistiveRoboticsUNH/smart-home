@@ -86,7 +86,7 @@ shr_parameters:
       }
       too_late_to_leave_time: {
         type: string_array,
-        default_value: [ "22h0m0s/6h0m0s" ],
+        default_value: [ "20h0m0s/6h0m0s" ],
         description: "time that the person must not go outside",
       }
     FallProtocols:

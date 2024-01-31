@@ -360,9 +360,7 @@ int main(int argc, char **argv) {
 
         std::string active_domain;
         auto protocol = ProtocolState::getActiveProtocol();
-//        std::cout << "planner isRobotInUse called: " << std::endl;
-//        auto ola = ProtocolState::isRobotInUse();
-//        std::cout << "isRobotInUse :" << ola << std::endl;
+
         if (!protocol.name.empty() && !ProtocolState::isRobotInUse()) {
             active_domain = "low_level_domain.pddl";
             updater.concurrent_update();

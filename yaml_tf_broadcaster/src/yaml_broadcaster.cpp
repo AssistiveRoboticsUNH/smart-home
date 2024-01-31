@@ -117,7 +117,7 @@ int main(int argc, char **argv) {
 
     auto node_params = std::make_shared<GetParams>();
 
-    std::filesystem::path pkg_dir = ament_index_cpp::get_package_share_directory("aptags_tf_broadcast");
+    std::filesystem::path pkg_dir = ament_index_cpp::get_package_share_directory("yaml_tf_broadcaster");
     auto file_path = pkg_dir / "config" / node_params->getYamlFileName();
 
     // Load YAML file

@@ -66,7 +66,7 @@ def generate_launch_description():
 
     ld = LaunchDescription()
     ld.add_action(read_script_node_cmd)
-    # ld.add_action(apriltag_port_server_cmd)
+    ld.add_action(apriltag_port_server_cmd)
     ld.add_action(play_audio_node_cmd)
     ld.add_action(play_video_node_cmd)
     ld.add_action(make_call_node_cmd)

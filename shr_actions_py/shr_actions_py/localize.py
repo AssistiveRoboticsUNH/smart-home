@@ -53,7 +53,7 @@ class LocalizationActionServer(Node):
         self.buffer = tf2_ros.Buffer()
         self.tf_buffer = self.buffer
         self.tf_listener = tf2_ros.transform_listener.TransformListener(self.tf_buffer, self, spin_thread=True)
-        self.used_apriltags = [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 19, 20, 21, 22, 24, 25, 26, 27, 28, 29, 30]  # add the apriltag ids that you used
+        self.used_apriltags = [0, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 29]  # add the apriltag ids that you used
         # add the apriltag ids that you used
         self.transform_aptag_in_cam_dict = {}  # location of apriltags in camera frame
         self.transform_aptag_in_world_dict = {}  # global location of apriltags

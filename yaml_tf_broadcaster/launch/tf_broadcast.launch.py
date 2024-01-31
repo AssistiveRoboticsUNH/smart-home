@@ -9,7 +9,7 @@ import os
 def generate_launch_description():
     ld = LaunchDescription()
 
-    pkg_path = get_package_share_directory('aptags_tf_broadcast') + "/config/"
+    pkg_path = get_package_share_directory('yaml_tf_broadcaster') + "/config/"
     #
     aptags_file = DeclareLaunchArgument(
         "aptags",
@@ -18,8 +18,8 @@ def generate_launch_description():
     )
     ld.add_action(aptags_file)
     aptags = Node(
-        package="aptags_tf_broadcast",
-        executable="aptag_broadcast_node",
+        package="yaml_tf_broadcaster",
+        executable="yaml_broadcaster_node",
         name="aptags_launch",
         parameters=[
             {"yaml_file_name": LaunchConfiguration("aptags")}
@@ -36,8 +36,8 @@ def generate_launch_description():
     ld.add_action(room_file)
     #
     rooms = Node(
-        package="aptags_tf_broadcast",
-        executable="aptag_broadcast_node",
+        package="yaml_tf_broadcaster",
+        executable="yaml_broadcaster_node",
         name="rooms_launch",
         parameters=[
             {"yaml_file_name": LaunchConfiguration("rooms_location")}
@@ -55,8 +55,8 @@ def generate_launch_description():
     ld.add_action(helper_file)
 
     helpers = Node(
-        package="aptags_tf_broadcast",
-        executable="aptag_broadcast_node",
+        package="yaml_tf_broadcaster",
+        executable="yaml_broadcaster_node",
         name="helper_launch_ll",
         parameters=[
             {"yaml_file_name": LaunchConfiguration("helper_location")}
