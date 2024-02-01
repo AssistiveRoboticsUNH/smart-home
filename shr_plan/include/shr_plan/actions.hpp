@@ -222,69 +222,93 @@ namespace pddl_lib {
         return *success;
     }
 
-//    int send_goal_blocking(const nav2_msgs::action::NavigateToPose::Goal &goal, const InstantiatedAction &action) {
-//
-//        auto [ps, lock] = ProtocolState::getConcurrentInstance();
-//        auto &kb = KnowledgeBase::getInstance();
-//        auto success = std::make_shared<std::atomic<int>>(-1);
-//        auto send_goal_options = rclcpp_action::Client<nav2_msgs::action::NavigateToPose>::SendGoalOptions();
-//        send_goal_options.result_callback = [&success](
-//                const rclcpp_action::ClientGoalHandle<nav2_msgs::action::NavigateToPose>::WrappedResult result) {
-//            if (result.code == rclcpp_action::ResultCode::SUCCEEDED) {
-//                *success = 1;
-//                RCLCPP_INFO(rclcpp::get_logger(
-//                        std::string("weblog=") + " Navigation goal Succeeded."), "user...");
-//            } else {
-//                *success = 0;
-//                RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=") + " Navigation goal aborted."), "user...");
-//                std::cout << "Navigation goal aborted." << std::endl;
-//            }
-//        };
-//        ps.nav_client_->async_send_goal(goal, send_goal_options);
-//        auto tmp = ps.active_protocol;
-//
-//        // prevent long navigation time
-//        int count = 0;
-//        int count_max = 50;
-//
-//        while (*success == -1 && count_max > count) {
-//            if (!(tmp == ps.active_protocol)) {
-//                ps.nav_client_->async_cancel_all_goals();
-//                return false;
-//            }
-//            count++;
-//            rclcpp::sleep_for(std::chrono::seconds(1));
-//            if (count_max - 1 == count) {
-//                RCLCPP_INFO(rclcpp::get_logger(
-//                        std::string("weblog=") + " Navigation failed for exceed time."), "user...");
-//                ps.nav_client_->async_cancel_all_goals();
-//                std::cout << " Navigation failed for exceed time  " << std::endl;
-//                return false;
-//            }
-//        }
-//        return *success;
-//    }
+   int send_goal_blocking(const nav2_msgs::action::NavigateToPose::Goal &goal, const InstantiatedAction &action) {
 
-    int send_goal_blocking(const shr_msgs::action::WaypointRequest::Goal &goal, const InstantiatedAction &action) {
-        auto [ps, lock] = ProtocolState::getConcurrentInstance();
-        auto &kb = KnowledgeBase::getInstance();
-        auto success = std::make_shared<std::atomic<int>>(-1);
-        auto send_goal_options = rclcpp_action::Client<shr_msgs::action::WaypointRequest>::SendGoalOptions();
-        send_goal_options.result_callback = [success](
-                const rclcpp_action::ClientGoalHandle<shr_msgs::action::WaypointRequest>::WrappedResult result) {
-            *success = result.code == rclcpp_action::ResultCode::SUCCEEDED;
-        };
-        ps.waypoint_action_client_->async_send_goal(goal, send_goal_options);
-        auto tmp = ps.active_protocol;
-        while (*success == -1) {
-            if (!(tmp == ps.active_protocol)) {
-                ps.waypoint_action_client_->async_cancel_all_goals();
-                return false;
-            }
-            rclcpp::sleep_for(std::chrono::seconds(1));
-        }
-        return *success;
-    }
+       auto [ps, lock] = ProtocolState::getConcurrentInstance();
+       auto &kb = KnowledgeBase::getInstance();
+       auto success = std::make_shared<std::atomic<int>>(-1);
+       auto send_goal_options = rclcpp_action::Client<nav2_msgs::action::NavigateToPose>::SendGoalOptions();
+       send_goal_options.result_callback = [&success](
+               const rclcpp_action::ClientGoalHandle<nav2_msgs::action::NavigateToPose>::WrappedResult result) {
+           if (result.code == rclcpp_action::ResultCode::SUCCEEDED) {
+               *success = 1;
+               RCLCPP_INFO(rclcpp::get_logger(
+                       std::string("weblog=") + " Navigation goal Succeeded."), "user...");
+           } else {
+               *success = 0;
+               RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=") + " Navigation goal aborted."), "user...");
+               std::cout << "Navigation goal aborted." << std::endl;
+           }
+       };
+       ps.nav_client_->async_send_goal(goal, send_goal_options);
+       auto tmp = ps.active_protocol;
+
+       // prevent long navigation time
+       int count = 0;
+       int count_max = 50;
+
+       while (*success == -1 && count_max > count) {
+           if (!(tmp == ps.active_protocol)) {
+               ps.nav_client_->async_cancel_all_goals();
+               return false;
+           }
+           count++;
+           rclcpp::sleep_for(std::chrono::seconds(1));
+           if (count_max - 1 == count) {
+               RCLCPP_INFO(rclcpp::get_logger(
+                       std::string("weblog=") + " Navigation failed for exceed time."), "user...");
+               ps.nav_client_->async_cancel_all_goals();
+               std::cout << " Navigation failed for exceed time  " << std::endl;
+               return false;
+           }
+       }
+       return *success;
+   }
+
+
+
+    // int send_goal_blocking(const nav2_msgs::action::NavigateToPose::Goal &goal, const InstantiatedAction &action) {
+
+    //     auto [ps, lock] = ProtocolState::getConcurrentInstance();
+    //     auto &kb = KnowledgeBase::getInstance();
+    //     auto success = std::make_shared<std::atomic<int>>(-1);
+    //     auto send_goal_options = rclcpp_action::Client<nav2_msgs::action::NavigateToPose>::SendGoalOptions();
+    //     send_goal_options.result_callback = [&success](
+    //             const rclcpp_action::ClientGoalHandle<nav2_msgs::action::NavigateToPose>::WrappedResult result) {
+    //         *success = result.code == rclcpp_action::ResultCode::SUCCEEDED;
+    //     };
+    //     ps.nav_client_->async_send_goal(goal, send_goal_options);
+    //     auto tmp = ps.active_protocol;
+    //     while (*success == -1) {
+    //         if (!(tmp == ps.active_protocol)) {
+    //             ps.nav_client_->async_cancel_all_goals();
+    //             return false;
+    //         }
+    //         rclcpp::sleep_for(std::chrono::seconds(1));
+    //     }
+    //     return *success;
+    // }
+
+    // int send_goal_blocking(const shr_msgs::action::WaypointRequest::Goal &goal, const InstantiatedAction &action) {
+    //     auto [ps, lock] = ProtocolState::getConcurrentInstance();
+    //     auto &kb = KnowledgeBase::getInstance();
+    //     auto success = std::make_shared<std::atomic<int>>(-1);
+    //     auto send_goal_options = rclcpp_action::Client<shr_msgs::action::WaypointRequest>::SendGoalOptions();
+    //     send_goal_options.result_callback = [success](
+    //             const rclcpp_action::ClientGoalHandle<shr_msgs::action::WaypointRequest>::WrappedResult result) {
+    //         *success = result.code == rclcpp_action::ResultCode::SUCCEEDED;
+    //     };
+    //     ps.waypoint_action_client_->async_send_goal(goal, send_goal_options);
+    //     auto tmp = ps.active_protocol;
+    //     while (*success == -1) {
+    //         if (!(tmp == ps.active_protocol)) {
+    //             ps.waypoint_action_client_->async_cancel_all_goals();
+    //             return false;
+    //         }
+    //         rclcpp::sleep_for(std::chrono::seconds(1));
+    //     }
+    //     return *success;
+    // }
 
 
     int send_goal_blocking(const shr_msgs::action::LocalizeRequest::Goal &goal, const InstantiatedAction &action) {
@@ -511,38 +535,38 @@ namespace pddl_lib {
                         "user...");
                 std::cout << "navigate " << std::endl;
 
-//                nav2_msgs::action::NavigateToPose::Goal navigation_goal_;
-//                navigation_goal_.pose.header.frame_id = "map";
-//                navigation_goal_.pose.header.stamp = ps.world_state_converter->now();
-//                if (auto transform = ps.world_state_converter->get_tf("map", "home")) {
-//                    navigation_goal_.pose.pose.orientation = transform.value().transform.rotation;
-//                    navigation_goal_.pose.pose.position.x = transform.value().transform.translation.x;
-//                    navigation_goal_.pose.pose.position.y = transform.value().transform.translation.y;
-//                    navigation_goal_.pose.pose.position.z = transform.value().transform.translation.z;
-//                }
-//                auto status_nav = send_goal_blocking(navigation_goal_, action);
-//                std::cout << "status: " << status_nav << std::endl;
-//                if (!status_nav) {
-//                    std::cout << "Fail: " << std::endl;
-//                    return BT::NodeStatus::FAILURE;
-//                }
-//                std::cout << "success navigation : " << std::endl;
+               nav2_msgs::action::NavigateToPose::Goal navigation_goal_;
+               navigation_goal_.pose.header.frame_id = "map";
+               navigation_goal_.pose.header.stamp = ps.world_state_converter->now();
+               if (auto transform = ps.world_state_converter->get_tf("map", "home")) {
+                   navigation_goal_.pose.pose.orientation = transform.value().transform.rotation;
+                   navigation_goal_.pose.pose.position.x = transform.value().transform.translation.x;
+                   navigation_goal_.pose.pose.position.y = transform.value().transform.translation.y;
+                   navigation_goal_.pose.pose.position.z = transform.value().transform.translation.z;
+               }
+               auto status_nav = send_goal_blocking(navigation_goal_, action);
+               std::cout << "status: " << status_nav << std::endl;
+               if (!status_nav) {
+                   std::cout << "Fail: " << std::endl;
+                   return BT::NodeStatus::FAILURE;
+               }
+               std::cout << "success navigation : " << std::endl;
 
-                std::string from_location = find_robot_location();
-                std::string to_location = "home";
-                if(from_location != to_location) {
-                    std::cout << "In Idle from: " << from_location << " to: " << to_location << std::endl;
-                    shr_msgs::action::WaypointRequest::Goal waypoint_goal_;
-                    waypoint_goal_.from_location = from_location;
-                    waypoint_goal_.to_location = to_location;
-                    auto status_nav = send_goal_blocking(waypoint_goal_, action);
+                // std::string from_location = find_robot_location();
+                // std::string to_location = "home";
+                // if(from_location != to_location) {
+                //     std::cout << "In Idle from: " << from_location << " to: " << to_location << std::endl;
+                //     shr_msgs::action::WaypointRequest::Goal waypoint_goal_;
+                //     waypoint_goal_.from_location = from_location;
+                //     waypoint_goal_.to_location = to_location;
+                //     auto status_nav = send_goal_blocking(waypoint_goal_, action);
 
-                    if (!status_nav) {
-                        std::cout << "Fail: " << std::endl;
-                        return BT::NodeStatus::FAILURE;
-                    }
-                    std::cout << "success navigation : " << std::endl;
-                }
+                //     if (!status_nav) {
+                //         std::cout << "Fail: " << std::endl;
+                //         return BT::NodeStatus::FAILURE;
+                //     }
+                //     std::cout << "success navigation : " << std::endl;
+                // }
 
 
                std::cout << "dock " << std::endl;
@@ -778,25 +802,29 @@ namespace pddl_lib {
 //            }
 
 
-//            nav2_msgs::action::NavigateToPose::Goal navigation_goal_;
-//            navigation_goal_.pose.header.frame_id = "map";
-//            navigation_goal_.pose.header.stamp = ps.world_state_converter->now();
-//            if (auto transform = ps.world_state_converter->get_tf("map", location)) {
-//                navigation_goal_.pose.pose.orientation = transform.value().transform.rotation;
-//                navigation_goal_.pose.pose.position.x = transform.value().transform.translation.x;
-//                navigation_goal_.pose.pose.position.y = transform.value().transform.translation.y;
-//                navigation_goal_.pose.pose.position.z = transform.value().transform.translation.z;
-//            } else {
-//                RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=")+"shr_domain_MoveToLandmark"+"moving to land mark failed!"), "user...");
-//                return BT::NodeStatus::FAILURE;
-//            }
-//
-//            RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=")+"shr_domain_MoveToLandmark"+"moving to land mark succeed!"), "user...");
-            shr_msgs::action::WaypointRequest ::Goal waypoint_goal_;
-            waypoint_goal_.from_location = action.parameters[1].name;
-            waypoint_goal_.to_location = action.parameters[2].name;
+            nav2_msgs::action::NavigateToPose::Goal navigation_goal_;
+            navigation_goal_.pose.header.frame_id = "map";
+            navigation_goal_.pose.header.stamp = ps.world_state_converter->now();
+            if (auto transform = ps.world_state_converter->get_tf("map", location)) {
+                navigation_goal_.pose.pose.orientation = transform.value().transform.rotation;
+                navigation_goal_.pose.pose.position.x = transform.value().transform.translation.x;
+                navigation_goal_.pose.pose.position.y = transform.value().transform.translation.y;
+                navigation_goal_.pose.pose.position.z = transform.value().transform.translation.z;
+            } else {
+                RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=")+"shr_domain_MoveToLandmark"+"moving to land mark failed!"), "user...");
+                return BT::NodeStatus::FAILURE;
+            }
 
-            return send_goal_blocking(waypoint_goal_, action) ? BT::NodeStatus::SUCCESS : BT::NodeStatus::FAILURE;
+            RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=")+"shr_domain_MoveToLandmark"+"moving to land mark succeed!"), "user...");
+
+            return send_goal_blocking(navigation_goal_, action) ? BT::NodeStatus::SUCCESS : BT::NodeStatus::FAILURE;
+
+        //    RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=")+"shr_domain_MoveToLandmark"+"moving to land mark succeed!"), "user...");
+        //     shr_msgs::action::WaypointRequest ::Goal waypoint_goal_;
+        //     waypoint_goal_.from_location = action.parameters[1].name;
+        //     waypoint_goal_.to_location = action.parameters[2].name;
+
+           // return send_goal_blocking(navigation_goal_, action) ? BT::NodeStatus::SUCCESS : BT::NodeStatus::FAILURE;
         }
 
         BT::NodeStatus shr_domain_GiveReminder(const InstantiatedAction &action) override {

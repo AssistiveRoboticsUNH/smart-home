@@ -295,17 +295,17 @@ int main(int argc, char **argv) {
         while (!ps.call_client_->wait_for_action_server(std::chrono::seconds(5))) {
             RCLCPP_INFO(rclcpp::get_logger("planning_controller"), "Waiting for /make_call action server...");
         }
-//        ps.nav_client_ = rclcpp_action::create_client<nav2_msgs::action::NavigateToPose>(
-//                world_state_converter, "navigate_to_pose");
-//        while (!ps.nav_client_->wait_for_action_server(std::chrono::seconds(5))) {
-//            RCLCPP_INFO(rclcpp::get_logger("planning_controller"), "Waiting for /navigate_to_pose action server...");
-//        }
+       ps.nav_client_ = rclcpp_action::create_client<nav2_msgs::action::NavigateToPose>(
+               world_state_converter, "navigate_to_pose");
+       while (!ps.nav_client_->wait_for_action_server(std::chrono::seconds(5))) {
+           RCLCPP_INFO(rclcpp::get_logger("planning_controller"), "Waiting for /navigate_to_pose action server...");
+       }
 
-        ps.waypoint_action_client_ = rclcpp_action::create_client<shr_msgs::action::WaypointRequest> (
-                world_state_converter, "waypoint_request");
-        while (!ps.waypoint_action_client_->wait_for_action_server(std::chrono::seconds(5))) {
-            RCLCPP_INFO(rclcpp::get_logger("planning_controller"), "Waiting for /waypoint action server...");
-        }
+        // ps.waypoint_action_client_ = rclcpp_action::create_client<shr_msgs::action::WaypointRequest> (
+        //         world_state_converter, "waypoint_request");
+        // while (!ps.waypoint_action_client_->wait_for_action_server(std::chrono::seconds(5))) {
+        //     RCLCPP_INFO(rclcpp::get_logger("planning_controller"), "Waiting for /waypoint action server...");
+        // }
 
         ps.read_action_client_ = rclcpp_action::create_client<shr_msgs::action::ReadScriptRequest>(
                 world_state_converter, "read_script");

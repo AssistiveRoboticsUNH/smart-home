@@ -73,6 +73,6 @@ def generate_launch_description():
     #ld.add_action(send_text_node_cmd)
     ld.add_action(localize_cmd)
     ld.add_action(undock_cmd)
-    ld.add_action(waypoint_cmd)
+    #ld.add_action(waypoint_cmd)
 
     return ld
