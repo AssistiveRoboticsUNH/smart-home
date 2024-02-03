@@ -30,7 +30,7 @@ class shr_parameters:
             instances = __Instances()
             class __Foodprotocols:
                 instances = ["breakfast", "lunch", "dinner"]
-                eat_times = ["7h0m0s/8h0m0s", "18h00m0s/19h0m0s", "14h30m0s/15h30m0s"]
+                eat_times = ["7h0m0s/8h0m0s", "14h30m0s/16h00m0s", "18h00m0s/19h0m0s"]
                 eat_locations = ["kitchen", "kitchen", "kitchen"]
                 check_guide_to_succeeded_times = ["0h1m0s", "0h1m0s", "0h1m0s"]
                 remind_automated_food_at_times = ["0h10m0s", "0h10m0s", "0h10m0s"]
@@ -64,6 +64,7 @@ class shr_parameters:
 
     class ParamListener:
         def __init__(self, node, prefix=""):
+            node.declare_parameter('my_parameter', 'world')
             self.prefix_ = prefix
             self.params_ = shr_parameters.Params()
             self.node_ = node

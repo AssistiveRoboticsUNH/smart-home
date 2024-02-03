@@ -24,7 +24,7 @@ shr_parameters:
       }
       eat_times: {
         type: string_array,
-        default_value: [ "7h0m0s/8h0m0s",  "18h00m0s/19h0m0s", "14h30m0s/18h30m0s" ],
+        default_value: [ "7h0m0s/8h0m0s", "14h30m0s/16h00m0s",  "18h00m0s/19h0m0s" ],
         description: "time that each protocol is triggered",
       }
       eat_locations: {

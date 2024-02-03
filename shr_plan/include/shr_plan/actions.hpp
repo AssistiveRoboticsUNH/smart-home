@@ -102,6 +102,10 @@ namespace pddl_lib {
                                                       }},
                 {{"daily_med",  "MedicineProtocol"},  {{"recorded_msg", "medicine_reminder.mp3"},
                                                       }},
+                {{"breakfast",     "FoodProtocol"},      {{"recorded_msg", "food_reminder.mp3"},
+                                                      }},
+                {{"lunch",     "FoodProtocol"},      {{"recorded_msg", "food_reminder.mp3"},
+                                                      }},
                 {{"dinner",     "FoodProtocol"},      {{"recorded_msg", "food_reminder.mp3"},
                                                       }}
         };
@@ -264,30 +268,6 @@ namespace pddl_lib {
        }
        return *success;
    }
-
-
-
-    // int send_goal_blocking(const nav2_msgs::action::NavigateToPose::Goal &goal, const InstantiatedAction &action) {
-
-    //     auto [ps, lock] = ProtocolState::getConcurrentInstance();
-    //     auto &kb = KnowledgeBase::getInstance();
-    //     auto success = std::make_shared<std::atomic<int>>(-1);
-    //     auto send_goal_options = rclcpp_action::Client<nav2_msgs::action::NavigateToPose>::SendGoalOptions();
-    //     send_goal_options.result_callback = [&success](
-    //             const rclcpp_action::ClientGoalHandle<nav2_msgs::action::NavigateToPose>::WrappedResult result) {
-    //         *success = result.code == rclcpp_action::ResultCode::SUCCEEDED;
-    //     };
-    //     ps.nav_client_->async_send_goal(goal, send_goal_options);
-    //     auto tmp = ps.active_protocol;
-    //     while (*success == -1) {
-    //         if (!(tmp == ps.active_protocol)) {
-    //             ps.nav_client_->async_cancel_all_goals();
-    //             return false;
-    //         }
-    //         rclcpp::sleep_for(std::chrono::seconds(1));
-    //     }
-    //     return *success;
-    // }
 
     // int send_goal_blocking(const shr_msgs::action::WaypointRequest::Goal &goal, const InstantiatedAction &action) {
     //     auto [ps, lock] = ProtocolState::getConcurrentInstance();
@@ -567,7 +547,6 @@ namespace pddl_lib {
                 //     }
                 //     std::cout << "success navigation : " << std::endl;
                 // }
-
 
                std::cout << "dock " << std::endl;
 
