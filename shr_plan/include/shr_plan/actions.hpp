@@ -582,10 +582,11 @@ namespace pddl_lib {
 //               std::cout << "success: " << std::endl;
 
 
+
                // // sleep for 60 seconds to deal with the delay from //charging topic
                std::cout << " waiting  " << std::endl;
-               rclcpp::sleep_for(std::chrono::seconds(5));
-               rclcpp::sleep_for(std::chrono::seconds(5));
+               rclcpp::sleep_for(std::chrono::seconds(10));
+
                std::cout << "High level ending " << std::endl;
 
             }
