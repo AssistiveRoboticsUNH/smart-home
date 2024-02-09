@@ -312,24 +312,24 @@ int main(int argc, char **argv) {
         while (!ps.read_action_client_->wait_for_action_server(std::chrono::seconds(5))) {
             RCLCPP_INFO(rclcpp::get_logger("planning_controller"), "Waiting for /read_script action server...");
         }
-        ps.video_action_client_ = rclcpp_action::create_client<shr_msgs::action::PlayVideoRequest>(
-                world_state_converter, "play_video");
-        while (!ps.read_action_client_->wait_for_action_server(std::chrono::seconds(5))) {
-            RCLCPP_INFO(rclcpp::get_logger("planning_controller"), "Waiting for /play_video action server...");
+        ps.audio_action_client_ = rclcpp_action::create_client<shr_msgs::action::PlayAudioRequest>(
+                world_state_converter, "play_audio");
+        while (!ps.audio_action_client_->wait_for_action_server(std::chrono::seconds(5))) {
+            RCLCPP_INFO(rclcpp::get_logger("planning_controller"), "Waiting for /play_audio action server...");
         }
         ps.docking_ = rclcpp_action::create_client<shr_msgs::action::DockingRequest>(
                 world_state_converter, "docking");
-        while (!ps.read_action_client_->wait_for_action_server(std::chrono::seconds(5))) {
+        while (!ps.docking_->wait_for_action_server(std::chrono::seconds(5))) {
             RCLCPP_INFO(rclcpp::get_logger("planning_controller"), "Waiting for /docking action server...");
         }
         ps.undocking_ = rclcpp_action::create_client<shr_msgs::action::DockingRequest>(
                 world_state_converter, "undocking");
-        while (!ps.read_action_client_->wait_for_action_server(std::chrono::seconds(5))) {
+        while (!ps.undocking_->wait_for_action_server(std::chrono::seconds(5))) {
             RCLCPP_INFO(rclcpp::get_logger("planning_controller"), "Waiting for /undocking action server...");
         }
         ps.localize_ = rclcpp_action::create_client<shr_msgs::action::LocalizeRequest>(
                 world_state_converter, "localize");
-        while (!ps.read_action_client_->wait_for_action_server(std::chrono::seconds(5))) {
+        while (!ps.localize_->wait_for_action_server(std::chrono::seconds(5))) {
             RCLCPP_INFO(rclcpp::get_logger("planning_controller"), "Waiting for /localize action server...");
         }
     }

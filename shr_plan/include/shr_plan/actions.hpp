@@ -6,7 +6,7 @@
 #include "shr_msgs/action/docking_request.hpp"
 #include "nav2_msgs/action/navigate_to_pose.hpp"
 #include "shr_msgs/action/read_script_request.hpp"
-#include "shr_msgs/action/play_video_request.hpp"
+#include "shr_msgs/action/play_audio_request.hpp"
 #include "shr_msgs/action/docking_request.hpp"
 #include "shr_msgs/action/localize_request.hpp"
 #include "shr_msgs/action/waypoint_request.hpp"
@@ -117,7 +117,7 @@ namespace pddl_lib {
         rclcpp_action::Client<shr_msgs::action::DockingRequest>::SharedPtr undocking_ = {};
         rclcpp_action::Client<shr_msgs::action::ReadScriptRequest>::SharedPtr read_action_client_ = {};
         rclcpp_action::Client<shr_msgs::action::LocalizeRequest>::SharedPtr localize_ = {};
-        rclcpp_action::Client<shr_msgs::action::PlayVideoRequest>::SharedPtr video_action_client_ = {};
+        rclcpp_action::Client<shr_msgs::action::PlayAudioRequest>::SharedPtr audio_action_client_ = {};
         rclcpp_action::Client<shr_msgs::action::WaypointRequest>::SharedPtr waypoint_action_client_ = {};
 
         static InstantiatedParameter getActiveProtocol() {
@@ -398,23 +398,42 @@ namespace pddl_lib {
         return *success;
     }
 
-    int send_goal_blocking(const shr_msgs::action::PlayVideoRequest::Goal &goal, const InstantiatedAction &action) {
+    int send_goal_blocking(const shr_msgs::action::PlayAudioRequest::Goal &goal, const InstantiatedAction &action) {
         auto [ps, lock] = ProtocolState::getConcurrentInstance();
         auto &kb = KnowledgeBase::getInstance();
         auto success = std::make_shared<std::atomic<int>>(-1);
-        auto send_goal_options = rclcpp_action::Client<shr_msgs::action::PlayVideoRequest>::SendGoalOptions();
+        auto send_goal_options = rclcpp_action::Client<shr_msgs::action::PlayAudioRequest>::SendGoalOptions();
         send_goal_options.result_callback = [&success](
-                const rclcpp_action::ClientGoalHandle<shr_msgs::action::PlayVideoRequest>::WrappedResult result) {
+                const rclcpp_action::ClientGoalHandle<shr_msgs::action::PlayAudioRequest>::WrappedResult result) {
             *success = result.code == rclcpp_action::ResultCode::SUCCEEDED;
         };
-        ps.video_action_client_->async_send_goal(goal, send_goal_options);
+        ps.audio_action_client_->async_send_goal(goal, send_goal_options);
         auto tmp = ps.active_protocol;
-        while (*success == -1) {
+
+//        while (*success == -1) {
+//            if (!(tmp == ps.active_protocol)) {
+//                ps.video_action_client_->async_cancel_all_goals();
+//                return false;
+//            }
+//            rclcpp::sleep_for(std::chrono::seconds(1));
+//        }
+        int count = 0;
+        int count_max = 50;
+
+        while (*success == -1 && count_max > count) {
             if (!(tmp == ps.active_protocol)) {
-                ps.video_action_client_->async_cancel_all_goals();
+                ps.audio_action_client_->async_cancel_all_goals();
                 return false;
             }
+            count++;
             rclcpp::sleep_for(std::chrono::seconds(1));
+            if (count_max - 1 == count) {
+                RCLCPP_INFO(rclcpp::get_logger(
+                        std::string("weblog=") + " Recorded failed for exceed time."), "user...");
+                ps.audio_action_client_->async_cancel_all_goals();
+                std::cout << " Recorded failed for exceed time  " << std::endl;
+                return false;
+            }
         }
         return *success;
     }
@@ -486,7 +505,7 @@ namespace pddl_lib {
                 auto robot_resource = ps.claimRobot();
                 ps.call_client_->async_cancel_all_goals();
                 ps.read_action_client_->async_cancel_all_goals();
-                ps.video_action_client_->async_cancel_all_goals();
+                ps.audio_action_client_->async_cancel_all_goals();
                 ps.undocking_->async_cancel_all_goals();
                 ps.docking_->async_cancel_all_goals();
                 ps.localize_->async_cancel_all_goals();
@@ -501,13 +520,13 @@ namespace pddl_lib {
                shr_msgs::action::LocalizeRequest::Goal goal_msg_loc;
                goal_msg_loc.force_localize = true;
 
-
-               auto status_loc = send_goal_blocking(goal_msg_loc, action);
-               std::cout << "status: " << status_loc << std::endl;
-               if (!status_loc) {
-                   std::cout << "Fail: " << std::endl;
-                   return BT::NodeStatus::FAILURE;
-               }
+//
+//               auto status_loc = send_goal_blocking(goal_msg_loc, action);
+//               std::cout << "status: " << status_loc << std::endl;
+//               if (!status_loc) {
+//                   std::cout << "Fail: " << std::endl;
+//                   return BT::NodeStatus::FAILURE;
+//               }
 
 
                 RCLCPP_INFO(
@@ -548,24 +567,25 @@ namespace pddl_lib {
                 //     std::cout << "success navigation : " << std::endl;
                 // }
 
-               std::cout << "dock " << std::endl;
-
-               shr_msgs::action::DockingRequest::Goal goal_msg_dock;
-               RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=") + "high_level_domain_Idle" + "docking started"),
-                           "user...");
-
-               auto status_dock = send_goal_blocking(goal_msg_dock, action);
-               std::cout << "status: " << status_dock << std::endl;
-               if (!status_dock) {
-                   std::cout << "Fail: " << std::endl;
-                   return BT::NodeStatus::FAILURE;
-               }
-               std::cout << "success: " << std::endl;
+//               std::cout << "dock " << std::endl;
+//
+//               shr_msgs::action::DockingRequest::Goal goal_msg_dock;
+//               RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=") + "high_level_domain_Idle" + "docking started"),
+//                           "user...");
+//
+//               auto status_dock = send_goal_blocking(goal_msg_dock, action);
+//               std::cout << "status: " << status_dock << std::endl;
+//               if (!status_dock) {
+//                   std::cout << "Fail: " << std::endl;
+//                   return BT::NodeStatus::FAILURE;
+//               }
+//               std::cout << "success: " << std::endl;
 
 
                // // sleep for 60 seconds to deal with the delay from //charging topic
                std::cout << " waiting  " << std::endl;
-               rclcpp::sleep_for(std::chrono::seconds(30));
+               rclcpp::sleep_for(std::chrono::seconds(5));
+               rclcpp::sleep_for(std::chrono::seconds(5));
                std::cout << "High level ending " << std::endl;
 
             }
@@ -830,11 +850,11 @@ namespace pddl_lib {
 
                 ret = send_goal_blocking(read_goal_, action) ? BT::NodeStatus::SUCCESS : BT::NodeStatus::FAILURE;
             } else {
-                shr_msgs::action::PlayVideoRequest::Goal video_goal_;
-                video_goal_.file_name = ps.recorded_reminder_msgs.at(ps.active_protocol).at(msg);
-                script_name_str = std::string(video_goal_.file_name.begin(), video_goal_.file_name.end());
+                shr_msgs::action::PlayAudioRequest::Goal audio_goal_;
+                audio_goal_.file_name = ps.recorded_reminder_msgs.at(ps.active_protocol).at(msg);
+                script_name_str = std::string(audio_goal_.file_name.begin(), audio_goal_.file_name.end());
 
-                ret = send_goal_blocking(video_goal_, action) ? BT::NodeStatus::SUCCESS : BT::NodeStatus::FAILURE;
+                ret = send_goal_blocking(audio_goal_, action) ? BT::NodeStatus::SUCCESS : BT::NodeStatus::FAILURE;
             }
             if (ret == BT::NodeStatus::SUCCESS) {
                 RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=")+"shr_domain_GiveReminder"+script_name_str+"succeed!"), "user...");
