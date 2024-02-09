@@ -102,6 +102,10 @@ namespace pddl_lib {
                                                       }},
                 {{"daily_med",  "MedicineProtocol"},  {{"recorded_msg", "medicine_reminder.mp3"},
                                                       }},
+                {{"breakfast",     "FoodProtocol"},      {{"recorded_msg", "food_reminder.mp3"},
+                                                      }},
+                {{"lunch",     "FoodProtocol"},      {{"recorded_msg", "food_reminder.mp3"},
+                                                      }},
                 {{"dinner",     "FoodProtocol"},      {{"recorded_msg", "food_reminder.mp3"},
                                                       }}
         };
@@ -264,30 +268,6 @@ namespace pddl_lib {
        }
        return *success;
    }
-
-
-
-    // int send_goal_blocking(const nav2_msgs::action::NavigateToPose::Goal &goal, const InstantiatedAction &action) {
-
-    //     auto [ps, lock] = ProtocolState::getConcurrentInstance();
-    //     auto &kb = KnowledgeBase::getInstance();
-    //     auto success = std::make_shared<std::atomic<int>>(-1);
-    //     auto send_goal_options = rclcpp_action::Client<nav2_msgs::action::NavigateToPose>::SendGoalOptions();
-    //     send_goal_options.result_callback = [&success](
-    //             const rclcpp_action::ClientGoalHandle<nav2_msgs::action::NavigateToPose>::WrappedResult result) {
-    //         *success = result.code == rclcpp_action::ResultCode::SUCCEEDED;
-    //     };
-    //     ps.nav_client_->async_send_goal(goal, send_goal_options);
-    //     auto tmp = ps.active_protocol;
-    //     while (*success == -1) {
-    //         if (!(tmp == ps.active_protocol)) {
-    //             ps.nav_client_->async_cancel_all_goals();
-    //             return false;
-    //         }
-    //         rclcpp::sleep_for(std::chrono::seconds(1));
-    //     }
-    //     return *success;
-    // }
 
     // int send_goal_blocking(const shr_msgs::action::WaypointRequest::Goal &goal, const InstantiatedAction &action) {
     //     auto [ps, lock] = ProtocolState::getConcurrentInstance();
@@ -568,25 +548,24 @@ namespace pddl_lib {
                 //     std::cout << "success navigation : " << std::endl;
                 // }
 
-
                std::cout << "dock " << std::endl;
 
-               shr_msgs::action::DockingRequest::Goal goal_msg_dock;
-               RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=") + "high_level_domain_Idle" + "docking started"),
-                           "user...");
+            //    shr_msgs::action::DockingRequest::Goal goal_msg_dock;
+            //    RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=") + "high_level_domain_Idle" + "docking started"),
+            //                "user...");
 
-               auto status_dock = send_goal_blocking(goal_msg_dock, action);
-               std::cout << "status: " << status_dock << std::endl;
-               if (!status_dock) {
-                   std::cout << "Fail: " << std::endl;
-                   return BT::NodeStatus::FAILURE;
-               }
-               std::cout << "success: " << std::endl;
+            //    auto status_dock = send_goal_blocking(goal_msg_dock, action);
+            //    std::cout << "status: " << status_dock << std::endl;
+            //    if (!status_dock) {
+            //        std::cout << "Fail: " << std::endl;
+            //        return BT::NodeStatus::FAILURE;
+            //    }
+            //    std::cout << "success: " << std::endl;
 
 
                // // sleep for 60 seconds to deal with the delay from //charging topic
                std::cout << " waiting  " << std::endl;
-               rclcpp::sleep_for(std::chrono::seconds(30));
+               rclcpp::sleep_for(std::chrono::seconds(5));
                std::cout << "High level ending " << std::endl;
 
             }
