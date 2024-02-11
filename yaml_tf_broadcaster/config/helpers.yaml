@@ -9,8 +9,8 @@ transformations:
       - 0.879
       - 0.088
       - -0.451
-  - frame_id: zed_doorway_left_camera_frame
-    id: tag_38_zed
+  - frame_id: zed_dining_room_left_camera_frame
+    id: tag_37_zed
     transform:
       - 1.915
       - 1.500
@@ -19,7 +19,16 @@ transformations:
       - 0.199
       - 0.825
       - -0.477
-
+  - frame_id: zed_doorway_left_camera_frame
+    id: tag_38_zed
+    transform:
+      - 1.703
+      - -0.802
+      - 0.533
+      - -0.266
+      - 0.080
+      - 0.782
+      - 0.558
   - frame_id: zed_kitchen_left_camera_frame
     id: tag_44_zed
     transform:
