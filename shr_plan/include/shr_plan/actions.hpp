@@ -520,13 +520,13 @@ namespace pddl_lib {
                shr_msgs::action::LocalizeRequest::Goal goal_msg_loc;
                goal_msg_loc.force_localize = true;
 
-//
-//               auto status_loc = send_goal_blocking(goal_msg_loc, action);
-//               std::cout << "status: " << status_loc << std::endl;
-//               if (!status_loc) {
-//                   std::cout << "Fail: " << std::endl;
-//                   return BT::NodeStatus::FAILURE;
-//               }
+
+              auto status_loc = send_goal_blocking(goal_msg_loc, action);
+              std::cout << "status: " << status_loc << std::endl;
+              if (!status_loc) {
+                  std::cout << "Fail: " << std::endl;
+                  return BT::NodeStatus::FAILURE;
+              }
 
 
                 RCLCPP_INFO(
