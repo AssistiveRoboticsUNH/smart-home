@@ -39,3 +39,14 @@ transformations:
       - -0.150
       - -0.754
       - 0.615
+#  ros2 run tf2_ros tf2_echo unity zed_cam__
+  - frame_id: unity
+    id: zed_doorway_cam
+    transform:
+      - -3.376
+      - 0.489
+      - 0.680
+      - -0.006
+      - 0.043
+      - 0.168
+      - 0.985
