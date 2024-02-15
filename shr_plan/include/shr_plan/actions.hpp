@@ -31,6 +31,7 @@ namespace pddl_lib {
                                                               {"guide_2_msg",  {0,  10}},
                                                               {"automated_msg",              {0, 0}},
                                                               {"recorded_msg",       {10, 0}},
+                                                              {"extra_msg",       {10, 0}},
                                                               {"call_caregiver_guide_msg", {30, 0}},
                                                               {"call_caregiver_msg", {30, 0}},
                                                       }},
@@ -82,6 +83,7 @@ namespace pddl_lib {
                 {{"daily_med",  "MedicineProtocol"},  {{"guide_1_msg",   "medicine_follow_me.txt"},
                                                               {"guide_2_msg", "medicine_follow_me.txt"},
                                                               {"automated_msg", "medicine_reminder.txt"},
+                                                              {"extra_msg",   "medicine_reminder_extra.txt"},
                                                       }},
                 {{"dinner",     "FoodProtocol"},      {{"guide_1_msg",   "food_follow_me.txt"},
                                                               {"guide_2_msg", "food_follow_me.txt"},
@@ -96,6 +98,11 @@ namespace pddl_lib {
                                                               {"automated_msg", "food_reminder.txt"},
                                                       }}
         };
+
+//        const std::unordered_map<InstantiatedParameter, std::unordered_map<std::string, std::string>> extra_reminder_msgs = {
+//                {{"daily_med",  "MedicineProtocol"},  {{"extra_reminder",   "medicine_reminder_extra.txt"},
+//                                                      }},
+//        };
 
         const std::unordered_map<InstantiatedParameter, std::unordered_map<std::string, std::string>> recorded_reminder_msgs = {
                 {{"daily_wand", "WanderingProtocol"}, {{"recorded_msg", "midnight_reminder.mp3"},
@@ -850,7 +857,7 @@ namespace pddl_lib {
                 script_name_str = std::string(read_goal_.script_name.begin(), read_goal_.script_name.end());
 
                 ret = send_goal_blocking(read_goal_, action) ? BT::NodeStatus::SUCCESS : BT::NodeStatus::FAILURE;
-            } else {
+            }else {
                 shr_msgs::action::PlayAudioRequest::Goal audio_goal_;
                 audio_goal_.file_name = ps.recorded_reminder_msgs.at(ps.active_protocol).at(msg);
                 script_name_str = std::string(audio_goal_.file_name.begin(), audio_goal_.file_name.end());
