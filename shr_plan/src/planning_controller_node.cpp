@@ -289,6 +289,7 @@ int main(int argc, char **argv) {
 
     {
         auto [ps, lock] = ProtocolState::getConcurrentInstance();
+        lock.Lock();
         ps.world_state_converter = world_state_converter;
         ps.call_client_ = rclcpp_action::create_client<shr_msgs::action::CallRequest>(
                 world_state_converter, "make_call");
@@ -333,9 +334,6 @@ int main(int argc, char **argv) {
             RCLCPP_INFO(rclcpp::get_logger("planning_controller"), "Waiting for /localize action server...");
         }
     }
-
-    // localize to start navigation and move to home position
-    auto [ps, lock] = ProtocolState::getConcurrentInstance();
 
     instantiate_high_level_problem();
 
