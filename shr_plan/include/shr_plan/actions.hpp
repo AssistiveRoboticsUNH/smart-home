@@ -149,11 +149,14 @@ namespace pddl_lib {
 //                assert(!is_locked);
 //                is_locked = true;
                 is_locked_ = &is_locked;
+                std::cout << " ****** LOCKING getInstance().active_protocol:   " <<  getInstance().active_protocol << std::endl;
+
 
             }
 
             ~LockManager() {
                 mtx_->unlock();
+                std::cout << " $$$$$$$ UNLOCKING getInstance().active_protocol:   " <<  getInstance().active_protocol << std::endl;
                 *is_locked_ = false;
             }
         };
@@ -533,11 +536,12 @@ namespace pddl_lib {
             kb.clear_unknowns();
             kb.insert_predicate({"abort", {}});
 
+
 //            rclcpp::sleep_for(std::chrono::seconds(10));
 
-            if (ProtocolState::IsLocked()) {
-                std::cout << "high level waiting on low level" << std::endl;
-            };
+            if (!ProtocolState::IsLocked()) {
+                std::cout << "high level waiting on low level" << std::endl;};
+
             // CHECKING IF ROBOT IS CHARGING FIRST
             auto [ps, lock] = ProtocolState::getConcurrentInstance();
             lock.Lock();
@@ -558,7 +562,6 @@ namespace pddl_lib {
                 ps.undocking_->async_cancel_all_goals();
                 ps.docking_->async_cancel_all_goals();
                 ps.localize_->async_cancel_all_goals();
-                ps.docking_->async_cancel_all_goals();
 
 
                 std::cout << "localize " << std::endl;
@@ -641,6 +644,8 @@ namespace pddl_lib {
             }
             ps.active_protocol = {};
             return BT::NodeStatus::SUCCESS;
+//            };
+//            return BT::NodeStatus::FAILURE;
         }
 
         void abort(const InstantiatedAction &action) override {
@@ -941,6 +946,7 @@ namespace pddl_lib {
                 script_name_str = std::string(read_goal_.script_name.begin(), read_goal_.script_name.end());
 
                 ret = send_goal_blocking(read_goal_, action, ps) ? BT::NodeStatus::SUCCESS : BT::NodeStatus::FAILURE;
+//                kb.insert_predicate({"abort", {}});
             } else {
                 shr_msgs::action::PlayAudioRequest::Goal audio_goal_;
                 audio_goal_.file_name = ps.recorded_reminder_msgs.at(ps.active_protocol).at(msg);
