@@ -144,12 +144,12 @@ class Docking(Node):
             error_x = (transition_x-0.02)
             modified_error_x = error_x*0.2
             #print("current_error", current_error)
-            #print("x", transition_x)
-            if (error_x>0.00 or (self.proxi is not None and self.proxi > 15.0)):
+            # print("x(Uudsfcsdhfuisahfguoisidfhodsagfviuadsgfvoyuidsahvhdskjfvdsukfjh)", transition_x)
+            if (error_x>0.0 or (self.proxi is not None and self.proxi > 15.0)):
                 
                 current_time = self.get_clock().now()
                 dt = (current_time - self.saved_time).nanoseconds / 1e9
-                pid_output =self.velocity_control(current_error, dt, self.prev_error)
+                pid_output =self.velocity_control(currengitt_error, dt, self.prev_error)
                 pid_output_x = self.velocity_control_X(modified_error_x, dt, self.prev_error_x)
                 self.vel.linear.x = pid_output_x
                 print("pid_output_x", pid_output_x)
