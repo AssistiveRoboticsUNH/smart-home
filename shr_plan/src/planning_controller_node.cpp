@@ -333,6 +333,7 @@ int main(int argc, char **argv) {
         while (!ps.localize_->wait_for_action_server(std::chrono::seconds(5))) {
             RCLCPP_INFO(rclcpp::get_logger("planning_controller"), "Waiting for /localize action server...");
         }
+        lock.UnLock();
     }
 
     instantiate_high_level_problem();

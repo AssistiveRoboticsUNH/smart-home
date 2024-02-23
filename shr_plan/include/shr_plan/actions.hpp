@@ -154,11 +154,16 @@ namespace pddl_lib {
 
             }
 
-            ~LockManager() {
+            void UnLock() {
                 mtx_->unlock();
                 std::cout << " $$$$$$$ UNLOCKING getInstance().active_protocol:   " <<  getInstance().active_protocol << std::endl;
                 *is_locked_ = false;
             }
+//            ~LockManager() {
+//                mtx_->unlock();
+//                std::cout << " $$$$$$$ UNLOCKING getInstance().active_protocol:   " <<  getInstance().active_protocol << std::endl;
+//                *is_locked_ = false;
+//            }
         };
 
         static std::pair<ProtocolState &, LockManager> getConcurrentInstance() {
@@ -486,6 +491,7 @@ namespace pddl_lib {
         auto inst = action.parameters[0];
         auto params = ps.world_state_converter->get_params();
         return get_inst_index(inst, params).value();
+        lock.UnLock();
     }
 
     std::string get_file_content(const std::string &file_name) {
@@ -539,8 +545,8 @@ namespace pddl_lib {
 
 //            rclcpp::sleep_for(std::chrono::seconds(10));
 
-            if (!ProtocolState::IsLocked()) {
-                std::cout << "high level waiting on low level" << std::endl;};
+//            if (!ProtocolState::IsLocked()) {
+//                std::cout << "high level waiting on low level" << std::endl;}
 
             // CHECKING IF ROBOT IS CHARGING FIRST
             auto [ps, lock] = ProtocolState::getConcurrentInstance();
@@ -577,6 +583,7 @@ namespace pddl_lib {
 //               std::cout << "status: " << status_loc << std::endl;
 //               if (!status_loc) {
 //                   std::cout << "Fail: " << std::endl;
+//                   lock.UnLock();
 //                   return BT::NodeStatus::FAILURE;
 //               }
 
@@ -599,6 +606,7 @@ namespace pddl_lib {
                 std::cout << "status: " << status_nav << std::endl;
                 if (!status_nav) {
                     std::cout << "Fail: " << std::endl;
+                    lock.UnLock();
                     return BT::NodeStatus::FAILURE;
                 }
                 std::cout << "success navigation : " << std::endl;
@@ -614,6 +622,7 @@ namespace pddl_lib {
 
                 //     if (!status_nav) {
                 //         std::cout << "Fail: " << std::endl;
+                //         lock.UnLock();
                 //         return BT::NodeStatus::FAILURE;
                 //     }
                 //     std::cout << "success navigation : " << std::endl;
@@ -629,6 +638,7 @@ namespace pddl_lib {
 //               std::cout << "status: " << status_dock << std::endl;
 //               if (!status_dock) {
 //                   std::cout << "Fail: " << std::endl;
+//                   lock.UnLock();
 //                   return BT::NodeStatus::FAILURE;
 //               }
 //               std::cout << "success: " << std::endl;
@@ -643,9 +653,9 @@ namespace pddl_lib {
 
             }
             ps.active_protocol = {};
+            lock.UnLock();
             return BT::NodeStatus::SUCCESS;
-//            };
-//            return BT::NodeStatus::FAILURE;
+
         }
 
         void abort(const InstantiatedAction &action) override {
@@ -673,6 +683,7 @@ namespace pddl_lib {
             auto [ps, lock] = ProtocolState::getConcurrentInstance();
             lock.Lock();
             ps.active_protocol = inst;
+            lock.UnLock();
             return BT::NodeStatus::SUCCESS;
         }
 
@@ -696,7 +707,7 @@ namespace pddl_lib {
             auto [ps, lock] = ProtocolState::getConcurrentInstance();
             lock.Lock();
             ps.active_protocol = protocol;
-
+            lock.UnLock();
             return BT::NodeStatus::SUCCESS;
         }
 
@@ -749,6 +760,7 @@ namespace pddl_lib {
             InstantiatedParameter t1 = {"t1", "Time"};
             InstantiatedAction action_inst = {"MoveToLandmark",
                                               {t1, from, to}};
+            lock.UnLock();
             return shr_domain_MoveToLandmark(action_inst);
         }
 
@@ -773,7 +785,7 @@ namespace pddl_lib {
             auto [ps, lock] = ProtocolState::getConcurrentInstance();
             lock.Lock();
             ps.active_protocol = protocol;
-
+            lock.UnLock();
             return BT::NodeStatus::SUCCESS;
         }
 
@@ -787,6 +799,7 @@ namespace pddl_lib {
             RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=") + "shr_domain_FoodEatenSuccess"), "user...");
             RCLCPP_INFO(rclcpp::get_logger(currentDateTime + std::string("user=") + "Patient finished food!"),
                         "user...");
+            lock.UnLock();
             return BT::NodeStatus::SUCCESS;
         }
 
@@ -810,7 +823,7 @@ namespace pddl_lib {
             RCLCPP_INFO(rclcpp::get_logger(
                     currentDateTime + std::string("user=") + "Message is given for: " + active_protocol.type),
                         "user...");
-
+            lock.UnLock();
             return BT::NodeStatus::SUCCESS;
         }
 
@@ -834,11 +847,14 @@ namespace pddl_lib {
                     "user...");
             RCLCPP_INFO(rclcpp::get_logger(
                     currentDateTime + std::string("user=") + "active protocol" + active_protocol.type), "user...");
+            lock.UnLock();
             return BT::NodeStatus::SUCCESS;
         }
 
         BT::NodeStatus shr_domain_DetectEatingFood(const InstantiatedAction &action) override {
             auto &kb = KnowledgeBase::getInstance();
+            auto [ps, lock] = ProtocolState::getConcurrentInstance();
+            lock.Lock();
             auto t = action.parameters[0];
             std::string currentDateTime = getCurrentDateTime();
             InstantiatedPredicate ate_food = {"person_eating", {t}};
@@ -846,6 +862,7 @@ namespace pddl_lib {
                 RCLCPP_INFO(
                         rclcpp::get_logger(std::string("weblog=") + "shr_domain_DetectEatingFood" + "ate food success"),
                         "user...");
+                lock.UnLock();
                 return BT::NodeStatus::SUCCESS;
             }
             RCLCPP_INFO(
@@ -853,6 +870,7 @@ namespace pddl_lib {
                     "user...");
             RCLCPP_INFO(rclcpp::get_logger(currentDateTime + std::string("user=") + "person is not eating food!"),
                         "user...");
+            lock.UnLock();
             return BT::NodeStatus::FAILURE;
         }
 
@@ -905,12 +923,13 @@ namespace pddl_lib {
                 RCLCPP_INFO(rclcpp::get_logger(
                         std::string("weblog=") + "shr_domain_MoveToLandmark" + "moving to land mark failed!"),
                             "user...");
+                lock.UnLock();
                 return BT::NodeStatus::FAILURE;
             }
 
             RCLCPP_INFO(rclcpp::get_logger(
                     std::string("weblog=") + "shr_domain_MoveToLandmark" + "moving to land mark succeed!"), "user...");
-
+            lock.UnLock();
             return send_goal_blocking(navigation_goal_, action, ps) ? BT::NodeStatus::SUCCESS : BT::NodeStatus::FAILURE;
 
             //    RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=")+"shr_domain_MoveToLandmark"+"moving to land mark succeed!"), "user...");
@@ -927,12 +946,19 @@ namespace pddl_lib {
             auto &kb = KnowledgeBase::getInstance();
             std::string msg = action.parameters[3].name;
             std::string currentDateTime = getCurrentDateTime();
+            if (kb.check_conditions(action.precondtions) == TRUTH_VALUE::FALSE){
+                RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=") + "shr_domain_GiveReminder" + "Abortedd!"),
+                            "user...");
+                lock.UnLock();
+                return BT::NodeStatus::FAILURE;
+            }
             int wait_time = ps.wait_times.at(ps.active_protocol).at(msg).first;
             for (int i = 0; i < wait_time; i++) {
                 if (kb.check_conditions(action.precondtions) == TRUTH_VALUE::FALSE) {
                     abort(action);
                     RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=") + "shr_domain_GiveReminder" + "failed!"),
                                 "user...");
+                    lock.UnLock();
                     return BT::NodeStatus::FAILURE;
                 }
                 rclcpp::sleep_for(std::chrono::seconds(1));
@@ -968,10 +994,9 @@ namespace pddl_lib {
                         currentDateTime + std::string("user=") + "GiveReminder" + script_name_str + "failed!"),
                             "user...");
             }
-
+            lock.UnLock();
             return ret;
         }
-
 
         BT::NodeStatus shr_domain_MakeCall(const InstantiatedAction &action) override {
             auto [ps, lock] = ProtocolState::getConcurrentInstance();
@@ -981,12 +1006,22 @@ namespace pddl_lib {
             auto &kb = KnowledgeBase::getInstance();
             std::string msg = action.parameters[3].name;
             std::string currentDateTime = getCurrentDateTime();
+
+            if (kb.check_conditions(action.precondtions) == TRUTH_VALUE::FALSE){
+                RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=") + "shr_domain_MakeCall" + "Abortedd!"),
+                            "user...");
+                lock.UnLock();
+                return BT::NodeStatus::FAILURE;
+            }
+
             int wait_time = ps.wait_times.at(ps.active_protocol).at(msg).first;
+
             for (int i = 0; i < wait_time; i++) {
                 if (kb.check_conditions(action.precondtions) == TRUTH_VALUE::FALSE) {
                     abort(action);
                     RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=") + "shr_domain_MakeCall" + "failed"),
                                 "user...");
+                    lock.UnLock();
                     return BT::NodeStatus::FAILURE;
                 }
                 rclcpp::sleep_for(std::chrono::seconds(1));
@@ -1012,11 +1047,14 @@ namespace pddl_lib {
                         currentDateTime + std::string("user=") + "shr_domain_MakeCall" + script_name_str + "failed"),
                             "user...");
             }
+            lock.UnLock();
             return ret;
         }
 
         BT::NodeStatus shr_domain_DetectTakingMedicine(const InstantiatedAction &action) override {
             auto &kb = KnowledgeBase::getInstance();
+            auto [ps, lock] = ProtocolState::getConcurrentInstance();
+            lock.Lock();
             auto t = action.parameters[0];
             std::string currentDateTime = getCurrentDateTime();
             InstantiatedPredicate took_medicine = {"person_taking_medicine", {t}};
@@ -1027,12 +1065,14 @@ namespace pddl_lib {
                 RCLCPP_INFO(
                         rclcpp::get_logger(currentDateTime + std::string("user=") + "Taking Medicine" + "succeeded"),
                         "user...");
+                lock.UnLock();
                 return BT::NodeStatus::SUCCESS;
             }
             RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=") + "shr_domain_DetectTakingMedicine" + "failed"),
                         "user...");
             RCLCPP_INFO(rclcpp::get_logger(currentDateTime + std::string("user=") + "Taking Medicine" + "failed"),
                         "user...");
+            lock.UnLock();
             return BT::NodeStatus::FAILURE;
         }
 
@@ -1047,11 +1087,12 @@ namespace pddl_lib {
                         "user...");
                 RCLCPP_INFO(rclcpp::get_logger(
                         currentDateTime + std::string("user=") + "person location detection" + "succeeded"), "user...");
+                lock.UnLock();
                 return BT::NodeStatus::SUCCESS;
             } else {
                 RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=") + "shr_domain_DetectTakingMedicine" + "failed"),
                             "user...");
-
+                lock.UnLock();
                 return BT::NodeStatus::FAILURE;
             }
         }

@@ -25,7 +25,7 @@ repositories:
     version: main
   external/pddl_executor:
     type: git
-    url: https://github.com/pac48/PDDL-Executor.git
+    url: https://github.com/olaghattas/PDDL-Executor.git
     version: main
   external/apriltag:
     type: git
