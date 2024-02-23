@@ -571,7 +571,7 @@ namespace pddl_lib {
                 goal_msg_loc.force_localize = true;
 
 
-                auto status_loc = send_goal_blocking(goal_msg_loc, action);
+                auto status_loc = send_goal_blocking(goal_msg_loc, action, ps);
                 std::cout << "status: " << status_loc << std::endl;
                 if (!status_loc) {
                     std::cout << "Fail: " << std::endl;
@@ -594,7 +594,7 @@ namespace pddl_lib {
                     navigation_goal_.pose.pose.position.y = transform.value().transform.translation.y;
                     navigation_goal_.pose.pose.position.z = transform.value().transform.translation.z;
                 }
-                auto status_nav = send_goal_blocking(navigation_goal_, action);
+                auto status_nav = send_goal_blocking(navigation_goal_, action, ps);
                 std::cout << "status: " << status_nav << std::endl;
                 if (!status_nav) {
                     std::cout << "Fail: " << std::endl;
@@ -625,7 +625,7 @@ namespace pddl_lib {
                 RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=") + "high_level_domain_Idle" + "docking started"),
                             "user...");
 
-                auto status_dock = send_goal_blocking(goal_msg_dock, action);
+                auto status_dock = send_goal_blocking(goal_msg_dock, action, ps);
                 std::cout << "status: " << status_dock << std::endl;
                 if (!status_dock) {
                     std::cout << "Fail: " << std::endl;
@@ -653,7 +653,7 @@ namespace pddl_lib {
             std::string currentDateTime = getCurrentDateTime();
             std::string log_message =
                     std::string("weblog=") + currentDateTime + " aborted" + " higher priority protocol detected";
-            RCLCPP_INFO(ps.world_state_converter->get_logger(), log_message.c_str());
+//            RCLCPP_INFO(ps.world_state_converter->get_logger(), log_message.c_str());
             //RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=")+"aborted"+"higher priority protocol detected"), "user...");
             //RCLCPP_INFO(rclcpp::get_logger(currentDateTime+std::string("user=")+"aborted"+"higher priority protocol detected"), "user...");
             auto &kb = KnowledgeBase::getInstance();
@@ -774,7 +774,6 @@ namespace pddl_lib {
                                                {"dest_loc",    dest.name}});
 
             auto [ps, lock] = ProtocolState::getConcurrentInstance();
-            4
             lock.Lock();
             std::string currentDateTime = getCurrentDateTime();
             std::string log_message =
@@ -941,7 +940,7 @@ namespace pddl_lib {
                                     std::string("weblog=") + "shr_domain_MoveToLandmark" + "moving to land mark succeed!"),
                             "user...");
                 lock.UnLock();
-                return send_goal_blocking(navigation_goal_, action) ? BT::NodeStatus::SUCCESS : BT::NodeStatus::FAILURE;
+                return send_goal_blocking(navigation_goal_, action, ps) ? BT::NodeStatus::SUCCESS : BT::NodeStatus::FAILURE;
             } else {
 
                 int count_max = 30;
@@ -991,7 +990,7 @@ namespace pddl_lib {
                                     std::string("weblog=") + "shr_domain_MoveToLandmark" + "moving to land mark succeed!"),
                             "user...");
                 lock.UnLock();
-                return send_goal_blocking(navigation_goal_, action) ? BT::NodeStatus::SUCCESS : BT::NodeStatus::FAILURE;
+                return send_goal_blocking(navigation_goal_, action, ps) ? BT::NodeStatus::SUCCESS : BT::NodeStatus::FAILURE;
             }
 
             //    RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=")+"shr_domain_MoveToLandmark"+"moving to land mark succeed!"), "user...");
@@ -999,7 +998,7 @@ namespace pddl_lib {
             //     waypoint_goal_.from_location = action.parameters[1].name;
             //     waypoint_goal_.to_location = action.parameters[2].name;
 
-            // return send_goal_blocking(navigation_goal_, action) ? BT::NodeStatus::SUCCESS : BT::NodeStatus::FAILURE;
+            // return send_goal_blocking(navigation_goal_, action, ps) ? BT::NodeStatus::SUCCESS : BT::NodeStatus::FAILURE;
         }
 
         BT::NodeStatus shr_domain_GiveReminder(const InstantiatedAction &action) override {
@@ -1027,13 +1026,13 @@ namespace pddl_lib {
                 read_goal_.script_name = ps.automated_reminder_msgs.at(ps.active_protocol).at(msg);
                 script_name_str = std::string(read_goal_.script_name.begin(), read_goal_.script_name.end());
 
-                ret = send_goal_blocking(read_goal_, action) ? BT::NodeStatus::SUCCESS : BT::NodeStatus::FAILURE;
+                ret = send_goal_blocking(read_goal_, action, ps) ? BT::NodeStatus::SUCCESS : BT::NodeStatus::FAILURE;
             } else {
                 shr_msgs::action::PlayAudioRequest::Goal audio_goal_;
                 audio_goal_.file_name = ps.recorded_reminder_msgs.at(ps.active_protocol).at(msg);
                 script_name_str = std::string(audio_goal_.file_name.begin(), audio_goal_.file_name.end());
 
-                ret = send_goal_blocking(audio_goal_, action) ? BT::NodeStatus::SUCCESS : BT::NodeStatus::FAILURE;
+                ret = send_goal_blocking(audio_goal_, action, ps) ? BT::NodeStatus::SUCCESS : BT::NodeStatus::FAILURE;
             }
             if (ret == BT::NodeStatus::SUCCESS) {
                 // RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=")+"shr_domain_GiveReminder"+script_name_str+"succeed!"), "user...");
@@ -1084,7 +1083,7 @@ namespace pddl_lib {
             call_goal_.script_name = ps.call_msgs.at(ps.active_protocol).at(msg).first;
             std::string script_name_str(call_goal_.script_name.begin(), call_goal_.script_name.end());
             call_goal_.phone_number = ps.call_msgs.at(ps.active_protocol).at(msg).second;
-            auto ret = send_goal_blocking(call_goal_, action) ? BT::NodeStatus::SUCCESS : BT::NodeStatus::FAILURE;
+            auto ret = send_goal_blocking(call_goal_, action, ps) ? BT::NodeStatus::SUCCESS : BT::NodeStatus::FAILURE;
             if (ret == BT::NodeStatus::SUCCESS) {
                 // RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=")+"shr_domain_MakeCall"+script_name_str+"succeed"), "user...");
                 // RCLCPP_INFO(rclcpp::get_logger(currentDateTime+std::string("user=")+"shr_domain_MakeCall"+script_name_str+"succeed"), "user...");
