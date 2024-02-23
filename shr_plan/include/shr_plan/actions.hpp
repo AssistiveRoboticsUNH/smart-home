@@ -144,6 +144,8 @@ namespace pddl_lib {
             void Lock() {
                 mtx_->lock();
                 *is_locked_ = true;
+                std::cout << " ****** LOCKING getInstance().active_protocol:   " << getInstance().active_protocol
+                          << std::endl;
             }
 
             LockManager(std::mutex &mtx, bool &is_locked) {
@@ -152,10 +154,6 @@ namespace pddl_lib {
 //                assert(!is_locked);
 //                is_locked = true;
                 is_locked_ = &is_locked;
-                std::cout << " ****** LOCKING getInstance().active_protocol:   " << getInstance().active_protocol
-                          << std::endl;
-
-
             }
 
             void UnLock() {
@@ -688,7 +686,7 @@ namespace pddl_lib {
             InstantiatedParameter cur = action.parameters[2];
             InstantiatedParameter dest = action.parameters[3];
             if (dest.name == cur.name) {
-                cur.name = "living_room"; // cause we took out couch
+                cur.name = "dining_room"; // cause we took out couch
             }
             instantiate_protocol("medicine.pddl", {{"current_loc", cur.name},
                                                    {"dest_loc",    dest.name}});
@@ -862,6 +860,7 @@ namespace pddl_lib {
                 std::string currentDateTime = getCurrentDateTime();
                 std::string log_message = std::string("weblog=") + currentDateTime + " person is eating food";
                 RCLCPP_INFO(ps.world_state_converter->get_logger(), log_message.c_str());
+                lock.UnLock();
                 return BT::NodeStatus::SUCCESS;
             }
             // RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=")+"shr_domain_DetectEatingFood"+"ate food failure!"), "user...");
