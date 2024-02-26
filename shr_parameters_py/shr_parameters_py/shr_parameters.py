@@ -64,7 +64,6 @@ class shr_parameters:
 
     class ParamListener:
         def __init__(self, node, prefix=""):
-            node.declare_parameter('my_parameter', 'world')
             self.prefix_ = prefix
             self.params_ = shr_parameters.Params()
             self.node_ = node

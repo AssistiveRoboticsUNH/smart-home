@@ -557,7 +557,7 @@ namespace pddl_lib {
                 ps.undocking_->async_cancel_all_goals();
                 ps.docking_->async_cancel_all_goals();
                 ps.localize_->async_cancel_all_goals();
-                ps.docking_->async_cancel_all_goals();
+               
 
 
                 std::cout << "localize " << std::endl;
@@ -573,9 +573,11 @@ namespace pddl_lib {
                 std::cout << "status: " << status_loc << std::endl;
                 if (!status_loc) {
                     std::cout << "Fail: " << std::endl;
+                    ps.localize_->async_cancel_all_goals();
                     lock.UnLock();
                     return BT::NodeStatus::FAILURE;
                 }
+                ps.localize_->async_cancel_all_goals();
 
 
                 RCLCPP_INFO(
@@ -626,10 +628,12 @@ namespace pddl_lib {
                 auto status_dock = send_goal_blocking(goal_msg_dock, action, ps);
                 std::cout << "status: " << status_dock << std::endl;
                 if (!status_dock) {
+                    ps.docking_->async_cancel_all_goals();
                     std::cout << "Fail: " << std::endl;
                     lock.UnLock();
                     return BT::NodeStatus::FAILURE;
                 }
+                ps.docking_->async_cancel_all_goals();
                 std::cout << "success: " << std::endl;
 
 
