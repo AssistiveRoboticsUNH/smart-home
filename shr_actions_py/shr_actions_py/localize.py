@@ -1,5 +1,5 @@
 ﻿import rclpy
-from rclpy.action import ActionServer, GoalResponse
+from rclpy.action import ActionServer, GoalResponse, CancelResponse
 from rclpy.node import Node
 
 from shr_msgs.action import LocalizeRequest
@@ -15,6 +15,7 @@ from rclpy.qos import QoSProfile, ReliabilityPolicy, HistoryPolicy, DurabilityPo
 import tf2_ros
 import tf_transformations as tr
 from apriltag_msgs.msg import AprilTagDetectionArray
+from rclpy.callback_groups import ReentrantCallbackGroup
 
 
 class LocalizationActionServer(Node):
@@ -27,7 +28,9 @@ class LocalizationActionServer(Node):
             LocalizeRequest,
             'localize',
             self.execute_callback,
-            goal_callback=self.goal_callback)  # Add goal_callback
+            callback_group=ReentrantCallbackGroup(),
+            goal_callback=self.goal_callback,
+            cancel_callback=self.cancel_callback)  # Add goal_callback
 
         ## get the pose
         qos_profile = QoSProfile(
@@ -70,6 +73,11 @@ class LocalizationActionServer(Node):
 
         self.get_transform_matrix_aptags_in_world_from_tf()
 
+    def cancel_callback(self, goal_handle):
+        # Your cancellation logic here
+        self.get_logger().info('Goal cancelled')
+        self.goal_cancel = True
+        return CancelResponse.ACCEPT
 
     ##### Localization Part #####
     def publish_tf(self, x, y, z, rot_mat, child_frame_id, frame_id):
