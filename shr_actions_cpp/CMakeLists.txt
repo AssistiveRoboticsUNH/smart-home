@@ -35,11 +35,15 @@ add_executable(find_person_node_sim src/find_person_action.cpp)
 add_compile_definitions(find_person_node_sim USE_SIM)
 ament_target_dependencies(find_person_node_sim ${dependencies})
 
+add_executable(cancel_docking src/docking_client.cpp)
+ament_target_dependencies(cancel_docking ${dependencies})
+
 include_directories(
         include
 )
 
 install(TARGETS
+        cancel_docking
         find_person_node
         find_person_node_sim
         DESTINATION lib/${PROJECT_NAME}
