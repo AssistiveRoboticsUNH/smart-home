@@ -1,5 +1,5 @@
 ﻿import rclpy
-from rclpy.action import ActionServer, GoalResponse
+from rclpy.action import ActionServer, GoalResponse, CancelResponse
 from rclpy.node import Node
 
 from shr_msgs.action import LocalizeRequest
@@ -9,12 +9,14 @@ import numpy as np
 import math
 import time
 from geometry_msgs.msg import Twist, Quaternion, TransformStamped, PoseWithCovarianceStamped
+from sensor_msgs.msg import LaserScan
 import os
 from rclpy.qos import QoSProfile, ReliabilityPolicy, HistoryPolicy, DurabilityPolicy
 
 import tf2_ros
 import tf_transformations as tr
 from apriltag_msgs.msg import AprilTagDetectionArray
+from rclpy.callback_groups import ReentrantCallbackGroup
 
 
 class LocalizationActionServer(Node):
@@ -27,7 +29,16 @@ class LocalizationActionServer(Node):
             LocalizeRequest,
             'localize',
             self.execute_callback,
-            goal_callback=self.goal_callback)  # Add goal_callback
+            goal_callback=self.goal_callback,
+            callback_group=ReentrantCallbackGroup(),
+            cancel_callback=self.cancel_callback)  # Add goal_callback
+
+        self.subscription = self.create_subscription(
+            LaserScan,
+            '/scan',
+            self.scan_callback,
+            10,
+            callback_group=ReentrantCallbackGroup())
 
         ## get the pose
         qos_profile = QoSProfile(
@@ -36,17 +47,54 @@ class LocalizationActionServer(Node):
             history=HistoryPolicy.KEEP_LAST,
             depth=1
         )
-        self.subscriber = self.create_subscription(ParticleCloud, 'particle_cloud', self.particles_callback,
-                                                   qos_profile)
+
 
         # For localization
 
         self.vel_pub = self.create_publisher(Twist, os.getenv("cmd_vel"), 10)
         self.subscriber = self.create_subscription(ParticleCloud, 'particle_cloud', self.particles_callback,
-                                                   qos_profile)
-        self.publisher_initial_pose = self.create_publisher(PoseWithCovarianceStamped, "initialpose", 10)
+                                                   qos_profile, callback_group=ReentrantCallbackGroup())
 
-        # For April tags
+        self.publisher_initial_pose = self.create_publisher(PoseWithCovarianceStamped, "initialpose", 10)
+        ### check covariance: from this cuase this is what it looks like in rviz2
+# - 0.25
+# - 0.0
+# - 0.0
+# - 0.0
+# - 0.0
+# - 0.0
+# - 0.0
+# - 0.25
+# - 0.0
+# - 0.0
+# - 0.0
+# - 0.0
+# - 0.0
+# - 0.0
+# - 0.0
+# - 0.0
+# - 0.0
+# - 0.0
+# - 0.0
+# - 0.0
+# - 0.0
+# - 0.0
+# - 0.0
+# - 0.0
+# - 0.0
+# - 0.0
+# - 0.0
+# - 0.0
+# - 0.0
+# - 0.0
+# - 0.0
+# - 0.0
+# - 0.0
+# - 0.0
+# - 0.0
+# - 0.06853891909122467
+
+# For April tags
         self.subscription = self.create_subscription(AprilTagDetectionArray, '/apriltag_detections',
                                                      self.apriltag_callback, 10)
         self.aptags_detected = False
@@ -69,7 +117,30 @@ class LocalizationActionServer(Node):
         self.aptags_detected_inside_callback = False
 
         self.get_transform_matrix_aptags_in_world_from_tf()
+        # self.min_range = None
+        self.scan = False
+        self.threshold = -0.5 # set based on worst case in robot
 
+    def scan_callback(self, msg):
+        if msg:
+            self.scan = True
+            back_start = int(3.5*(len(msg.ranges)/8)) #0
+            back_end = int(4.5*(len(msg.ranges)/8)-1)
+            self.min_range = min(msg.ranges)
+            ## diff drive so can only go back and front, rotation is a bit of axis
+            self.min_range_back = min(msg.ranges[back_start:back_end])
+            self.min_range_left_quad = min(msg.ranges[int(3*(len(msg.ranges)/4)) : int(4*(len(msg.ranges)/4)) - 1])
+            self.min_range_right_quad = min(msg.ranges[0: int((len(msg.ranges)/4)) -1])
+
+            indices = list(range(int(7*(len(msg.ranges)/8)), len(msg.ranges)-1)) + list(range(0, int((len(msg.ranges)/8)-1)))
+            self.min_range_front = min([msg.ranges[i] for i in indices])
+            # self.min_range_front = min(msg.ranges[back_start:back_start])
+
+    def cancel_callback(self, goal_handle):
+        # Your cancellation logic here
+        self.get_logger().info('Goal cancelled')
+        self.goal_cancel = True
+        return CancelResponse.ACCEPT
 
     ##### Localization Part #####
     def publish_tf(self, x, y, z, rot_mat, child_frame_id, frame_id):
@@ -104,6 +175,7 @@ class LocalizationActionServer(Node):
             if self.get_tf_info:
                 self.transform_aptag_in_cam_dict = {}
                 source_frame = msg.header.frame_id  # to
+                # source_frame = "base_link"  # to
 
                 try:
                     for at in msg.detections:
@@ -260,15 +332,13 @@ class LocalizationActionServer(Node):
 
             t_cam_in_world = np.dot(t_apriltag_to_world, np.linalg.inv(t_apriltag_in_camera))
 
-            transform_cam_to_base_link = np.array([[0.0, 0.0, 1.0, 0.0],
-                                                   [-1.0, 0.0, 0.0, 0.0],
-                                                   [0.0, -1.0, 0.0, 0.0],
+            ## get it from  ros2 run tf2_ros tf2_echo camera_color_optical_frame base_link
+            transform_cam_to_base_link = np.array([[-0.397, -0.062, -0.916,  1.212],
+                                                   [-0.225,  0.974,  0.031, -0.033],
+                                                   [0.890,  0.218, -0.401,  0.492],
                                                    [0.0, 0.0, 0.0, 1.0]])
-            self.publish_tf(transform_cam_to_base_link[0, 3], transform_cam_to_base_link[1, 3],
-                            transform_cam_to_base_link[2, 3], transform_cam_to_base_link[:3, :3],
-                            'camera_color_optical_frame', 'base_link')
 
-            t_robot_in_world = np.dot(t_cam_in_world, transform_cam_to_base_link.T)
+            t_robot_in_world = np.dot(t_cam_in_world, np.linalg.inv(transform_cam_to_base_link))
 
             robot_x = t_robot_in_world[0, 3]
             robot_y = t_robot_in_world[1, 3]
@@ -294,7 +364,6 @@ class LocalizationActionServer(Node):
         start_time = time.time()
         speed = 3.14 / 8.0
         msg = Twist()
-        msg.angular.z = speed
 
         # CHECK IF THERE ARE ANY APRILTAGS
         if not self.aptags_detected:
@@ -302,12 +371,23 @@ class LocalizationActionServer(Node):
             while time.time() - start_time < self.time_out:
                 self.get_logger().info('no aptags detected will start looking for one')
                 # change this to VECTOR FIELD HISTOGRAM exploration
-                # TODO: uncomment
-                self.vel_pub.publish(msg)
+                if self.scan and  self.min_range > self.threshold:
+                    msg.angular.z = speed
+                    self.vel_pub.publish(msg)
+                else:
+                    # stop the robot casue it's not safe
+                    msg.angular.z = 0
+                    # move in the direction with no obstacle
+                    if self.min_range_back > self.threshold: ## clear in the back, move backwards
+                        msg.linear.x = -0.1
+                        self.vel_pub.publish(msg)
+                    elif self.min_range_front > self.threshold:
+                        msg.linear.x = -0.1
+                    # elif   check what's needed here from running at sajay
+                    self.vel_pub.publish(msg)
                 if self.aptags_detected_inside_callback:
                     # STOP
                     msg.angular.z = 0.0
-                    # TODO: uncomment
                     self.vel_pub.publish(msg)
                     # localize
                     self.get_tf_info = True
