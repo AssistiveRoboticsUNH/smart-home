@@ -8,7 +8,7 @@
 #include "shr_msgs/action/read_script_request.hpp"
 #include "shr_msgs/action/play_audio_request.hpp"
 #include "shr_msgs/action/docking_request.hpp"
-#include "shr_msgs/action/localize_request.hpp"
+// #include "shr_msgs/action/localize_request.hpp"
 #include "shr_msgs/action/waypoint_request.hpp"
 #include <shr_plan/world_state_converter.hpp>
 #include "shr_plan/helpers.hpp"
@@ -119,7 +119,7 @@ namespace pddl_lib {
         rclcpp_action::Client<shr_msgs::action::DockingRequest>::SharedPtr docking_ = {};
         rclcpp_action::Client<shr_msgs::action::DockingRequest>::SharedPtr undocking_ = {};
         rclcpp_action::Client<shr_msgs::action::ReadScriptRequest>::SharedPtr read_action_client_ = {};
-        rclcpp_action::Client<shr_msgs::action::LocalizeRequest>::SharedPtr localize_ = {};
+        // rclcpp_action::Client<shr_msgs::action::LocalizeRequest>::SharedPtr localize_ = {};
         rclcpp_action::Client<shr_msgs::action::PlayAudioRequest>::SharedPtr audio_action_client_ = {};
         rclcpp_action::Client<shr_msgs::action::WaypointRequest>::SharedPtr waypoint_action_client_ = {};
 
@@ -331,48 +331,48 @@ namespace pddl_lib {
     // }
 
 
-    int send_goal_blocking(const shr_msgs::action::LocalizeRequest::Goal &goal, const InstantiatedAction &action,
-                           ProtocolState &ps) {
+    // int send_goal_blocking(const shr_msgs::action::LocalizeRequest::Goal &goal, const InstantiatedAction &action,
+    //                        ProtocolState &ps) {
 
-        auto &kb = KnowledgeBase::getInstance();
-        auto success = std::make_shared < std::atomic < int >> (-1);
-        auto send_goal_options = rclcpp_action::Client<shr_msgs::action::LocalizeRequest>::SendGoalOptions();
-        send_goal_options.result_callback = [&success](
-                const rclcpp_action::ClientGoalHandle<shr_msgs::action::LocalizeRequest>::WrappedResult result) {
-            if (result.code == rclcpp_action::ResultCode::SUCCEEDED) {
-                *success = 1;
-                RCLCPP_INFO(rclcpp::get_logger(
-                        std::string("weblog=") + " Localize goal Succeeded."), "user...");
-            } else {
-                *success = 0;
-                RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=") + " Localize goal aborted."), "user...");
-                std::cout << "Localize goal aborted." << std::endl;
-            }
-        };
-        ps.localize_->async_send_goal(goal, send_goal_options);
-        auto tmp = ps.active_protocol;
+    //     auto &kb = KnowledgeBase::getInstance();
+    //     auto success = std::make_shared < std::atomic < int >> (-1);
+    //     auto send_goal_options = rclcpp_action::Client<shr_msgs::action::LocalizeRequest>::SendGoalOptions();
+    //     send_goal_options.result_callback = [&success](
+    //             const rclcpp_action::ClientGoalHandle<shr_msgs::action::LocalizeRequest>::WrappedResult result) {
+    //         if (result.code == rclcpp_action::ResultCode::SUCCEEDED) {
+    //             *success = 1;
+    //             RCLCPP_INFO(rclcpp::get_logger(
+    //                     std::string("weblog=") + " Localize goal Succeeded."), "user...");
+    //         } else {
+    //             *success = 0;
+    //             RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=") + " Localize goal aborted."), "user...");
+    //             std::cout << "Localize goal aborted." << std::endl;
+    //         }
+    //     };
+    //     ps.localize_->async_send_goal(goal, send_goal_options);
+    //     auto tmp = ps.active_protocol;
 
-        // prevent long navigation time
-        int count = 0;
-        int count_max = 50;
+    //     // prevent long navigation time
+    //     int count = 0;
+    //     int count_max = 50;
 
-        while (*success == -1 && count_max > count) {
-            if (!(tmp == ps.active_protocol)) {
-                ps.localize_->async_cancel_all_goals();
-                return false;
-            }
-            count++;
-            rclcpp::sleep_for(std::chrono::seconds(1));
-            if (count_max - 1 == count) {
-                RCLCPP_INFO(rclcpp::get_logger(
-                        std::string("weblog=") + " Localize failed for exceed time."), "user...");
-                ps.localize_->async_cancel_all_goals();
-                std::cout << " Localize failed for exceed time  " << std::endl;
-                return false;
-            }
-        }
-        return *success;
-    }
+    //     while (*success == -1 && count_max > count) {
+    //         if (!(tmp == ps.active_protocol)) {
+    //             ps.localize_->async_cancel_all_goals();
+    //             return false;
+    //         }
+    //         count++;
+    //         rclcpp::sleep_for(std::chrono::seconds(1));
+    //         if (count_max - 1 == count) {
+    //             RCLCPP_INFO(rclcpp::get_logger(
+    //                     std::string("weblog=") + " Localize failed for exceed time."), "user...");
+    //             ps.localize_->async_cancel_all_goals();
+    //             std::cout << " Localize failed for exceed time  " << std::endl;
+    //             return false;
+    //         }
+    //     }
+    //     return *success;
+    // }
 
     int send_goal_blocking(const shr_msgs::action::DockingRequest::Goal &goal, const InstantiatedAction &action,
                            ProtocolState &ps) {
@@ -397,7 +397,7 @@ namespace pddl_lib {
 
         // prevent long navigation time
         int count = 0;
-        int count_max = 50;
+        int count_max = 150;
 
         while (*success == -1 && count_max > count) {
             if (!(tmp == ps.active_protocol)) {
@@ -556,28 +556,27 @@ namespace pddl_lib {
                 ps.audio_action_client_->async_cancel_all_goals();
                 ps.undocking_->async_cancel_all_goals();
                 ps.docking_->async_cancel_all_goals();
-                ps.localize_->async_cancel_all_goals();
-               
+                // ps.localize_->async_cancel_all_goals();
+            
+
+                // std::cout << "localize " << std::endl;
+                // RCLCPP_INFO(
+                //         rclcpp::get_logger(std::string("weblog=") + "high_level_domain_Idle" + "localizing started"),
+                //         "user...");
+
+                // shr_msgs::action::LocalizeRequest::Goal goal_msg_loc;
+                // goal_msg_loc.force_localize = false;
 
 
-                std::cout << "localize " << std::endl;
-                RCLCPP_INFO(
-                        rclcpp::get_logger(std::string("weblog=") + "high_level_domain_Idle" + "localizing started"),
-                        "user...");
-
-                shr_msgs::action::LocalizeRequest::Goal goal_msg_loc;
-                goal_msg_loc.force_localize = true;
-
-
-                auto status_loc = send_goal_blocking(goal_msg_loc, action, ps);
-                std::cout << "status: " << status_loc << std::endl;
-                if (!status_loc) {
-                    std::cout << "Fail: " << std::endl;
-                    ps.localize_->async_cancel_all_goals();
-                    lock.UnLock();
-                    return BT::NodeStatus::FAILURE;
-                }
-                ps.localize_->async_cancel_all_goals();
+                // auto status_loc = send_goal_blocking(goal_msg_loc, action, ps);
+                // std::cout << "status: " << status_loc << std::endl;
+                // if (!status_loc) {
+                //     std::cout << "Fail: " << std::endl;
+                //     ps.localize_->async_cancel_all_goals();
+                //     lock.UnLock();
+                //     return BT::NodeStatus::FAILURE;
+                // }
+                // ps.localize_->async_cancel_all_goals();
 
 
                 RCLCPP_INFO(
@@ -640,7 +639,7 @@ namespace pddl_lib {
 
                 // // sleep for 60 seconds to deal with the delay from //charging topic
                 std::cout << " waiting  " << std::endl;
-                rclcpp::sleep_for(std::chrono::seconds(10));
+                rclcpp::sleep_for(std::chrono::seconds(30));
 
                 std::cout << "High level ending " << std::endl;
 
@@ -944,33 +943,35 @@ namespace pddl_lib {
                             "user...");
                 lock.UnLock();
                 return send_goal_blocking(navigation_goal_, action, ps) ? BT::NodeStatus::SUCCESS : BT::NodeStatus::FAILURE;
-            } else {
+            } 
+            
+            else {
 
-                int count_max = 30;
+            //     int count_max = 30;
 
-                std::cout << "localize " << std::endl;
-                shr_msgs::action::LocalizeRequest::Goal goal_msg_loc;
-                goal_msg_loc.force_localize = false;
+            //     std::cout << "localize " << std::endl;
+            //     shr_msgs::action::LocalizeRequest::Goal goal_msg_loc;
+            //     goal_msg_loc.force_localize = false;
 
-                auto success_loc = std::make_shared < std::atomic < int >> (-1);
-                auto send_goal_options_loc = rclcpp_action::Client<shr_msgs::action::LocalizeRequest>::SendGoalOptions();
-                send_goal_options_loc.result_callback = [&success_loc](
-                        const rclcpp_action::ClientGoalHandle<shr_msgs::action::LocalizeRequest>::WrappedResult result) {
-                    *success_loc = result.code == rclcpp_action::ResultCode::SUCCEEDED;
-                };
+            //     auto success_loc = std::make_shared < std::atomic < int >> (-1);
+            //     auto send_goal_options_loc = rclcpp_action::Client<shr_msgs::action::LocalizeRequest>::SendGoalOptions();
+            //     send_goal_options_loc.result_callback = [&success_loc](
+            //             const rclcpp_action::ClientGoalHandle<shr_msgs::action::LocalizeRequest>::WrappedResult result) {
+            //         *success_loc = result.code == rclcpp_action::ResultCode::SUCCEEDED;
+            //     };
 
-                ps.localize_->async_send_goal(goal_msg_loc, send_goal_options_loc);
-                auto tmp_loc = ps.active_protocol;
+            //     ps.localize_->async_send_goal(goal_msg_loc, send_goal_options_loc);
+            //     auto tmp_loc = ps.active_protocol;
 
-                int count__ = 0;
-                while (*success_loc == -1 && count_max > count__) {
-                    if (!(tmp_loc == ps.active_protocol)) {
-                        ps.localize_->async_cancel_all_goals();
-                        std::cout << " Failed " << std::endl;
-                    }
-                    count__++;
-                    rclcpp::sleep_for(std::chrono::seconds(1));
-                }
+            //     int count__ = 0;
+            //     while (*success_loc == -1 && count_max > count__) {
+            //         if (!(tmp_loc == ps.active_protocol)) {
+            //             ps.localize_->async_cancel_all_goals();
+            //             std::cout << " Failed " << std::endl;
+            //         }
+            //         count__++;
+            //         rclcpp::sleep_for(std::chrono::seconds(1));
+            //     }
 
 
                 nav2_msgs::action::NavigateToPose::Goal navigation_goal_;
@@ -985,7 +986,7 @@ namespace pddl_lib {
                     RCLCPP_INFO(rclcpp::get_logger(
                                         std::string("weblog=") + "shr_domain_MoveToLandmark" + "moving to land mark failed!"),
                                 "user...");
-                    lock.UnLock();
+                   lock.UnLock();
                     return BT::NodeStatus::FAILURE;
                 }
 

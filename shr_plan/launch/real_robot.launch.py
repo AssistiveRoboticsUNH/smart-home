@@ -102,7 +102,7 @@ def generate_launch_description():
 
 # ld.add_action(planner_cmd)
 #     ld.add_action(nav_cmd)
-    # ld.add_action(logger_node)
+    ld.add_action(logger_node)
     # ld.add_action(jackal_navigation)
     # ld.add_action(realsense_cam)
     # ld.add_action(apriltags_realsense_docking)
@@ -111,6 +111,6 @@ def generate_launch_description():
     ld.add_action(tf_broadcast)
     ld.add_action(smartthings_node)
     ld.add_action(smartthings_node_plug)
-    # ld.add_action(protocol_time_node)
+    ld.add_action(protocol_time_node)
 
     return ld

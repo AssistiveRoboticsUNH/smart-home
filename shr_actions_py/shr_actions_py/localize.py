@@ -221,6 +221,7 @@ class LocalizationActionServer(Node):
             self.aptags_detected = False
             self.aptags_detected_inside_callback = False
 
+    
     def get_transform_matrix_aptags_in_world_from_tf(self):
         self.transform_aptag_in_cam_dict = {}
         for aptag in self.used_apriltags:
@@ -239,6 +240,17 @@ class LocalizationActionServer(Node):
                 rotation = tr.quaternion_matrix(
                     [transformation.transform.rotation.x, transformation.transform.rotation.y,
                      transformation.transform.rotation.z, transformation.transform.rotation.w])
+                
+                
+                ### debugging
+                # SAME THING
+                # rotation__ = self.quaternion_rotation_matrix(transformation.transform.rotation)
+                
+
+                # print("tr quat rot", rotation)
+                # print("quat rot",rotation__ )
+                
+                
                 # Get the homogeneous transformation matrix
                 transform_aptag_in_world = np.dot(translation, rotation)
 
@@ -249,35 +261,65 @@ class LocalizationActionServer(Node):
             except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
                 pass
 
-    def rotation_matrix_to_quaternion(self, R):
-        # Convert a 3x3 rotation matrix to a Quaternion
-        trace = np.trace(R)
-        if trace > 0:
-            S = 2.0 * math.sqrt(trace + 1.0)
-            qw = 0.25 * S
-            qx = (R[2, 1] - R[1, 2]) / S
-            qy = (R[0, 2] - R[2, 0]) / S
-            qz = (R[1, 0] - R[0, 1]) / S
-        elif (R[0, 0] > R[1, 1]) and (R[0, 0] > R[2, 2]):
-            S = 2.0 * math.sqrt(1.0 + R[0, 0] - R[1, 1] - R[2, 2])
-            qw = (R[2, 1] - R[1, 2]) / S
-            qx = 0.25 * S
-            qy = (R[0, 1] + R[1, 0]) / S
-            qz = (R[0, 2] + R[2, 0]) / S
-        elif R[1, 1] > R[2, 2]:
-            S = 2.0 * math.sqrt(1.0 + R[1, 1] - R[0, 0] - R[2, 2])
-            qw = (R[0, 2] - R[2, 0]) / S
-            qx = (R[0, 1] + R[1, 0]) / S
-            qy = 0.25 * S
-            qz = (R[1, 2] + R[2, 1]) / S
-        else:
-            S = 2.0 * math.sqrt(1.0 + R[2, 2] - R[0, 0] - R[1, 1])
-            qw = (R[1, 0] - R[0, 1]) / S
-            qx = (R[0, 2] + R[2, 0]) / S
-            qy = (R[1, 2] + R[2, 1]) / S
-            qz = 0.25 * S
+    # def rotation_matrix_to_quaternion(self, R):
+    #     # Convert a 3x3 rotation matrix to a Quaternion
+    #     trace = np.trace(R)
+    #     if trace > 0:
+    #         S = 2.0 * math.sqrt(trace + 1.0)
+    #         qw = 0.25 * S
+    #         qx = (R[2, 1] - R[1, 2]) / S
+    #         qy = (R[0, 2] - R[2, 0]) / S
+    #         qz = (R[1, 0] - R[0, 1]) / S
+    #     elif (R[0, 0] > R[1, 1]) and (R[0, 0] > R[2, 2]):
+    #         S = 2.0 * math.sqrt(1.0 + R[0, 0] - R[1, 1] - R[2, 2])
+    #         qw = (R[2, 1] - R[1, 2]) / S
+    #         qx = 0.25 * S
+    #         qy = (R[0, 1] + R[1, 0]) / S
+    #         qz = (R[0, 2] + R[2, 0]) / S
+    #     elif R[1, 1] > R[2, 2]:
+    #         S = 2.0 * math.sqrt(1.0 + R[1, 1] - R[0, 0] - R[2, 2])
+    #         qw = (R[0, 2] - R[2, 0]) / S
+    #         qx = (R[0, 1] + R[1, 0]) / S
+    #         qy = 0.25 * S
+    #         qz = (R[1, 2] + R[2, 1]) / S
+    #     else:
+    #         S = 2.0 * math.sqrt(1.0 + R[2, 2] - R[0, 0] - R[1, 1])
+    #         qw = (R[1, 0] - R[0, 1]) / S
+    #         qx = (R[0, 2] + R[2, 0]) / S
+    #         qy = (R[1, 2] + R[2, 1]) / S
+    #         qz = 0.25 * S
 
-        return [qx, qy, qz, qw]
+    #     return [qx, qy, qz, qw]
+            
+    def rotation_matrix_to_quaternion(self, R):
+        t = np.matrix.trace(R)
+        q = np.asarray([0.0, 0.0, 0.0, 0.0], dtype=np.float64)
+
+        if (t > 0):
+            t = np.sqrt(t + 1)
+            q[3] = 0.5 * t
+            t = 0.5 / t
+            q[0] = (R[2, 1] - R[1, 2]) * t
+            q[1] = (R[0, 2] - R[2, 0]) * t
+            q[2] = (R[1, 0] - R[0, 1]) * t
+
+        else:
+            i = 0
+            if (R[1, 1] > R[0, 0]):
+                i = 1
+            if (R[2, 2] > R[i, i]):
+                i = 2
+            j = (i + 1) % 3
+            k = (j + 1) % 3
+
+            t = np.sqrt(R[i, i] - R[j, j] - R[k, k] + 1)
+            q[i] = 0.5 * t
+            t = 0.5 / t
+            q[3] = (R[k, j] - R[j, k]) * t
+            q[j] = (R[j, i] + R[i, j]) * t
+            q[k] = (R[k, i] + R[i, k]) * t
+
+        return q
 
     def particles_callback(self, msg):
         max_weight = 0.0  # Initialize with a double value
@@ -340,6 +382,7 @@ class LocalizationActionServer(Node):
 
             t_robot_in_world = np.dot(t_cam_in_world, np.linalg.inv(transform_cam_to_base_link))
 
+
             robot_x = t_robot_in_world[0, 3]
             robot_y = t_robot_in_world[1, 3]
             robot_z = t_robot_in_world[2, 3]
@@ -351,12 +394,15 @@ class LocalizationActionServer(Node):
                 # no average for theta jst take the one of the closest aptag
                 rotation_matrix = t_robot_in_world[:3, :3]
 
+
         # Convert the robot_position list to a NumPy array
         robot_position_array = np.array(robot_position)
 
         # Compute the mean for each row to get average of position computed from different aptags
         mean_values = np.mean(robot_position_array, axis=0)
 
+        print("rotation matrix ******", rotation_matrix)
+        print("rotation matrix ******", mean_values)
         return mean_values, rotation_matrix
 
     def localize(self):
