@@ -56,47 +56,11 @@ class LocalizationActionServer(Node):
                                                    qos_profile, callback_group=ReentrantCallbackGroup())
 
         self.publisher_initial_pose = self.create_publisher(PoseWithCovarianceStamped, "initialpose", 10)
-        ### check covariance: from this cuase this is what it looks like in rviz2
-# - 0.25
-# - 0.0
-# - 0.0
-# - 0.0
-# - 0.0
-# - 0.0
-# - 0.0
-# - 0.25
-# - 0.0
-# - 0.0
-# - 0.0
-# - 0.0
-# - 0.0
-# - 0.0
-# - 0.0
-# - 0.0
-# - 0.0
-# - 0.0
-# - 0.0
-# - 0.0
-# - 0.0
-# - 0.0
-# - 0.0
-# - 0.0
-# - 0.0
-# - 0.0
-# - 0.0
-# - 0.0
-# - 0.0
-# - 0.0
-# - 0.0
-# - 0.0
-# - 0.0
-# - 0.0
-# - 0.0
-# - 0.06853891909122467
+        self.covariance = [0.25, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.25, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.06853892326654787]
 
 # For April tags
         self.subscription = self.create_subscription(AprilTagDetectionArray, '/apriltag_detections',
-                                                     self.apriltag_callback, 10)
+                                                     self.apriltag_callback, 10, , callback_group=ReentrantCallbackGroup())
         self.aptags_detected = False
         self.buffer = tf2_ros.Buffer()
         self.tf_buffer = self.buffer
@@ -358,6 +322,7 @@ class LocalizationActionServer(Node):
         robot_pose.pose.pose.position.x = robot_pose_aptags[0]
         robot_pose.pose.pose.position.y = robot_pose_aptags[1]
         robot_pose.pose.pose.orientation = quat
+        robot_pose.pose.covariance = self.covariance
 
         self.publisher_initial_pose.publish(robot_pose)
         # self.get_logger().info(f'FINISH   Publishingg POSEEEEE')
