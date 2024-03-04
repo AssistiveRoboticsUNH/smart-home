@@ -33,13 +33,16 @@ class UnDockingActionServer(Node):
 
         self.vel_pub = self.create_publisher(Twist, os.getenv("cmd_vel"), 10)
 
-        self.time_out = 2
+        self.time_out = 100
         self.min_range = None
 
     def scan_callback(self, msg):
+        print("Scan ***********")
         if msg:
+            print("self.min_range", self.min_range)
             start_ind = int(3.5*(len(msg.ranges)/8)) #0
             end_ind = int(4.5*(len(msg.ranges)/8)-1)
+            print("self.min_range", self.min_range)
             self.min_range = min(msg.ranges[start_ind:end_ind])
 
 
@@ -66,7 +69,8 @@ class UnDockingActionServer(Node):
         msg = Twist()
 
         while time.time() - start_time < self.time_out:
-            if self.min_range is not None and self.min_range > 0.42:
+            print("&&&&&&&&& self.min_range in while #################")
+            if self.min_range is not None and self.min_range > 0.7:
                 msg.linear.x = -speed
                 self.vel_pub.publish(msg)
                 print("Undocking")
