@@ -60,7 +60,7 @@ class LocalizationActionServer(Node):
 
 # For April tags
         self.subscription = self.create_subscription(AprilTagDetectionArray, '/apriltag_detections',
-                                                     self.apriltag_callback, 10, , callback_group=ReentrantCallbackGroup())
+                                                     self.apriltag_callback, 10, callback_group=ReentrantCallbackGroup())
         self.aptags_detected = False
         self.buffer = tf2_ros.Buffer()
         self.tf_buffer = self.buffer

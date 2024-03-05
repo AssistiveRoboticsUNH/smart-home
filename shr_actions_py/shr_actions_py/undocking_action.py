@@ -33,7 +33,7 @@ class UnDockingActionServer(Node):
 
         self.vel_pub = self.create_publisher(Twist, os.getenv("cmd_vel"), 10)
 
-        self.time_out = 100
+        self.time_out = 4
         self.min_range = None
 
     def scan_callback(self, msg):
