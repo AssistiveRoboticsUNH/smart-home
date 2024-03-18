@@ -29,11 +29,12 @@ namespace pddl_lib {
                                                               {"call_caregiver_bed_msg",   {30, 0}},
                                                       }},
                 {{"daily_med",  "MedicineProtocol"},  {{"guide_1_msg",   {0, 10}},
-                                                              {"guide_2_msg",  {0,  10}},
-                                                              {"automated_msg",              {0, 0}},
-                                                              {"recorded_msg",       {10, 0}},
-                                                              {"call_caregiver_guide_msg", {30, 0}},
-                                                              {"call_caregiver_msg", {30, 0}},
+                                                              {"guide_2_msg",  {0, 10}},
+                                                              {"automated_msg",              {0, 10}},
+                                                              {"recorded_msg",       {0, 10}},
+                                                              {"extra_msg",       {0, 10}},
+                                                              {"call_caregiver_guide_msg", {10, 10}},
+                                                              {"call_caregiver_msg", {10, 0}},
                                                       }},
                 {{"dinner",     "FoodProtocol"},      {{"guide_1_msg",   {0, 10}},
                                                               {"guide_2_msg",  {0,  10}},
@@ -49,10 +50,10 @@ namespace pddl_lib {
                                                               {"call_caregiver_guide_msg", {10, 0}},
                                                               {"call_caregiver_msg", {10, 0}},
                                                       }},
-                {{"breakfast",  "FoodProtocol"},      {{"guide_1_msg",   {0, 10}},
-                                                              {"guide_2_msg",  {0,  10}},
-                                                              {"automated_msg",              {0, 0}},
-                                                              {"recorded_msg",       {10, 0}},
+                {{"breakfast",  "FoodProtocol"},      {{"guide_1_msg",   {0, 30}},
+                                                              {"guide_2_msg",  {0,  30}},
+                                                              {"automated_msg",              {0, 600}},
+                                                              {"recorded_msg",       {10, 600}},
                                                               {"call_caregiver_guide_msg", {10, 0}},
                                                               {"call_caregiver_msg", {10, 0}},
                                                       }}
@@ -85,6 +86,7 @@ namespace pddl_lib {
                 {{"daily_med",  "MedicineProtocol"},  {{"guide_1_msg",   "medicine_follow_me.txt"},
                                                               {"guide_2_msg", "medicine_follow_me.txt"},
                                                               {"automated_msg", "medicine_reminder.txt"},
+                                                              {"extra_msg",   "medicine_reminder_extra.txt"},
                                                       }},
                 {{"dinner",     "FoodProtocol"},      {{"guide_1_msg",   "food_follow_me.txt"},
                                                               {"guide_2_msg", "food_follow_me.txt"},
@@ -288,23 +290,23 @@ namespace pddl_lib {
         auto tmp = ps.active_protocol;
 
         // prevent long navigation time
-        int count = 0;
-        int count_max = 50;
+        // int count = 0;
+        // int count_max = 50;
 
-        while (*success == -1 && count_max > count) {
+        while (*success == -1){ // && count_max > count) {
             if (!(tmp == ps.active_protocol)) {
                 ps.nav_client_->async_cancel_all_goals();
                 return false;
             }
-            count++;
+            // count++;
             rclcpp::sleep_for(std::chrono::seconds(1));
-            if (count_max - 1 == count) {
-                RCLCPP_INFO(rclcpp::get_logger(
-                        std::string("weblog=") + " Navigation failed for exceed time."), "user...");
-                ps.nav_client_->async_cancel_all_goals();
-                std::cout << " Navigation failed for exceed time  " << std::endl;
-                return false;
-            }
+            // if (count_max - 1 == count) {
+            //     RCLCPP_INFO(rclcpp::get_logger(
+            //             std::string("weblog=") + " Navigation failed for exceed time."), "user...");
+            //     ps.nav_client_->async_cancel_all_goals();
+            //     std::cout << " Navigation failed for exceed time  " << std::endl;
+            //     return false;
+            // }
         }
         return *success;
     }
@@ -688,9 +690,9 @@ namespace pddl_lib {
             // RCLCPP_INFO(rclcpp::get_logger(currentDateTime+std::string("user=")+"MedicineProtocol"+"started"), "user...");
             InstantiatedParameter cur = action.parameters[2];
             InstantiatedParameter dest = action.parameters[3];
-            // if (dest.name == cur.name) {
-            //     cur.name = "dining_room"; // cause we took out couch
-            // }
+            if (dest.name == cur.name) {
+                cur.name = "dining_room"; // cause we took out couch
+            }
             instantiate_protocol("medicine.pddl", {{"current_loc", cur.name},
                                                    {"dest_loc",    dest.name}});
             auto [ps, lock] = ProtocolState::getConcurrentInstance();
@@ -768,9 +770,9 @@ namespace pddl_lib {
             //RCLCPP_INFO(rclcpp::get_logger(currentDateTime+std::string("user=")+"FoodProtocol"+"started"), "user...");
             InstantiatedParameter cur = action.parameters[2];
             InstantiatedParameter dest = action.parameters[3];
-            // if (dest.name == cur.name) {
-            //     cur.name = "living_room";  // cause we took out couch
-            // }
+            if (dest.name == cur.name) {
+                cur.name = "kitchen";  // cause we took out couch
+            }
             instantiate_protocol("food.pddl", {{"current_loc", cur.name},
                                                {"dest_loc",    dest.name}});
 
@@ -1047,6 +1049,18 @@ namespace pddl_lib {
                         std::string("weblog=") + currentDateTime + " GiveReminder" + script_name_str + " succeed!";
                 RCLCPP_INFO(ps.world_state_converter->get_logger(), log_message.c_str());
                 rclcpp::sleep_for(std::chrono::seconds(ps.wait_times.at(ps.active_protocol).at(msg).second));
+                // wait_time = ps.wait_times.at(ps.active_protocol).at(msg).second;
+                // for (int i = 0; i < wait_time; i++) {
+                // if (kb.check_conditions(action.precondtions) == TRUTH_VALUE::TRUE) {
+                //     abort(action);
+                //     RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=") + "shr_domain_GiveReminder" + "succeeded during wait time after reminder!"),
+                //                 "user...");
+                //     lock.UnLock();
+                //     return BT::NodeStatus::SUCCESS;
+                // }
+            //     rclcpp::sleep_for(std::chrono::seconds(1));
+            // }
+
             } else {
                 // RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=")+"shr_domain_GiveReminder"+script_name_str+"failed!"), "user...");
                 // RCLCPP_INFO(rclcpp::get_logger(currentDateTime+std::string("user=")+"GiveReminder"+script_name_str+"failed!"), "user...");
@@ -1097,6 +1111,18 @@ namespace pddl_lib {
                         " succeed!";
                 RCLCPP_INFO(ps.world_state_converter->get_logger(), log_message.c_str());
                 rclcpp::sleep_for(std::chrono::seconds(ps.wait_times.at(ps.active_protocol).at(msg).second));
+                // wait_time = ps.wait_times.at(ps.active_protocol).at(msg).second;
+                // for (int i = 0; i < wait_time; i++) {
+                // if (kb.check_conditions(action.precondtions) == TRUTH_VALUE::TRUE) {
+                //     abort(action);
+                //     RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=") + "shr_domain_GiveReminder" + "succeeded during wait time after reminder!"),
+                //                 "user...");
+                //     lock.UnLock();
+                //     return BT::NodeStatus::SUCCESS;
+                // }
+            //     rclcpp::sleep_for(std::chrono::seconds(1));
+            // }
+
             } else {
                 // RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=")+"shr_domain_MakeCall"+script_name_str+"failed"), "user...");
                 // RCLCPP_INFO(rclcpp::get_logger(currentDateTime+std::string("user=")+"shr_domain_MakeCall"+script_name_str+"failed"), "user...");

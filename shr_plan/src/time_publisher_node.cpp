@@ -23,7 +23,7 @@ private:
   void publishNewYorkTime() {
     try {
       // Get the current time in the New York timezone
-        auto ny_time = std::chrono::system_clock::now() - std::chrono::hours(5);
+        auto ny_time = std::chrono::system_clock::now() - std::chrono::hours(4);
 
         // Calculate the elapsed time since the start of the day in seconds
         auto time_since_midnight = ny_time.time_since_epoch() % std::chrono::hours(24);
@@ -37,6 +37,19 @@ private:
 
         // Publish the elapsed time
         publisher_->publish(ros_time);
+
+
+        //  auto gmt_time = std::chrono::system_clock::now();
+
+      // // Convert GMT time to New York local time
+      // auto ny_time_zone = date::locate_zone("America/New_York");
+      // auto ny_time_local = date::zoned_time<std::chrono::system_clock::duration>(ny_time_zone, gmt_time);
+
+      // // Convert the New York local time to ROS 2 time format
+      // builtin_interfaces::msg::Time ros_time;
+      // ros_time.sec = std::chrono::duration_cast<std::chrono::seconds>(
+      //     ny_time_local.get_sys_time().time_since_epoch()).count();
+      // ros_time.nanosec = 0; 
   
 
     } catch (const std::exception &ex) {
