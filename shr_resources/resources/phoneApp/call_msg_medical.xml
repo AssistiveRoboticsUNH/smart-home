@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Response>
-    <Say voice="alice">Hi, this is the Jackal robot calling. Nathan has not taken his 8 am medicine. Please drive me to him via remote control and take control!</Say>
+    <Say voice="alice">Hi, this is the Stretch robot calling. Sajay has not taken his 8 am medicine. Please drive me to him via remote control and take control!</Say>
 </Response>

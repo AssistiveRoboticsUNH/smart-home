@@ -70,7 +70,13 @@ class LogSubscriber(Node):
             stamp=str(stamp.sec)+'_'+str(stamp.nanosec)
             print('stamp=',stamp)
             dref = collection_ref.document(timestamp)
-            dref.set({stamp: {'name':name,'file':file, "data":data , "function":function } }, merge=True )
+            update_data = {
+                'name': name,
+                #'file': file,
+                #'data': data,
+                #'function': function
+            }
+            dref.update({stamp: update_data})
 
 
 

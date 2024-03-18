@@ -688,9 +688,9 @@ namespace pddl_lib {
             // RCLCPP_INFO(rclcpp::get_logger(currentDateTime+std::string("user=")+"MedicineProtocol"+"started"), "user...");
             InstantiatedParameter cur = action.parameters[2];
             InstantiatedParameter dest = action.parameters[3];
-            if (dest.name == cur.name) {
-                cur.name = "dining_room"; // cause we took out couch
-            }
+            // if (dest.name == cur.name) {
+            //     cur.name = "dining_room"; // cause we took out couch
+            // }
             instantiate_protocol("medicine.pddl", {{"current_loc", cur.name},
                                                    {"dest_loc",    dest.name}});
             auto [ps, lock] = ProtocolState::getConcurrentInstance();
@@ -768,9 +768,9 @@ namespace pddl_lib {
             //RCLCPP_INFO(rclcpp::get_logger(currentDateTime+std::string("user=")+"FoodProtocol"+"started"), "user...");
             InstantiatedParameter cur = action.parameters[2];
             InstantiatedParameter dest = action.parameters[3];
-            if (dest.name == cur.name) {
-                cur.name = "living_room";  // cause we took out couch
-            }
+            // if (dest.name == cur.name) {
+            //     cur.name = "living_room";  // cause we took out couch
+            // }
             instantiate_protocol("food.pddl", {{"current_loc", cur.name},
                                                {"dest_loc",    dest.name}});
 
