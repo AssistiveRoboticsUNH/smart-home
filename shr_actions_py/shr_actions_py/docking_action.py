@@ -61,11 +61,17 @@ class DockingActionServer(Node):
         print(self.docking.bumped)
         if self.docking.bumped:
             print("Bumped!!")
+            self.vel.linear.x = 0.0
+            self.vel.angular.z =0.0
+            self.pub.publish(self.vel)
             self.get_logger().info("weblog="+'charger and port bumped!')
             goal_handle.succeed()
             result = DockingRequest.Result()
             result.result = True
             self.docking.bumped = False
+            self.vel.linear.x = 0.0
+            self.vel.angular.z =0.0
+            self.pub.publish(self.vel)
             return result
         else:
             goal_handle.abort()

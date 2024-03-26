@@ -41,6 +41,7 @@ setup(
                             'localize = shr_actions_py.localize:main',
                             'waypoint = shr_actions_py.waypoint_follower_action:main',
                             'cancel_docking = shr_actions_py.cancel_goal_client:main',
+                            'localize_updated = shr_actions_py.localize_updated:main',
                             ],
     },
 )
