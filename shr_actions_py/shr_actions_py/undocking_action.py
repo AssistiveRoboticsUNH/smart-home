@@ -33,7 +33,7 @@ class UnDockingActionServer(Node):
 
         self.vel_pub = self.create_publisher(Twist, os.getenv("cmd_vel"), 10)
 
-        self.time_out = 4
+        self.time_out = 2
         self.min_range = None
 
     def scan_callback(self, msg):
@@ -75,7 +75,7 @@ class UnDockingActionServer(Node):
                 self.vel_pub.publish(msg)
                 print("Undocking")
             else:
-                msg.linear.x = 0.0
+                msg.linear.x = -speed
                 self.vel_pub.publish(msg)
                 print("Stop robot, obstacle close")
 

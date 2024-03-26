@@ -32,7 +32,7 @@ class shr_parameters:
             instances = __Instances()
             class __Foodprotocols:
                 instances = ["breakfast", "lunch", "dinner"]
-                eat_times = ["7h0m0s/8h0m0s", "19h00m0s/19h30m0s", "19h30m0s/20h00m0s"]
+                eat_times = ["6h45m0s/8h00m0s", "00h00m00s/00h00m00s", "00h00m00s/00h00m00s"]
                 eat_locations = ["kitchen", "kitchen", "kitchen"]
                 check_guide_to_succeeded_times = ["0h1m0s", "0h1m0s", "0h1m0s"]
                 remind_automated_food_at_times = ["0h10m0s", "0h10m0s", "0h10m0s"]
@@ -41,14 +41,14 @@ class shr_parameters:
             class __Medicineprotocols:
                 instances = ["daily_med"]
                 medicine_location = ["kitchen"]
-                take_medication_time = ["8h0m0s/9h0m0s"]
+                take_medication_time = ["19h00m0s/20h00m0s"]
             MedicineProtocols = __Medicineprotocols()
             class __Wanderingprotocols:
                 instances = ["daily_wand"]
                 outside_location = ["outside"]
                 door_location = ["door"]
                 bedroom_location = ["bedroom"]
-                too_late_to_leave_time = ["0h0m0s/0h0m0s"]
+                too_late_to_leave_time = ["0h00m00s/0h00m00s"]
             WanderingProtocols = __Wanderingprotocols()
             class __Fallprotocols:
                 instances = ["daily_fall"]

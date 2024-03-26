@@ -31,6 +31,8 @@
     (traversable dining_room door)
     (traversable kitchen door)
     (traversable home door)
+
+    
     ;;(traversable couch door)
 
     ;;success states
@@ -66,4 +68,4 @@
 )
 (:goal (and (success)  ) )
 
-)
+)sour

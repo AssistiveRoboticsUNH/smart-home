@@ -9,16 +9,16 @@ transformations:
       - -0.500
       - 0.500
       - -0.500
-  - frame_id: camera_color_optical_frame
-    id: charger
+  - frame_id: charger
+    id: camera_color_optical_frame
     transform:
-      - 0.960
-      - 0.033
-      - 0.800
-      - 0.086
-      - -0.832
-      - -0.075
-      - 0.542
+      - -0.312
+      - -0.040
+      - 0.188
+      - 0.500
+      - -0.500
+      - 0.500
+      - -0.500
   - frame_id: zed_dining_room_left_camera_frame
     id: tag_37_zed
     transform:

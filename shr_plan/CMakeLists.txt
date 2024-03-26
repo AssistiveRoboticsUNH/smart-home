@@ -1,3 +1,4 @@
+shr_plan/pddl/problem_midnight.pddl
 cmake_minimum_required(VERSION 3.5)
 project(shr_plan)
 
@@ -23,6 +24,7 @@ find_package(shr_parameters REQUIRED)
 find_package(shr_utils REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(builtin_interfaces REQUIRED)
+# find_package(date REQUIRED)
 
 
 generate_bt_header(bt_shr_actions
@@ -50,7 +52,8 @@ ament_target_dependencies(planning_controller_node ${dependencies})
 add_executable(time_publisher_node src/time_publisher_node.cpp)
 ament_target_dependencies(time_publisher_node ${dependencies})
 
-
+# add_library(date)
+# target_link_libraries(time_publisher_node date::date)
 
 target_link_libraries(planning_controller_node
     bt_shr_actions

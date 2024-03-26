@@ -24,7 +24,7 @@ shr_parameters:
       }
       eat_times: {
         type: string_array,
-        default_value: [ "7h0m0s/8h0m0s", "19h00m0s/19h30m0s",  "19h30m0s/20h00m0s" ],
+        default_value: [ "6h45m0s/8h00m0s", "00h00m00s/00h00m00s",  "00h00m00s/00h00m00s" ],
         description: "time that each protocol is triggered",
       }
       eat_locations: {
@@ -60,7 +60,7 @@ shr_parameters:
       }
       take_medication_time: {
         type: string_array,
-        default_value: [ "8h0m0s/9h0m0s" ],
+        default_value: [ "19h00m0s/20h00m0s" ],
         description: "time that each protocol is triggered",
       }
     WanderingProtocols:
@@ -86,7 +86,7 @@ shr_parameters:
       }
       too_late_to_leave_time: {
         type: string_array,
-        default_value: [ "0h0m0s/0h0m0s" ],
+        default_value: [ "0h00m00s/0h00m00s" ],
         description: "time that the person must not go outside",
       }
     FallProtocols:

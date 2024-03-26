@@ -4,7 +4,7 @@ from rclpy.executors import MultiThreadedExecutor
 from geometry_msgs.msg import PoseWithCovarianceStamped, Twist
 import transforms3d as tf
 from apriltag_msgs.msg import AprilTagDetectionArray, AprilTagDetection
-from std_msgs.msg import Float32
+from std_msgs.msg import Float32, Int64, Int32
 from tf2_ros import TransformException
 from tf2_ros.buffer import Buffer
 from tf2_ros.transform_listener import TransformListener
@@ -54,13 +54,22 @@ class Docking(Node):
 
         self.subscription = self.create_subscription(AprilTagDetectionArray, '/apriltag_detections',
                                                      self.apriltag_callback, 10)
-        self.proxi = None
-        self.proxi_subscriber = self.create_subscription(
-            Float32,
-            'proximity_sensor',
-            self.proxi_callback,
+        self.bump = None
+        self.bump_subscriber = self.create_subscription(
+            Int64,
+            'bump',
+            self.bump_callback,
             10
         )
+
+        self.charger_status = None
+        self.bump_subscriber = self.create_subscription(
+            Int32,
+            'charging',
+            self.charger_callback,
+            10
+        )
+
         self.bumped = False
         self.spin = True
         self.is_detect = False
@@ -115,10 +124,15 @@ class Docking(Node):
         desired_vel = np.clip(mv_p + mv_i + mv_d, 0.009, max_vel)
         return desired_vel
 
-    def proxi_callback(self, msg):
+    def bump_callback(self, msg):
         #self.get_logger().info(f'Received float: {msg.data}')
-        self.proxi = msg.data
-        print(self.proxi)
+        self.bump = msg.data
+        #print(self.bump)
+
+    def charger_callback(self, msg):
+        #self.get_logger().info(f'Received float: {msg.data}')
+        self.charger_status = msg.data
+        #print(self.bump)
 
     def spin(self):
         self.vel.linear.x = 0.0
@@ -141,12 +155,16 @@ class Docking(Node):
         if (self.is_detect is True and self.bumped is False):
             current_error = float(self.translation.get("translation_y", 0.0))
             transition_x = float(self.translation.get("translation_x", 0.0))
-            error_x = (transition_x-0.02)
+            error_x = (transition_x-0.025)
             modified_error_x = error_x*0.2
+            apriltag_logic = (error_x>0.00)
+            # doing reverse logic for it. (if apriltag_logic or bump_sensor gives 0, it will be out of the first loop)
+            bump_logic = (self.bump is not None and (self.bump !=1))
             #print("current_error", current_error)
             #print("x", transition_x)
-            if (error_x>0.00 or (self.proxi is not None and self.proxi > 15.0)):
-                
+            if (apriltag_logic and (bump_logic)):
+                print("apriltag_logic: %s bump_logic: %s" % (apriltag_logic, bump_logic))
+                #print(apriltag_logic)
                 current_time = self.get_clock().now()
                 dt = (current_time - self.saved_time).nanoseconds / 1e9
                 pid_output =self.velocity_control(current_error, dt, self.prev_error)
@@ -164,17 +182,22 @@ class Docking(Node):
                 else:
                     self.vel.angular.z = pid_output
                     #print("PID", self.vel.angular.z)
-                
+                print("I am here")
 
                 self.pub.publish(self.vel)
                 self.prev_error = current_error
                 self.prev_error_x = modified_error_x
                 self.bumped = False
+                #logic = (self.bump is not None and (self.bump>0))
+                #print(logic)
             else:
+                print("apriltag_logic: %s bump_logic: %s" % (apriltag_logic, bump_logic))
+                self.bumped = True
                 self.vel.linear.x = 0.0
                 self.vel.angular.z =0.0
                 self.pub.publish(self.vel)
-                self.bumped = True
+                
+                
         else:
             self.vel.linear.x = 0.0
             self.vel.angular.z = 0.2
@@ -188,8 +211,7 @@ def main(args=None):
     while( rclpy.ok()):
         tag_to_bar.get_transformation_from_aptag_to_port()
         tag_to_bar.move_towards_tag()
-        print("I am calling")
-        rclpy.spin_once(tag_to_bar, timeout_sec=3.0)
+        rclpy.spin_once(tag_to_bar)
         
     
     tag_to_bar.destroy_node()
