@@ -1,4 +1,3 @@
-shr_plan/pddl/problem_midnight.pddl
 cmake_minimum_required(VERSION 3.5)
 project(shr_plan)
 
