@@ -46,10 +46,10 @@ def generate_launch_description():
         name='send_text_action',
         output='screen')
 
-    apriltag_port_server_cmd = Node(
+    docking_server_cmd = Node(
         package='shr_actions_py',
-        executable='apriltag_port_server',
-        name='apriltag_port_server',
+        executable='docking_server',
+        name='docking_server',
         output='screen')
 
     localize_cmd = Node(
@@ -66,7 +66,7 @@ def generate_launch_description():
 
     ld = LaunchDescription()
     ld.add_action(read_script_node_cmd)
-    ld.add_action(apriltag_port_server_cmd)
+    ld.add_action(docking_server_cmd)
     ld.add_action(play_audio_node_cmd)
     # ld.add_action(play_video_node_cmd)
     ld.add_action(make_call_node_cmd)
