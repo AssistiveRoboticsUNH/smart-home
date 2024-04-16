@@ -1,9 +1,8 @@
 ﻿import rclpy
 from rclpy.action import ActionServer, GoalResponse, CancelResponse
-from rclpy.node import Node
-
 from shr_msgs.action import LocalizeRequest
 from nav2_msgs.msg import ParticleCloud
+from rclpy.node import Node
 
 import numpy as np
 import math
@@ -17,9 +16,10 @@ import tf2_ros
 import tf_transformations as tr
 from apriltag_msgs.msg import AprilTagDetectionArray
 from rclpy.callback_groups import ReentrantCallbackGroup
+from nav_msgs.msg import OccupancyGrid
+
 
 class LocalizationActionServer(Node):
-
     def __init__(self):
         super().__init__('Localization_action_server')
         self.nav2_to_goal_client = None
@@ -40,7 +40,7 @@ class LocalizationActionServer(Node):
         #     callback_group=ReentrantCallbackGroup())
 
         ## get the pose
-        qos_profile = QoSProfile(
+        qos_profile_pose = QoSProfile(
             reliability=ReliabilityPolicy.BEST_EFFORT,
             durability=DurabilityPolicy.VOLATILE,
             history=HistoryPolicy.KEEP_LAST,
@@ -50,7 +50,7 @@ class LocalizationActionServer(Node):
         # For localization
         self.vel_pub = self.create_publisher(Twist, os.getenv("cmd_vel"), 10)
         self.subscriber = self.create_subscription(ParticleCloud, 'particle_cloud', self.particles_callback,
-                                                   qos_profile, callback_group=ReentrantCallbackGroup())
+                                                   qos_profile_pose, callback_group=ReentrantCallbackGroup())
 
         self.publisher_initial_pose = self.create_publisher(PoseWithCovarianceStamped, "initialpose", 10)
         self.covariance = [0.25, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.25, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.06853892326654787]
@@ -86,6 +86,40 @@ class LocalizationActionServer(Node):
         self.threshold = -0.5 # set based on worst case in robot
         self.vel = 0
 
+        # to check if prediction is in obstacle
+        qos_profile_map = QoSProfile(
+            reliability=ReliabilityPolicy.RELIABLE,
+            durability=DurabilityPolicy.TRANSIENT_LOCAL,
+            history=HistoryPolicy.KEEP_LAST,
+            depth=1
+        )
+        self.subscription_map = self.create_subscription(OccupancyGrid, "global_costmap/costmap", self.map_callback,
+                                                         qos_profile_map, callback_group=ReentrantCallbackGroup())
+
+        self.map_matrix = None
+        self.resolution = None
+        self.origin = None
+
+    def world_to_map(self, pos_x, pos_y, resolution, origin):
+        # resolution : Resolution of the map, meters / pixel
+        map_x = int(((pos_x - self.origin.position.x) / self.resolution) - 0.5)
+        map_y = int(((pos_y - self.origin.position.y) / self.resolution) - 0.5)
+        return map_x, map_y
+
+    def map_callback(self, msg):
+        print("map_callback")
+        if msg and self.map_matrix is None:
+            height = msg.info.height
+            width = msg.info.width
+            self.resolution = msg.info.resolution
+            self.origin = msg.info.origin
+            self.map_matrix = np.zeros((width, height))
+            index = 0
+            for i in range(height):
+                for j in range(width):
+                    self.map_matrix[j, i] = msg.data[index]
+                    index += 1
+
     def cancel_callback(self, goal_handle):
         # Your cancellation logic here
         self.get_logger().info('Goal cancelled')
@@ -94,6 +128,12 @@ class LocalizationActionServer(Node):
 
     ##### Localization Part #####
     def publish_tf(self, x, y, z, rot_mat, child_frame_id, frame_id):
+
+        ## check if point in obstacle
+        map_x, map_y = self.world_to_map(x, y)
+        if self.map_matrix[map_x, map_y] > 97:
+            return
+
         quat = Quaternion()
         quat_ = self.rotation_matrix_to_quaternion(np.array(rot_mat))
         quat.x = quat_[0]
