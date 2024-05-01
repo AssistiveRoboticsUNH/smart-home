@@ -16,7 +16,7 @@ class DockingActionServer(Node):
         super().__init__('Docking_action_server')
         self.docking = Docking()
         #self.goal_cancel = False
-
+        self.rate = self.docking.create_rate(10)
         self.action_server = ActionServer(
             self,
             DockingRequest,  # Replace with the actual action type
@@ -72,6 +72,8 @@ class DockingActionServer(Node):
             self.vel.linear.x = 0.0
             self.vel.angular.z =0.0
             self.pub.publish(self.vel)
+            self.rate.sleep()
+
             return result
         else:
             goal_handle.abort()

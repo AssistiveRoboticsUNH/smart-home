@@ -36,17 +36,17 @@ Domain load_domain(const std::string &domain_file) {
 std::optional<std::string> getPlan(const std::string &domain, const std::string &problem) {
     static std::mutex mutex;
     std::lock_guard<std::mutex> lock(mutex);
-
+    std::string path = "/home/hello-robot/planner_data";
     {
-        std::ofstream domainFile("/tmp/plan_solver/domain.pddl");
+        std::ofstream domainFile(path + "/plan_solver/domain.pddl");
         domainFile << domain;
-        std::ofstream problemFile("/tmp/plan_solver/problem.pddl");
+        std::ofstream problemFile(path + "/plan_solver/problem.pddl");
         problemFile << problem;
     }
-    std::string cmd = "ros2 run plan_solver_py plan_solver -o /tmp/plan_solver/domain.pddl -f /tmp/plan_solver/problem.pddl > /dev/null";
+    std::string cmd = "ros2 run plan_solver_py plan_solver -o /home/hello-robot/planner_data/plan_solver/domain.pddl -f /home/hello-robot/planner_data/plan_solver/problem.pddl > /dev/null";
     std::system(cmd.c_str());
 
-    std::ifstream file("/tmp/plan_solver/bt.xml");
+    std::ifstream file(path + "/plan_solver/bt.xml");
     if (!file) {
         return {};
     }
@@ -253,7 +253,7 @@ public:
             auto tree = factory_.createTreeFromText(config.value());
             BT::NodeStatus res;
             res = tree.tickRoot();
-            printf("high level running.. \n");
+            // printf("high level running.. \n");
 
         }
         kb.erase_predicate({"success", {}});
@@ -328,11 +328,11 @@ int main(int argc, char **argv) {
         while (!ps.undocking_->wait_for_action_server(std::chrono::seconds(5))) {
             RCLCPP_INFO(rclcpp::get_logger("planning_controller"), "Waiting for /undocking action server...");
         }
-        // ps.localize_ = rclcpp_action::create_client<shr_msgs::action::LocalizeRequest>(
-        //         world_state_converter, "localize");
-        // while (!ps.localize_->wait_for_action_server(std::chrono::seconds(5))) {
-        //     RCLCPP_INFO(rclcpp::get_logger("planning_controller"), "Waiting for /localize action server...");
-        // }
+        ps.localize_ = rclcpp_action::create_client<shr_msgs::action::LocalizeRequest>(
+                world_state_converter, "localize");
+        while (!ps.localize_->wait_for_action_server(std::chrono::seconds(5))) {
+            RCLCPP_INFO(rclcpp::get_logger("planning_controller"), "Waiting for /localize action server...");
+        }
         lock.UnLock();
     }
 

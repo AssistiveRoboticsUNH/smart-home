@@ -33,7 +33,7 @@ def generate_launch_description():
         default_value=pkg_path + "sajay_rooms.yaml",
         description="rooms location"
     )
-    ld.add_action(room_file)
+    # ld.add_action(room_file)
     #
     rooms = Node(
         package="yaml_tf_broadcaster",
@@ -44,7 +44,7 @@ def generate_launch_description():
         ]
     )
 
-    ld.add_action(rooms)
+    # ld.add_action(rooms)
 
     helper_file = DeclareLaunchArgument(
         "helper_location",

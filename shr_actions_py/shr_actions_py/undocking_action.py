@@ -27,9 +27,10 @@ class UnDockingActionServer(Node):
         # print("working action")
         self.subscription = self.create_subscription(
             LaserScan,
-            '/scan',
+            '/scan_filtered',
             self.scan_callback,
-            10)
+            10,
+            callback_group=ReentrantCallbackGroup())
 
         self.vel_pub = self.create_publisher(Twist, os.getenv("cmd_vel"), 10)
 
@@ -37,13 +38,16 @@ class UnDockingActionServer(Node):
         self.min_range = None
 
     def scan_callback(self, msg):
-        print("Scan ***********")
+        # print("Scan ***********")
         if msg:
-            print("self.min_range", self.min_range)
-            start_ind = int(3.5*(len(msg.ranges)/8)) #0
+            # print("self.min_range", self.min_range)
+            start_ind = int(4*(len(msg.ranges)/8)) #0
             end_ind = int(4.5*(len(msg.ranges)/8)-1)
-            print("self.min_range", self.min_range)
+            
+            truncated_ranges = msg.ranges[start_ind:end_ind]
+            # print("tracated", truncated_ranges)
             self.min_range = min(msg.ranges[start_ind:end_ind])
+            print("self.min_range", self.min_range)
 
 
     def goal_callback(self, goal_request):
@@ -70,12 +74,14 @@ class UnDockingActionServer(Node):
 
         while time.time() - start_time < self.time_out:
             print("&&&&&&&&& self.min_range in while #################")
+            print(self.min_range)
             if self.min_range is not None and self.min_range > 0.7:
                 msg.linear.x = -speed
                 self.vel_pub.publish(msg)
                 print("Undocking")
             else:
-                msg.linear.x = -speed
+                # msg.linear.x = -speed
+                msg.linear.x = 0.0
                 self.vel_pub.publish(msg)
                 print("Stop robot, obstacle close")
 

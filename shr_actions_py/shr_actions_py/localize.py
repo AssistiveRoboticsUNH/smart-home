@@ -383,89 +383,6 @@ class LocalizationActionServer(Node):
         print("rotation matrix ******", mean_values)
         return mean_values, rotation_matrix
 
-    # def localize_with_check(self):
-    #     # LOCALIZE
-    #     start_time = time.time()
-    #     speed = 3.14 / 8.0
-    #     msg = Twist()
-    #
-    #     # CHECK IF THERE ARE ANY APRILTAGS
-    #     if not self.aptags_detected:
-    #         # rotate until you find one
-    #         while time.time() - start_time < self.time_out:
-    #             self.get_logger().info('no aptags detected will start looking for one')
-    #             # change this to VECTOR FIELD HISTOGRAM exploration
-    #             if self.scan and self.min_range > self.threshold:
-    #                 msg.angular.z = speed
-    #                 self.vel_pub.publish(msg)
-    #             else:
-    #                 # stop the robot cause it's not safe
-    #                 msg.angular.z = 0
-    #                 # move in the direction with no obstacle
-    #                 if self.min_range_back > self.threshold: ## clear in the back, move backwards
-    #                     msg.linear.x = -0.1
-    #                 elif self.min_range_front > self.threshold:
-    #                     msg.linear.x = -0.1
-    #                 # elif   check what's needed here from running at sajay
-    #                 self.vel_pub.publish(msg)
-    #             if self.aptags_detected_inside_callback:
-    #                 # STOP
-    #                 msg.angular.z = 0.0
-    #                 self.vel_pub.publish(msg)
-    #                 # localize
-    #                 self.get_tf_info = True
-    #                 # print("published_pose)))))))))))))))))))" )
-    #                 if self.transform_aptag_in_cam_dict and self.transform_aptag_in_world_dict:
-    #                     # publish the pose that can be subscribed to by nav2 for initial position or we can change setup to service
-    #                     robot_pose_aptags = self.tf_buffer.transform(self.robot_amcl_pose, "map")
-    #                     self.publish_tf(0, 0, 0, np.identity(3),
-    #                                     'aptag_'+ str(self.closest_aptag), 'tag_'+str(self.closest_aptag))
-    #                     self.publisher_initial_pose.publish(robot_pose_aptags)
-    #                     # print("published_pose")
-    #
-    #                     self.successfully_localized = True
-    #
-    #                     return
-    #
-    #                 else:
-    #                     # self.successfully_localized = False
-    #                     if not self.transform_aptag_in_cam_dict:
-    #                         self.get_logger().info('NO apriltags detected')
-    #                     if not self.transform_aptag_in_world_dict:
-    #                         self.get_transform_matrix_aptags_in_world_from_tf()
-    #                         self.get_logger().info('NO transform_aptag_in_world_dict')
-    #                     # if self.cam_to_base_link is None:
-    #                     #     self.get_logger().info('NO transformation cam_to_base_link')
-    #                     # return
-    #     else:
-    #         # localize
-    #         self.get_tf_info = True
-    #         # print("published_pose)))))))))))))))))))" )
-    #         if self.transform_aptag_in_cam_dict and self.transform_aptag_in_world_dict:
-    #             # publish the pose that can be subscribed to by nav2 for initial position or we can change setup to service
-    #             robot_pose_aptags, rotation_matrix = self.transform_cam_world_frame()
-    #
-    #             self.publish_pose(robot_pose_aptags, rotation_matrix)
-    #             # print("published_pose")
-    #             self.publish_tf(robot_pose_aptags[0], robot_pose_aptags[1], robot_pose_aptags[2], rotation_matrix,
-    #                             'base_link', 'map')
-    #             self.successfully_localized = True
-    #
-    #             return
-    #
-    #         else:
-    #             # self.successfully_localized = False
-    #
-    #             if not self.transform_aptag_in_cam_dict:
-    #                 self.get_logger().info('NO apriltags detected')
-    #             if not self.transform_aptag_in_world_dict:
-    #                 self.get_transform_matrix_aptags_in_world_from_tf()
-    #                 self.get_logger().info('NO transform_aptag_in_world_dict')
-    #             # return
-    #
-    #             # if self.cam_to_base_link is None:
-    #             #     self.get_logger().info('NO transformation cam_to_base_link')
-
     ##### Action Server #####
 
     def localize(self):
@@ -492,12 +409,13 @@ class LocalizationActionServer(Node):
                     # localize
                     self.get_tf_info = True
                     # print("published_pose)))))))))))))))))))" )
-                    if self.transform_cam_in_aptag_dict and self.transform_aptag_in_world_dict:
-                        robot_pose_aptags, rotation_matrix = self.get_robot_position()
-                        self.publish_pose(robot_pose_aptags, rotation_matrix)
-                        self.successfully_localized = True
+                    while time.time() - start_time < self.time_out:
+                        if self.transform_cam_in_aptag_dict and self.transform_aptag_in_world_dict:
+                            robot_pose_aptags, rotation_matrix = self.get_robot_position()
+                            self.publish_pose(robot_pose_aptags, rotation_matrix)
+                            self.successfully_localized = True
 
-                        return
+                            return
 
                     else:
                         # self.successfully_localized = False

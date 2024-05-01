@@ -5,6 +5,7 @@
 #include <iostream>
 #include <iomanip>
 #include <sstream>
+#include<ctime>
 
 using namespace std::chrono_literals;
 
@@ -22,35 +23,24 @@ public:
 private:
   void publishNewYorkTime() {
     try {
-      // Get the current time in the New York timezone
-        auto ny_time = std::chrono::system_clock::now() - std::chrono::hours(4);
 
-        // Calculate the elapsed time since the start of the day in seconds
-        auto time_since_midnight = ny_time.time_since_epoch() % std::chrono::hours(24);
+      // Get the current system time
+        time_t t; // t passed as argument in function time()
+        struct tm * tt; // declaring variable for localtime()
+        time (&t); //passing argument to time()
+        tt = localtime(&t);
 
-        // Convert the elapsed time to ROS 2 time format
+        // Convert hours and minutes to seconds
+        int total_seconds = (tt->tm_hour * 3600) + (tt->tm_min * 60) + tt->tm_sec;
+        std::cout << "total_seconds: " << total_seconds << std::endl;
+
+        // Convert to ROS 2 time format
         builtin_interfaces::msg::Time ros_time;
-        ros_time.sec = static_cast<int32_t>(std::chrono::duration_cast<std::chrono::seconds>(
-                time_since_midnight)
-                .count());
-        ros_time.nanosec = 0; // The elapsed time is in seconds, nanoseconds can be set to 0
+        ros_time.sec = total_seconds;
+        ros_time.nanosec = 0; // No nanoseconds in this example
 
-        // Publish the elapsed time
+        // Publish the time
         publisher_->publish(ros_time);
-
-
-        //  auto gmt_time = std::chrono::system_clock::now();
-
-      // // Convert GMT time to New York local time
-      // auto ny_time_zone = date::locate_zone("America/New_York");
-      // auto ny_time_local = date::zoned_time<std::chrono::system_clock::duration>(ny_time_zone, gmt_time);
-
-      // // Convert the New York local time to ROS 2 time format
-      // builtin_interfaces::msg::Time ros_time;
-      // ros_time.sec = std::chrono::duration_cast<std::chrono::seconds>(
-      //     ny_time_local.get_sys_time().time_since_epoch()).count();
-      // ros_time.nanosec = 0; 
-  
 
     } catch (const std::exception &ex) {
       // Handle any exceptions

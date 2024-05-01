@@ -70,13 +70,21 @@ class LogSubscriber(Node):
             stamp=str(stamp.sec)+'_'+str(stamp.nanosec)
             print('stamp=',stamp)
             dref = collection_ref.document(timestamp)
+            document_snapshot = dref.get()
+
             update_data = {
                 'name': name,
-                #'file': file,
-                #'data': data,
-                #'function': function
+                'file': file,
+                'data': data,
+                'function': function
             }
-            dref.update({stamp: update_data})
+            #dref.update({stamp: update_data})
+            if not document_snapshot.exists:
+            # Document doesn't exist, create it with the first log message
+                dref.set({stamp: update_data})
+            else:
+                # Document exists, update it
+                dref.update({stamp: update_data})
 
 
 
