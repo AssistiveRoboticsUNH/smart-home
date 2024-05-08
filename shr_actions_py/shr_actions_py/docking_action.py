@@ -64,7 +64,7 @@ class DockingActionServer(Node):
             self.vel.linear.x = 0.0
             self.vel.angular.z =0.0
             self.pub.publish(self.vel)
-            self.get_logger().info("weblog="+'charger and port bumped!')
+            self.get_logger().info("weblog="+'charger and port bumped!'+"charger status: {self.docking.charger_status}!")
             goal_handle.succeed()
             result = DockingRequest.Result()
             result.result = True

@@ -73,7 +73,7 @@ class LocalizationActionServer(Node):
 
         self.result_future = None
         self.max_weight = 0
-        self.time_out = 60
+        self.time_out = 30
         self.get_tf_info = True
         self.successfully_localized = False
         self.aptags_detected_inside_callback = False
@@ -163,8 +163,7 @@ class LocalizationActionServer(Node):
         if msg.detections:
             print('aptags detected from callback')
             frame = msg.header.frame_id  # to
-            print("frame", frame)
-            ### get the frame at which the detectin is taken
+            ### get the frame at which the detection is taken
             if self.transform_base_in_cam is None:
                 print('self.transform_base_in_cam is None')
                 ## since cam no longer in tf tree wrt base link correct
@@ -202,13 +201,18 @@ class LocalizationActionServer(Node):
                         print('self.aptags_detected' , self.aptags_detected)
                         print('self.aptags_detected' , self.aptags_detected)
                         source_frame = "tag_" + str(at.id)  # from
+                        print("source frame", source_frame)
                         transformation = self.tf_buffer.lookup_transform(source_frame, frame, rclpy.time.Time(),
                                                                          timeout=rclpy.duration.Duration(
                                                                              seconds=1000.0))
 
-                        print("transformation.transform.translation.z", transformation.transform.translation.z)
+                        # print("transformation.transform.translation.z", transformation.transform.translation.z)
+                        print("transformation.transform.translation.x", transformation.transform.translation.x)
+
+                        # print("transformation.transform.translation.y", transformation.transform.translation.y)
+
                         # detections are bad when distance is greater than 2
-                        if (transformation.transform.translation.z < 2):
+                        if (transformation.transform.translation.x < 2):
 
 
                             if self.vel == 0:
@@ -328,6 +332,11 @@ class LocalizationActionServer(Node):
     def publish_pose(self, robot_pose_aptags, rotation_matrix):
         robot_pose = PoseWithCovarianceStamped()
 
+        ## check if point in obstacle
+        map_x, map_y = self.world_to_map(robot_pose_aptags[0], robot_pose_aptags[1])
+        if self.map_matrix[map_x, map_y] > 97:
+            return
+        
         # self.get_logger().info(f'Publishiungg g POSEEEEE')
 
         quat = Quaternion()
@@ -498,7 +507,7 @@ class LocalizationActionServer(Node):
 
         if goal_handle.request.force_localize:
             self.max_weight = 0.0
-
+        print("self.max_weight", self.max_weight)
         if (self.max_weight >= 0.0015):  # 0.0015):
             self.get_logger().info('Robot is not lost; continuing without localizing')
             goal_handle.succeed()
@@ -517,8 +526,10 @@ class LocalizationActionServer(Node):
             goal_handle.succeed()
             result.result = True
         else:
-            goal_handle.abort()
-            result.result = False
+            goal_handle.succeed()
+            result.result = True
+            # goal_handle.abort()
+            # result.result = False
 
         # If you want to set the goal state to aborted in case of an error, use:
         # goal_handle.abort(result)

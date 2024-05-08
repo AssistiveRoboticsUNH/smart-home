@@ -45,15 +45,15 @@ namespace pddl_lib {
                                                       }},
                 {{"lunch",      "FoodProtocol"},      {{"guide_1_msg",   {0, 10}},
                                                               {"guide_2_msg",  {0,  10}},
-                                                              {"automated_msg",              {0, 0}},
+                                                              {"automated_msg",              {0, 10}},
                                                               {"recorded_msg",       {10, 0}},
                                                               {"call_caregiver_guide_msg", {10, 0}},
                                                               {"call_caregiver_msg", {10, 0}},
                                                       }},
-                {{"breakfast",  "FoodProtocol"},      {{"guide_1_msg",   {0, 600}},
-                                                              {"guide_2_msg",  {0,  600}},
-                                                              {"automated_msg",              {0, 600}},
-                                                              {"recorded_msg",       {10, 600}},
+                {{"breakfast",  "FoodProtocol"},      {{"guide_1_msg",   {0, 200}},
+                                                              {"guide_2_msg",  {0,  200}},
+                                                              {"automated_msg",              {0, 200}},
+                                                              {"recorded_msg",       {10, 200}},
                                                               {"call_caregiver_guide_msg", {10, 0}},
                                                               {"call_caregiver_msg", {10, 0}},
                                                       }}
@@ -575,8 +575,8 @@ namespace pddl_lib {
                 if (!status_loc) {
                     std::cout << "Fail: " << std::endl;
                     ps.localize_->async_cancel_all_goals();
-                    lock.UnLock();
-                    return BT::NodeStatus::FAILURE;
+                    //lock.UnLock();
+                    //return BT::NodeStatus::FAILURE;
                 }
                 ps.localize_->async_cancel_all_goals();
 
