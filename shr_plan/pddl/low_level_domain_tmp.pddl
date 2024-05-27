@@ -18,10 +18,13 @@
     (robot_at ?lmr - LandmarkRobot)
     (robot_at_time ?t - Time ?lmr - LandmarkRobot)
     (person_at ?t - Time ?p - Person ?lmp - LandmarkPerson)
+    (person_at ?t - Time ?p - Person ?lmp - LandmarkPerson)
+
     (person_taking_medicine ?t - Time)
     (person_eating_food ?t - Time)
 
-    (move_to_home_enabled)
+    (person_at_success ?p - Person ?lmp - LandmarkPerson)
+
 
     ;; physical constants
     (traversable ?from ?to - LandmarkRobot)
@@ -34,7 +37,7 @@
 
     ;; success conditions
     (message_given_success ?m - Msg)
-    (person_at_success ?p - Person ?lmp - LandmarkPerson)
+
     (medicine_taken_success)
     (food_eaten_success)
 
@@ -64,14 +67,15 @@
     ;; constraints on the state of the world. object instances here refer to non-input instances
     (reminder_robot_location_constraint ?a - ReminderAction ?lmr - LandmarkRobot)
     (reminder_person_location_constraint ?a - ReminderAction ?p - Person ?lmp - LandmarkPerson)
+    (reminder_person_didnt_leave_constraint ?a - ReminderAction ?p - Person)
     ;;(wait_not_person_location_constraint ?t - Time ?p - Person ?lmp - LandmarkPerson )
     (wait_person_location_constraint ?t - Time ?p - Person ?lmp - LandmarkPerson )
     (noaction_not_person_location_constraint ?na - NoAction ?p - Person ?lmp - LandmarkPerson)
-    (noaction_person_location_constraint ?na - NoAction ?p - Person ?lmp - LandmarkPerson)
-
     (reminder_person_not_taking_medicine_constraint ?a - ReminderAction ?p - Person)
     (reminder_person_not_eating_food_constraint ?a - ReminderAction ?p - Person)
+
     (wait_robot_location_constraint ?t - Time ?lmp - LandmarkRobot )
+
 
     (success)
     (na_used ?na - NoAction)
@@ -137,7 +141,7 @@
 (:action GiveReminder
     :parameters (?a - ReminderAction ?t - Time ?p - Person ?m - Msg)
     :precondition (and
-            ;;(not move_to_home_enabled)
+
             (GiveReminder_enabled)
             (current_time ?t)
 
@@ -202,47 +206,14 @@
 	)
 )
 
-
-;; Update success status
-(:action MessageGivenSuccess
-	:parameters ()
-	:precondition (and
-	                (not
-                        (forall (?m - Msg)
-                          (not (and (message_given_success ?m) (message_given ?m) ) )
-                        )
-                    )
-                    (not (abort))
-                  )
-    :effect (success)
-)
-
-(:action PersonAtSuccess
-	:parameters (?p - Person ?t - Time ?lmp - LandmarkPerson)
-	:precondition (and
-	                (current_time ?t)
-	                (person_at ?t ?p ?lmp)
-	                (person_at_success ?p ?lmp)
-	                (not (abort))
-                  )
-    :effect (success)
-)
-
-
 ;; check if person Left
 (:action NoActionUsed
 	:parameters (?t - Time ?p - Person ?na - NoAction)
 	:precondition (and
-                  ;; this condition enforces that the person is at the location specified in person_location_constraint
-                  (forall (?loc - LandmarkPerson)
-                    (not (and (not (person_at ?t ?p ?loc)) (noaction_person_location_constraint ?na ?p ?loc) ) )
-                  )
-
                   ;; this condition enforces that the robot is at the location specified in person_location_constraint
-                    (forall (?lmr - LandmarkRobot)
-                      (not (and (not (robot_at ?lmr)) (wait_robot_location_constraint ?t ?lmr) ) )
-                    )
-
+                  (forall (?lmr - LandmarkRobot)
+                    (not (and (not (robot_at ?lmr)) (wait_robot_location_constraint ?t ?lmr) ) )
+                  )
                   (not (na_used ?na))
                   ;; this condition enforces that the person is not at the location specified in not_person_location_constraint
                   (forall (?loc - LandmarkPerson)
@@ -266,9 +237,63 @@
                   (forall (?na - NoAction)
                     (na_used ?na)
                   )
+
                   (not (abort))
                 )
     :effect (success)
 )
+
+;; Update success status
+(:action MessageGivenSuccess
+	:parameters ()
+	:precondition (and
+	                (not
+                        (forall (?m - Msg)
+                          (not (and (message_given_success ?m) (message_given ?m) ) )
+                        )
+                    )
+                    (not (abort))
+                  )
+    :effect (success)
+)
+
+; taking medicine
+(:action MedicineTakenSuccess
+	:parameters ()
+	:precondition (and
+	                (not (forall (?t - Time)
+                          (not (and (medicine_taken_success) (person_taking_medicine ?t) ) )
+                       )
+	                )
+	                (not (abort))
+                )
+    :effect (success)
+)
+
+;; eating food
+(:action FoodEatenSuccess
+	:parameters ()
+	:precondition (and
+	                (not (forall (?t - Time)
+	                        (not (and (food_eaten_success) (person_eating_food ?t) ) )
+                       )
+	                )
+	                (not (abort))
+                )
+    :effect (success)
+)
+
+;; Update success status
+(:action PersonAtSuccess
+	:parameters (?p - Person ?t - Time ?lmp - LandmarkPerson)
+	:precondition (and
+	                (current_time ?t)
+	                (person_at ?t ?p ?lmp)
+	                (person_at_success ?p ?lmp)
+	                (not (abort))
+                  )
+    :effect (success)
+)
+
 
 )

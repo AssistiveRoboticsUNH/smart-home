@@ -11,12 +11,10 @@
     na1 na2 na3 - NoAction
 )
 (:init
-    (person_left_is_a_success)
-    (person_at t1 nathan inside_not_bedroom)
+    (person_at t1 nathan bedroom)
     (robot_at home)
     (robot_at_time t1 home)
-    (person_outside outside)
-    
+
     (DetectPerson_enabled)
     (GiveReminder_enabled)
 
@@ -36,7 +34,7 @@
 
     ;;success states
     (message_given_success reminder_3_msg)
-    ;;(person_left_success)
+    (person_at_success nathan outside)
 
     ;; specify which actions must come before others
     (reminder_blocks_reminder first_reminder second_reminder )
@@ -55,33 +53,22 @@
     (reminder_person_location_constraint third_reminder nathan inside_not_bedroom)
     (reminder_robot_location_constraint third_reminder designated_space)
 
-    (reminder_person_didnt_leave_constraint first_reminder nathan)
-    (reminder_person_didnt_leave_constraint second_reminder nathan)
-    (reminder_person_didnt_leave_constraint third_reminder nathan)
-
     (wait_person_location_constraint t1 nathan inside_not_bedroom)
     (wait_person_location_constraint t2 nathan inside_not_bedroom)
     (wait_person_location_constraint t3 nathan inside_not_bedroom)
     (wait_person_location_constraint t4 nathan inside_not_bedroom)
     (wait_person_location_constraint t5 nathan inside_not_bedroom)
 
-    (noaction_not_person_location_constraint na1 nathan inside_not_bedroom)
-    (noaction_not_person_location_constraint na2 nathan inside_not_bedroom)
-    (noaction_not_person_location_constraint na3 nathan inside_not_bedroom)
-    ;;(noaction_not_person_location_constraint na4 nathan inside_not_bedroom)
+    (noaction_person_location_constraint na1 nathan bedroom)
+    (noaction_person_location_constraint na2 nathan bedroom)
+    (noaction_person_location_constraint na3 nathan bedroom)
 
     (wait_robot_location_constraint t1 home)
     (wait_robot_location_constraint t2 home)
     (wait_robot_location_constraint t3 home)
     (wait_robot_location_constraint t4 home)
-    ;;(wait_robot_location_constraint w5 home)
 )
-(:goal (and 
-        ;;(robot_at_time t1 home)
-        ;;(robot_at_time t2 home)
-        ;;(robot_at_time t3 home)
-        ;;(robot_at_time t4 home)
-        ;;(robot_at_time t5 home)
+(:goal (and
         (success)) 
         )
 )

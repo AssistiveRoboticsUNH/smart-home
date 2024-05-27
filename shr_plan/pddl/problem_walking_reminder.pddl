@@ -11,10 +11,10 @@
     na1 na2 na3 - NoAction
 )
 (:init
-    (person_left_is_a_success)
     (person_at t1 nathan bedroom)
     (robot_at home)
     (robot_at_time t1 home)
+    (person_at_success nathan outside)
 
     (DetectPerson_enabled)
     (GiveReminder_enabled)
@@ -35,6 +35,7 @@
 
     ;;success states
     (message_given_success reminder_1_msg)
+    (person_at_success nathan outside)
 
     ;; specify valid input argument combinations for all actions
     (valid_reminder_message automated_reminder reminder_1_msg)
