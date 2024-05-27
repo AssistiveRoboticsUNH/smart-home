@@ -17,9 +17,11 @@
 #include <shr_plan/actions.hpp>
 
 #include <shr_plan/world_state_converter.hpp>
+#include <cstdlib>  // for getenv
 
 using namespace pddl_lib;
 
+// CREATE A FOLDER IN HOME DIRECTORY CALLED PLANNER_DATA
 
 Domain load_domain(const std::string &domain_file) {
     std::string domain_str;
@@ -36,6 +38,7 @@ Domain load_domain(const std::string &domain_file) {
 std::optional<std::string> getPlan(const std::string &domain, const std::string &problem) {
     static std::mutex mutex;
     std::lock_guard<std::mutex> lock(mutex);
+    // std::string path = homeDir + "/planner_data";
     std::string path = "/home/hello-robot/planner_data";
     {
         std::ofstream domainFile(path + "/plan_solver/domain.pddl");

@@ -104,7 +104,7 @@ public:
         std::lock_guard<std::mutex> lock(tf_buffer_mtx);
         try {
 //            patient_location = tf_buffer_->lookupTransform("odom", params.person_tf, tf2::TimePointZero); //TODO fix
-// changed from odom to unity because odom is
+// changed from odom to unity because odom is not fixed
             patient_location = tf_buffer_->lookupTransform("unity", params.person_tf, tf2::TimePointZero, std::chrono::seconds(100000)); //TODO fix
 
         } catch (const tf2::TransformException &ex) {

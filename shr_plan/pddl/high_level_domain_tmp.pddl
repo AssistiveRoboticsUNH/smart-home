@@ -6,9 +6,9 @@
 )
 
 (:types
-  ReminderProtocol
-  LandmarkRobot
+  OneReminderProtocol
   LandmarkPerson
+  LandmarkRobot
   Time
   Person
 )
@@ -17,9 +17,11 @@
   (robot_at ?lmr - LandmarkRobot)
   (person_at ?t - Time ?p - Person ?lmp - LandmarkPerson)
   (person_currently_at ?p - Person ?lmp - LandmarkPerson)
-
-  ;; reminder
-  (time_for_reminder ?r - ReminderProtocol)
+  ;;reminder
+  (time_for_reminder ?r - OneReminderProtocol)
+  (already_reminded_person ?r - OneReminderProtocol)
+  (reminder_location ?lmp - LandmarkPerson)
+  (robot_location ?lmr - LandmarkRobot)
 
   ;; priority
   (priority_1)
@@ -30,13 +32,15 @@
 
   (low_level_failed)
 
-  (reminder_enabled ?r - ReminderProtocol)
+  (one_reminder_protocol_enabled ?r - OneReminderProtocol)
 
-  (success)
+
+	(success)
+
 )
 
 (:action MoveToLandmark
-	:parameters (?from - Landmark ?to - Landmark)
+	:parameters (?from - LandmarkRobot ?to - LandmarkRobot)
 	:precondition (and
 	                (robot_at ?from)
 	          )
@@ -72,31 +76,32 @@
 	:effect (and (priority_5) (not (priority_4)))
 )
 
-(:action StartReminderProtocol
-	:parameters (?r - ReminderProtocol)
+(:action StartOneReminderProtocol
+	:parameters (?r - OneReminderProtocol)
 	:precondition (and
-	    (priority_2)
+	  (priority_2)
       (time_for_reminder ?r)
-      (forall (?rem - ReminderProtocol) (not (reminder_enabled ?rem)) )
-    )
+      (not (already_reminded_person ?r))
+      ;;(forall (?one_rem - OneReminderProtocol) (not (one_reminder_protocol_enabled ?one_rem)) )
+		;;)
 	:effect (and
 	          (success)
-	          (not (priority_2))
-	          (reminder_enabled ?r)
-	          (not (low_level_failed))
+            (not (priority_2))
+            (one_reminder_protocol_enabled ?r)
+            (not (low_level_failed))
           )
 )
 
-(:action ContinueReminderProtocol
-	:parameters (?r - ReminderProtocol)
+(:action ContinueOneReminderProtocol
+	:parameters (?r - OneReminderProtocol)
 	:precondition (and
 	    (priority_2)
 	    (not (low_level_failed))
-
-      (reminder_enabled ?r)
       (time_for_reminder ?r)
-    )
-	:effect (and (success) (not (priority_1)) )
+      (not (already_reminded_person ?r)
+      (one_reminder_protocol_enabled ?r)
+		)
+	:effect (and (success) (not (priority_2)) )
 )
 
 (:action Idle
@@ -106,7 +111,8 @@
 		)
 	:effect (and (success)
 	              (not (priority_5))
-                (forall (?rem - ReminderProtocol) (not (reminder_enabled ?rem)) )
+                (forall (?one_rem - OneReminderProtocol) (not (one_reminder_protocol_enabled ?one_rem)) )
+                ;;(forall (?food - FoodProtocol) (not (food_protocol_enabled ?food)) )
                 (not (low_level_failed))
           )
 )
