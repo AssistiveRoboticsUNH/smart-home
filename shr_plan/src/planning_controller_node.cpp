@@ -39,14 +39,14 @@ std::optional<std::string> getPlan(const std::string &domain, const std::string 
     static std::mutex mutex;
     std::lock_guard<std::mutex> lock(mutex);
     // std::string path = homeDir + "/planner_data";
-    std::string path = "/home/hello-robot/planner_data";
+    std::string path = "/home/olagh48652/planner_data";
     {
         std::ofstream domainFile(path + "/plan_solver/domain.pddl");
         domainFile << domain;
         std::ofstream problemFile(path + "/plan_solver/problem.pddl");
         problemFile << problem;
     }
-    std::string cmd = "ros2 run plan_solver_py plan_solver -o /home/hello-robot/planner_data/plan_solver/domain.pddl -f /home/hello-robot/planner_data/plan_solver/problem.pddl > /dev/null";
+    std::string cmd = "ros2 run plan_solver_py plan_solver -o /home/olagh48652/planner_data/plan_solver/domain.pddl -f /home/olagh48652/planner_data/plan_solver/problem.pddl > /dev/null";
     std::system(cmd.c_str());
 
     std::ifstream file(path + "/plan_solver/bt.xml");
@@ -78,7 +78,7 @@ public:
         return TRUTH_VALUE::FALSE;
     }
 
-    TRUTH_VALUE robot_at(TRUTH_VALUE val, Landmark lm) const override {
+    TRUTH_VALUE robot_at(TRUTH_VALUE val, LandmarkRobot lm) const override {
         if (world_state_converter->check_robot_at_loc(lm)) {
             return TRUTH_VALUE::TRUE;
         } else {
@@ -86,7 +86,18 @@ public:
         }
     }
 
-    TRUTH_VALUE person_at(TRUTH_VALUE val, Time t, Person p, Landmark lm) const override {
+    TRUTH_VALUE robot_at_time(TRUTH_VALUE val, Time t, LandmarkRobot lm) const override {
+        if (val == TRUTH_VALUE::UNKNOWN || t != "t1") {
+            return val;
+        }
+        if (world_state_converter->check_robot_at_loc(lm)) {
+            return TRUTH_VALUE::TRUE;
+        } else {
+            return TRUTH_VALUE::FALSE;
+        }
+    }
+
+    TRUTH_VALUE person_at(TRUTH_VALUE val, Time t, Person p, LandmarkPerson lm) const override {
         if (val == TRUTH_VALUE::UNKNOWN || t != "t1") {
             return val;
         }
@@ -97,7 +108,8 @@ public:
         }
     }
 
-    TRUTH_VALUE person_currently_at(TRUTH_VALUE val,Person p, Landmark lm) const override {
+    // In high level found
+    TRUTH_VALUE person_currently_at(TRUTH_VALUE val, Person p, LandmarkPerson lm) const override {
         if (val == TRUTH_VALUE::UNKNOWN) {
             return val;
         }
@@ -107,30 +119,6 @@ public:
         } else {
             return TRUTH_VALUE::FALSE;
         }
-    }
-
-    TRUTH_VALUE person_at_door(TRUTH_VALUE val, WanderingProtocol w) const override {
-        auto params = world_state_converter->get_params();
-        if (auto index = get_inst_index(w, params)) {
-            auto msg = world_state_converter->get_world_state_msg();
-            if (world_state_converter->check_person_at_loc(
-                    params.pddl.WanderingProtocols.door_location[index.value()])) {
-                return TRUTH_VALUE::TRUE;
-            }
-        }
-        return TRUTH_VALUE::FALSE;
-    }
-
-    TRUTH_VALUE person_outside(TRUTH_VALUE val, WanderingProtocol w) const override {
-        auto params = world_state_converter->get_params();
-        if (auto index = get_inst_index(w, params)) {
-            auto msg = world_state_converter->get_world_state_msg();
-            if (world_state_converter->check_person_at_loc(
-                    params.pddl.WanderingProtocols.outside_location[index.value()])) {
-                return TRUTH_VALUE::TRUE;
-            }
-        }
-        return TRUTH_VALUE::FALSE;
     }
 
     TRUTH_VALUE time_to_eat(TRUTH_VALUE val, FoodProtocol f) const override {
@@ -143,40 +131,76 @@ public:
         return TRUTH_VALUE::FALSE;
     }
 
-    TRUTH_VALUE already_ate(TRUTH_VALUE val, FoodProtocol f) const override {
-        if (val == TRUTH_VALUE::TRUE) {
-            return TRUTH_VALUE::TRUE;
-        }
-        // modification
+    TRUTH_VALUE time_to_alert(TRUTH_VALUE val, AlertProtocol a) const override {
         auto params = world_state_converter->get_params();
-        if (auto index = get_inst_index(f, params)) {
-//            std::cout << "params.pddl.FoodProtocols.eat_times[index.value()]: " << params.pddl.FoodProtocols.eat_times[index.value()] << std::endl;
-//            std::cout << "compare_time(params.pddl.FoodProtocols.eat_times[index.value()]): " << compare_time(params.pddl.FoodProtocols.eat_times[index.value()]) << std::endl;
-//            std::cout << "world_state_converter->get_world_state_msg()->person_eating : " << world_state_converter->get_world_state_msg()->person_eating << std::endl;
-            if (world_state_converter->get_world_state_msg()->person_eating == 1 && compare_time(params.pddl.FoodProtocols.eat_times[index.value()])) {
-                return TRUTH_VALUE::TRUE;
-            }
-            return val;
-        }
-        // finish modification
-        //TODO this is not right. It should check if the current time window corresponds to f
-
-//        if (world_state_converter->get_world_state_msg()->person_eating == 1) {
-//            return TRUTH_VALUE::TRUE;
-//        }
-//        return val;
-    }
-
-
-    TRUTH_VALUE too_late_to_go_outside(TRUTH_VALUE val, WanderingProtocol w) const override {
-        auto params = world_state_converter->get_params();
-        if (auto index = get_inst_index(w, params)) {
-            if (compare_time(params.pddl.WanderingProtocols.too_late_to_leave_time[index.value()])) {
+        if (auto index = get_inst_index(a, params)) {
+            if (compare_time(params.pddl.AlertProtocols.alert_reminder_times[index.value()])) {
                 return TRUTH_VALUE::TRUE;
             }
         }
         return TRUTH_VALUE::FALSE;
     }
+
+    TRUTH_VALUE time_for_walk_reminder(TRUTH_VALUE val, WalkingProtocol w) const override {
+        auto params = world_state_converter->get_params();
+        if (auto index = get_inst_index(w, params)) {
+            if (compare_time(params.pddl.WalkingProtocols.walk_reminder_times[index.value()])) {
+                return TRUTH_VALUE::TRUE;
+            }
+        }
+        return TRUTH_VALUE::FALSE;
+    }
+
+//    TRUTH_VALUE already_reminded_walk(TRUTH_VALUE val, WalkingProtocol w) const override {
+//        auto params = world_state_converter->get_params();
+//        if (auto index = get_inst_index(w, params)) {
+//            if (compare_time(params.pddl.WalkingProtocols.walk_reminder_times[index.value()])) {
+//                return TRUTH_VALUE::TRUE;
+//            }
+//        }
+//        return TRUTH_VALUE::FALSE;
+//    }
+
+    TRUTH_VALUE time_for_gym_reminder(TRUTH_VALUE val, GymProtocol g) const override {
+        auto params = world_state_converter->get_params();
+        if (auto index = get_inst_index(g, params)) {
+            if (compare_time(params.pddl.GymProtocols.gym_reminder_times[index.value()])) {
+                return TRUTH_VALUE::TRUE;
+            }
+        }
+        return TRUTH_VALUE::FALSE;
+    }
+
+//    TRUTH_VALUE already_reminded_gym(TRUTH_VALUE val, GymProtocol g) const override {
+//        auto params = world_state_converter->get_params();
+//        if (auto index = get_inst_index(g, params)) {
+//            if (compare_time(params.pddl.GymProtocols.gym_reminder_times[index.value()])) {
+//                return TRUTH_VALUE::TRUE;
+//            }
+//        }
+//        return TRUTH_VALUE::FALSE;
+//    }
+
+    TRUTH_VALUE time_for_sleep_reminder(TRUTH_VALUE val, SleepReminderProtocol s) const override {
+        auto params = world_state_converter->get_params();
+        if (auto index = get_inst_index(s, params)) {
+            if (compare_time(params.pddl.SleepReminderProtocols.sleep_reminder_times[index.value()])) {
+                return TRUTH_VALUE::TRUE;
+            }
+        }
+        return TRUTH_VALUE::FALSE;
+    }
+
+//    TRUTH_VALUE already_reminded_sleep(TRUTH_VALUE val, SleepReminderProtocol s) const override {
+//        auto params = world_state_converter->get_params();
+//        if (auto index = get_inst_index(s, params)) {
+//            if (compare_time(params.pddl.SleepReminderProtocols.sleep_reminder_times[index.value()])) {
+//                return TRUTH_VALUE::TRUE;
+//            }
+//        }
+//        return TRUTH_VALUE::FALSE;
+//    }
+
 
     TRUTH_VALUE time_to_take_medicine(TRUTH_VALUE val, MedicineProtocol m) const override {
         auto params = world_state_converter->get_params();
@@ -188,6 +212,7 @@ public:
         return TRUTH_VALUE::FALSE;
     }
 
+    // low level
     TRUTH_VALUE person_taking_medicine(TRUTH_VALUE val, Time t) const override {
         if (val == TRUTH_VALUE::TRUE) {
             return TRUTH_VALUE::TRUE;
@@ -198,14 +223,37 @@ public:
         return val;
     }
 
+    TRUTH_VALUE already_ate(TRUTH_VALUE val, FoodProtocol f) const override {
+        if (val == TRUTH_VALUE::TRUE) {
+            return TRUTH_VALUE::TRUE;
+        }
+        // modification
+        auto params = world_state_converter->get_params();
+        if (auto index = get_inst_index(f, params)) {
+//            std::cout << "params.pddl.FoodProtocols.eat_times[index.value()]: " << params.pddl.FoodProtocols.eat_times[index.value()] << std::endl;
+//            std::cout << "compare_time(params.pddl.FoodProtocols.eat_times[index.value()]): " << compare_time(params.pddl.FoodProtocols.eat_times[index.value()]) << std::endl;
+//            std::cout << "world_state_converter->get_world_state_msg()->person_eating : " << world_state_converter->get_world_state_msg()->person_eating << std::endl;
+            if (world_state_converter->get_world_state_msg()->person_eating == 1 &&
+                compare_time(params.pddl.FoodProtocols.eat_times[index.value()])) {
+                return TRUTH_VALUE::TRUE;
+            }
+            return val;
+        }
+    }
+
+    // TODO: Check if this needs to be sandwiched between time window
     TRUTH_VALUE already_took_medicine(TRUTH_VALUE val, MedicineProtocol m) const override {
         if (val == TRUTH_VALUE::TRUE) {
             return TRUTH_VALUE::TRUE;
         }
-        if (world_state_converter->get_world_state_msg()->person_taking_medicine == 1) {
-            return TRUTH_VALUE::TRUE;
+        auto params = world_state_converter->get_params();
+        if (auto index = get_inst_index(m, params)) {
+            if (world_state_converter->get_world_state_msg()->person_taking_medicine == 1 &&
+                compare_time(params.pddl.MedicineProtocols.take_medication_time[index.value()])) {
+                return TRUTH_VALUE::TRUE;
+            }
+            return val;
         }
-        return val;
     }
 
 
@@ -294,22 +342,12 @@ int main(int argc, char **argv) {
         auto [ps, lock] = ProtocolState::getConcurrentInstance();
         lock.Lock();
         ps.world_state_converter = world_state_converter;
-        ps.call_client_ = rclcpp_action::create_client<shr_msgs::action::CallRequest>(
-                world_state_converter, "make_call");
-        while (!ps.call_client_->wait_for_action_server(std::chrono::seconds(5))) {
-            RCLCPP_INFO(rclcpp::get_logger("planning_controller"), "Waiting for /make_call action server...");
-        }
-       ps.nav_client_ = rclcpp_action::create_client<nav2_msgs::action::NavigateToPose>(
-               world_state_converter, "navigate_to_pose");
-       while (!ps.nav_client_->wait_for_action_server(std::chrono::seconds(5))) {
-           RCLCPP_INFO(rclcpp::get_logger("planning_controller"), "Waiting for /navigate_to_pose action server...");
-       }
 
-        // ps.waypoint_action_client_ = rclcpp_action::create_client<shr_msgs::action::WaypointRequest> (
-        //         world_state_converter, "waypoint_request");
-        // while (!ps.waypoint_action_client_->wait_for_action_server(std::chrono::seconds(5))) {
-        //     RCLCPP_INFO(rclcpp::get_logger("planning_controller"), "Waiting for /waypoint action server...");
-        // }
+        ps.nav_client_ = rclcpp_action::create_client<nav2_msgs::action::NavigateToPose>(
+                world_state_converter, "navigate_to_pose");
+        while (!ps.nav_client_->wait_for_action_server(std::chrono::seconds(5))) {
+            RCLCPP_INFO(rclcpp::get_logger("planning_controller"), "Waiting for /navigate_to_pose action server...");
+        }
 
         ps.read_action_client_ = rclcpp_action::create_client<shr_msgs::action::ReadScriptRequest>(
                 world_state_converter, "read_script");

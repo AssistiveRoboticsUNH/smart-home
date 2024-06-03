@@ -21,6 +21,7 @@
     (person_taking_medicine ?t - Time)
     (person_eating_food ?t - Time)
 
+    (no_action)
     (move_to_home_enabled)
 
     ;; physical constants
@@ -64,6 +65,7 @@
     ;; constraints on the state of the world. object instances here refer to non-input instances
     (reminder_robot_location_constraint ?a - ReminderAction ?lmr - LandmarkRobot)
     (reminder_person_location_constraint ?a - ReminderAction ?p - Person ?lmp - LandmarkPerson)
+    (reminder_person_not_location_constraint ?a - ReminderAction ?p - Person ?lmp - LandmarkPerson)
     ;;(wait_not_person_location_constraint ?t - Time ?p - Person ?lmp - LandmarkPerson )
     (wait_person_location_constraint ?t - Time ?p - Person ?lmp - LandmarkPerson )
     (noaction_not_person_location_constraint ?na - NoAction ?p - Person ?lmp - LandmarkPerson)
@@ -167,6 +169,10 @@
               (not (and (not (person_at ?t ?p ?lmp)) (reminder_person_location_constraint ?a ?p ?lmp) ) )
             )
 
+            ;; this condition enforces that the person is not at the location specified in not_person_location_constraint
+            (forall (?lmp - LandmarkPerson)
+              (not (and (person_at ?t ?p ?lmp) (reminder_person_not_location_constraint ?a ?p ?lmp) ) )
+            )
             (not (abort))
 		)
     :effect (and (message_given ?m)  (executed_reminder ?a)
@@ -233,6 +239,8 @@
 (:action NoActionUsed
 	:parameters (?t - Time ?p - Person ?na - NoAction)
 	:precondition (and
+
+	              (not (no_action))
                   ;; this condition enforces that the person is at the location specified in person_location_constraint
                   (forall (?loc - LandmarkPerson)
                     (not (and (not (person_at ?t ?p ?loc)) (noaction_person_location_constraint ?na ?p ?loc) ) )
@@ -267,6 +275,32 @@
                     (na_used ?na)
                   )
                   (not (abort))
+                )
+    :effect (success)
+)
+
+;; taking medicine
+(:action MedicineTakenSuccess
+	:parameters ()
+	:precondition (and
+	                (not (forall (?t - Time)
+                          (not (and (medicine_taken_success) (person_taking_medicine ?t) ) )
+                       )
+	                )
+	                (not (abort))
+                )
+    :effect (success)
+)
+
+;; eating food
+(:action FoodEatenSuccess
+	:parameters ()
+	:precondition (and
+	                (not (forall (?t - Time)
+                          (not (and (food_eaten_success) (person_eating_food ?t) ) )
+                       )
+	                )
+	                (not (abort))
                 )
     :effect (success)
 )

@@ -13,17 +13,6 @@ namespace pddl_lib {
         return std::stoi(hour) * 60 * 60 + std::stoi(minute) * 60 + std::stoi(seconds);
     }
 
-    std::optional<long> get_inst_index(WanderingProtocol w, const shr_parameters::Params &params) {
-        const auto &instances = params.pddl.WanderingProtocols.instances;
-        auto it = std::find(instances.begin(), instances.end(), w);
-        if (it != instances.end()) {
-            auto index = std::distance(instances.begin(), it);
-            return index;
-        } else {
-            return {};
-        }
-    }
-
     std::optional<long> get_inst_index(FoodProtocol f, const shr_parameters::Params &params) {
         const auto &instances = params.pddl.FoodProtocols.instances;
         auto it = std::find(instances.begin(), instances.end(), f);
@@ -35,9 +24,42 @@ namespace pddl_lib {
         }
     }
 
-    std::optional<long> get_inst_index(FallProtocol f, const shr_parameters::Params &params) {
-        const auto &instances = params.pddl.FallProtocols.instances;
-        auto it = std::find(instances.begin(), instances.end(), f);
+    std::optional<long> get_inst_index(SleepReminderProtocol s, const shr_parameters::Params &params) {
+        const auto &instances = params.pddl.SleepReminderProtocols.instances;
+        auto it = std::find(instances.begin(), instances.end(), s);
+        if (it != instances.end()) {
+            auto index = std::distance(instances.begin(), it);
+            return index;
+        } else {
+            return {};
+        }
+    }
+
+    std::optional<long> get_inst_index(GymProtocol g, const shr_parameters::Params &params) {
+        const auto &instances = params.pddl.GymProtocols.instances;
+        auto it = std::find(instances.begin(), instances.end(), g);
+        if (it != instances.end()) {
+            auto index = std::distance(instances.begin(), it);
+            return index;
+        } else {
+            return {};
+        }
+    }
+
+    std::optional<long> get_inst_index(WalkingProtocol w, const shr_parameters::Params &params) {
+        const auto &instances = params.pddl.WalkingProtocols.instances;
+        auto it = std::find(instances.begin(), instances.end(), w);
+        if (it != instances.end()) {
+            auto index = std::distance(instances.begin(), it);
+            return index;
+        } else {
+            return {};
+        }
+    }
+
+    std::optional<long> get_inst_index(AlertProtocol a, const shr_parameters::Params &params) {
+        const auto &instances = params.pddl.AlertProtocols.instances;
+        auto it = std::find(instances.begin(), instances.end(), a);
         if (it != instances.end()) {
             auto index = std::distance(instances.begin(), it);
             return index;
@@ -58,14 +80,18 @@ namespace pddl_lib {
     }
 
     std::optional<long> get_inst_index(InstantiatedParameter inst, const shr_parameters::Params &params) {
-        if (inst.type == "WanderingProtocol") {
-            return get_inst_index((WanderingProtocol) inst.name, params);
-        } else if (inst.type == "MedicineProtocol") {
+        if (inst.type == "MedicineProtocol") {
             return get_inst_index((MedicineProtocol) inst.name, params);
+        } else if (inst.type == "GymProtocol") {
+            return get_inst_index((GymProtocol) inst.name, params);
         } else if (inst.type == "FoodProtocol") {
             return get_inst_index((FoodProtocol) inst.name, params);
-        } else if (inst.type == "FallProtocol") {
-            return get_inst_index((FallProtocol) inst.name, params);
+        } else if (inst.type == "SleepReminderProtocol") {
+            return get_inst_index((SleepReminderProtocol) inst.name, params);
+        }else if (inst.type == "WalkingProtocol") {
+            return get_inst_index((WalkingProtocol) inst.name, params);
+        }else if (inst.type == "AlertProtocol") {
+            return get_inst_index((AlertProtocol) inst.name, params);
         }
         return {};
     }

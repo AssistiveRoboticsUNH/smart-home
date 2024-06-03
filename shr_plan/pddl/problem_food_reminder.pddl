@@ -1,4 +1,4 @@
-(define (problem two_reminder)
+(define (problem food_reminder)
 (:domain shr_domain)
 (:objects
     bedroom inside_not_bedroom outside - LandmarkPerson
@@ -11,13 +11,13 @@
     na1 na2 na3 - NoAction
 )
 (:init
-    (person_at t1 nathan inside_not_bedroom)
-    (robot_at home)
-    (robot_at_time t1 home)
-    (person_outside outside)
-    
+    ;;(person_at t1 nathan inside_not_bedroom)
+    ;;(robot_at home)
+    ;;(robot_at_time t1 home)
+
     (DetectPerson_enabled)
     (GiveReminder_enabled)
+    (DetectEatingFood_enabled)
 
     (current_time t1)
     (next_time t1 t2)
@@ -53,9 +53,6 @@
 
     (reminder_person_not_eating_food_constraint first_reminder nathan)
     (reminder_person_not_eating_food_constraint second_reminder nathan)
-
-    (reminder_person_didnt_leave_constraint first_reminder nathan)
-    (reminder_person_didnt_leave_constraint second_reminder nathan)
 
     (wait_person_location_constraint t1 nathan inside_not_bedroom)
     (wait_person_location_constraint t2 nathan inside_not_bedroom)

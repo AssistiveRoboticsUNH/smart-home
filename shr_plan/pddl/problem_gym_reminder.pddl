@@ -1,4 +1,4 @@
-(define (problem three_reminder)
+(define (problem gym_reminder)
 (:domain shr_domain)
 (:objects
     bedroom inside_not_bedroom outside - LandmarkPerson
@@ -11,10 +11,11 @@
     na1 na2 na3 - NoAction
 )
 (:init
-    (person_at t1 nathan bedroom)
-    (robot_at home)
-    (robot_at_time t1 home)
+    ;;(person_at t1 nathan bedroom)
+    ;;(robot_at home)
+    ;;(robot_at_time t1 home)
 
+    ;;(no_action)
     (DetectPerson_enabled)
     (GiveReminder_enabled)
 
@@ -47,10 +48,13 @@
 
     ;; specify world state constraints for all actions
     (reminder_person_location_constraint first_reminder nathan inside_not_bedroom)
+    ;;(reminder_person_not_location_constraint first_reminder nathan outside)
     (reminder_robot_location_constraint first_reminder designated_space)
     (reminder_person_location_constraint second_reminder nathan inside_not_bedroom)
+    ;;(reminder_person_not_location_constraint second_reminder nathan outside)
     (reminder_robot_location_constraint second_reminder designated_space)
     (reminder_person_location_constraint third_reminder nathan inside_not_bedroom)
+    ;;(reminder_person_not_location_constraint third_reminder nathan outside)
     (reminder_robot_location_constraint third_reminder designated_space)
 
     (wait_person_location_constraint t1 nathan inside_not_bedroom)

@@ -74,16 +74,19 @@ class UnDockingActionServer(Node):
 
         while time.time() - start_time < self.time_out:
             print("&&&&&&&&& self.min_range in while #################")
-            print(self.min_range)
-            if self.min_range is not None and self.min_range > 0.7:
-                msg.linear.x = -speed
-                self.vel_pub.publish(msg)
-                print("Undocking")
-            else:
-                # msg.linear.x = -speed
-                msg.linear.x = 0.0
-                self.vel_pub.publish(msg)
-                print("Stop robot, obstacle close")
+            msg.linear.x = -speed
+            self.vel_pub.publish(msg)
+            # print(self.min_range)
+
+            # if self.min_range is not None and self.min_range > 0.7:
+            #     msg.linear.x = -speed
+            #     self.vel_pub.publish(msg)
+            #     print("Undocking")
+            # else:
+            #     # msg.linear.x = -speed
+            #     msg.linear.x = 0.0
+            #     self.vel_pub.publish(msg)
+            #     print("Stop robot, obstacle close")
 
         msg.linear.x = 0.0
         self.vel_pub.publish(msg)

@@ -1,19 +1,19 @@
-(define (problem one_reminder)
+(define (problem sleep_reminder)
 (:domain shr_domain)
 (:objects
     bedroom inside_not_bedroom outside - LandmarkPerson
     designated_space home - LandmarkRobot
     nathan - Person
     t1 t2 t3 t4 t5 - Time
-    reminder_1_msg - Msg
-    automated_reminder  - ReminderAction
+    reminder_1_msg reminder_2_msg reminder_3_msg - Msg
+    first_reminder second_reminder third_reminder - ReminderAction
     w1 w2 w3 w4 w5 - WaitAction
     na1 na2 na3 - NoAction
 )
 (:init
-    (person_at t1 nathan bedroom)
-    (robot_at home)
-    (robot_at_time t1 home)
+    ;;(person_at t1 nathan inside_not_bedroom)
+    ;;(robot_at home)
+    ;;(robot_at_time t1 home)
 
     (DetectPerson_enabled)
     (GiveReminder_enabled)
@@ -33,14 +33,25 @@
     (traversable home designated_space)
 
     ;;success states
-    (message_given_success reminder_1_msg)
+    (message_given_success reminder_3_msg)
+    (person_at_success nathan bedroom)
+
+    ;; specify which actions must come before others
+    (reminder_blocks_reminder first_reminder second_reminder)
+    (reminder_blocks_reminder second_reminder third_reminder)
 
     ;; specify valid input argument combinations for all actions
-    (valid_reminder_message automated_reminder reminder_1_msg)
+    (valid_reminder_message first_reminder reminder_1_msg)
+    (valid_reminder_message second_reminder reminder_2_msg)
+    (valid_reminder_message third_reminder reminder_3_msg)
 
     ;; specify world state constraints for all actions
-    (reminder_person_location_constraint automated_reminder nathan inside_not_bedroom)
-    (reminder_robot_location_constraint automated_reminder designated_space)
+    (reminder_person_location_constraint first_reminder nathan inside_not_bedroom)
+    (reminder_robot_location_constraint first_reminder designated_space)
+    (reminder_person_location_constraint second_reminder nathan inside_not_bedroom)
+    (reminder_robot_location_constraint second_reminder designated_space)
+    (reminder_person_location_constraint third_reminder nathan inside_not_bedroom)
+    (reminder_robot_location_constraint third_reminder designated_space)
 
     (wait_person_location_constraint t1 nathan inside_not_bedroom)
     (wait_person_location_constraint t2 nathan inside_not_bedroom)
@@ -48,16 +59,16 @@
     (wait_person_location_constraint t4 nathan inside_not_bedroom)
     (wait_person_location_constraint t5 nathan inside_not_bedroom)
 
-    (noaction_not_person_location_constraint na1 nathan inside_not_bedroom)
-    (noaction_not_person_location_constraint na2 nathan inside_not_bedroom)
-    (noaction_not_person_location_constraint na3 nathan inside_not_bedroom)
+    (noaction_person_location_constraint na1 nathan outside)
+    (noaction_person_location_constraint na2 nathan outside)
+    (noaction_person_location_constraint na3 nathan outside)
 
     (wait_robot_location_constraint t1 home)
     (wait_robot_location_constraint t2 home)
     (wait_robot_location_constraint t3 home)
     (wait_robot_location_constraint t4 home)
-        
 )
-(:goal (and (success)  ) )
-
+(:goal (and
+        (success)) 
+        )
 )

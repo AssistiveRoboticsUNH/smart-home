@@ -40,51 +40,62 @@ class DockingActionServer(Node):
         self.goal_cancel = True
         return CancelResponse.ACCEPT
 
+    # def execute_callback(self, goal_handle):
+    #     print("working callback")
+    #     print("working init", goal_handle)
+    #
+    #     while not (self.docking.bumped):
+    #         if goal_handle.is_cancel_requested:
+    #             self.get_logger().info('Goal cancelled')
+    #             goal_handle.abort()
+    #             self.vel.linear.x = 0.0
+    #             self.vel.angular.z =0.0
+    #             self.pub.publish(self.vel)
+    #             result = DockingRequest.Result()
+    #             result.result = False
+    #             return result
+    #
+    #         self.docking.get_transformation_from_aptag_to_port()
+    #         self.docking.move_towards_tag()
+    #
+    #     print(self.docking.bumped)
+    #     if self.docking.bumped:
+    #         print("Bumped!!")
+    #         self.vel.linear.x = 0.0
+    #         self.vel.angular.z =0.0
+    #         self.pub.publish(self.vel)
+    #         self.get_logger().info("weblog="+'charger and port bumped!'+"charger status: {self.docking.charger_status}!")
+    #         goal_handle.succeed()
+    #         result = DockingRequest.Result()
+    #         result.result = True
+    #         self.docking.bumped = False
+    #         self.vel.linear.x = 0.0
+    #         self.vel.angular.z =0.0
+    #         self.pub.publish(self.vel)
+    #         self.rate.sleep()
+    #
+    #         return result
+    #     else:
+    #         goal_handle.abort()
+    #         self.vel.linear.x = 0.0
+    #         self.vel.angular.z =0.0
+    #         self.pub.publish(self.vel)
+    #
+    #         result = DockingRequest.Result()
+    #         self.get_logger().info("weblog="+' docking aborted!')
+    #         result.result = False
+    #         return result
     def execute_callback(self, goal_handle):
         print("working callback")
         print("working init", goal_handle)
 
-        while not (self.docking.bumped):
-            if goal_handle.is_cancel_requested:
-                self.get_logger().info('Goal cancelled')
-                goal_handle.abort()
-                self.vel.linear.x = 0.0
-                self.vel.angular.z =0.0
-                self.pub.publish(self.vel)
-                result = DockingRequest.Result()
-                result.result = False
-                return result
-            
-            self.docking.get_transformation_from_aptag_to_port()
-            self.docking.move_towards_tag()
+        goal_handle.succeed()
+        result = DockingRequest.Result()
+        result.result = True
 
-        print(self.docking.bumped)
-        if self.docking.bumped:
-            print("Bumped!!")
-            self.vel.linear.x = 0.0
-            self.vel.angular.z =0.0
-            self.pub.publish(self.vel)
-            self.get_logger().info("weblog="+'charger and port bumped!'+"charger status: {self.docking.charger_status}!")
-            goal_handle.succeed()
-            result = DockingRequest.Result()
-            result.result = True
-            self.docking.bumped = False
-            self.vel.linear.x = 0.0
-            self.vel.angular.z =0.0
-            self.pub.publish(self.vel)
-            self.rate.sleep()
 
-            return result
-        else:
-            goal_handle.abort()
-            self.vel.linear.x = 0.0
-            self.vel.angular.z =0.0
-            self.pub.publish(self.vel)
-            
-            result = DockingRequest.Result()
-            self.get_logger().info("weblog="+' docking aborted!')
-            result.result = False
-            return result
+        return result
+
 
 
 def main(args=None):

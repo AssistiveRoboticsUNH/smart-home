@@ -495,6 +495,47 @@ class LocalizationActionServer(Node):
         self.feedback = msg.feedback
         return
 
+    # def execute_callback(self, goal_handle):
+    #
+    #     self.get_logger().info('Executing goal...')
+    #     result = LocalizeRequest.Result()
+    #
+    #     self.get_logger().info("weblog=" + 'Executing goal...')
+    #
+    #     # Perform the navigation and localization logic here.
+    #     # Access the goal from the goal handle
+    #
+    #     if goal_handle.request.force_localize:
+    #         self.max_weight = 0.0
+    #     print("self.max_weight", self.max_weight)
+    #     if (self.max_weight >= 0.0015):  # 0.0015):
+    #         self.get_logger().info('Robot is not lost; continuing without localizing')
+    #         goal_handle.succeed()
+    #         result.result = True
+    #         return result
+    #
+    #     else:
+    #         self.get_logger().info("weblog=" + 'Robot is lost; Localizing')
+    #         self.localize()
+    #         self.get_logger().info("weblog=" + 'Robot Localized')
+    #
+    #     self.get_logger().info('Sending goal')
+    #
+    #     # Assuming you successfully navigated and localized, set the goal state to succeeded or abort since the code is already in executing state
+    #     if self.successfully_localized:
+    #         goal_handle.succeed()
+    #         result.result = True
+    #     else:
+    #         goal_handle.succeed()
+    #         result.result = True
+    #         # goal_handle.abort()
+    #         # result.result = False
+    #
+    #     # If you want to set the goal state to aborted in case of an error, use:
+    #     # goal_handle.abort(result)
+    #     self.get_logger().info("weblog=" + 'Goal Executed...')
+    #
+    #     return result
     def execute_callback(self, goal_handle):
 
         self.get_logger().info('Executing goal...')
@@ -502,41 +543,15 @@ class LocalizationActionServer(Node):
 
         self.get_logger().info("weblog=" + 'Executing goal...')
 
-        # Perform the navigation and localization logic here.
-        # Access the goal from the goal handle
 
-        if goal_handle.request.force_localize:
-            self.max_weight = 0.0
-        print("self.max_weight", self.max_weight)
-        if (self.max_weight >= 0.0015):  # 0.0015):
-            self.get_logger().info('Robot is not lost; continuing without localizing')
-            goal_handle.succeed()
-            result.result = True
-            return result
-
-        else:
-            self.get_logger().info("weblog=" + 'Robot is lost; Localizing')
-            self.localize()
-            self.get_logger().info("weblog=" + 'Robot Localized')
-
-        self.get_logger().info('Sending goal')
-
-        # Assuming you successfully navigated and localized, set the goal state to succeeded or abort since the code is already in executing state
-        if self.successfully_localized:
-            goal_handle.succeed()
-            result.result = True
-        else:
-            goal_handle.succeed()
-            result.result = True
-            # goal_handle.abort()
-            # result.result = False
+        goal_handle.succeed()
+        result.result = True
 
         # If you want to set the goal state to aborted in case of an error, use:
         # goal_handle.abort(result)
         self.get_logger().info("weblog=" + 'Goal Executed...')
 
         return result
-
 
 def main(args=None):
     rclpy.init(args=args)
