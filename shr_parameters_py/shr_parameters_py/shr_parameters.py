@@ -30,7 +30,7 @@ class shr_parameters:
             instances = __Instances()
             class __Foodprotocols:
                 instances = ["breakfast", "lunch", "dinner"]
-                eat_times = ["6h45m0s/8h00m0s", "00h00m00s/00h00m00s", "00h00m00s/00h00m00s"]
+                eat_times = ["06h45m0s/08h00m0s", "00h00m00s/00h00m00s", "00h00m00s/00h00m00s"]
                 eat_locations = ["kitchen", "kitchen", "kitchen"]
                 check_guide_to_succeeded_times = ["0h1m0s", "0h1m0s", "0h1m0s"]
                 remind_automated_food_at_times = ["0h10m0s", "0h10m0s", "0h10m0s"]
