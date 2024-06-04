@@ -1,4 +1,4 @@
-transformations:
+#transformations:
 # translation xyz quaternion xyzw
 #- frame_id: map
 #  id: aptag_0
@@ -90,13 +90,13 @@ transformations:
 #  - 0.0
 #  - 0.7071067811865475
 #  - 0.7071067811865476
-  - frame_id: map
-    id: nathan
-    transform:
-      - -0.09
-      - 4.89
-      - 0
-      - 0.0
-      - 0.0
-      - 0.0
-      - 1.0
+#  - frame_id: map
+#    id: nathan
+#    transform:
+#      - -0.09
+#      - 4.89
+#      - 0
+#      - 0.0
+#      - 0.0
+#      - 0.0
+#      - 1.0

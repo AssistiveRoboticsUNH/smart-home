@@ -101,6 +101,7 @@ public:
         if (val == TRUTH_VALUE::UNKNOWN || t != "t1") {
             return val;
         }
+
         if (world_state_converter->check_person_at_loc(lm)) {
             return TRUTH_VALUE::TRUE;
         } else {

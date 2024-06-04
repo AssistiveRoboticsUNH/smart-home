@@ -13,6 +13,7 @@
 #include <shr_plan/world_state_converter.hpp>
 #include "shr_plan/helpers.hpp"
 
+
 namespace pddl_lib {
 
     class ProtocolState {
@@ -675,6 +676,39 @@ namespace pddl_lib {
             return BT::NodeStatus::SUCCESS;
         }
 
+        BT::NodeStatus shr_domain_NoActionUsed(const InstantiatedAction &action) override {
+            // if person doesn't go to the visible area within 5 mins it
+            auto &kb = KnowledgeBase::getInstance();
+            auto [ps, lock] = ProtocolState::getConcurrentInstance();
+            lock.Lock();
+            //std::string currentDateTime = getCurrentDateTime();
+//            if (!ps.world_state_converter->get_world_state_msg()->robot_charging == 1) {
+
+
+            auto start_time = std::chrono::steady_clock::now();
+            auto timeout = std::chrono::minutes(1);
+            std::cout << "************** Noaction **************" << std::endl;
+            while (std::chrono::steady_clock::now() - start_time < timeout) {
+                if (ps.world_state_converter->check_person_at_loc("inside_not_bedroom")) {
+                    std::string currentDateTime = getCurrentDateTime();
+                    std::string log_message = std::string("weblog=") + currentDateTime + " No action!";
+                    RCLCPP_INFO(ps.world_state_converter->get_logger(), log_message.c_str());
+                    lock.UnLock();
+                    return BT::NodeStatus::SUCCESS;
+                }
+                std::this_thread::sleep_for(std::chrono::seconds(1));  // Check every second
+            }
+
+
+            //RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=")+"shr_domain_FoodEatenSuccess"), "user...");
+            //RCLCPP_INFO(rclcpp::get_logger(currentDateTime+std::string("user=")+"Patient finished food!"), "user...");
+            std::string currentDateTime = getCurrentDateTime();
+            std::string log_message = std::string("weblog=") + currentDateTime + " No action!";
+            RCLCPP_INFO(ps.world_state_converter->get_logger(), log_message.c_str());
+            lock.UnLock();
+            return BT::NodeStatus::SUCCESS;
+        }
+
         BT::NodeStatus shr_domain_FoodEatenSuccess(const InstantiatedAction &action) override {
             auto &kb = KnowledgeBase::getInstance();
             auto [ps, lock] = ProtocolState::getConcurrentInstance();
@@ -686,6 +720,23 @@ namespace pddl_lib {
             //RCLCPP_INFO(rclcpp::get_logger(currentDateTime+std::string("user=")+"Patient finished food!"), "user...");
             std::string currentDateTime = getCurrentDateTime();
             std::string log_message = std::string("weblog=") + currentDateTime + " Patient finished food!";
+            RCLCPP_INFO(ps.world_state_converter->get_logger(), log_message.c_str());
+            lock.UnLock();
+            return BT::NodeStatus::SUCCESS;
+        }
+
+        BT::NodeStatus shr_domain_TimeOut(const InstantiatedAction &action) override {
+            auto &kb = KnowledgeBase::getInstance();
+            auto [ps, lock] = ProtocolState::getConcurrentInstance();
+            lock.Lock();
+            //std::string currentDateTime = getCurrentDateTime();
+            kb.insert_predicate({"abort", {}});
+            std::cout << "TIMEout" << std::endl;
+
+            //RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=")+"shr_domain_FoodEatenSuccess"), "user...");
+            //RCLCPP_INFO(rclcpp::get_logger(currentDateTime+std::string("user=")+"Patient finished food!"), "user...");
+            std::string currentDateTime = getCurrentDateTime();
+            std::string log_message = std::string("weblog=") + currentDateTime + " Abort!";
             RCLCPP_INFO(ps.world_state_converter->get_logger(), log_message.c_str());
             lock.UnLock();
             return BT::NodeStatus::SUCCESS;

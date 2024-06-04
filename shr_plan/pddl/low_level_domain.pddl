@@ -195,7 +195,7 @@
                   )
 
                   (current_time ?t)
-	                (not (executed_wait ?t))
+	              (not (executed_wait ?t))
                   (not (abort))
                   (forall (?lmp - LandmarkPerson)
                     (not (and (not (person_at ?t ?p ?lmp)) (wait_person_location_constraint ?t ?p ?lmp) ) )
