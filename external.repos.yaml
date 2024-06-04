@@ -39,3 +39,8 @@ repositories:
     type: git
     url: https://github.com/olaghattas/tf_to_yaml.git
     version: main
+  external/robot_state_publisher:
+    type: git
+    url: https://github.com/AssistiveRoboticsUNH/robot_state_publisher.git
+    version: ros2
+:
