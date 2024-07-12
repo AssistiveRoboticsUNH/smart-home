@@ -60,6 +60,7 @@
     (wait_person_location_constraint t4 nathan visible_area)
     (wait_person_location_constraint t5 nathan visible_area)
 
+    ;; if person is not in visible_area then wait
     (noaction_not_person_location_constraint na1 nathan visible_area)
     (noaction_not_person_location_constraint na2 nathan visible_area)
     (noaction_not_person_location_constraint na3 nathan visible_area)
@@ -70,6 +71,6 @@
     (wait_robot_location_constraint t4 home)
 )
 (:goal (and
-        (success)) 
+        (success))
         )
 )

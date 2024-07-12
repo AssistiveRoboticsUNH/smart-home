@@ -689,7 +689,7 @@ namespace pddl_lib {
             auto timeout = std::chrono::minutes(1);
             std::cout << "************** Noaction **************" << std::endl;
             while (std::chrono::steady_clock::now() - start_time < timeout) {
-                if (ps.world_state_converter->check_person_at_loc("inside_not_bedroom")) {
+                if (ps.world_state_converter->check_person_at_loc("visible_area")) {
                     std::string currentDateTime = getCurrentDateTime();
                     std::string log_message = std::string("weblog=") + currentDateTime + " No action!";
                     RCLCPP_INFO(ps.world_state_converter->get_logger(), log_message.c_str());
