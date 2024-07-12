@@ -59,6 +59,9 @@
     (wait_person_location_constraint t4 nathan visible_area)
     (wait_person_location_constraint t5 nathan visible_area)
 
+
+    ;; Check if this is compatible to what they have in the document
+    ;; if person is outside then wait
     (noaction_person_location_constraint na1 nathan outside)
     (noaction_person_location_constraint na2 nathan outside)
     (noaction_person_location_constraint na3 nathan outside)

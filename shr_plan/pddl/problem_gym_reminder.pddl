@@ -66,6 +66,9 @@
     (noaction_person_location_constraint na1 nathan bedroom)
     (noaction_person_location_constraint na2 nathan bedroom)
     (noaction_person_location_constraint na3 nathan bedroom)
+    (noaction_person_location_constraint na1 nathan bathroom)
+    (noaction_person_location_constraint na2 nathan bathroom)
+    (noaction_person_location_constraint na3 nathan bathroom)
 
     (wait_robot_location_constraint t1 home)
     (wait_robot_location_constraint t2 home)
