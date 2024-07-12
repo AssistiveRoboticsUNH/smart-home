@@ -39,14 +39,23 @@ std::optional<std::string> getPlan(const std::string &domain, const std::string 
     static std::mutex mutex;
     std::lock_guard<std::mutex> lock(mutex);
     // std::string path = homeDir + "/planner_data";
-    std::string path = "/home/olagh48652/planner_data";
+    std::string homeDir = std::getenv("HOME");
+    std::cout << "homeDir: " << homeDir << std::endl;
+    std::string path = homeDir + "/planner_data";
     {
         std::ofstream domainFile(path + "/plan_solver/domain.pddl");
         domainFile << domain;
         std::ofstream problemFile(path + "/plan_solver/problem.pddl");
         problemFile << problem;
     }
-    std::string cmd = "ros2 run plan_solver_py plan_solver -o /home/olagh48652/planner_data/plan_solver/domain.pddl -f /home/olagh48652/planner_data/plan_solver/problem.pddl > /dev/null";
+
+//    std::string cmd = "ros2 run plan_solver_py plan_solver -o /home/olagh48652/planner_data/plan_solver/domain.pddl -f /home/olagh48652/planner_data/plan_solver/problem.pddl > /dev/null";
+    std::string cmd = "ros2 run plan_solver_py plan_solver -o ";
+    cmd += homeDir;
+    cmd += "/planner_data/plan_solver/domain.pddl -f ";
+    cmd += homeDir;
+    cmd += "/planner_data/plan_solver/problem.pddl > /dev/null";
+    std::cout << "Command: " << cmd << std::endl;
     std::system(cmd.c_str());
 
     std::ifstream file(path + "/plan_solver/bt.xml");
@@ -325,6 +334,7 @@ public:
 
 int main(int argc, char **argv) {
     rclcpp::init(argc, argv);
+
     auto node = std::make_shared<rclcpp::Node>("shrParameterNode");
     auto param_listener_ = std::make_shared<shr_parameters::ParamListener>(node);
 
