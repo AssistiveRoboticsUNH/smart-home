@@ -1,6 +1,6 @@
 # Blender 4.1.1
 # www.blender.org
-mtllib mesh_olson.mtl
+mtllib mesh_olson_per.mtl
 o bedroom
 v -4.671754 -0.396424 2.500000
 v -3.380773 -2.324513 2.500000
