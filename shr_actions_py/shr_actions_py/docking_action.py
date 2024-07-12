@@ -29,6 +29,7 @@ class DockingActionServer(Node):
         # print("working action")
         self.pub = self.create_publisher(Twist, os.getenv("cmd_vel"), 1)
         self.vel = Twist()
+        
 
     def goal_callback(self, goal_request):
         self.get_logger().info("weblog="+'ACCEPTED docking goal')
@@ -54,7 +55,7 @@ class DockingActionServer(Node):
                 result = DockingRequest.Result()
                 result.result = False
                 return result
-
+            
             self.docking.get_transformation_from_aptag_to_port()
             self.docking.move_towards_tag()
 
@@ -64,38 +65,41 @@ class DockingActionServer(Node):
             self.vel.linear.x = 0.0
             self.vel.angular.z =0.0
             self.pub.publish(self.vel)
-            self.get_logger().info("weblog="+'charger and port bumped!'+"charger status: {self.docking.charger_status}!")
-            goal_handle.succeed()
-            result = DockingRequest.Result()
-            result.result = True
-            self.docking.bumped = False
-            self.vel.linear.x = 0.0
-            self.vel.angular.z =0.0
-            self.pub.publish(self.vel)
-            self.rate.sleep()
-
-            return result
+            print(self.docking.charger_status)
+            time.sleep(10)
+            if(self.docking.charger_status is not None and (self.docking.charger_status ==1)):
+                goal_handle.succeed()
+                result = DockingRequest.Result()
+                result.result = True
+                self.docking.bumped = False
+                self.vel.linear.x = 0.0
+                self.vel.angular.z =0.0
+                self.pub.publish(self.vel)
+                self.rate.sleep()
+                self.get_logger().info("weblog="+' docked and charging!')
+                return result
+            else:
+                goal_handle.abort()
+                result = DockingRequest.Result()
+                result.result = False
+                self.docking.bumped = False
+                self.vel.linear.x = 0.0
+                self.vel.angular.z =0.0
+                self.pub.publish(self.vel)
+                self.rate.sleep()
+                self.get_logger().info("weblog="+' docking aborted for not charging!')
+                return result
+            
         else:
             goal_handle.abort()
             self.vel.linear.x = 0.0
             self.vel.angular.z =0.0
             self.pub.publish(self.vel)
-
+            
             result = DockingRequest.Result()
             self.get_logger().info("weblog="+' docking aborted!')
             result.result = False
             return result
-    # def execute_callback(self, goal_handle):
-    #     print("working callback")
-    #     print("working init", goal_handle)
-    #
-    #     goal_handle.succeed()
-    #     result = DockingRequest.Result()
-    #     result.result = True
-    #
-    #
-    #     return result
-
 
 
 def main(args=None):
