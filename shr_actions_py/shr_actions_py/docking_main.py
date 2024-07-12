@@ -159,13 +159,13 @@ class Docking(Node):
             modified_error_x = error_x*0.2
             apriltag_logic = (error_x>0.00)
             # doing reverse logic for it. (if apriltag_logic or bump_sensor gives 0, it will be out of the first loop)
-            #bump_logic = (self.bump is not None and (self.bump !=1))
-            charger_logic = (self.charger_status is not None and (self.charger_status !=1))
+            bump_logic = (self.bump is not None and (self.bump !=1))
+            #charger_logic = (self.charger_status is not None and (self.charger_status !=1))
 
             #print("current_error", current_error)
             #print("x", transition_x)
-            if (apriltag_logic and (charger_logic)):
-                print("apriltag_logic: %s bump_logic: %s" % (apriltag_logic, charger_logic))
+            if (apriltag_logic and (bump_logic)):
+                print("apriltag_logic: %s bump_logic: %s" % (apriltag_logic, bump_logic))
                 #print(apriltag_logic)
                 current_time = self.get_clock().now()
                 dt = (current_time - self.saved_time).nanoseconds / 1e9
@@ -193,7 +193,7 @@ class Docking(Node):
                 #logic = (self.bump is not None and (self.bump>0))
                 #print(logic)
             else:
-                print("apriltag_logic: %s bump_logic: %s" % (apriltag_logic, charger_logic))
+                print("apriltag_logic: %s bump_logic: %s" % (apriltag_logic, bump_logic))
                 self.bumped = True
                 self.vel.linear.x = 0.0
                 self.vel.angular.z =0.0
