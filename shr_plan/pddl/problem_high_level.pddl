@@ -7,22 +7,22 @@
      walking_reminder - WalkingProtocol
      night_alert - AlertProtocol
      breakfast lunch - FoodProtocol
-     bedroom inside_not_bedroom outside - LandmarkPerson
+     bedroom visible_area outside bathroom - LandmarkPerson
      designated_space home - LandmarkRobot
      nathan - Person
      t1 - Time ;;t2 t3 t4 t5
   )
   (:init
       (priority_1)
-      (visible_location inside_not_bedroom)
+      (visible_location visible_area)
 
 
       ;; visible location of person
-      ;;(visible_location inside_not_bedroom)
+      ;;(visible_location visible_area)
 
-      ;;(person_currently_at nathan inside_not_bedroom)
+      ;;(person_currently_at nathan visible_area)
 
-      ;;(person_currently_at nathan inside_not_bedroom)
+      ;;(person_currently_at nathan visible_area)
       ;;(time_for_walk_reminder walking_reminder)
 
       ;; testing medicine
