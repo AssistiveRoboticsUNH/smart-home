@@ -34,7 +34,8 @@ namespace pddl_lib {
 
                                                                 }},
                 {{"gym_reminder",     "GymProtocol"},           {{"reminder_1_msg", {0, 10}},
-                                                                        {"reminder_2_msg", {0,  10}},
+   //    std::cout << "Command: " << cmd << std::endl;
+                                                                     {"reminder_2_msg", {0,  10}},
                                                                         {"reminder_3_msg", {0, 10}},
                                                                 }},
                 {{"walking_reminder", "WalkingProtocol"},       {{"reminder_1_msg", {0, 10}},
@@ -693,6 +694,7 @@ namespace pddl_lib {
                     std::string currentDateTime = getCurrentDateTime();
                     std::string log_message = std::string("weblog=") + currentDateTime + " No action!";
                     RCLCPP_INFO(ps.world_state_converter->get_logger(), log_message.c_str());
+                    std::this_thread::sleep_for(std::chrono::seconds(20));
                     lock.UnLock();
                     return BT::NodeStatus::SUCCESS;
                 }

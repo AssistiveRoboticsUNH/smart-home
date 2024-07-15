@@ -40,7 +40,7 @@ std::optional<std::string> getPlan(const std::string &domain, const std::string 
     std::lock_guard<std::mutex> lock(mutex);
     // std::string path = homeDir + "/planner_data";
     std::string homeDir = std::getenv("HOME");
-    std::cout << "homeDir: " << homeDir << std::endl;
+//    std::cout << "homeDir: " << homeDir << std::endl;
     std::string path = homeDir + "/planner_data";
     {
         std::ofstream domainFile(path + "/plan_solver/domain.pddl");
@@ -55,7 +55,7 @@ std::optional<std::string> getPlan(const std::string &domain, const std::string 
     cmd += "/planner_data/plan_solver/domain.pddl -f ";
     cmd += homeDir;
     cmd += "/planner_data/plan_solver/problem.pddl > /dev/null";
-    std::cout << "Command: " << cmd << std::endl;
+//    std::cout << "Command: " << cmd << std::endl;
     std::system(cmd.c_str());
 
     std::ifstream file(path + "/plan_solver/bt.xml");
