@@ -11,9 +11,9 @@
     na1 na2 na3 - NoAction
 )
 (:init
-    (person_at t1 nathan visible_area)
-    (robot_at home)
-    (robot_at_time t1 home)
+    ;;(person_at t1 nathan visible_area)
+    ;;(robot_at home)
+    ;;(robot_at_time t1 home)
 
     (DetectPerson_enabled)
     (GiveReminder_enabled)

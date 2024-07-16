@@ -857,11 +857,11 @@ namespace pddl_lib {
                         const rclcpp_action::ClientGoalHandle<shr_msgs::action::DockingRequest>::WrappedResult result) {
                     *success_undock = result.code == rclcpp_action::ResultCode::SUCCEEDED;
                     if (*success_undock == 1) {
-                        RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=") + "high_level_domain_MoveToLandmark" +
+                        RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=") + "low_level_domain_MoveToLandmark" +
                                                        "UnDocking goal Succeeded."), "user...");
 
                     } else {
-                        RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=") + "high_level_domain_MoveToLandmark" +
+                        RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=") + "low_level_domain_MoveToLandmark" +
                                                        "UnDocking goal aborted!."), "user...");
 
                     }
@@ -937,6 +937,7 @@ namespace pddl_lib {
                 navigation_goal_.pose.header.frame_id = "map";
                 navigation_goal_.pose.header.stamp = ps.world_state_converter->now();
                 if (auto transform = ps.world_state_converter->get_tf("map", location)) {
+                    std::cout << "degug location moveto landmark" << location << std::endl;
                     navigation_goal_.pose.pose.orientation = transform.value().transform.rotation;
                     navigation_goal_.pose.pose.position.x = transform.value().transform.translation.x;
                     navigation_goal_.pose.pose.position.y = transform.value().transform.translation.y;
