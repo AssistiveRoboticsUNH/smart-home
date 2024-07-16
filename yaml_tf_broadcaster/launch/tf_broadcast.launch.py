@@ -26,7 +26,7 @@ def generate_launch_description():
         ]
     )
 
-    ld.add_action(aptags)
+    #ld.add_action(aptags)
 
     room_file = DeclareLaunchArgument(
         "rooms_location",
