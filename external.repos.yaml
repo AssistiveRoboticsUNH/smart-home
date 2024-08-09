@@ -43,4 +43,3 @@ repositories:
     type: git
     url: https://github.com/AssistiveRoboticsUNH/robot_state_publisher.git
     version: ros2
-:

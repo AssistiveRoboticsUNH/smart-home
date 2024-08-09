@@ -87,7 +87,7 @@ public:
         return TRUTH_VALUE::FALSE;
     }
 
-    TRUTH_VALUE robot_at(TRUTH_VALUE val, LandmarkRobot lm) const override {
+    TRUTH_VALUE robot_at(TRUTH_VALUE val, Landmark lm) const override {
         if (world_state_converter->check_robot_at_loc(lm)) {
             return TRUTH_VALUE::TRUE;
         } else {
@@ -95,7 +95,7 @@ public:
         }
     }
 
-    TRUTH_VALUE robot_at_time(TRUTH_VALUE val, Time t, LandmarkRobot lm) const override {
+    TRUTH_VALUE robot_at_time(TRUTH_VALUE val, Time t, Landmark lm) const override {
         if (val == TRUTH_VALUE::UNKNOWN || t != "t1") {
             return val;
         }
@@ -106,7 +106,7 @@ public:
         }
     }
 
-    TRUTH_VALUE person_at(TRUTH_VALUE val, Time t, Person p, LandmarkPerson lm) const override {
+    TRUTH_VALUE person_at(TRUTH_VALUE val, Time t, Person p, Landmark lm) const override {
         if (val == TRUTH_VALUE::UNKNOWN || t != "t1") {
             return val;
         }
@@ -119,7 +119,7 @@ public:
     }
 
     // In high level found
-    TRUTH_VALUE person_currently_at(TRUTH_VALUE val, Person p, LandmarkPerson lm) const override {
+    TRUTH_VALUE person_currently_at(TRUTH_VALUE val, Person p, Landmark lm) const override {
         if (val == TRUTH_VALUE::UNKNOWN) {
             return val;
         }

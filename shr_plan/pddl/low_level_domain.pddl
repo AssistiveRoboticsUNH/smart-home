@@ -3,8 +3,7 @@
 (:requirements :strips :typing)
 
 (:types
-    LandmarkPerson
-    LandmarkRobot
+    Landmark
 	Person
 	Time
 	Msg
@@ -15,9 +14,9 @@
 
 (:predicates
     ;; physical modeling
-    (robot_at ?lmr - LandmarkRobot)
-    (robot_at_time ?t - Time ?lmr - LandmarkRobot)
-    (person_at ?t - Time ?p - Person ?lmp - LandmarkPerson)
+    (robot_at ?lmr - Landmark)
+    (robot_at_time ?t - Time ?lmr - Landmark)
+    (person_at ?t - Time ?p - Person ?lmp - Landmark)
     (person_taking_medicine ?t - Time)
     (person_eating_food ?t - Time)
 
@@ -25,7 +24,7 @@
     (move_to_home_enabled)
 
     ;; physical constants
-    (traversable ?from ?to - LandmarkRobot)
+    (traversable ?from ?to - Landmark)
 
     ;; control flow
     (abort)
@@ -35,7 +34,7 @@
 
     ;; success conditions
     (message_given_success ?m - Msg)
-    (person_at_success ?p - Person ?lmp - LandmarkPerson)
+    (person_at_success ?p - Person ?lmp - Landmark)
     (medicine_taken_success)
     (food_eaten_success)
 
@@ -56,24 +55,24 @@
 
     ;; time management predicates
     (time_critical)
-    (used_move ?tc - Time ?lmr - LandmarkRobot)
+    (used_move ?tc - Time ?lmr - Landmark)
     (used_reminder ?tc - Time)
 
     (current_time ?tc - Time)
     (next_time ?tc ?tn - Time)
 
     ;; constraints on the state of the world. object instances here refer to non-input instances
-    (reminder_robot_location_constraint ?a - ReminderAction ?lmr - LandmarkRobot)
-    (reminder_person_location_constraint ?a - ReminderAction ?p - Person ?lmp - LandmarkPerson)
-    (reminder_person_not_location_constraint ?a - ReminderAction ?p - Person ?lmp - LandmarkPerson)
-    ;;(wait_not_person_location_constraint ?t - Time ?p - Person ?lmp - LandmarkPerson )
-    (wait_person_location_constraint ?t - Time ?p - Person ?lmp - LandmarkPerson )
-    (noaction_not_person_location_constraint ?na - NoAction ?p - Person ?lmp - LandmarkPerson)
-    (noaction_person_location_constraint ?na - NoAction ?p - Person ?lmp - LandmarkPerson)
+    (reminder_robot_location_constraint ?a - ReminderAction ?lmr - Landmark)
+    (reminder_person_location_constraint ?a - ReminderAction ?p - Person ?lmp - Landmark)
+    (reminder_person_not_location_constraint ?a - ReminderAction ?p - Person ?lmp - Landmark)
+    ;;(wait_not_person_location_constraint ?t - Time ?p - Person ?lmp - Landmark )
+    (wait_person_location_constraint ?t - Time ?p - Person ?lmp - Landmark )
+    (noaction_not_person_location_constraint ?na - NoAction ?p - Person ?lmp - Landmark)
+    (noaction_person_location_constraint ?na - NoAction ?p - Person ?lmp - Landmark)
 
     (reminder_person_not_taking_medicine_constraint ?a - ReminderAction ?p - Person)
     (reminder_person_not_eating_food_constraint ?a - ReminderAction ?p - Person)
-    (wait_robot_location_constraint ?t - Time ?lmp - LandmarkRobot )
+    (wait_robot_location_constraint ?t - Time ?lmp - Landmark )
 
     (success)
     (na_used ?na - NoAction)
@@ -104,7 +103,7 @@
 
 ;; detect if person is at location outside or inside or bedroom
 (:action DetectPersonLocation
-    :parameters (?t - Time ?p - Person ?lmp - LandmarkPerson)
+    :parameters (?t - Time ?p - Person ?lmp - Landmark)
     :precondition (and
                     (current_time ?t)
                     (DetectPerson_enabled)
@@ -115,7 +114,7 @@
 
 ;; Move to any landmark, avoiding terrain
 (:action MoveToLandmark
-	:parameters (?t - Time ?from - LandmarkRobot ?to - LandmarkRobot)
+	:parameters (?t - Time ?from - Landmark ?to - Landmark)
 	:precondition (and
 	                (current_time ?t)
 	                (not (used_move ?t ?to))
@@ -161,16 +160,16 @@
 
             ;; certain things must be true about the world state for the specific action instance
             ;; this condition enforces that the robot is at the location specified in person_location_constraint
-            (forall (?lmr - LandmarkRobot)
+            (forall (?lmr - Landmark)
              (not (and (not (robot_at ?lmr)) (reminder_robot_location_constraint ?a ?lmr) ) )
             )
             ;; this condition enforces that the person is at the location specified in person_location_constraint
-            (forall (?lmp - LandmarkPerson)
+            (forall (?lmp - Landmark)
               (not (and (not (person_at ?t ?p ?lmp)) (reminder_person_location_constraint ?a ?p ?lmp) ) )
             )
 
             ;; this condition enforces that the person is not at the location specified in not_person_location_constraint
-            (forall (?lmp - LandmarkPerson)
+            (forall (?lmp - Landmark)
               (not (and (person_at ?t ?p ?lmp) (reminder_person_not_location_constraint ?a ?p ?lmp) ) )
             )
             (not (abort))
@@ -190,14 +189,14 @@
 	:parameters (?t - Time ?p - Person)
 	:precondition (and
                   ;; this condition enforces that the robot is at the location specified in person_location_constraint
-                  (forall (?lmr - LandmarkRobot)
+                  (forall (?lmr - Landmark)
                     (not (and (not (robot_at ?lmr)) (wait_robot_location_constraint ?t ?lmr) ) )
                   )
 
                   (current_time ?t)
 	              (not (executed_wait ?t))
                   (not (abort))
-                  (forall (?lmp - LandmarkPerson)
+                  (forall (?lmp - Landmark)
                     (not (and (not (person_at ?t ?p ?lmp)) (wait_person_location_constraint ?t ?p ?lmp) ) )
                   )
 	             )
@@ -224,7 +223,7 @@
 )
 
 (:action PersonAtSuccess
-	:parameters (?p - Person ?t - Time ?lmp - LandmarkPerson)
+	:parameters (?p - Person ?t - Time ?lmp - Landmark)
 	:precondition (and
 	                (current_time ?t)
 	                (person_at ?t ?p ?lmp)
@@ -242,18 +241,18 @@
 
 	              (not (no_action))
                   ;; this condition enforces that the person is at the location specified in person_location_constraint
-                  (forall (?loc - LandmarkPerson)
+                  (forall (?loc - Landmark)
                     (not (and (not (person_at ?t ?p ?loc)) (noaction_person_location_constraint ?na ?p ?loc) ) )
                   )
 
                   ;; this condition enforces that the robot is at the location specified in person_location_constraint
-                    (forall (?lmr - LandmarkRobot)
+                    (forall (?lmr - Landmark)
                       (not (and (not (robot_at ?lmr)) (wait_robot_location_constraint ?t ?lmr) ) )
                     )
 
                   (not (na_used ?na))
                   ;; this condition enforces that the person is not at the location specified in not_person_location_constraint
-                  (forall (?loc - LandmarkPerson)
+                  (forall (?loc - Landmark)
                     (not (and (person_at ?t ?p ?loc) (noaction_not_person_location_constraint ?na ?p ?loc) ) )
                   )
                   (current_time ?t)
