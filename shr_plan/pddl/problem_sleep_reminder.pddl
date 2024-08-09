@@ -1,7 +1,8 @@
 (define (problem sleep_reminder)
 (:domain shr_domain)
 (:objects
-    bedroom visible_area outside bathroom - LandmarkPerson
+    bedroom visible_area outside - LandmarkPerson 
+    ;;bathroom 
     designated_space home - LandmarkRobot
     nathan - Person
     t1 t2 t3 t4 t5 - Time
@@ -24,10 +25,16 @@
     (next_time t3 t4)
     (next_time t4 t5)
 
-    (oneof (person_at t2 nathan bedroom) (person_at t2 nathan visible_area)  (person_at t2 nathan outside) (person_at t2 nathan bathroom) )
-    (oneof (person_at t3 nathan bedroom) (person_at t3 nathan visible_area)  (person_at t3 nathan outside) (person_at t3 nathan bathroom) )
-    (oneof (person_at t4 nathan bedroom) (person_at t4 nathan visible_area)  (person_at t4 nathan outside) (person_at t4 nathan bathroom) )
-    (oneof (person_at t5 nathan bedroom) (person_at t5 nathan visible_area)  (person_at t5 nathan outside) (person_at t5 nathan bathroom) )
+    (oneof (person_at t2 nathan bedroom) (person_at t2 nathan visible_area)  (person_at t2 nathan outside) )
+    (oneof (person_at t3 nathan bedroom) (person_at t3 nathan visible_area)  (person_at t3 nathan outside) )
+    (oneof (person_at t4 nathan bedroom) (person_at t4 nathan visible_area)  (person_at t4 nathan outside) )
+    (oneof (person_at t5 nathan bedroom) (person_at t5 nathan visible_area)  (person_at t5 nathan outside) )
+
+    ;;(oneof (person_at t2 nathan bedroom) (person_at t2 nathan visible_area)  (person_at t2 nathan outside) (person_at t2 nathan bathroom) )
+    ;;(oneof (person_at t3 nathan bedroom) (person_at t3 nathan visible_area)  (person_at t3 nathan outside) (person_at t3 nathan bathroom) )
+    ;;(oneof (person_at t4 nathan bedroom) (person_at t4 nathan visible_area)  (person_at t4 nathan outside) (person_at t4 nathan bathroom) )
+    ;;(oneof (person_at t5 nathan bedroom) (person_at t5 nathan visible_area)  (person_at t5 nathan outside) (person_at t5 nathan bathroom) )
+
 
     (traversable designated_space home)
     (traversable home designated_space)

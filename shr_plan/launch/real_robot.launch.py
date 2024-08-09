@@ -26,11 +26,6 @@ def generate_launch_description():
         executable='smartplug_node',
         output='screen'
     )
-    smartthings_initial_pose = Node(
-        package='smartthings_ros',
-        executable='initial_pose',
-        output='screen'
-    )
 
     protocol_time_node = Node(
         package='shr_plan',
@@ -76,12 +71,7 @@ def generate_launch_description():
             get_package_share_directory('charger_description'), 'launch', 'view_charger.launch.py']))
     )
 
-    #     package='shr_plan
-    #
-    #     # planner_cmd = Node(',
-    #     executable='planning_controller_node',
-    #     output='screen'
-    # )
+
     gpu = False
     if gpu:
         apriltags_zed = IncludeLaunchDescription(
@@ -116,7 +106,7 @@ def generate_launch_description():
     ld.add_action(tf_broadcast)
     ld.add_action(smartthings_node)
     ld.add_action(smartthings_node_plug)
-    ld.add_action(protocol_time_node)
+    # ld.add_action(protocol_time_node)
     ld.add_action(smartthings_node_bump)
 
     return ld

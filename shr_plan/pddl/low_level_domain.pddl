@@ -229,7 +229,7 @@
 	                (current_time ?t)
 	                (person_at ?t ?p ?lmp)
 	                (person_at_success ?p ?lmp)
-	                (not (abort))
+	                ;;(not (abort))
                   )
     :effect (success)
 )

@@ -25,31 +25,31 @@ namespace pddl_lib {
         // Msg in PDDL
 
         wait_times = {
-                {{"noon",             "MedicineProtocol"},      {{"reminder_1_msg", {0, 10}},
-                                                                        {"reminder_2_msg", {0, 10}},
+                {{"noon",             "MedicineProtocol"},      {{"reminder_1_msg", {0, 1}},
+                                                                        {"reminder_2_msg", {0, 1}},
                                                                 }},
-                {{"sleep_reminder",   "SleepReminderProtocol"}, {{"reminder_1_msg", {0, 10}},
-                                                                        {"reminder_2_msg", {0,  10}},
-                                                                        {"reminder_3_msg", {0, 10}},
+                {{"sleep_reminder",   "SleepReminderProtocol"}, {{"reminder_1_msg", {0, 1}},
+                                                                        {"reminder_2_msg", {0,  1}},
+                                                                        {"reminder_3_msg", {0, 1}},
 
                                                                 }},
-                {{"gym_reminder",     "GymProtocol"},           {{"reminder_1_msg", {0, 10}},
+                {{"gym_reminder",     "GymProtocol"},           {{"reminder_1_msg", {0, 1}},
    //    std::cout << "Command: " << cmd << std::endl;
-                                                                     {"reminder_2_msg", {0,  10}},
-                                                                        {"reminder_3_msg", {0, 10}},
+                                                                     {"reminder_2_msg", {0,  1}},
+                                                                        {"reminder_3_msg", {0, 1}},
                                                                 }},
-                {{"walking_reminder", "WalkingProtocol"},       {{"reminder_1_msg", {0, 10}},
+                {{"walking_reminder", "WalkingProtocol"},       {{"reminder_1_msg", {0, 1}},
 
                                                                 }},
-                {{"night_alert",      "AlertProtocol"},         {{"reminder_1_msg", {0, 10}},
+                {{"night_alert",      "AlertProtocol"},         {{"reminder_1_msg", {0, 1}},
 
                                                                 }},
-                {{"breakfast",        "FoodProtocol"},          {{"reminder_1_msg", {0, 10}},
-                                                                        {"reminder_2_msg", {0,  10}},
+                {{"breakfast",        "FoodProtocol"},          {{"reminder_1_msg", {0, 1}},
+                                                                        {"reminder_2_msg", {0,  1}},
 
                                                                 }},
-                {{"lunch",            "FoodProtocol"},          {{"reminder_1_msg", {0, 10}},
-                                                                        {"reminder_2_msg", {0,  10}},
+                {{"lunch",            "FoodProtocol"},          {{"reminder_1_msg", {0, 1}},
+                                                                        {"reminder_2_msg", {0,  1}},
                                                                 }}
         };
 
