@@ -79,6 +79,39 @@ namespace pddl_lib {
         }
     }
 
+    std::optional<long> get_inst_index(MoveReminderProtocol m, const shr_parameters::Params &params) {
+        const auto &instances = params.pddl.MoveReminderProtocols.instances;
+        auto it = std::find(instances.begin(), instances.end(), m);
+        if (it != instances.end()) {
+            auto index = std::distance(instances.begin(), it);
+            return index;
+        } else {
+            return {};
+        }
+    }
+
+    std::optional<long> get_inst_index(InternalCheckReminderProtocol m, const shr_parameters::Params &params) {
+        const auto &instances = params.pddl.InternalCheckReminderProtocols.instances;
+        auto it = std::find(instances.begin(), instances.end(), m);
+        if (it != instances.end()) {
+            auto index = std::distance(instances.begin(), it);
+            return index;
+        } else {
+            return {};
+        }
+    }
+
+    std::optional<long> get_inst_index(PracticeReminderProtocol m, const shr_parameters::Params &params) {
+        const auto &instances = params.pddl.PracticeReminderProtocols.instances;
+        auto it = std::find(instances.begin(), instances.end(), m);
+        if (it != instances.end()) {
+            auto index = std::distance(instances.begin(), it);
+            return index;
+        } else {
+            return {};
+        }
+    }
+
     std::optional<long> get_inst_index(InstantiatedParameter inst, const shr_parameters::Params &params) {
         if (inst.type == "MedicineProtocol") {
             return get_inst_index((MedicineProtocol) inst.name, params);
@@ -92,6 +125,12 @@ namespace pddl_lib {
             return get_inst_index((WalkingProtocol) inst.name, params);
         }else if (inst.type == "AlertProtocol") {
             return get_inst_index((AlertProtocol) inst.name, params);
+        } else if (inst.type == "MoveReminderProtocol") {
+            return get_inst_index((MoveReminderProtocol) inst.name, params);
+        }else if (inst.type == "InternalCheckReminderProtocol") {
+            return get_inst_index((InternalCheckReminderProtocol) inst.name, params);
+        }else if (inst.type == "PracticeReminderProtocol") {
+            return get_inst_index((PracticeReminderProtocol) inst.name, params);
         }
         return {};
     }

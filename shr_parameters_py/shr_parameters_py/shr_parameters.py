@@ -50,8 +50,20 @@ class shr_parameters:
             GymProtocols = __Gymprotocols()
             class __Walkingprotocols:
                 instances = ["walking_reminder"]
-                walk_reminder_times = ["06h00m0s/08h00m0s"]
+                walk_reminder_times = ["06h00m0s/07h00m0s"]
             WalkingProtocols = __Walkingprotocols()
+            class __Movereminderprotocols:
+                instances = ["move_reminder"]
+                move_reminder_times = ["015h00m0s/015h30m0s"]
+            MoveReminderProtocols = __Movereminderprotocols()
+            class __Internalcheckreminderprotocols:
+                instances = ["internalcheck_reminder"]
+                internalcheck_reminder_times = ["08h45m0s/09h30m0s"]
+            InternalCheckReminderProtocols = __Internalcheckreminderprotocols()
+            class __Practicereminderprotocols:
+                instances = ["practice_reminder"]
+                walk_reminder_times = ["07h30m0s/08h30m0s"]
+            PracticeReminderProtocols = __Practicereminderprotocols()
             class __Alertprotocols:
                 instances = ["night_alert"]
                 alert_reminder_times = ["01h00m0s/04h30m0s"]
@@ -190,6 +202,30 @@ class shr_parameters:
                     updated_params.pddl.WalkingProtocols.walk_reminder_times = param.value
                     self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
 
+                if param.name == self.prefix_ + "pddl.MoveReminderProtocols.instances":
+                    updated_params.pddl.MoveReminderProtocols.instances = param.value
+                    self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
+
+                if param.name == self.prefix_ + "pddl.MoveReminderProtocols.move_reminder_times":
+                    updated_params.pddl.MoveReminderProtocols.move_reminder_times = param.value
+                    self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
+
+                if param.name == self.prefix_ + "pddl.InternalCheckReminderProtocols.instances":
+                    updated_params.pddl.InternalCheckReminderProtocols.instances = param.value
+                    self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
+
+                if param.name == self.prefix_ + "pddl.InternalCheckReminderProtocols.internalcheck_reminder_times":
+                    updated_params.pddl.InternalCheckReminderProtocols.internalcheck_reminder_times = param.value
+                    self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
+
+                if param.name == self.prefix_ + "pddl.PracticeReminderProtocols.instances":
+                    updated_params.pddl.PracticeReminderProtocols.instances = param.value
+                    self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
+
+                if param.name == self.prefix_ + "pddl.PracticeReminderProtocols.walk_reminder_times":
+                    updated_params.pddl.PracticeReminderProtocols.walk_reminder_times = param.value
+                    self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
+
                 if param.name == self.prefix_ + "pddl.AlertProtocols.instances":
                     updated_params.pddl.AlertProtocols.instances = param.value
                     self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
@@ -314,6 +350,36 @@ class shr_parameters:
                 parameter = updated_params.pddl.WalkingProtocols.walk_reminder_times
                 self.node_.declare_parameter(self.prefix_ + "pddl.WalkingProtocols.walk_reminder_times", parameter, descriptor)
 
+            if not self.node_.has_parameter(self.prefix_ + "pddl.MoveReminderProtocols.instances"):
+                descriptor = ParameterDescriptor(description="walking protocols", read_only = False)
+                parameter = updated_params.pddl.MoveReminderProtocols.instances
+                self.node_.declare_parameter(self.prefix_ + "pddl.MoveReminderProtocols.instances", parameter, descriptor)
+
+            if not self.node_.has_parameter(self.prefix_ + "pddl.MoveReminderProtocols.move_reminder_times"):
+                descriptor = ParameterDescriptor(description="time that each protocol is triggered", read_only = False)
+                parameter = updated_params.pddl.MoveReminderProtocols.move_reminder_times
+                self.node_.declare_parameter(self.prefix_ + "pddl.MoveReminderProtocols.move_reminder_times", parameter, descriptor)
+
+            if not self.node_.has_parameter(self.prefix_ + "pddl.InternalCheckReminderProtocols.instances"):
+                descriptor = ParameterDescriptor(description="internalcheck protocols", read_only = False)
+                parameter = updated_params.pddl.InternalCheckReminderProtocols.instances
+                self.node_.declare_parameter(self.prefix_ + "pddl.InternalCheckReminderProtocols.instances", parameter, descriptor)
+
+            if not self.node_.has_parameter(self.prefix_ + "pddl.InternalCheckReminderProtocols.internalcheck_reminder_times"):
+                descriptor = ParameterDescriptor(description="time that each protocol is triggered", read_only = False)
+                parameter = updated_params.pddl.InternalCheckReminderProtocols.internalcheck_reminder_times
+                self.node_.declare_parameter(self.prefix_ + "pddl.InternalCheckReminderProtocols.internalcheck_reminder_times", parameter, descriptor)
+
+            if not self.node_.has_parameter(self.prefix_ + "pddl.PracticeReminderProtocols.instances"):
+                descriptor = ParameterDescriptor(description="practice protocols", read_only = False)
+                parameter = updated_params.pddl.PracticeReminderProtocols.instances
+                self.node_.declare_parameter(self.prefix_ + "pddl.PracticeReminderProtocols.instances", parameter, descriptor)
+
+            if not self.node_.has_parameter(self.prefix_ + "pddl.PracticeReminderProtocols.walk_reminder_times"):
+                descriptor = ParameterDescriptor(description="time that each protocol is triggered", read_only = False)
+                parameter = updated_params.pddl.PracticeReminderProtocols.walk_reminder_times
+                self.node_.declare_parameter(self.prefix_ + "pddl.PracticeReminderProtocols.walk_reminder_times", parameter, descriptor)
+
             if not self.node_.has_parameter(self.prefix_ + "pddl.AlertProtocols.instances"):
                 descriptor = ParameterDescriptor(description="alert protocols", read_only = False)
                 parameter = updated_params.pddl.AlertProtocols.instances
@@ -404,6 +470,24 @@ class shr_parameters:
             param = self.node_.get_parameter(self.prefix_ + "pddl.WalkingProtocols.walk_reminder_times")
             self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
             updated_params.pddl.WalkingProtocols.walk_reminder_times = param.value
+            param = self.node_.get_parameter(self.prefix_ + "pddl.MoveReminderProtocols.instances")
+            self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
+            updated_params.pddl.MoveReminderProtocols.instances = param.value
+            param = self.node_.get_parameter(self.prefix_ + "pddl.MoveReminderProtocols.move_reminder_times")
+            self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
+            updated_params.pddl.MoveReminderProtocols.move_reminder_times = param.value
+            param = self.node_.get_parameter(self.prefix_ + "pddl.InternalCheckReminderProtocols.instances")
+            self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
+            updated_params.pddl.InternalCheckReminderProtocols.instances = param.value
+            param = self.node_.get_parameter(self.prefix_ + "pddl.InternalCheckReminderProtocols.internalcheck_reminder_times")
+            self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
+            updated_params.pddl.InternalCheckReminderProtocols.internalcheck_reminder_times = param.value
+            param = self.node_.get_parameter(self.prefix_ + "pddl.PracticeReminderProtocols.instances")
+            self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
+            updated_params.pddl.PracticeReminderProtocols.instances = param.value
+            param = self.node_.get_parameter(self.prefix_ + "pddl.PracticeReminderProtocols.walk_reminder_times")
+            self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
+            updated_params.pddl.PracticeReminderProtocols.walk_reminder_times = param.value
             param = self.node_.get_parameter(self.prefix_ + "pddl.AlertProtocols.instances")
             self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
             updated_params.pddl.AlertProtocols.instances = param.value

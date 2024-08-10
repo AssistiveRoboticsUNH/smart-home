@@ -83,9 +83,46 @@ shr_parameters:
       }
       walk_reminder_times: {
         type: string_array,
-        default_value: [ "06h00m0s/08h00m0s" ],
+        default_value: [ "06h00m0s/07h00m0s" ],
         description: "time that each protocol is triggered",
       }
+
+    MoveReminderProtocols:
+      instances: {
+        type: string_array,
+        default_value: [ "move_reminder" ],
+        description: "walking protocols",
+      }
+      move_reminder_times: {
+        type: string_array,
+        default_value: [ "015h00m0s/015h30m0s" ],
+        description: "time that each protocol is triggered",
+      }
+
+    InternalCheckReminderProtocols:
+      instances: {
+        type: string_array,
+        default_value: [ "internalcheck_reminder" ],
+        description: "internalcheck protocols",
+      }
+      internalcheck_reminder_times: {
+        type: string_array,
+        default_value: [ "08h45m0s/09h30m0s" ],
+        description: "time that each protocol is triggered",
+      }
+
+    PracticeReminderProtocols:
+      instances: {
+        type: string_array,
+        default_value: [ "practice_reminder" ],
+        description: "practice protocols",
+      }
+      walk_reminder_times: {
+        type: string_array,
+        default_value: [ "07h30m0s/08h30m0s" ],
+        description: "time that each protocol is triggered",
+      }
+
     AlertProtocols:
       instances: {
         type: string_array,

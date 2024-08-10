@@ -50,7 +50,16 @@ namespace pddl_lib {
                                                                 }},
                 {{"lunch",            "FoodProtocol"},          {{"reminder_1_msg", {0, 10}},
                                                                         {"reminder_2_msg", {0,  10}},
-                                                                }}
+                                                                }},
+                {{"move_reminder", "MoveReminderProtocol"},       {{"reminder_1_msg", {0, 10}},
+
+                                                                }},
+                {{"internalcheck_reminder", "InternalCheckReminderProtocol"},       {{"reminder_1_msg", {0, 10}},
+
+                                                                  }},
+                {{"practice_reminder", "PracticeReminderProtocol"},       {{"reminder_1_msg", {0, 10}},
+
+                                                                  }},
         };
 
 
@@ -76,7 +85,14 @@ namespace pddl_lib {
 
                                                                 }},
                 {{"lunch",            "FoodProtocol"},          {{"reminder_1_msg", "food_reminder.txt"},
-                                                                }}
+                                                                }},
+
+                {{"move",            "MoveReminderProtocol"},          {{"reminder_1_msg", "move_reminder.txt"},
+                                                                }},
+                {{"internalcheck",            "InternalCheckReminderProtocol"},          {{"reminder_1_msg", "internalcheck_reminder.txt"},
+                                                                       }},
+                {{"practice",            "PracticeReminderProtocol"},          {{"reminder_1_msg", "practice_reminder.txt"},
+                                                                       }},
         };
 
         const std::unordered_map<InstantiatedParameter, std::unordered_map<std::string, std::string>> recorded_reminder_msgs = {
@@ -661,6 +677,69 @@ namespace pddl_lib {
             return BT::NodeStatus::SUCCESS;
         }
 
+        // move protocol
+        BT::NodeStatus high_level_domain_StartMoveReminderProtocol(const InstantiatedAction &action) override {
+            auto &kb = KnowledgeBase::getInstance();
+            InstantiatedParameter inst = action.parameters[0];
+            std::string currentDateTime = getCurrentDateTime();
+            //RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=")+"high_level_domain_StartWanderingProtocol"+"started"), "user...");
+            RCLCPP_INFO(rclcpp::get_logger(
+                                currentDateTime + std::string("user=") + "StartMoveReminderProtocol" + "started"),
+                        "user...");
+            auto [ps, lock] = ProtocolState::getConcurrentInstance();
+            lock.Lock();
+            std::string log_message =
+                    std::string("weblog=") + currentDateTime + " high_level_domain_StartMoveReminderProtocol" +
+                    " started";
+            RCLCPP_INFO(ps.world_state_converter->get_logger(), log_message.c_str());
+            instantiate_protocol("move_reminder.pddl");
+            ps.active_protocol = inst;
+            lock.UnLock();
+            return BT::NodeStatus::SUCCESS;
+        }
+
+        // internalcheck protocol
+        BT::NodeStatus high_level_domain_StartInternalCheckReminderProtocol(const InstantiatedAction &action) override {
+            auto &kb = KnowledgeBase::getInstance();
+            InstantiatedParameter inst = action.parameters[0];
+            std::string currentDateTime = getCurrentDateTime();
+            //RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=")+"high_level_domain_StartWanderingProtocol"+"started"), "user...");
+            RCLCPP_INFO(rclcpp::get_logger(
+                                currentDateTime + std::string("user=") + "StartInternalCheckReminderProtocol" + "started"),
+                        "user...");
+            auto [ps, lock] = ProtocolState::getConcurrentInstance();
+            lock.Lock();
+            std::string log_message =
+                    std::string("weblog=") + currentDateTime + " high_level_domain_StartInternalCheckReminderProtocol" +
+                    " started";
+            RCLCPP_INFO(ps.world_state_converter->get_logger(), log_message.c_str());
+            instantiate_protocol("internalcheck_reminder.pddl");
+            ps.active_protocol = inst;
+            lock.UnLock();
+            return BT::NodeStatus::SUCCESS;
+        }
+
+        // practice protocol
+        BT::NodeStatus high_level_domain_StartPracticeReminderProtocol(const InstantiatedAction &action) override {
+            auto &kb = KnowledgeBase::getInstance();
+            InstantiatedParameter inst = action.parameters[0];
+            std::string currentDateTime = getCurrentDateTime();
+            //RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=")+"high_level_domain_StartWanderingProtocol"+"started"), "user...");
+            RCLCPP_INFO(rclcpp::get_logger(
+                                currentDateTime + std::string("user=") + "StartPracticeReminderProtocol" + "started"),
+                        "user...");
+            auto [ps, lock] = ProtocolState::getConcurrentInstance();
+            lock.Lock();
+            std::string log_message =
+                    std::string("weblog=") + currentDateTime + " high_level_domain_StartPracticeReminderProtocol" +
+                    " started";
+            RCLCPP_INFO(ps.world_state_converter->get_logger(), log_message.c_str());
+            instantiate_protocol("practice_reminder.pddl");
+            ps.active_protocol = inst;
+            lock.UnLock();
+            return BT::NodeStatus::SUCCESS;
+        }
+
         BT::NodeStatus shr_domain_MedicineTakenSuccess(const InstantiatedAction &action) override {
             auto &kb = KnowledgeBase::getInstance();
             auto [ps, lock] = ProtocolState::getConcurrentInstance();
@@ -768,6 +847,19 @@ namespace pddl_lib {
                 kb.insert_predicate({"already_reminded_walk", {active_protocol}});
                 kb.erase_predicate({"walk_reminder_enabled", {active_protocol}});
             }
+            else if (active_protocol.type == "MoveReminderProtocol") {
+                kb.insert_predicate({"already_reminded_move", {active_protocol}});
+                kb.erase_predicate({"move_reminder_enabled", {active_protocol}});
+            }
+            else if (active_protocol.type == "InternalCheckReminderProtocol") {
+                kb.insert_predicate({"already_reminded_internalcheck", {active_protocol}});
+                kb.erase_predicate({"internalcheck_reminder_enabled", {active_protocol}});
+            }
+            else if (active_protocol.type == "PracticeReminderProtocol") {
+                kb.insert_predicate({"already_reminded_practice", {active_protocol}});
+                kb.erase_predicate({"practice_reminder_enabled", {active_protocol}});
+            }
+
             // RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=")+"shr_domain_MessageGivenSuccess"+active_protocol.type), "user...");
             // RCLCPP_INFO(rclcpp::get_logger(currentDateTime +std::string("user=")+"Message is given for: "+active_protocol.type), "user...");
             std::string currentDateTime = getCurrentDateTime();
@@ -801,6 +893,18 @@ namespace pddl_lib {
             } else if (active_protocol.type == "WalkingProtocol") {
                 kb.insert_predicate({"already_reminded_walk", {active_protocol}});
                 kb.erase_predicate({"walk_reminder_enabled", {active_protocol}});
+            }
+            else if (active_protocol.type == "MoveReminderProtocol") {
+                kb.insert_predicate({"already_reminded_move", {active_protocol}});
+                kb.erase_predicate({"move_reminder_enabled", {active_protocol}});
+            }
+            else if (active_protocol.type == "InternalCheckReminderProtocol") {
+                kb.insert_predicate({"already_reminded_internalcheck", {active_protocol}});
+                kb.erase_predicate({"internalcheck_reminder_enabled", {active_protocol}});
+            }
+            else if (active_protocol.type == "PracticeReminderProtocol") {
+                kb.insert_predicate({"already_reminded_practice", {active_protocol}});
+                kb.erase_predicate({"practice_reminder_enabled", {active_protocol}});
             }
             // RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=")+"shr_domain_PersonAtSuccess"+active_protocol.type), "user...");
             // RCLCPP_INFO(rclcpp::get_logger(currentDateTime+std::string("user=")+"active protocol"+active_protocol.type), "user...");
