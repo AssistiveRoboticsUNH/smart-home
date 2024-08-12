@@ -106,10 +106,10 @@ namespace pddl_lib {
 
         // action servers
         rclcpp_action::Client<nav2_msgs::action::NavigateToPose>::SharedPtr nav_client_ = {};
-        rclcpp_action::Client<shr_msgs::action::DockingRequest>::SharedPtr docking_ = {};
-        rclcpp_action::Client<shr_msgs::action::DockingRequest>::SharedPtr undocking_ = {};
+       // rclcpp_action::Client<shr_msgs::action::DockingRequest>::SharedPtr docking_ = {};
+       // rclcpp_action::Client<shr_msgs::action::DockingRequest>::SharedPtr undocking_ = {};
         rclcpp_action::Client<shr_msgs::action::ReadScriptRequest>::SharedPtr read_action_client_ = {};
-        rclcpp_action::Client<shr_msgs::action::LocalizeRequest>::SharedPtr localize_ = {};
+//        rclcpp_action::Client<shr_msgs::action::LocalizeRequest>::SharedPtr localize_ = {};
         rclcpp_action::Client<shr_msgs::action::PlayAudioRequest>::SharedPtr audio_action_client_ = {};
 
         static InstantiatedParameter getActiveProtocol() {
@@ -242,91 +242,91 @@ namespace pddl_lib {
         return *success;
     }
 
-    int send_goal_blocking(const shr_msgs::action::LocalizeRequest::Goal &goal, const InstantiatedAction &action,
-                           ProtocolState &ps) {
+//    int send_goal_blocking(const shr_msgs::action::LocalizeRequest::Goal &goal, const InstantiatedAction &action,
+//                           ProtocolState &ps) {
+//
+//        auto &kb = KnowledgeBase::getInstance();
+//        auto success = std::make_shared<std::atomic<int >>(-1);
+//        auto send_goal_options = rclcpp_action::Client<shr_msgs::action::LocalizeRequest>::SendGoalOptions();
+//        send_goal_options.result_callback = [&success](
+//                const rclcpp_action::ClientGoalHandle<shr_msgs::action::LocalizeRequest>::WrappedResult result) {
+//            if (result.code == rclcpp_action::ResultCode::SUCCEEDED) {
+//                *success = 1;
+//                RCLCPP_INFO(rclcpp::get_logger(
+//                        std::string("weblog=") + " Localize goal Succeeded."), "user...");
+//            } else {
+//                *success = 0;
+//                RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=") + " Localize goal aborted."), "user...");
+//                std::cout << "Localize goal aborted." << std::endl;
+//            }
+//        };
+//        ps.localize_->async_send_goal(goal, send_goal_options);
+//        auto tmp = ps.active_protocol;
+//
+//        // prevent long navigation time
+//        int count = 0;
+//        int count_max = 50;
+//
+//        while (*success == -1 && count_max > count) {
+//            if (!(tmp == ps.active_protocol)) {
+//                ps.localize_->async_cancel_all_goals();
+//                return *success; // we dont want to relocalize for now
+//            }
+//            count++;
+//            rclcpp::sleep_for(std::chrono::seconds(1));
+//            if (count_max - 1 == count) {
+//                RCLCPP_INFO(rclcpp::get_logger(
+//                        std::string("weblog=") + " Localize failed for exceed time."), "user...");
+//                ps.localize_->async_cancel_all_goals();
+//                std::cout << " Localize failed for exceed time  " << std::endl;
+//                return *success; // we dont want to relocalize for now
+//            }
+//        }
+//        return *success;
+//    }
 
-        auto &kb = KnowledgeBase::getInstance();
-        auto success = std::make_shared<std::atomic<int >>(-1);
-        auto send_goal_options = rclcpp_action::Client<shr_msgs::action::LocalizeRequest>::SendGoalOptions();
-        send_goal_options.result_callback = [&success](
-                const rclcpp_action::ClientGoalHandle<shr_msgs::action::LocalizeRequest>::WrappedResult result) {
-            if (result.code == rclcpp_action::ResultCode::SUCCEEDED) {
-                *success = 1;
-                RCLCPP_INFO(rclcpp::get_logger(
-                        std::string("weblog=") + " Localize goal Succeeded."), "user...");
-            } else {
-                *success = 0;
-                RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=") + " Localize goal aborted."), "user...");
-                std::cout << "Localize goal aborted." << std::endl;
-            }
-        };
-        ps.localize_->async_send_goal(goal, send_goal_options);
-        auto tmp = ps.active_protocol;
-
-        // prevent long navigation time
-        int count = 0;
-        int count_max = 50;
-
-        while (*success == -1 && count_max > count) {
-            if (!(tmp == ps.active_protocol)) {
-                ps.localize_->async_cancel_all_goals();
-                return *success; // we dont want to relocalize for now
-            }
-            count++;
-            rclcpp::sleep_for(std::chrono::seconds(1));
-            if (count_max - 1 == count) {
-                RCLCPP_INFO(rclcpp::get_logger(
-                        std::string("weblog=") + " Localize failed for exceed time."), "user...");
-                ps.localize_->async_cancel_all_goals();
-                std::cout << " Localize failed for exceed time  " << std::endl;
-                return *success; // we dont want to relocalize for now
-            }
-        }
-        return *success;
-    }
-
-    int send_goal_blocking(const shr_msgs::action::DockingRequest::Goal &goal, const InstantiatedAction &action,
-                           ProtocolState &ps) {
-
-        auto &kb = KnowledgeBase::getInstance();
-        auto success = std::make_shared<std::atomic<int >>(-1);
-        auto send_goal_options = rclcpp_action::Client<shr_msgs::action::DockingRequest>::SendGoalOptions();
-        send_goal_options.result_callback = [&success](
-                const rclcpp_action::ClientGoalHandle<shr_msgs::action::DockingRequest>::WrappedResult result) {
-            if (result.code == rclcpp_action::ResultCode::SUCCEEDED) {
-                *success = 1;
-                RCLCPP_INFO(rclcpp::get_logger(
-                        std::string("weblog=") + " Docking goal Succeeded."), "user...");
-            } else {
-                *success = 0;
-                RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=") + " Docking goal aborted."), "user...");
-                std::cout << "Docking goal aborted." << std::endl;
-            }
-        };
-        ps.docking_->async_send_goal(goal, send_goal_options);
-        auto tmp = ps.active_protocol;
-
-        // prevent long navigation time
-        int count = 0;
-        int count_max = 150;
-
-        while (*success == -1 && count_max > count) {
-            if (!(tmp == ps.active_protocol)) {
-                ps.docking_->async_cancel_all_goals();
-                return false;
-            }
-            count++;
-            rclcpp::sleep_for(std::chrono::seconds(1));
-            if (count_max - 1 == count) {
-                RCLCPP_INFO(rclcpp::get_logger(
-                        std::string("weblog=") + " Docking failed for exceed time."), "user...");
-                ps.docking_->async_cancel_all_goals();
-                std::cout << " Docking failed for exceed time  " << std::endl;
-                return false;
-            }
-        }
-        return *success;
-    }
+//    int send_goal_blocking(const shr_msgs::action::DockingRequest::Goal &goal, const InstantiatedAction &action,
+//                           ProtocolState &ps) {
+//
+//        auto &kb = KnowledgeBase::getInstance();
+//        auto success = std::make_shared<std::atomic<int >>(-1);
+//        auto send_goal_options = rclcpp_action::Client<shr_msgs::action::DockingRequest>::SendGoalOptions();
+//        send_goal_options.result_callback = [&success](
+//                const rclcpp_action::ClientGoalHandle<shr_msgs::action::DockingRequest>::WrappedResult result) {
+//            if (result.code == rclcpp_action::ResultCode::SUCCEEDED) {
+//                *success = 1;
+//                RCLCPP_INFO(rclcpp::get_logger(
+//                        std::string("weblog=") + " Docking goal Succeeded."), "user...");
+//            } else {
+//                *success = 0;
+//                RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=") + " Docking goal aborted."), "user...");
+//                std::cout << "Docking goal aborted." << std::endl;
+//            }
+//        };
+//        ps.docking_->async_send_goal(goal, send_goal_options);
+//        auto tmp = ps.active_protocol;
+//
+//        // prevent long navigation time
+//        int count = 0;
+//        int count_max = 150;
+//
+//        while (*success == -1 && count_max > count) {
+//            if (!(tmp == ps.active_protocol)) {
+//                ps.docking_->async_cancel_all_goals();
+//                return false;
+//            }
+//            count++;
+//            rclcpp::sleep_for(std::chrono::seconds(1));
+//            if (count_max - 1 == count) {
+//                RCLCPP_INFO(rclcpp::get_logger(
+//                        std::string("weblog=") + " Docking failed for exceed time."), "user...");
+//                ps.docking_->async_cancel_all_goals();
+//                std::cout << " Docking failed for exceed time  " << std::endl;
+//                return false;
+//            }
+//        }
+//        return *success;
+//    }
 
     int send_goal_blocking(const shr_msgs::action::ReadScriptRequest::Goal &goal, const InstantiatedAction &action,
                            ProtocolState &ps) {
@@ -459,13 +459,13 @@ namespace pddl_lib {
             //         std::string("weblog=") + currentDateTime + " high_level_domain_Idle " + " started!";
             // RCLCPP_INFO(ps.world_state_converter->get_logger(), log_message.c_str());
 
-            if (!ps.world_state_converter->get_world_state_msg()->robot_charging == 1) {
+//            if (!ps.world_state_converter->get_world_state_msg()->robot_charging == 1) {
                 std::cout << "High level claim robot called " << std::endl;
                 auto robot_resource = ps.claimRobot();
                 ps.read_action_client_->async_cancel_all_goals();
                 ps.audio_action_client_->async_cancel_all_goals();
-                ps.undocking_->async_cancel_all_goals();
-                ps.docking_->async_cancel_all_goals();
+//                ps.undocking_->async_cancel_all_goals();
+//                ps.docking_->async_cancel_all_goals();
                 // ps.localize_->async_cancel_all_goals();
 
 
@@ -478,15 +478,15 @@ namespace pddl_lib {
                 goal_msg_loc.force_localize = false;
 
 
-                auto status_loc = send_goal_blocking(goal_msg_loc, action, ps);
-                std::cout << "status: " << status_loc << std::endl;
-                if (!status_loc) {
-                    std::cout << "Fail: " << std::endl;
-                    ps.localize_->async_cancel_all_goals();
-                    //lock.UnLock();
-                    //return BT::NodeStatus::FAILURE;
-                }
-                ps.localize_->async_cancel_all_goals();
+                //auto status_loc = send_goal_blocking(goal_msg_loc, action, ps);
+//                std::cout << "status: " << status_loc << std::endl;
+//                if (!status_loc) {
+//                    std::cout << "Fail: " << std::endl;
+//                    ps.localize_->async_cancel_all_goals();
+//                    //lock.UnLock();
+//                    //return BT::NodeStatus::FAILURE;
+//                }
+//                ps.localize_->async_cancel_all_goals();
 
                 std::string currentDateTime = getCurrentDateTime();
                 std::string log_message =
@@ -517,31 +517,31 @@ namespace pddl_lib {
                 std::cout << "success navigation : " << std::endl;
 
 
-                std::cout << "dock " << std::endl;
-
-                shr_msgs::action::DockingRequest::Goal goal_msg_dock;
-                RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=") + "high_level_domain_Idle" + "docking started"),
-                            "user...");
-
-                auto status_dock = send_goal_blocking(goal_msg_dock, action, ps);
-                std::cout << "status: " << status_dock << std::endl;
-                if (!status_dock) {
-                    ps.docking_->async_cancel_all_goals();
-                    std::cout << "Fail: " << std::endl;
-                    lock.UnLock();
-                    return BT::NodeStatus::FAILURE;
-                }
-                ps.docking_->async_cancel_all_goals();
-                std::cout << "success: " << std::endl;
-
-
-                // // sleep for 60 seconds to deal with the delay from //charging topic
-                std::cout << " waiting  " << std::endl;
-                rclcpp::sleep_for(std::chrono::seconds(3));
+//                std::cout << "dock " << std::endl;
+//
+//                shr_msgs::action::DockingRequest::Goal goal_msg_dock;
+//                RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=") + "high_level_domain_Idle" + "docking started"),
+//                            "user...");
+//
+//                auto status_dock = send_goal_blocking(goal_msg_dock, action, ps);
+//                std::cout << "status: " << status_dock << std::endl;
+//                if (!status_dock) {
+//                    ps.docking_->async_cancel_all_goals();
+//                    std::cout << "Fail: " << std::endl;
+//                    lock.UnLock();
+//                    return BT::NodeStatus::FAILURE;
+//                }
+//                ps.docking_->async_cancel_all_goals();
+//                std::cout << "success: " << std::endl;
+//
+//
+//                // // sleep for 60 seconds to deal with the delay from //charging topic
+//                std::cout << " waiting  " << std::endl;
+//                rclcpp::sleep_for(std::chrono::seconds(3));
 
                 std::cout << "High level ending " << std::endl;
 
-            }
+          //  }
             ps.active_protocol = {};
             lock.UnLock();
             return BT::NodeStatus::SUCCESS;
@@ -950,41 +950,41 @@ namespace pddl_lib {
             std::string location = action.parameters[2].name;
 
 
-            if (ps.world_state_converter->get_world_state_msg()->robot_charging == 1) {
-                std::cout << "Undock " << std::endl;
-
-                shr_msgs::action::DockingRequest::Goal goal_msg;
-
-                auto success_undock = std::make_shared<std::atomic<int >>(-1);
-                auto send_goal_options_dock = rclcpp_action::Client<shr_msgs::action::DockingRequest>::SendGoalOptions();
-                send_goal_options_dock.result_callback = [&success_undock](
-                        const rclcpp_action::ClientGoalHandle<shr_msgs::action::DockingRequest>::WrappedResult result) {
-                    *success_undock = result.code == rclcpp_action::ResultCode::SUCCEEDED;
-                    if (*success_undock == 1) {
-                        RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=") + "low_level_domain_MoveToLandmark" +
-                                                       "UnDocking goal Succeeded."), "user...");
-
-                    } else {
-                        RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=") + "low_level_domain_MoveToLandmark" +
-                                                       "UnDocking goal aborted!."), "user...");
-
-                    }
-                };
-
-                ps.undocking_->async_send_goal(goal_msg, send_goal_options_dock);
-                auto tmp_dock = ps.active_protocol;
-
-                while (*success_undock == -1) {
-                    if (!(tmp_dock == ps.active_protocol)) {
-                        ps.undocking_->async_cancel_all_goals();
-                        std::cout << " Failed " << std::endl;
-                        RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=") + "high_level_domain_MoveToLandmark" +
-                                                       "UnDocking failed for protocol mismatched."), "user...");
-
-                    }
-                    rclcpp::sleep_for(std::chrono::seconds(1));
-                }
-                ps.undocking_->async_cancel_all_goals();
+//            if (ps.world_state_converter->get_world_state_msg()->robot_charging == 1) {
+//                std::cout << "Undock " << std::endl;
+//
+//                shr_msgs::action::DockingRequest::Goal goal_msg;
+//
+//                auto success_undock = std::make_shared<std::atomic<int >>(-1);
+//                auto send_goal_options_dock = rclcpp_action::Client<shr_msgs::action::DockingRequest>::SendGoalOptions();
+//                send_goal_options_dock.result_callback = [&success_undock](
+//                        const rclcpp_action::ClientGoalHandle<shr_msgs::action::DockingRequest>::WrappedResult result) {
+//                    *success_undock = result.code == rclcpp_action::ResultCode::SUCCEEDED;
+//                    if (*success_undock == 1) {
+//                        RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=") + "low_level_domain_MoveToLandmark" +
+//                                                       "UnDocking goal Succeeded."), "user...");
+//
+//                    } else {
+//                        RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=") + "low_level_domain_MoveToLandmark" +
+//                                                       "UnDocking goal aborted!."), "user...");
+//
+//                    }
+//                };
+//
+//                ps.undocking_->async_send_goal(goal_msg, send_goal_options_dock);
+//                auto tmp_dock = ps.active_protocol;
+//
+//                while (*success_undock == -1) {
+//                    if (!(tmp_dock == ps.active_protocol)) {
+//                        ps.undocking_->async_cancel_all_goals();
+//                        std::cout << " Failed " << std::endl;
+//                        RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=") + "high_level_domain_MoveToLandmark" +
+//                                                       "UnDocking failed for protocol mismatched."), "user...");
+//
+//                    }
+//                    rclcpp::sleep_for(std::chrono::seconds(1));
+//                }
+//                ps.undocking_->async_cancel_all_goals();
 
                 nav2_msgs::action::NavigateToPose::Goal navigation_goal_;
                 navigation_goal_.pose.header.frame_id = "map";
@@ -1008,59 +1008,59 @@ namespace pddl_lib {
                 lock.UnLock();
                 return send_goal_blocking(navigation_goal_, action, ps) ? BT::NodeStatus::SUCCESS
                                                                         : BT::NodeStatus::FAILURE;
-            } else {
-
-                int count_max = 30;
-
-                std::cout << "localize " << std::endl;
-                shr_msgs::action::LocalizeRequest::Goal goal_msg_loc;
-                goal_msg_loc.force_localize = false;
-
-                auto success_loc = std::make_shared<std::atomic<int >>(-1);
-                auto send_goal_options_loc = rclcpp_action::Client<shr_msgs::action::LocalizeRequest>::SendGoalOptions();
-                send_goal_options_loc.result_callback = [&success_loc](
-                        const rclcpp_action::ClientGoalHandle<shr_msgs::action::LocalizeRequest>::WrappedResult result) {
-                    *success_loc = result.code == rclcpp_action::ResultCode::SUCCEEDED;
-                };
-
-                ps.localize_->async_send_goal(goal_msg_loc, send_goal_options_loc);
-                auto tmp_loc = ps.active_protocol;
-
-                int count__ = 0;
-                while (*success_loc == -1 && count_max > count__) {
-                    if (!(tmp_loc == ps.active_protocol)) {
-                        ps.localize_->async_cancel_all_goals();
-                        std::cout << " Failed " << std::endl;
-                    }
-                    count__++;
-                    rclcpp::sleep_for(std::chrono::seconds(1));
-                }
-
-
-                nav2_msgs::action::NavigateToPose::Goal navigation_goal_;
-                navigation_goal_.pose.header.frame_id = "map";
-                navigation_goal_.pose.header.stamp = ps.world_state_converter->now();
-                if (auto transform = ps.world_state_converter->get_tf("map", location)) {
-                    std::cout << "degug location moveto landmark" << location << std::endl;
-                    navigation_goal_.pose.pose.orientation = transform.value().transform.rotation;
-                    navigation_goal_.pose.pose.position.x = transform.value().transform.translation.x;
-                    navigation_goal_.pose.pose.position.y = transform.value().transform.translation.y;
-                    navigation_goal_.pose.pose.position.z = transform.value().transform.translation.z;
-                } else {
-                    RCLCPP_INFO(rclcpp::get_logger(
-                            std::string("weblog=") + "shr_domain_MoveToLandmark" + "moving to land mark failed!"),
-                                "user...");
-                    lock.UnLock();
-                    return BT::NodeStatus::FAILURE;
-                }
-
-                RCLCPP_INFO(rclcpp::get_logger(
-                        std::string("weblog=") + "shr_domain_MoveToLandmark" + "moving to land mark succeed!"),
-                            "user...");
-                lock.UnLock();
-                return send_goal_blocking(navigation_goal_, action, ps) ? BT::NodeStatus::SUCCESS
-                                                                        : BT::NodeStatus::FAILURE;
-            }
+//            } else {
+//
+//                int count_max = 30;
+//
+//                std::cout << "localize " << std::endl;
+//                shr_msgs::action::LocalizeRequest::Goal goal_msg_loc;
+//                goal_msg_loc.force_localize = false;
+//
+//                auto success_loc = std::make_shared<std::atomic<int >>(-1);
+//                auto send_goal_options_loc = rclcpp_action::Client<shr_msgs::action::LocalizeRequest>::SendGoalOptions();
+//                send_goal_options_loc.result_callback = [&success_loc](
+//                        const rclcpp_action::ClientGoalHandle<shr_msgs::action::LocalizeRequest>::WrappedResult result) {
+//                    *success_loc = result.code == rclcpp_action::ResultCode::SUCCEEDED;
+//                };
+//
+//                ps.localize_->async_send_goal(goal_msg_loc, send_goal_options_loc);
+//                auto tmp_loc = ps.active_protocol;
+//
+//                int count__ = 0;
+//                while (*success_loc == -1 && count_max > count__) {
+//                    if (!(tmp_loc == ps.active_protocol)) {
+//                        ps.localize_->async_cancel_all_goals();
+//                        std::cout << " Failed " << std::endl;
+//                    }
+//                    count__++;
+//                    rclcpp::sleep_for(std::chrono::seconds(1));
+//                }
+//
+//
+//                nav2_msgs::action::NavigateToPose::Goal navigation_goal_;
+//                navigation_goal_.pose.header.frame_id = "map";
+//                navigation_goal_.pose.header.stamp = ps.world_state_converter->now();
+//                if (auto transform = ps.world_state_converter->get_tf("map", location)) {
+//                    std::cout << "degug location moveto landmark" << location << std::endl;
+//                    navigation_goal_.pose.pose.orientation = transform.value().transform.rotation;
+//                    navigation_goal_.pose.pose.position.x = transform.value().transform.translation.x;
+//                    navigation_goal_.pose.pose.position.y = transform.value().transform.translation.y;
+//                    navigation_goal_.pose.pose.position.z = transform.value().transform.translation.z;
+//                } else {
+//                    RCLCPP_INFO(rclcpp::get_logger(
+//                            std::string("weblog=") + "shr_domain_MoveToLandmark" + "moving to land mark failed!"),
+//                                "user...");
+//                    lock.UnLock();
+//                    return BT::NodeStatus::FAILURE;
+//                }
+//
+//                RCLCPP_INFO(rclcpp::get_logger(
+//                        std::string("weblog=") + "shr_domain_MoveToLandmark" + "moving to land mark succeed!"),
+//                            "user...");
+//                lock.UnLock();
+//                return send_goal_blocking(navigation_goal_, action, ps) ? BT::NodeStatus::SUCCESS
+//                                                                        : BT::NodeStatus::FAILURE;
+//            }
 
             //    RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=")+"shr_domain_MoveToLandmark"+"moving to land mark succeed!"), "user...");
             //     shr_msgs::action::WaypointRequest ::Goal waypoint_goal_;
