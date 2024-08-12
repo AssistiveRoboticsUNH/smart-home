@@ -7,16 +7,9 @@
 
 (:types
   MedicineProtocol
-  GymProtocol
-  SleepReminderProtocol
-
   MoveReminderProtocol
   InternalCheckReminderProtocol
   PracticeReminderProtocol
-
-  WalkingProtocol
-  AlertProtocol
-  FoodProtocol
   Landmark
   Time
   Person
@@ -28,50 +21,24 @@
   (person_currently_at ?p - Person ?lmp - Landmark)
   (visible_location ?lmp - Landmark)
 
-  (sleep_reminder_enabled ?r - SleepReminderProtocol)
   (medicine_reminder_enabled ?med - MedicineProtocol)
-  (gym_reminder_enabled ?gym - GymProtocol)
-  (walk_reminder_enabled ?walk - WalkingProtocol)
-  (alert_reminder_enabled ?a - AlertProtocol)
-  (food_reminder_enabled ?f - FoodProtocol)
 
   (move_reminder_enabled ?mv - MoveReminderProtocol)
-  (internalcheck_reminder_enabled ?ic - InternalCheckReminderProtocol)
+  (internal_check_reminder_enabled ?ic - InternalCheckReminderProtocol)
   (practice_reminder_enabled ?pra - PracticeReminderProtocol)
-
-  ;; food
-  (time_to_eat ?f - FoodProtocol)
-  (already_ate ?f - FoodProtocol)
-  (already_reminded_eating ?f - FoodProtocol)
-
-  ;; alert reminder
-  (time_to_alert ?a - AlertProtocol)
-
-  ;; walk reminder
-  (time_for_walk_reminder ?w - WalkingProtocol)
-  (already_reminded_walk ?w - WalkingProtocol)
-
-  ;; Gym reminder
-  (time_for_gym_reminder ?g - GymProtocol)
-  (already_reminded_gym ?g - GymProtocol)
-
-  ;; sleep reminder
-  (time_for_sleep_reminder ?s - SleepReminderProtocol)
-  (already_reminded_sleep ?s - SleepReminderProtocol)
 
   ;; medicine
   (time_to_take_medicine ?med - MedicineProtocol)
   (already_took_medicine ?m - MedicineProtocol)
   (already_reminded_medicine ?m - MedicineProtocol)
 
-
   ;; move reminder
   (time_for_move_reminder ?mv - MoveReminderProtocol)
   (already_reminded_move ?mv - MoveReminderProtocol)
 
   ;; internal check reminder
-  (time_for_internalcheck_reminder ?ic - InternalCheckReminderProtocol)
-  (already_reminded_internalcheck ?ic - InternalCheckReminderProtocol)
+  (time_for_internal_check_reminder ?ic - InternalCheckReminderProtocol)
+  (already_reminded_internal_check ?ic - InternalCheckReminderProtocol)
 
   ;; practice reminder
   (time_for_practice_reminder ?pra - PracticeReminderProtocol)
@@ -88,16 +55,6 @@
 
   (success)
 )
-
-
-;; not needed here since the robot and person dont have to be in the same location
-;;(:action MoveToLandmark
-;;	:parameters (?from - Landmark ?to - Landmark)
-;;	:precondition (and
-;;	                (robot_at ?from)
-;;	          )
-;;	:effect (and (robot_at ?to) (not (robot_at ?from)) )
-;;)
 
 (:action ChangePriority_1_2
 	:parameters ()
@@ -128,164 +85,6 @@
 	:effect (and (priority_5) (not (priority_4)))
 )
 
-(:action StartSleepReminderProtocol
-	:parameters (?r - SleepReminderProtocol ?lmp - Landmark ?p - Person)
-	:precondition (and
-	    (priority_2)
-      (time_for_sleep_reminder ?r)
-      (not (already_reminded_sleep ?r))
-      (forall (?rem - SleepReminderProtocol) (not (sleep_reminder_enabled ?rem)) )
-
-      ;; person in visible area
-      (person_currently_at ?p ?lmp)
-      (visible_location ?lmp)
-
-    )
-	:effect (and
-	          (success)
-	          (not (priority_2))
-	          (sleep_reminder_enabled ?r)
-	          (not (low_level_failed))
-	          (forall (?med - MedicineProtocol) (not (medicine_reminder_enabled ?med)) )
-	          (forall (?gym - GymProtocol) (not (gym_reminder_enabled ?gym)) )
-	          (forall (?walk - WalkingProtocol) (not (walk_reminder_enabled ?walk)) )
-	          (forall (?alert - AlertProtocol) (not (alert_reminder_enabled ?alert)) )
-              (forall (?food - FoodProtocol) (not (food_reminder_enabled ?food)) )
-          )
-)
-
-(:action ContinueSleepReminderProtocol
-	:parameters (?r - SleepReminderProtocol)
-	:precondition (and
-	    (priority_2)
-	    (not (low_level_failed))
-
-      (not (already_reminded_sleep ?r))
-      (sleep_reminder_enabled ?r)
-      (time_for_sleep_reminder ?r)
-    )
-	:effect (and (success) (not (priority_2)) )
-)
-
-
-(:action StartAlertProtocol
-	:parameters (?a - AlertProtocol ?lmp - Landmark ?p - Person)
-	:precondition (and
-	    (priority_1)
-      (time_to_alert ?a)
-      (forall (?alert - AlertProtocol) (not (alert_reminder_enabled ?alert)) )
-
-      ;; person in visible area
-      (person_currently_at ?p ?lmp)
-      (visible_location ?lmp)
-
-    )
-	:effect (and
-	          (success)
-	          (not (priority_1))
-	          (alert_reminder_enabled ?a)
-	          (not (low_level_failed))
-	          (forall (?med - MedicineProtocol) (not (medicine_reminder_enabled ?med)) )
-	          (forall (?gym - GymProtocol) (not (gym_reminder_enabled ?gym)) )
-	          (forall (?rem - SleepReminderProtocol) (not (sleep_reminder_enabled ?rem)) )
-	          (forall (?walk - WalkingProtocol) (not (walk_reminder_enabled ?walk)) )
-              (forall (?food - FoodProtocol) (not (food_reminder_enabled ?food)) )
-          )
-)
-
-(:action ContinueAlertReminderProtocol
-	:parameters (?a - AlertProtocol)
-	:precondition (and
-	    (priority_1)
-	    (not (low_level_failed))
-
-      (alert_reminder_enabled ?a)
-      (time_to_alert ?a)
-    )
-	:effect (and (success) (not (priority_1)) )
-)
-
-
-
-(:action StartWalkReminderProtocol
-	:parameters (?w - WalkingProtocol ?lmp - Landmark ?p - Person)
-	:precondition (and
-	    (priority_2)
-      (time_for_walk_reminder ?w)
-      (not (already_reminded_walk ?w))
-      (forall (?walk - WalkingProtocol) (not (walk_reminder_enabled ?walk)) )
-
-      ;; person in visible area
-      (person_currently_at ?p ?lmp)
-      (visible_location ?lmp)
-
-    )
-	:effect (and
-	          (success)
-	          (not (priority_2))
-	          (walk_reminder_enabled ?w)
-	          (not (low_level_failed))
-	          (forall (?med - MedicineProtocol) (not (medicine_reminder_enabled ?med)) )
-	          (forall (?gym - GymProtocol) (not (gym_reminder_enabled ?gym)) )
-	          (forall (?rem - SleepReminderProtocol) (not (sleep_reminder_enabled ?rem)) )
-	          (forall (?alert - AlertProtocol) (not (alert_reminder_enabled ?alert)) )
-              (forall (?food - FoodProtocol) (not (food_reminder_enabled ?food)) )
-          )
-)
-
-(:action ContinueWalkReminderProtocol
-	:parameters (?w - WalkingProtocol)
-	:precondition (and
-	    (priority_2)
-	    (not (low_level_failed))
-
-      (not (already_reminded_walk ?w))
-      (walk_reminder_enabled ?w)
-      (time_for_walk_reminder ?w)
-    )
-	:effect (and (success) (not (priority_2)) )
-)
-
-
-(:action StartGymReminderProtocol
-	:parameters (?g - GymProtocol ?lmp - Landmark ?p - Person)
-	:precondition (and
-	    (priority_2)
-      (time_for_gym_reminder ?g)
-      (not (already_reminded_gym ?g))
-      (forall (?gym - GymProtocol) (not (gym_reminder_enabled ?gym)) )
-
-      ;; person in visible area
-      (person_currently_at ?p ?lmp)
-      (visible_location ?lmp)
-    )
-	:effect (and
-	          (success)
-	          (not (priority_2))
-	          (gym_reminder_enabled ?g)
-	          (not (low_level_failed))
-	          (forall (?med - MedicineProtocol) (not (medicine_reminder_enabled ?med)) )
-	          (forall (?rem - SleepReminderProtocol) (not (sleep_reminder_enabled ?rem)) )
-	          (forall (?walk - WalkingProtocol) (not (walk_reminder_enabled ?walk)) )
-	          (forall (?alert - AlertProtocol) (not (alert_reminder_enabled ?alert)) )
-              (forall (?food - FoodProtocol) (not (food_reminder_enabled ?food)) )
-
-          )
-)
-
-(:action ContinueGymReminderProtocol
-	:parameters (?g - GymProtocol)
-	:precondition (and
-	    (priority_2)
-	    (not (low_level_failed))
-
-        (gym_reminder_enabled ?g)
-        (time_for_gym_reminder ?g)
-        (not (already_reminded_gym ?g))
-    )
-	:effect (and (success) (not (priority_2)) )
-)
-
 (:action StartMedReminderProtocol
 	:parameters (?m - MedicineProtocol ?lmp - Landmark ?p - Person)
 	:precondition (and
@@ -304,13 +103,9 @@
 	          (not (priority_2))
 	          (medicine_reminder_enabled ?m)
 	          (not (low_level_failed))
-              (forall (?rem - SleepReminderProtocol) (not (sleep_reminder_enabled ?rem)) )
-              (forall (?gym - GymProtocol) (not (gym_reminder_enabled ?gym)) )
-              (forall (?walk - WalkingProtocol) (not (walk_reminder_enabled ?walk)) )
-              (forall (?alert - AlertProtocol) (not (alert_reminder_enabled ?alert)) )
-              (forall (?food - FoodProtocol) (not (food_reminder_enabled ?food)) )
-
-
+              (forall (?internal - InternalCheckReminderProtocol) (not (internal_check_reminder_enabled ?internal)) )
+              (forall (?practice - PracticeReminderProtocol) (not (practice_reminder_enabled ?practice)) )
+              (forall (?mv - MoveReminderProtocol) (not (move_reminder_enabled ?mv)) )
           )
 )
 
@@ -327,47 +122,7 @@
 	:effect (and (success) (not (priority_2)) )
 )
 
-(:action StartFoodReminderProtocol
-	:parameters (?f - FoodProtocol ?lmp - Landmark ?p - Person)
-	:precondition (and
-	    (priority_2)
-      (time_to_eat ?f)
-      (not (already_ate ?f))
-      (not (already_reminded_eating ?f))
-      (forall (?food - FoodProtocol) (not (food_reminder_enabled ?food)) )
-
-      ;; person in visible area
-      (person_currently_at ?p ?lmp)
-      (visible_location ?lmp)
-    )
-	:effect (and
-	          (success)
-	          (not (priority_2))
-	          (food_reminder_enabled ?f)
-	          (not (low_level_failed))
-              (forall (?rem - SleepReminderProtocol) (not (sleep_reminder_enabled ?rem)) )
-              (forall (?gym - GymProtocol) (not (gym_reminder_enabled ?gym)) )
-              (forall (?walk - WalkingProtocol) (not (walk_reminder_enabled ?walk)) )
-              (forall (?alert - AlertProtocol) (not (alert_reminder_enabled ?alert)) )
-              (forall (?med - MedicineProtocol) (not (medicine_reminder_enabled ?med)) )
-          )
-)
-
-(:action ContinueFoodReminderProtocol
-	:parameters (?f - FoodProtocol)
-	:precondition (and
-	    (priority_2)
-	    (not (low_level_failed))
-      (food_reminder_enabled ?f)
-      (time_to_eat ?f)
-      (not (already_ate ?f))
-      (not (already_reminded_eating ?f))
-    )
-	:effect (and (success) (not (priority_2)) )
-)
-
 ;; Move reminder Protocol
-
 (:action StartMoveReminderProtocol
 	:parameters (?mv - MoveReminderProtocol ?lmp - Landmark ?p - Person)
 	:precondition (and
@@ -387,11 +142,7 @@
 	          (move_reminder_enabled ?mv)
 	          (not (low_level_failed))
 	          (forall (?med - MedicineProtocol) (not (medicine_reminder_enabled ?med)) )
-	          (forall (?gym - GymProtocol) (not (gym_reminder_enabled ?gym)) )
-	          (forall (?rem - SleepReminderProtocol) (not (sleep_reminder_enabled ?rem)) )
-	          (forall (?alert - AlertProtocol) (not (alert_reminder_enabled ?alert)) )
-              (forall (?food - FoodProtocol) (not (food_reminder_enabled ?food)) )
-              (forall (?internal - InternalCheckReminderProtocol) (not (internalcheck_reminder_enabled ?internal)) )
+              (forall (?internal - InternalCheckReminderProtocol) (not (internal_check_reminder_enabled ?internal)) )
               (forall (?practice - PracticeReminderProtocol) (not (practice_reminder_enabled ?practice)) )
           )
 )
@@ -416,9 +167,9 @@
 	:parameters (?ic - InternalCheckReminderProtocol ?lmp - Landmark ?p - Person)
 	:precondition (and
 	    (priority_2)
-      (time_for_internalcheck_reminder ?ic)
-      (not (already_reminded_internalcheck ?ic))
-      (forall (?ic - InternalCheckReminderProtocol) (not (internalcheck_reminder_enabled ?ic)) )
+      (time_for_internal_check_reminder ?ic)
+      (not (already_reminded_internal_check ?ic))
+      (forall (?ic - InternalCheckReminderProtocol) (not (internal_check_reminder_enabled ?ic)) )
 
       ;; person in visible area
       (person_currently_at ?p ?lmp)
@@ -428,13 +179,9 @@
 	:effect (and
 	          (success)
 	          (not (priority_2))
-	          (internalcheck_reminder_enabled ?ic)
+	          (internal_check_reminder_enabled ?ic)
 	          (not (low_level_failed))
 	          (forall (?med - MedicineProtocol) (not (medicine_reminder_enabled ?med)) )
-	          (forall (?gym - GymProtocol) (not (gym_reminder_enabled ?gym)) )
-	          (forall (?rem - SleepReminderProtocol) (not (sleep_reminder_enabled ?rem)) )
-	          (forall (?alert - AlertProtocol) (not (alert_reminder_enabled ?alert)) )
-              (forall (?food - FoodProtocol) (not (food_reminder_enabled ?food)) )
               (forall (?move - MoveReminderProtocol) (not (move_reminder_enabled ?move)) )
               (forall (?practice - PracticeReminderProtocol) (not (practice_reminder_enabled ?practice)) )
           )
@@ -446,9 +193,9 @@
 	    (priority_2)
 	    (not (low_level_failed))
 
-      (not (already_reminded_internalcheck ?ic))
-      (internalcheck_reminder_enabled ?ic)
-      (time_for_internalcheck_reminder ?ic)
+      (not (already_reminded_internal_check ?ic))
+      (internal_check_reminder_enabled ?ic)
+      (time_for_internal_check_reminder ?ic)
     )
 	:effect (and (success) (not (priority_2)) )
 )
@@ -474,12 +221,8 @@
 	          (practice_reminder_enabled ?pra)
 	          (not (low_level_failed))
 	          (forall (?med - MedicineProtocol) (not (medicine_reminder_enabled ?med)) )
-	          (forall (?gym - GymProtocol) (not (gym_reminder_enabled ?gym)) )
-	          (forall (?rem - SleepReminderProtocol) (not (sleep_reminder_enabled ?rem)) )
-	          (forall (?alert - AlertProtocol) (not (alert_reminder_enabled ?alert)) )
-              (forall (?food - FoodProtocol) (not (food_reminder_enabled ?food)) )
               (forall (?move - MoveReminderProtocol) (not (move_reminder_enabled ?move)) )
-              (forall (?internal - InternalCheckReminderProtocol) (not (internalcheck_reminder_enabled ?internal)) )
+              (forall (?internal - InternalCheckReminderProtocol) (not (internal_check_reminder_enabled ?internal)) )
           )
 )
 
@@ -503,13 +246,8 @@
 		)
 	:effect (and (success)
 	              (not (priority_5))
-                (forall (?rem - SleepReminderProtocol) (not (sleep_reminder_enabled ?rem)) )
                 (forall (?med - MedicineProtocol) (not (medicine_reminder_enabled ?med)) )
-                (forall (?gym - GymProtocol) (not (gym_reminder_enabled ?gym)) )
-                (forall (?walk - WalkingProtocol) (not (walk_reminder_enabled ?walk)) )
-                (forall (?alert - AlertProtocol) (not (alert_reminder_enabled ?alert)) )
-                (forall (?food - FoodProtocol) (not (food_reminder_enabled ?food)) )
-                (forall (?internal - InternalCheckReminderProtocol) (not (internalcheck_reminder_enabled ?internal)) )
+                (forall (?internal - InternalCheckReminderProtocol) (not (internal_check_reminder_enabled ?internal)) )
                 (forall (?practice - PracticeReminderProtocol) (not (practice_reminder_enabled ?practice)) )
                 (forall (?move - MoveReminderProtocol) (not (move_reminder_enabled ?move)) )
 

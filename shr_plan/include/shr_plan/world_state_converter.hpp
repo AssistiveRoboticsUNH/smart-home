@@ -60,7 +60,7 @@ public:
                 });
 
         std::filesystem::path pkg_dir = ament_index_cpp::get_package_share_directory("shr_resources");
-        auto mesh_file_robot = (pkg_dir / "resources" / "mesh_olson_rob.obj").string();
+        auto mesh_file_robot = (pkg_dir / "resources" / "robot.obj").string();
         auto [mesh_verts_robot, mesh_names_robot] = shr_utils::load_meshes(mesh_file_robot);
         for (int i = 0; i < mesh_names_robot.size(); i++) {
             auto name_robot = mesh_names_robot[i];
@@ -68,7 +68,7 @@ public:
             mesh_vert_map_robot[name_robot] = verts_robot;
         }
 
-        auto mesh_file_person = (pkg_dir / "resources" / "mesh_olson_per.obj").string();
+        auto mesh_file_person = (pkg_dir / "resources" / "new_olson_person.obj").string();
         auto [mesh_verts_person, mesh_names_person] = shr_utils::load_meshes(mesh_file_person);
         for (int i = 0; i < mesh_names_person.size(); i++) {
             auto name_person = mesh_names_person[i];

@@ -19,89 +19,49 @@ namespace pddl_lib {
     class ProtocolState {
     public:
         InstantiatedParameter active_protocol;
-        std::shared_ptr<WorldStateListener> world_state_converter;
+        std::shared_ptr <WorldStateListener> world_state_converter;
         // change first to change time (x  before y after)
-        const std::unordered_map<InstantiatedParameter, std::unordered_map<std::string, std::pair<int, int>>>
+        const std::unordered_map <InstantiatedParameter, std::unordered_map<std::string, std::pair < int, int>>>
         // Msg in PDDL
 
         wait_times = {
-                {{"noon",             "MedicineProtocol"},      {{"reminder_1_msg", {0, 10}},
-                                                                        {"reminder_2_msg", {0, 10}},
-                                                                }},
-                {{"sleep_reminder",   "SleepReminderProtocol"}, {{"reminder_1_msg", {0, 10}},
-                                                                        {"reminder_2_msg", {0,  10}},
-                                                                        {"reminder_3_msg", {0, 10}},
+                {{"am_meds",                 "MedicineProtocol"},              {{"reminder_1_msg", {0, 10}},
+                                                                                       {"reminder_2_msg", {0, 10}},
+                                                                               }},
+                {{"pm_meds",                 "MedicineProtocol"},              {{"reminder_1_msg", {0, 10}},
+                                                                                       {"reminder_2_msg", {0, 10}},
+                                                                               }},
+                {{"move_reminder",           "MoveReminderProtocol"},          {{"reminder_1_msg", {0, 10}},
 
-                                                                }},
-                {{"gym_reminder",     "GymProtocol"},           {{"reminder_1_msg", {0, 10}},
-   //    std::cout << "Command: " << cmd << std::endl;
-                                                                     {"reminder_2_msg", {0,  10}},
-                                                                        {"reminder_3_msg", {0, 10}},
-                                                                }},
-                {{"walking_reminder", "WalkingProtocol"},       {{"reminder_1_msg", {0, 10}},
+                                                                               }},
+                {{"internal_check_reminder", "InternalCheckReminderProtocol"}, {{"reminder_1_msg", {0, 10}},
 
-                                                                }},
-                {{"night_alert",      "AlertProtocol"},         {{"reminder_1_msg", {0, 10}},
+                                                                               }},
+                {{"practice_reminder",       "PracticeReminderProtocol"},      {{"reminder_1_msg", {0, 10}},
 
-                                                                }},
-                {{"breakfast",        "FoodProtocol"},          {{"reminder_1_msg", {0, 10}},
-                                                                        {"reminder_2_msg", {0,  10}},
-
-                                                                }},
-                {{"lunch",            "FoodProtocol"},          {{"reminder_1_msg", {0, 10}},
-                                                                        {"reminder_2_msg", {0,  10}},
-                                                                }},
-                {{"move_reminder", "MoveReminderProtocol"},       {{"reminder_1_msg", {0, 10}},
-
-                                                                }},
-                {{"internalcheck_reminder", "InternalCheckReminderProtocol"},       {{"reminder_1_msg", {0, 10}},
-
-                                                                  }},
-                {{"practice_reminder", "PracticeReminderProtocol"},       {{"reminder_1_msg", {0, 10}},
-
-                                                                  }},
+                                                                               }},
         };
 
 
-        const std::unordered_map<InstantiatedParameter, std::unordered_map<std::string, std::string>> automated_reminder_msgs = {
-                {{"noon",             "MedicineProtocol"},      {{"reminder_1_msg", "medicine_reminder.txt"},
-                                                                }},
-                {{"sleep_reminder",   "SleepReminderProtocol"}, {{"reminder_1_msg", "sleep_reminder1.txt"},
-                                                                        {"reminder_2_msg", "sleep_reminder2.txt"},
-                                                                        {"reminder_3_msg", "sleep_reminder3.txt"},
-
-                                                                }},
-                {{"gym_reminder",     "GymProtocol"},           {{"reminder_1_msg", "gym_reminder1.txt"},
-                                                                        {"reminder_2_msg", "gym_reminder2.txt"},
-                                                                        {"reminder_3_msg", "gym_reminder3.txt"},
-                                                                }},
-                {{"walking_reminder", "WalkingProtocol"},       {{"reminder_1_msg", "walking_reminder.txt"},
-
-                                                                }},
-                {{"night_alert",      "AlertProtocol"},         {{"reminder_1_msg", "night_alert.txt"},
-
-                                                                }},
-                {{"breakfast",        "FoodProtocol"},          {{"reminder_1_msg", "food_reminder.txt"},
-
-                                                                }},
-                {{"lunch",            "FoodProtocol"},          {{"reminder_1_msg", "food_reminder.txt"},
-                                                                }},
-
-                {{"move",            "MoveReminderProtocol"},          {{"reminder_1_msg", "move_reminder.txt"},
-                                                                }},
-                {{"internalcheck",            "InternalCheckReminderProtocol"},          {{"reminder_1_msg", "internalcheck_reminder.txt"},
-                                                                       }},
-                {{"practice",            "PracticeReminderProtocol"},          {{"reminder_1_msg", "practice_reminder.txt"},
-                                                                       }},
+        const std::unordered_map <InstantiatedParameter, std::unordered_map<std::string, std::string>> automated_reminder_msgs = {
+                {{"am_meds",       "MedicineProtocol"},              {{"reminder_1_msg", "medicine_reminder.txt"},
+                                                                     }},
+                {{"pm_meds",       "MedicineProtocol"},              {{"reminder_1_msg", "medicine_reminder.txt"},
+                                                                     }},
+                {{"move",          "MoveReminderProtocol"},          {{"reminder_1_msg", "move_reminder.txt"},
+                                                                     }},
+                {{"internalcheck", "InternalCheckReminderProtocol"}, {{"reminder_1_msg", "internalcheck_reminder.txt"},
+                                                                     }},
+                {{"practice",      "PracticeReminderProtocol"},      {{"reminder_1_msg", "practice_reminder.txt"},
+                                                                     }},
         };
 
-        const std::unordered_map<InstantiatedParameter, std::unordered_map<std::string, std::string>> recorded_reminder_msgs = {
-                {{"noon",  "MedicineProtocol"},  {{"reminder_2_msg", "medicine_reminder.mp3"},
-                                                      }},
-                {{"breakfast",  "FoodProtocol"},      {{"reminder_2_msg", "food_reminder.mp3"},
-                                                      }},
-                {{"lunch",      "FoodProtocol"},      {{"reminder_2_msg", "food_reminder.mp3"},
-                                                      }},
+        const std::unordered_map <InstantiatedParameter, std::unordered_map<std::string, std::string>> recorded_reminder_msgs = {
+                {{"am_meds", "MedicineProtocol"}, {{"reminder_2_msg", "medicine_reminder.mp3"},
+                                                  }},
+                {{"pm_meds", "MedicineProtocol"}, {{"reminder_2_msg", "medicine_reminder.mp3"},
+                                                  }},
+
         };
 
         // action servers
@@ -113,7 +73,7 @@ namespace pddl_lib {
         rclcpp_action::Client<shr_msgs::action::PlayAudioRequest>::SharedPtr audio_action_client_ = {};
 
         static InstantiatedParameter getActiveProtocol() {
-            std::lock_guard<std::mutex> lock(getInstance().active_protocol_mtx);
+            std::lock_guard <std::mutex> lock(getInstance().active_protocol_mtx);
             return getInstance().active_protocol;
         }
 
@@ -203,7 +163,7 @@ namespace pddl_lib {
                            ProtocolState &ps) {
 
         auto &kb = KnowledgeBase::getInstance();
-        auto success = std::make_shared<std::atomic<int >>(-1);
+        auto success = std::make_shared < std::atomic < int >> (-1);
         auto send_goal_options = rclcpp_action::Client<nav2_msgs::action::NavigateToPose>::SendGoalOptions();
         send_goal_options.result_callback = [&success](
                 const rclcpp_action::ClientGoalHandle<nav2_msgs::action::NavigateToPose>::WrappedResult result) {
@@ -246,7 +206,7 @@ namespace pddl_lib {
                            ProtocolState &ps) {
 
         auto &kb = KnowledgeBase::getInstance();
-        auto success = std::make_shared<std::atomic<int >>(-1);
+        auto success = std::make_shared < std::atomic < int >> (-1);
         auto send_goal_options = rclcpp_action::Client<shr_msgs::action::LocalizeRequest>::SendGoalOptions();
         send_goal_options.result_callback = [&success](
                 const rclcpp_action::ClientGoalHandle<shr_msgs::action::LocalizeRequest>::WrappedResult result) {
@@ -289,7 +249,7 @@ namespace pddl_lib {
                            ProtocolState &ps) {
 
         auto &kb = KnowledgeBase::getInstance();
-        auto success = std::make_shared<std::atomic<int >>(-1);
+        auto success = std::make_shared < std::atomic < int >> (-1);
         auto send_goal_options = rclcpp_action::Client<shr_msgs::action::DockingRequest>::SendGoalOptions();
         send_goal_options.result_callback = [&success](
                 const rclcpp_action::ClientGoalHandle<shr_msgs::action::DockingRequest>::WrappedResult result) {
@@ -331,7 +291,7 @@ namespace pddl_lib {
     int send_goal_blocking(const shr_msgs::action::ReadScriptRequest::Goal &goal, const InstantiatedAction &action,
                            ProtocolState &ps) {
         auto &kb = KnowledgeBase::getInstance();
-        auto success = std::make_shared<std::atomic<int >>(-1);
+        auto success = std::make_shared < std::atomic < int >> (-1);
         auto send_goal_options = rclcpp_action::Client<shr_msgs::action::ReadScriptRequest>::SendGoalOptions();
         send_goal_options.result_callback = [success](
                 const rclcpp_action::ClientGoalHandle<shr_msgs::action::ReadScriptRequest>::WrappedResult result) {
@@ -352,7 +312,7 @@ namespace pddl_lib {
     int send_goal_blocking(const shr_msgs::action::PlayAudioRequest::Goal &goal, const InstantiatedAction &action,
                            ProtocolState &ps) {
         auto &kb = KnowledgeBase::getInstance();
-        auto success = std::make_shared<std::atomic<int >>(-1);
+        auto success = std::make_shared < std::atomic < int >> (-1);
         auto send_goal_options = rclcpp_action::Client<shr_msgs::action::PlayAudioRequest>::SendGoalOptions();
         send_goal_options.result_callback = [&success](
                 const rclcpp_action::ClientGoalHandle<shr_msgs::action::PlayAudioRequest>::WrappedResult result) {
@@ -418,7 +378,7 @@ namespace pddl_lib {
     }
 
     void instantiate_protocol(const std::string &protocol_name,
-                              const std::vector<std::pair<std::string, std::string>> &replacements = {}) {
+                              const std::vector <std::pair<std::string, std::string>> &replacements = {}) {
         auto &kb = KnowledgeBase::getInstance();
         auto high_level_domain_content = get_file_content("high_level_domain.pddl");
         auto high_level_domain = parse_domain(high_level_domain_content).value();
@@ -559,84 +519,6 @@ namespace pddl_lib {
             kb.insert_predicate({"abort", {}});
         }
 
-        // StartSleepReminderProtocol
-        BT::NodeStatus high_level_domain_StartSleepReminderProtocol(const InstantiatedAction &action) override {
-            auto &kb = KnowledgeBase::getInstance();
-            InstantiatedParameter inst = action.parameters[0];
-            std::string currentDateTime = getCurrentDateTime();
-            //RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=")+"high_level_domain_StartWanderingProtocol"+"started"), "user...");
-            RCLCPP_INFO(rclcpp::get_logger(
-                    currentDateTime + std::string("user=") + "StartSleepReminderProtocol" + "started"),
-                        "user...");
-            auto [ps, lock] = ProtocolState::getConcurrentInstance();
-            lock.Lock();
-            std::string log_message =
-                    std::string("weblog=") + currentDateTime + " high_level_domain_StartSleepReminderProtocol" +
-                    " started";
-            RCLCPP_INFO(ps.world_state_converter->get_logger(), log_message.c_str());
-            instantiate_protocol("sleep_reminder.pddl");
-            ps.active_protocol = inst;
-            lock.UnLock();
-            return BT::NodeStatus::SUCCESS;
-        }
-
-        BT::NodeStatus high_level_domain_StartAlertProtocol(const InstantiatedAction &action) override {
-            auto &kb = KnowledgeBase::getInstance();
-            InstantiatedParameter inst = action.parameters[0];
-            std::string currentDateTime = getCurrentDateTime();
-            //RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=")+"high_level_domain_StartWanderingProtocol"+"started"), "user...");
-            RCLCPP_INFO(rclcpp::get_logger(currentDateTime + std::string("user=") + "StartAlertProtocol" + "started"),
-                        "user...");
-            auto [ps, lock] = ProtocolState::getConcurrentInstance();
-            lock.Lock();
-            std::string log_message =
-                    std::string("weblog=") + currentDateTime + " high_level_domain_StartAlertProtocol" + " started";
-            RCLCPP_INFO(ps.world_state_converter->get_logger(), log_message.c_str());
-            instantiate_protocol("night_alert.pddl");
-            ps.active_protocol = inst;
-            lock.UnLock();
-            return BT::NodeStatus::SUCCESS;
-        }
-
-        BT::NodeStatus high_level_domain_StartGymReminderProtocol(const InstantiatedAction &action) override {
-            auto &kb = KnowledgeBase::getInstance();
-            InstantiatedParameter inst = action.parameters[0];
-            std::string currentDateTime = getCurrentDateTime();
-            RCLCPP_INFO(
-                    rclcpp::get_logger(currentDateTime + std::string("user=") + "StartGymReminderProtocol" + "started"),
-                    "user...");
-            auto [ps, lock] = ProtocolState::getConcurrentInstance();
-            lock.Lock();
-            std::string log_message =
-                    std::string("weblog=") + currentDateTime + " high_level_domain_StartGymReminderProtocol" +
-                    " started";
-            RCLCPP_INFO(ps.world_state_converter->get_logger(), log_message.c_str());
-            instantiate_protocol("gym_reminder.pddl");
-            ps.active_protocol = inst;
-            lock.UnLock();
-            return BT::NodeStatus::SUCCESS;
-        }
-
-        BT::NodeStatus high_level_domain_StartWalkReminderProtocol(const InstantiatedAction &action) override {
-            auto &kb = KnowledgeBase::getInstance();
-            InstantiatedParameter inst = action.parameters[0];
-            std::string currentDateTime = getCurrentDateTime();
-            //RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=")+"high_level_domain_StartWanderingProtocol"+"started"), "user...");
-            RCLCPP_INFO(rclcpp::get_logger(
-                    currentDateTime + std::string("user=") + "StartWalkReminderProtocol" + "started"),
-                        "user...");
-            auto [ps, lock] = ProtocolState::getConcurrentInstance();
-            lock.Lock();
-            std::string log_message =
-                    std::string("weblog=") + currentDateTime + " high_level_domain_StartWalkReminderProtocol" +
-                    " started";
-            RCLCPP_INFO(ps.world_state_converter->get_logger(), log_message.c_str());
-            instantiate_protocol("walking_reminder.pddl");
-            ps.active_protocol = inst;
-            lock.UnLock();
-            return BT::NodeStatus::SUCCESS;
-        }
-
         // medicine_protocol
         BT::NodeStatus high_level_domain_StartMedReminderProtocol(const InstantiatedAction &action) override {
             auto &kb = KnowledgeBase::getInstance();
@@ -648,29 +530,6 @@ namespace pddl_lib {
             std::string currentDateTime = getCurrentDateTime();
             std::string log_message =
                     std::string("weblog=") + currentDateTime + " high_level_domain_StartMedicineProtocol" + " started";
-            RCLCPP_INFO(ps.world_state_converter->get_logger(), log_message.c_str());
-            ps.active_protocol = protocol;
-            lock.UnLock();
-            return BT::NodeStatus::SUCCESS;
-        }
-
-        // food_protocol
-        BT::NodeStatus high_level_domain_StartFoodReminderProtocol(const InstantiatedAction &action) override {
-
-            auto &kb = KnowledgeBase::getInstance();
-            InstantiatedParameter protocol = action.parameters[0];
-
-            RCLCPP_INFO(rclcpp::get_logger(
-                    std::string("weblog=") + "high_level_domain_StartFoodReminderProtocol" + "started"),
-                        "user...");
-
-            instantiate_protocol("food_reminder.pddl");
-
-            auto [ps, lock] = ProtocolState::getConcurrentInstance();
-            lock.Lock();
-            std::string currentDateTime = getCurrentDateTime();
-            std::string log_message =
-                    std::string("weblog=") + currentDateTime + " high_level_domain_StartFoodProtocol" + " started";
             RCLCPP_INFO(ps.world_state_converter->get_logger(), log_message.c_str());
             ps.active_protocol = protocol;
             lock.UnLock();
@@ -698,7 +557,7 @@ namespace pddl_lib {
             return BT::NodeStatus::SUCCESS;
         }
 
-        // internalcheck protocol
+        // internal check protocol
         BT::NodeStatus high_level_domain_StartInternalCheckReminderProtocol(const InstantiatedAction &action) override {
             auto &kb = KnowledgeBase::getInstance();
             InstantiatedParameter inst = action.parameters[0];
@@ -832,30 +691,13 @@ namespace pddl_lib {
             if (active_protocol.type == "MedicineProtocol") {
                 kb.insert_predicate({"already_reminded_medicine", {active_protocol}});
                 kb.erase_predicate({"medicine_reminder_enabled", {active_protocol}});
-            } else if (active_protocol.type == "FoodProtocol") {
-                kb.insert_predicate({"already_reminded_eating", {active_protocol}});
-                kb.erase_predicate({"food_reminder_enabled", {active_protocol}});
-            } else if (active_protocol.type == "SleepReminderProtocol") {
-                kb.insert_predicate({"already_reminded_sleep", {active_protocol}});
-                kb.erase_predicate({"sleep_reminder_enabled", {active_protocol}});
-            } else if (active_protocol.type == "GymProtocol") {
-                kb.insert_predicate({"already_reminded_gym", {active_protocol}});
-                kb.erase_predicate({"gym_reminder_enabled", {active_protocol}});
-            } else if (active_protocol.type == "AlertProtocol") {
-                kb.erase_predicate({"alert_reminder_enabled", {active_protocol}});
-            } else if (active_protocol.type == "WalkingProtocol") {
-                kb.insert_predicate({"already_reminded_walk", {active_protocol}});
-                kb.erase_predicate({"walk_reminder_enabled", {active_protocol}});
-            }
-            else if (active_protocol.type == "MoveReminderProtocol") {
+            }else if (active_protocol.type == "MoveReminderProtocol") {
                 kb.insert_predicate({"already_reminded_move", {active_protocol}});
                 kb.erase_predicate({"move_reminder_enabled", {active_protocol}});
-            }
-            else if (active_protocol.type == "InternalCheckReminderProtocol") {
-                kb.insert_predicate({"already_reminded_internalcheck", {active_protocol}});
-                kb.erase_predicate({"internalcheck_reminder_enabled", {active_protocol}});
-            }
-            else if (active_protocol.type == "PracticeReminderProtocol") {
+            } else if (active_protocol.type == "InternalCheckReminderProtocol") {
+                kb.insert_predicate({"already_reminded_internal_check", {active_protocol}});
+                kb.erase_predicate({"internal_check_reminder_enabled", {active_protocol}});
+            } else if (active_protocol.type == "PracticeReminderProtocol") {
                 kb.insert_predicate({"already_reminded_practice", {active_protocol}});
                 kb.erase_predicate({"practice_reminder_enabled", {active_protocol}});
             }
@@ -879,30 +721,13 @@ namespace pddl_lib {
             if (active_protocol.type == "MedicineProtocol") {
                 kb.insert_predicate({"already_reminded_medicine", {active_protocol}});
                 kb.erase_predicate({"medicine_reminder_enabled", {active_protocol}});
-            } else if (active_protocol.type == "FoodProtocol") {
-                kb.insert_predicate({"already_reminded_eating", {active_protocol}});
-                kb.erase_predicate({"food_reminder_enabled", {active_protocol}});
-            } else if (active_protocol.type == "SleepReminderProtocol") {
-                kb.insert_predicate({"already_reminded_sleep", {active_protocol}});
-                kb.erase_predicate({"sleep_reminder_enabled", {active_protocol}});
-            } else if (active_protocol.type == "GymProtocol") {
-                kb.insert_predicate({"already_reminded_gym", {active_protocol}});
-                kb.erase_predicate({"gym_reminder_enabled", {active_protocol}});
-            } else if (active_protocol.type == "AlertProtocol") {
-                kb.erase_predicate({"alert_reminder_enabled", {active_protocol}});
-            } else if (active_protocol.type == "WalkingProtocol") {
-                kb.insert_predicate({"already_reminded_walk", {active_protocol}});
-                kb.erase_predicate({"walk_reminder_enabled", {active_protocol}});
-            }
-            else if (active_protocol.type == "MoveReminderProtocol") {
+            }else if (active_protocol.type == "MoveReminderProtocol") {
                 kb.insert_predicate({"already_reminded_move", {active_protocol}});
                 kb.erase_predicate({"move_reminder_enabled", {active_protocol}});
-            }
-            else if (active_protocol.type == "InternalCheckReminderProtocol") {
-                kb.insert_predicate({"already_reminded_internalcheck", {active_protocol}});
-                kb.erase_predicate({"internalcheck_reminder_enabled", {active_protocol}});
-            }
-            else if (active_protocol.type == "PracticeReminderProtocol") {
+            } else if (active_protocol.type == "InternalCheckReminderProtocol") {
+                kb.insert_predicate({"already_reminded_internal_check", {active_protocol}});
+                kb.erase_predicate({"internal_check_reminder_enabled", {active_protocol}});
+            } else if (active_protocol.type == "PracticeReminderProtocol") {
                 kb.insert_predicate({"already_reminded_practice", {active_protocol}});
                 kb.erase_predicate({"practice_reminder_enabled", {active_protocol}});
             }
@@ -955,7 +780,7 @@ namespace pddl_lib {
 
                 shr_msgs::action::DockingRequest::Goal goal_msg;
 
-                auto success_undock = std::make_shared<std::atomic<int >>(-1);
+                auto success_undock = std::make_shared < std::atomic < int >> (-1);
                 auto send_goal_options_dock = rclcpp_action::Client<shr_msgs::action::DockingRequest>::SendGoalOptions();
                 send_goal_options_dock.result_callback = [&success_undock](
                         const rclcpp_action::ClientGoalHandle<shr_msgs::action::DockingRequest>::WrappedResult result) {
@@ -996,14 +821,14 @@ namespace pddl_lib {
                     navigation_goal_.pose.pose.position.z = transform.value().transform.translation.z;
                 } else {
                     RCLCPP_INFO(rclcpp::get_logger(
-                            std::string("weblog=") + "shr_domain_MoveToLandmark" + "moving to land mark failed!"),
+                                        std::string("weblog=") + "shr_domain_MoveToLandmark" + "moving to land mark failed!"),
                                 "user...");
                     lock.UnLock();
                     return BT::NodeStatus::FAILURE;
                 }
 
                 RCLCPP_INFO(rclcpp::get_logger(
-                        std::string("weblog=") + "shr_domain_MoveToLandmark" + "moving to land mark succeed!"),
+                                    std::string("weblog=") + "shr_domain_MoveToLandmark" + "moving to land mark succeed!"),
                             "user...");
                 lock.UnLock();
                 return send_goal_blocking(navigation_goal_, action, ps) ? BT::NodeStatus::SUCCESS
@@ -1016,7 +841,7 @@ namespace pddl_lib {
                 shr_msgs::action::LocalizeRequest::Goal goal_msg_loc;
                 goal_msg_loc.force_localize = false;
 
-                auto success_loc = std::make_shared<std::atomic<int >>(-1);
+                auto success_loc = std::make_shared < std::atomic < int >> (-1);
                 auto send_goal_options_loc = rclcpp_action::Client<shr_msgs::action::LocalizeRequest>::SendGoalOptions();
                 send_goal_options_loc.result_callback = [&success_loc](
                         const rclcpp_action::ClientGoalHandle<shr_msgs::action::LocalizeRequest>::WrappedResult result) {
@@ -1048,14 +873,14 @@ namespace pddl_lib {
                     navigation_goal_.pose.pose.position.z = transform.value().transform.translation.z;
                 } else {
                     RCLCPP_INFO(rclcpp::get_logger(
-                            std::string("weblog=") + "shr_domain_MoveToLandmark" + "moving to land mark failed!"),
+                                        std::string("weblog=") + "shr_domain_MoveToLandmark" + "moving to land mark failed!"),
                                 "user...");
                     lock.UnLock();
                     return BT::NodeStatus::FAILURE;
                 }
 
                 RCLCPP_INFO(rclcpp::get_logger(
-                        std::string("weblog=") + "shr_domain_MoveToLandmark" + "moving to land mark succeed!"),
+                                    std::string("weblog=") + "shr_domain_MoveToLandmark" + "moving to land mark succeed!"),
                             "user...");
                 lock.UnLock();
                 return send_goal_blocking(navigation_goal_, action, ps) ? BT::NodeStatus::SUCCESS

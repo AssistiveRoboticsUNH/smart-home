@@ -131,85 +131,7 @@ public:
         }
     }
 
-    TRUTH_VALUE time_to_eat(TRUTH_VALUE val, FoodProtocol f) const override {
-        auto params = world_state_converter->get_params();
-        if (auto index = get_inst_index(f, params)) {
-            if (compare_time(params.pddl.FoodProtocols.eat_times[index.value()])) {
-                return TRUTH_VALUE::TRUE;
-            }
-        }
-        return TRUTH_VALUE::FALSE;
-    }
 
-    TRUTH_VALUE time_to_alert(TRUTH_VALUE val, AlertProtocol a) const override {
-        auto params = world_state_converter->get_params();
-        if (auto index = get_inst_index(a, params)) {
-            if (compare_time(params.pddl.AlertProtocols.alert_reminder_times[index.value()])) {
-                return TRUTH_VALUE::TRUE;
-            }
-        }
-        return TRUTH_VALUE::FALSE;
-    }
-
-    TRUTH_VALUE time_for_walk_reminder(TRUTH_VALUE val, WalkingProtocol w) const override {
-        auto params = world_state_converter->get_params();
-        if (auto index = get_inst_index(w, params)) {
-            if (compare_time(params.pddl.WalkingProtocols.walk_reminder_times[index.value()])) {
-                return TRUTH_VALUE::TRUE;
-            }
-        }
-        return TRUTH_VALUE::FALSE;
-    }
-
-//    TRUTH_VALUE already_reminded_walk(TRUTH_VALUE val, WalkingProtocol w) const override {
-//        auto params = world_state_converter->get_params();
-//        if (auto index = get_inst_index(w, params)) {
-//            if (compare_time(params.pddl.WalkingProtocols.walk_reminder_times[index.value()])) {
-//                return TRUTH_VALUE::TRUE;
-//            }
-//        }
-//        return TRUTH_VALUE::FALSE;
-//    }
-
-    TRUTH_VALUE time_for_gym_reminder(TRUTH_VALUE val, GymProtocol g) const override {
-        auto params = world_state_converter->get_params();
-        if (auto index = get_inst_index(g, params)) {
-            if (compare_time(params.pddl.GymProtocols.gym_reminder_times[index.value()])) {
-                return TRUTH_VALUE::TRUE;
-            }
-        }
-        return TRUTH_VALUE::FALSE;
-    }
-
-//    TRUTH_VALUE already_reminded_gym(TRUTH_VALUE val, GymProtocol g) const override {
-//        auto params = world_state_converter->get_params();
-//        if (auto index = get_inst_index(g, params)) {
-//            if (compare_time(params.pddl.GymProtocols.gym_reminder_times[index.value()])) {
-//                return TRUTH_VALUE::TRUE;
-//            }
-//        }
-//        return TRUTH_VALUE::FALSE;
-//    }
-
-    TRUTH_VALUE time_for_sleep_reminder(TRUTH_VALUE val, SleepReminderProtocol s) const override {
-        auto params = world_state_converter->get_params();
-        if (auto index = get_inst_index(s, params)) {
-            if (compare_time(params.pddl.SleepReminderProtocols.sleep_reminder_times[index.value()])) {
-                return TRUTH_VALUE::TRUE;
-            }
-        }
-        return TRUTH_VALUE::FALSE;
-    }
-
-//    TRUTH_VALUE already_reminded_sleep(TRUTH_VALUE val, SleepReminderProtocol s) const override {
-//        auto params = world_state_converter->get_params();
-//        if (auto index = get_inst_index(s, params)) {
-//            if (compare_time(params.pddl.SleepReminderProtocols.sleep_reminder_times[index.value()])) {
-//                return TRUTH_VALUE::TRUE;
-//            }
-//        }
-//        return TRUTH_VALUE::FALSE;
-//    }
 
 
     TRUTH_VALUE time_to_take_medicine(TRUTH_VALUE val, MedicineProtocol m) const override {
@@ -231,24 +153,6 @@ public:
             return TRUTH_VALUE::TRUE;
         }
         return val;
-    }
-
-    TRUTH_VALUE already_ate(TRUTH_VALUE val, FoodProtocol f) const override {
-        if (val == TRUTH_VALUE::TRUE) {
-            return TRUTH_VALUE::TRUE;
-        }
-        // modification
-        auto params = world_state_converter->get_params();
-        if (auto index = get_inst_index(f, params)) {
-//            std::cout << "params.pddl.FoodProtocols.eat_times[index.value()]: " << params.pddl.FoodProtocols.eat_times[index.value()] << std::endl;
-//            std::cout << "compare_time(params.pddl.FoodProtocols.eat_times[index.value()]): " << compare_time(params.pddl.FoodProtocols.eat_times[index.value()]) << std::endl;
-//            std::cout << "world_state_converter->get_world_state_msg()->person_eating : " << world_state_converter->get_world_state_msg()->person_eating << std::endl;
-            if (world_state_converter->get_world_state_msg()->person_eating == 1 &&
-                compare_time(params.pddl.FoodProtocols.eat_times[index.value()])) {
-                return TRUTH_VALUE::TRUE;
-            }
-            return val;
-        }
     }
 
     // TODO: Check if this needs to be sandwiched between time window

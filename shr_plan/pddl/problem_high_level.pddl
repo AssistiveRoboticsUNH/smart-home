@@ -1,15 +1,10 @@
 (define (problem high_level)
   (:domain shr_domain)
   (:objects
-     noon - MedicineProtocol
+     am_meds pm_meds - MedicineProtocol
      move_reminder - MoveReminderProtocol
-     internalcheck_reminder - InternalCheckReminderProtocol
-     sleep_reminder - SleepReminderProtocol
+     internal_check_reminder - InternalCheckReminderProtocol
      practice_reminder - PracticeReminderProtocol
-     gym_reminder - GymProtocol
-     walking_reminder - WalkingProtocol
-     night_alert - AlertProtocol
-     breakfast lunch - FoodProtocol
      bedroom visible_area outside bathroom - Landmark
      designated_space home - Landmark
      nathan - Person
