@@ -5,20 +5,15 @@
      move_reminder - MoveReminderProtocol
      internal_check_reminder - InternalCheckReminderProtocol
      practice_reminder - PracticeReminderProtocol
-     bedroom visible_area outside bathroom - Landmark
-     designated_space home - Landmark
+     living_room home outside bedroom - Landmark
      nathan - Person
      t1 - Time ;;t2 t3 t4 t5
   )
   (:init
       (priority_1)
-      ;;(visible_location visible_area)
+      ;;(visible_location living_room)
 
-
-      ;; visible location of person
-      (visible_location visible_area)
-
-      (person_currently_at nathan visible_area)
+      ;;(person_currently_at nathan visible_area)
 
       ;;(person_currently_at nathan visible_area)
       ;;(time_for_walk_reminder walking_reminder)

@@ -40,10 +40,43 @@ shr_parameters:
     MedicineProtocols:
       instances: {
         type: string_array,
-        default_value: [ "noon" ],
+        default_value: [ "am_meds" , "pm_meds" ],
         description: "medicine protocols",
       }
       take_medication_time: {
+        type: string_array,
+        default_value: [ "8h00m0s/9h00m0s", "20h00m0s/21h00m0s" ],
+        description: "time that each protocol is triggered",
+      }
+    MoveReminderProtocol:
+      instances: {
+        type: string_array,
+        default_value: [ "move_reminder" ],
+        description: "medicine protocols",
+      }
+      move_reminder_time: {
+        type: string_array,
+        default_value: [ "17h00m0s/18h00m0s" ],
+        description: "time that each protocol is triggered",
+      }
+    InternalCheckReminderProtocol:
+      instances: {
+        type: string_array,
+        default_value: [ "internal_check_reminder" ],
+        description: "internal check reminder protocols",
+      }
+      internal_check_reminder_time: {
+        type: string_array,
+        default_value: [ "20h00m0s/21h00m0s" ],
+        description: "time that each protocol is triggered",
+      }
+    PracticeReminderProtocol:
+      instances: {
+        type: string_array,
+        default_value: [ "noon" ],
+        description: "medicine protocols",
+      }
+      practice_reminder_time: {
         type: string_array,
         default_value: [ "20h00m0s/21h00m0s" ],
         description: "time that each protocol is triggered",

@@ -50,7 +50,7 @@ namespace pddl_lib {
                                                                      }},
                 {{"move",          "MoveReminderProtocol"},          {{"reminder_1_msg", "move_reminder.txt"},
                                                                      }},
-                {{"internalcheck", "InternalCheckReminderProtocol"}, {{"reminder_1_msg", "internalcheck_reminder.txt"},
+                {{"internal_check_reminder", "InternalCheckReminderProtocol"}, {{"reminder_1_msg", "internalcheck_reminder.txt"},
                                                                      }},
                 {{"practice",      "PracticeReminderProtocol"},      {{"reminder_1_msg", "practice_reminder.txt"},
                                                                      }},
