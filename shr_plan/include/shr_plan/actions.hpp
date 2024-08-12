@@ -361,8 +361,8 @@ namespace pddl_lib {
     std::string get_file_content(const std::string &file_name) {
         std::filesystem::path pkg_dir = ament_index_cpp::get_package_share_directory("shr_plan");
         auto pddl_path = pkg_dir / "pddl";
-        auto problem_food_file = (pddl_path / file_name).string();
-        std::ifstream f(problem_food_file);
+        auto problem_high_level_file = (pddl_path / file_name).string();
+        std::ifstream f(problem_high_level_file);
         std::stringstream ss;
         ss << f.rdbuf();
         return ss.str();
@@ -572,7 +572,7 @@ namespace pddl_lib {
                     std::string("weblog=") + currentDateTime + " high_level_domain_StartInternalCheckReminderProtocol" +
                     " started";
             RCLCPP_INFO(ps.world_state_converter->get_logger(), log_message.c_str());
-            instantiate_protocol("internalcheck_reminder.pddl");
+            instantiate_protocol("internal_check_reminder.pddl");
             ps.active_protocol = inst;
             lock.UnLock();
             return BT::NodeStatus::SUCCESS;

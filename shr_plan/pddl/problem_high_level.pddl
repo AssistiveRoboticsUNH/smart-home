@@ -1,5 +1,5 @@
 (define (problem high_level)
-  (:domain shr_domain)
+  (:domain high_level_domain)
   (:objects
      am_meds pm_meds - MedicineProtocol
      move_reminder - MoveReminderProtocol
@@ -10,8 +10,8 @@
      t1 - Time ;;t2 t3 t4 t5
   )
   (:init
-      (priority_1)
-      ;;(visible_location living_room)
+      ;;(priority_5)
+      (visible_location living_room)
 
       ;;(person_currently_at nathan visible_area)
 

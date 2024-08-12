@@ -1,4 +1,4 @@
-(define (problem move_reminder)
+(define (problem internal_check_reminder)
 (:domain shr_domain)
 (:objects
     living_room home outside bedroom - Landmark
