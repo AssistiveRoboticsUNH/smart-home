@@ -48,11 +48,11 @@ namespace pddl_lib {
                                                                      }},
                 {{"pm_meds",       "MedicineProtocol"},              {{"reminder_1_msg", "medicine_reminder.txt"},
                                                                      }},
-                {{"move",          "MoveReminderProtocol"},          {{"reminder_1_msg", "move_reminder.txt"},
+                {{"move_reminder",          "MoveReminderProtocol"},          {{"reminder_1_msg", "move_reminder.txt"},
                                                                      }},
                 {{"internal_check_reminder", "InternalCheckReminderProtocol"}, {{"reminder_1_msg", "internalcheck_reminder.txt"},
                                                                      }},
-                {{"practice",      "PracticeReminderProtocol"},      {{"reminder_1_msg", "practice_reminder.txt"},
+                {{"practice_reminder",      "PracticeReminderProtocol"},      {{"reminder_1_msg", "practice_reminder.txt"},
                                                                      }},
         };
 
@@ -430,23 +430,23 @@ namespace pddl_lib {
 
 
                 std::cout << "localize " << std::endl;
-                RCLCPP_INFO(
-                        rclcpp::get_logger(std::string("weblog=") + "high_level_domain_Idle" + "localizing started"),
-                        "user...");
-
-                shr_msgs::action::LocalizeRequest::Goal goal_msg_loc;
-                goal_msg_loc.force_localize = false;
-
-
-                auto status_loc = send_goal_blocking(goal_msg_loc, action, ps);
-                std::cout << "status: " << status_loc << std::endl;
-                if (!status_loc) {
-                    std::cout << "Fail: " << std::endl;
-                    ps.localize_->async_cancel_all_goals();
-                    //lock.UnLock();
-                    //return BT::NodeStatus::FAILURE;
-                }
-                ps.localize_->async_cancel_all_goals();
+//                RCLCPP_INFO(
+//                        rclcpp::get_logger(std::string("weblog=") + "high_level_domain_Idle" + "localizing started"),
+//                        "user...");
+//
+//                shr_msgs::action::LocalizeRequest::Goal goal_msg_loc;
+//                goal_msg_loc.force_localize = false;
+//
+//
+//                auto status_loc = send_goal_blocking(goal_msg_loc, action, ps);
+//                std::cout << "status: " << status_loc << std::endl;
+//                if (!status_loc) {
+//                    std::cout << "Fail: " << std::endl;
+//                    ps.localize_->async_cancel_all_goals();
+//                    //lock.UnLock();
+//                    //return BT::NodeStatus::FAILURE;
+//                }
+//                ps.localize_->async_cancel_all_goals();
 
                 std::string currentDateTime = getCurrentDateTime();
                 std::string log_message =
@@ -478,21 +478,21 @@ namespace pddl_lib {
 
 
                 std::cout << "dock " << std::endl;
-
-                shr_msgs::action::DockingRequest::Goal goal_msg_dock;
-                RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=") + "high_level_domain_Idle" + "docking started"),
-                            "user...");
-
-                auto status_dock = send_goal_blocking(goal_msg_dock, action, ps);
-                std::cout << "status: " << status_dock << std::endl;
-                if (!status_dock) {
-                    ps.docking_->async_cancel_all_goals();
-                    std::cout << "Fail: " << std::endl;
-                    lock.UnLock();
-                    return BT::NodeStatus::FAILURE;
-                }
-                ps.docking_->async_cancel_all_goals();
-                std::cout << "success: " << std::endl;
+//
+//                shr_msgs::action::DockingRequest::Goal goal_msg_dock;
+//                RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=") + "high_level_domain_Idle" + "docking started"),
+//                            "user...");
+//
+//                auto status_dock = send_goal_blocking(goal_msg_dock, action, ps);
+//                std::cout << "status: " << status_dock << std::endl;
+//                if (!status_dock) {
+//                    ps.docking_->async_cancel_all_goals();
+//                    std::cout << "Fail: " << std::endl;
+//                    lock.UnLock();
+//                    return BT::NodeStatus::FAILURE;
+//                }
+//                ps.docking_->async_cancel_all_goals();
+//                std::cout << "success: " << std::endl;
 
 
                 // // sleep for 60 seconds to deal with the delay from //charging topic
@@ -838,28 +838,28 @@ namespace pddl_lib {
                 int count_max = 30;
 
                 std::cout << "localize " << std::endl;
-                shr_msgs::action::LocalizeRequest::Goal goal_msg_loc;
-                goal_msg_loc.force_localize = false;
-
-                auto success_loc = std::make_shared < std::atomic < int >> (-1);
-                auto send_goal_options_loc = rclcpp_action::Client<shr_msgs::action::LocalizeRequest>::SendGoalOptions();
-                send_goal_options_loc.result_callback = [&success_loc](
-                        const rclcpp_action::ClientGoalHandle<shr_msgs::action::LocalizeRequest>::WrappedResult result) {
-                    *success_loc = result.code == rclcpp_action::ResultCode::SUCCEEDED;
-                };
-
-                ps.localize_->async_send_goal(goal_msg_loc, send_goal_options_loc);
-                auto tmp_loc = ps.active_protocol;
-
-                int count__ = 0;
-                while (*success_loc == -1 && count_max > count__) {
-                    if (!(tmp_loc == ps.active_protocol)) {
-                        ps.localize_->async_cancel_all_goals();
-                        std::cout << " Failed " << std::endl;
-                    }
-                    count__++;
-                    rclcpp::sleep_for(std::chrono::seconds(1));
-                }
+//                shr_msgs::action::LocalizeRequest::Goal goal_msg_loc;
+//                goal_msg_loc.force_localize = false;
+//
+//                auto success_loc = std::make_shared < std::atomic < int >> (-1);
+//                auto send_goal_options_loc = rclcpp_action::Client<shr_msgs::action::LocalizeRequest>::SendGoalOptions();
+//                send_goal_options_loc.result_callback = [&success_loc](
+//                        const rclcpp_action::ClientGoalHandle<shr_msgs::action::LocalizeRequest>::WrappedResult result) {
+//                    *success_loc = result.code == rclcpp_action::ResultCode::SUCCEEDED;
+//                };
+//
+//                ps.localize_->async_send_goal(goal_msg_loc, send_goal_options_loc);
+//                auto tmp_loc = ps.active_protocol;
+//
+//                int count__ = 0;
+//                while (*success_loc == -1 && count_max > count__) {
+//                    if (!(tmp_loc == ps.active_protocol)) {
+//                        ps.localize_->async_cancel_all_goals();
+//                        std::cout << " Failed " << std::endl;
+//                    }
+//                    count__++;
+//                    rclcpp::sleep_for(std::chrono::seconds(1));
+//                }
 
 
                 nav2_msgs::action::NavigateToPose::Goal navigation_goal_;

@@ -12,6 +12,7 @@
   (:init
       ;;(priority_5)
       (visible_location living_room)
+      (visible_location bedroom)
 
       ;;(person_currently_at nathan visible_area)
 

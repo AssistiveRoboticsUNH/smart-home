@@ -10,9 +10,9 @@
     na1 na2 na3 - NoAction
 )
 (:init
-    (person_at t1 nathan bedroom)
-    (robot_at home)
-    (robot_at_time t1 home)
+    ;;(person_at t1 nathan bedroom)
+    ;;(robot_at home)
+    ;;(robot_at_time t1 home)
 
     ;;(no_action)
 

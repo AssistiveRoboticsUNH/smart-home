@@ -124,7 +124,7 @@ public:
     TRUTH_VALUE time_for_move_reminder(TRUTH_VALUE val, MoveReminderProtocol m) const override {
         auto params = world_state_converter->get_params();
         if (auto index = get_inst_index(m, params)) {
-            if (compare_time(params.pddl.MoveReminderProtocol.move_reminder_time[index.value()])) {
+            if (compare_time(params.pddl.MoveReminderProtocols.move_reminder_times[index.value()])) {
                 return TRUTH_VALUE::TRUE;
             }
         }
@@ -134,7 +134,7 @@ public:
     TRUTH_VALUE time_for_internal_check_reminder(TRUTH_VALUE val, InternalCheckReminderProtocol m) const override {
         auto params = world_state_converter->get_params();
         if (auto index = get_inst_index(m, params)) {
-            if (compare_time(params.pddl.InternalCheckReminderProtocol.internal_check_reminder_time[index.value()])) {
+            if (compare_time(params.pddl.InternalCheckReminderProtocols.internal_check_reminder_times[index.value()])) {
                 return TRUTH_VALUE::TRUE;
             }
         }
@@ -144,7 +144,7 @@ public:
     TRUTH_VALUE time_for_practice_reminder(TRUTH_VALUE val, PracticeReminderProtocol m) const override {
         auto params = world_state_converter->get_params();
         if (auto index = get_inst_index(m, params)) {
-            if (compare_time(params.pddl.PracticeReminderProtocol.practice_reminder_time[index.value()])) {
+            if (compare_time(params.pddl.PracticeReminderProtocols.practice_reminder_times[index.value()])) {
                 return TRUTH_VALUE::TRUE;
             }
         }
