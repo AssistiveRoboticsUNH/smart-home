@@ -22,7 +22,7 @@ shr_parameters:
         default_value: [ "am_meds" , "pm_meds" ],
         description: "medicine protocols",
       }
-      take_medication_time: {
+      take_medication_times: {
         type: string_array,
         default_value: [ "09h00m0s/10h00m0s", "21h00m0s/22h00m0s" ],
         description: "time that each protocol is triggered",

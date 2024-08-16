@@ -31,7 +31,7 @@ class shr_parameters:
             instances = __Instances()
             class __Medicineprotocols:
                 instances = ["am_meds", "pm_meds"]
-                take_medication_time = ["09h00m0s/10h00m0s", "21h00m0s/22h00m0s"]
+                take_medication_times = ["09h00m0s/10h00m0s", "21h00m0s/22h00m0s"]
             MedicineProtocols = __Medicineprotocols()
             class __Internalcheckreminderprotocols:
                 instances = ["internal_check_reminder"]
@@ -131,8 +131,8 @@ class shr_parameters:
                     updated_params.pddl.MedicineProtocols.instances = param.value
                     self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
 
-                if param.name == self.prefix_ + "pddl.MedicineProtocols.take_medication_time":
-                    updated_params.pddl.MedicineProtocols.take_medication_time = param.value
+                if param.name == self.prefix_ + "pddl.MedicineProtocols.take_medication_times":
+                    updated_params.pddl.MedicineProtocols.take_medication_times = param.value
                     self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
 
                 if param.name == self.prefix_ + "pddl.InternalCheckReminderProtocols.instances":
@@ -215,10 +215,10 @@ class shr_parameters:
                 parameter = updated_params.pddl.MedicineProtocols.instances
                 self.node_.declare_parameter(self.prefix_ + "pddl.MedicineProtocols.instances", parameter, descriptor)
 
-            if not self.node_.has_parameter(self.prefix_ + "pddl.MedicineProtocols.take_medication_time"):
+            if not self.node_.has_parameter(self.prefix_ + "pddl.MedicineProtocols.take_medication_times"):
                 descriptor = ParameterDescriptor(description="time that each protocol is triggered", read_only = False)
-                parameter = updated_params.pddl.MedicineProtocols.take_medication_time
-                self.node_.declare_parameter(self.prefix_ + "pddl.MedicineProtocols.take_medication_time", parameter, descriptor)
+                parameter = updated_params.pddl.MedicineProtocols.take_medication_times
+                self.node_.declare_parameter(self.prefix_ + "pddl.MedicineProtocols.take_medication_times", parameter, descriptor)
 
             if not self.node_.has_parameter(self.prefix_ + "pddl.InternalCheckReminderProtocols.instances"):
                 descriptor = ParameterDescriptor(description="internal check reminder protocols", read_only = False)
@@ -294,9 +294,9 @@ class shr_parameters:
             param = self.node_.get_parameter(self.prefix_ + "pddl.MedicineProtocols.instances")
             self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
             updated_params.pddl.MedicineProtocols.instances = param.value
-            param = self.node_.get_parameter(self.prefix_ + "pddl.MedicineProtocols.take_medication_time")
+            param = self.node_.get_parameter(self.prefix_ + "pddl.MedicineProtocols.take_medication_times")
             self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
-            updated_params.pddl.MedicineProtocols.take_medication_time = param.value
+            updated_params.pddl.MedicineProtocols.take_medication_times = param.value
             param = self.node_.get_parameter(self.prefix_ + "pddl.InternalCheckReminderProtocols.instances")
             self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
             updated_params.pddl.InternalCheckReminderProtocols.instances = param.value

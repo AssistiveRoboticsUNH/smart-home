@@ -121,6 +121,16 @@ public:
         }
     }
 
+    TRUTH_VALUE time_to_take_medicine(TRUTH_VALUE val, MedicineProtocol m) const override {
+        auto params = world_state_converter->get_params();
+        if (auto index = get_inst_index(m, params)) {
+            if (compare_time(params.pddl.MedicineProtocols.take_medication_times[index.value()])) {
+                return TRUTH_VALUE::TRUE;
+            }
+        }
+        return TRUTH_VALUE::FALSE;
+    }
+
     TRUTH_VALUE time_for_move_reminder(TRUTH_VALUE val, MoveReminderProtocol m) const override {
         auto params = world_state_converter->get_params();
         if (auto index = get_inst_index(m, params)) {
@@ -173,7 +183,7 @@ public:
         auto params = world_state_converter->get_params();
         if (auto index = get_inst_index(m, params)) {
             if (world_state_converter->get_world_state_msg()->person_taking_medicine == 1 &&
-                compare_time(params.pddl.MedicineProtocols.take_medication_time[index.value()])) {
+                compare_time(params.pddl.MedicineProtocols.take_medication_times[index.value()])) {
                 return TRUTH_VALUE::TRUE;
             }
             return val;
