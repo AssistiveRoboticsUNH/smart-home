@@ -23,7 +23,8 @@ namespace pddl_lib {
         // change first to change time (x  before y after)
         const std::unordered_map <InstantiatedParameter, std::unordered_map<std::string, std::pair < int, int>>>
         // Msg in PDDL
-
+        // name field should be the same as the name of the protocol in the high_level_problem
+        // mak sure the txt files and mp3 are in shr_resources
         wait_times = {
                 {{"am_meds",                 "MedicineProtocol"},              {{"reminder_1_msg", {0, 10}},
                                                                                        {"reminder_2_msg", {0, 10}},
@@ -44,22 +45,22 @@ namespace pddl_lib {
 
 
         const std::unordered_map <InstantiatedParameter, std::unordered_map<std::string, std::string>> automated_reminder_msgs = {
-                {{"am_meds",       "MedicineProtocol"},              {{"reminder_1_msg", "medicine_reminder.txt"},
+                {{"am_meds",       "MedicineProtocol"},              {{"reminder_1_msg", "am_med_reminder.txt"},
                                                                      }},
-                {{"pm_meds",       "MedicineProtocol"},              {{"reminder_1_msg", "medicine_reminder.txt"},
+                {{"pm_meds",       "MedicineProtocol"},              {{"reminder_1_msg", "pm_med_reminder.txt"},
                                                                      }},
                 {{"move_reminder",          "MoveReminderProtocol"},          {{"reminder_1_msg", "move_reminder.txt"},
                                                                      }},
-                {{"internal_check_reminder", "InternalCheckReminderProtocol"}, {{"reminder_1_msg", "internalcheck_reminder.txt"},
+                {{"internal_check_reminder", "InternalCheckReminderProtocol"}, {{"reminder_1_msg", "internal_check_reminder.txt"},
                                                                      }},
                 {{"practice_reminder",      "PracticeReminderProtocol"},      {{"reminder_1_msg", "practice_reminder.txt"},
                                                                      }},
         };
 
         const std::unordered_map <InstantiatedParameter, std::unordered_map<std::string, std::string>> recorded_reminder_msgs = {
-                {{"am_meds", "MedicineProtocol"}, {{"reminder_2_msg", "medicine_reminder.mp3"},
+                {{"am_meds", "MedicineProtocol"}, {{"reminder_2_msg", "am_med_reminder.mp3"},
                                                   }},
-                {{"pm_meds", "MedicineProtocol"}, {{"reminder_2_msg", "medicine_reminder.mp3"},
+                {{"pm_meds", "MedicineProtocol"}, {{"reminder_2_msg", "pm_med_reminder.mp3"},
                                                   }},
 
         };

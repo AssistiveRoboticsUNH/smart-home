@@ -16,27 +16,6 @@ shr_parameters:
         default_value: [ "nathan" ],
         description: "all people in protocols",
       }
-    FoodProtocols:
-      instances: {
-        type: string_array,
-        default_value: [ "breakfast", "lunch"],
-        description: "food protocols",
-      }
-      eat_times: {
-        type: string_array,
-        default_value: [ "09h30m0s/10h00m0s", "12h30m00s/13h30m00s"],
-        description: "time that each protocol is triggered",
-      }
-      remind_automated_food_at_times: {
-        type: string_array,
-        default_value: [ "0h10m0s", "0h10m0s", "0h10m0s" ],
-        description: "time to wait for observation",
-      }
-      remind_automated_food_at_2_times: {
-        type: string_array,
-        default_value: [ "0h10m0s", "0h1m0s", "0h10m0s" ],
-        description: "time to wait for observation",
-      }
     MedicineProtocols:
       instances: {
         type: string_array,
@@ -45,40 +24,29 @@ shr_parameters:
       }
       take_medication_time: {
         type: string_array,
-        default_value: [ "8h00m0s/9h00m0s", "20h00m0s/21h00m0s" ],
+        default_value: [ "09h00m0s/10h00m0s", "21h00m0s/22h00m0s" ],
         description: "time that each protocol is triggered",
       }
-    MoveReminderProtocol:
-      instances: {
-        type: string_array,
-        default_value: [ "move_reminder" ],
-        description: "medicine protocols",
-      }
-      move_reminder_time: {
-        type: string_array,
-        default_value: [ "17h00m0s/18h00m0s" ],
-        description: "time that each protocol is triggered",
-      }
-    InternalCheckReminderProtocol:
+    InternalCheckReminderProtocols:
       instances: {
         type: string_array,
         default_value: [ "internal_check_reminder" ],
         description: "internal check reminder protocols",
       }
-      internal_check_reminder_time: {
+      internal_check_reminder_times: {
         type: string_array,
-        default_value: [ "20h00m0s/21h00m0s" ],
+        default_value: [ "08h45m0s/09h45m0s" ],
         description: "time that each protocol is triggered",
       }
-    PracticeReminderProtocol:
+    PracticeReminderProtocols:
       instances: {
         type: string_array,
         default_value: [ "practice_reminder" ],
         description: "medicine protocols",
       }
-      practice_reminder_time: {
+      practice_reminder_times: {
         type: string_array,
-        default_value: [ "20h00m0s/21h00m0s" ],
+        default_value: [ "07h30m0s/08h30m0s" ],
         description: "time that each protocol is triggered",
       }
     MoveReminderProtocols:
@@ -89,31 +57,7 @@ shr_parameters:
       }
       move_reminder_times: {
         type: string_array,
-        default_value: [ "015h00m0s/015h30m0s" ],
-        description: "time that each protocol is triggered",
-      }
-
-    InternalCheckReminderProtocols:
-      instances: {
-        type: string_array,
-        default_value: [ "internal_check_reminder" ],
-        description: "internal check protocols",
-      }
-      internal_check_reminder_times: {
-        type: string_array,
-        default_value: [ "08h45m0s/09h30m0s" ],
-        description: "time that each protocol is triggered",
-      }
-
-    PracticeReminderProtocols:
-      instances: {
-        type: string_array,
-        default_value: [ "practice_reminder" ],
-        description: "practice protocols",
-      }
-      practice_reminder_times: {
-        type: string_array,
-        default_value: [ "07h30m0s/08h30m0s" ],
+        default_value: [ "15h00m0s/15h30m0s" ],
         description: "time that each protocol is triggered",
       }
   topics:
