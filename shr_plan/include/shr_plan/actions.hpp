@@ -41,6 +41,9 @@ namespace pddl_lib {
                 {{"practice_reminder",       "PracticeReminderProtocol"},      {{"reminder_1_msg", {0, 1}},
 
                                                                                }},
+                {{"exercise_reminder",       "ExerciseReminderProtocol"},      {{"reminder_1_msg", {0, 1}},
+
+                                                                               }},
         };
 
 
@@ -54,6 +57,8 @@ namespace pddl_lib {
                 {{"internal_check_reminder", "InternalCheckReminderProtocol"}, {{"reminder_1_msg", "internal_check_reminder.txt"},
                                                                      }},
                 {{"practice_reminder",      "PracticeReminderProtocol"},      {{"reminder_1_msg", "practice_reminder.txt"},
+                                                                     }},
+                {{"exercise_reminder",      "ExerciseReminderProtocol"},      {{"reminder_1_msg", "exercise_reminder.txt"},
                                                                      }},
         };
 
@@ -503,6 +508,43 @@ namespace pddl_lib {
                 std::cout << "High level ending " << std::endl;
 
             }
+
+            if (!ps.world_state_converter->get_world_state_msg()->robot_charging == 1){
+                std::cout << "Undock " << std::endl;
+
+                shr_msgs::action::DockingRequest::Goal goal_msg;
+
+                auto success_undock = std::make_shared < std::atomic < int >> (-1);
+                auto send_goal_options_dock = rclcpp_action::Client<shr_msgs::action::DockingRequest>::SendGoalOptions();
+                send_goal_options_dock.result_callback = [&success_undock](
+                        const rclcpp_action::ClientGoalHandle<shr_msgs::action::DockingRequest>::WrappedResult result) {
+                    *success_undock = result.code == rclcpp_action::ResultCode::SUCCEEDED;
+                    if (*success_undock == 1) {
+                        RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=") + "low_level_domain_MoveToLandmark" +
+                                                       "UnDocking goal Succeeded."), "user...");
+
+                    } else {
+                        RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=") + "low_level_domain_MoveToLandmark" +
+                                                       "UnDocking goal aborted!."), "user...");
+
+                    }
+                };
+
+                ps.undocking_->async_send_goal(goal_msg, send_goal_options_dock);
+                auto tmp_dock = ps.active_protocol;
+
+                while (*success_undock == -1) {
+                    if (!(tmp_dock == ps.active_protocol)) {
+                        ps.undocking_->async_cancel_all_goals();
+                        std::cout << " Failed " << std::endl;
+                        RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=") + "high_level_domain_MoveToLandmark" +
+                                                       "UnDocking failed for protocol mismatched."), "user...");
+
+                    }
+                    rclcpp::sleep_for(std::chrono::seconds(1));
+                }
+                ps.undocking_->async_cancel_all_goals();
+            }
             ps.active_protocol = {};
             lock.UnLock();
             return BT::NodeStatus::SUCCESS;
@@ -536,6 +578,28 @@ namespace pddl_lib {
             lock.UnLock();
             return BT::NodeStatus::SUCCESS;
         }
+
+        // exercise protocol
+        BT::NodeStatus high_level_domain_StartExerciseReminderProtocol(const InstantiatedAction &action) override {
+            auto &kb = KnowledgeBase::getInstance();
+            InstantiatedParameter inst = action.parameters[0];
+            std::string currentDateTime = getCurrentDateTime();
+            //RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=")+"high_level_domain_StartExerciseReminderProtocol"+"started"), "user...");
+            RCLCPP_INFO(rclcpp::get_logger(
+                    currentDateTime + std::string("user=") + "StartExerciseReminderProtocol" + "started"),
+                        "user...");
+            auto [ps, lock] = ProtocolState::getConcurrentInstance();
+            lock.Lock();
+            std::string log_message =
+                    std::string("weblog=") + currentDateTime + " high_level_domain_StartMoveReminderProtocol" +
+                    " started";
+            RCLCPP_INFO(ps.world_state_converter->get_logger(), log_message.c_str());
+            instantiate_protocol("exercise_reminder.pddl");
+            ps.active_protocol = inst;
+            lock.UnLock();
+            return BT::NodeStatus::SUCCESS;
+        }
+
 
         // move protocol
         BT::NodeStatus high_level_domain_StartMoveReminderProtocol(const InstantiatedAction &action) override {
@@ -701,6 +765,9 @@ namespace pddl_lib {
             } else if (active_protocol.type == "PracticeReminderProtocol") {
                 kb.insert_predicate({"already_reminded_practice", {active_protocol}});
                 kb.erase_predicate({"practice_reminder_enabled", {active_protocol}});
+            }else if (active_protocol.type == "ExerciseReminderProtocol") {
+                kb.insert_predicate({"already_reminded_exercise", {active_protocol}});
+                kb.erase_predicate({"exercise_reminder_enabled", {active_protocol}});
             }
 
             // RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=")+"shr_domain_MessageGivenSuccess"+active_protocol.type), "user...");

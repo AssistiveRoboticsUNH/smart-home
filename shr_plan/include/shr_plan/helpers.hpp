@@ -57,6 +57,17 @@ namespace pddl_lib {
         }
     }
 
+    std::optional<long> get_inst_index(ExerciseReminderProtocol m, const shr_parameters::Params &params) {
+        const auto &instances = params.pddl.ExerciseReminderProtocols.instances;
+        auto it = std::find(instances.begin(), instances.end(), m);
+        if (it != instances.end()) {
+            auto index = std::distance(instances.begin(), it);
+            return index;
+        } else {
+            return {};
+        }
+    }
+
     std::optional<long> get_inst_index(InstantiatedParameter inst, const shr_parameters::Params &params) {
         if (inst.type == "MedicineProtocol") {
             return get_inst_index((MedicineProtocol) inst.name, params);
@@ -66,6 +77,8 @@ namespace pddl_lib {
             return get_inst_index((InternalCheckReminderProtocol) inst.name, params);
         }else if (inst.type == "PracticeReminderProtocol") {
             return get_inst_index((PracticeReminderProtocol) inst.name, params);
+        }else if (inst.type == "ExerciseReminderProtocol") {
+            return get_inst_index((ExerciseReminderProtocol) inst.name, params);
         }
         return {};
     }

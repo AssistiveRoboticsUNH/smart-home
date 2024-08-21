@@ -1,3 +1,5 @@
+# flake8: noqa
+
 # auto-generated DO NOT EDIT
 
 from rcl_interfaces.msg import ParameterDescriptor
@@ -8,6 +10,7 @@ from rclpy.exceptions import InvalidParameterValueException
 from rclpy.time import Time
 import copy
 import rclpy
+import rclpy.parameter
 from generate_parameter_library_py.python_validators import ParameterValidators
 
 
@@ -42,6 +45,10 @@ class shr_parameters:
                 instances = ["move_reminder"]
                 move_reminder_times = ["15h00m0s/15h30m0s"]
             MoveReminderProtocols = __Movereminderprotocols()
+            class __Exercisereminderprotocols:
+                instances = ["exercise_reminder"]
+                exercise_reminder_times = ["11h30m0s/12h30m0s"]
+            ExerciseReminderProtocols = __Exercisereminderprotocols()
         pddl = __Pddl()
         class __Topics:
             time = "/protocol_time"
@@ -74,6 +81,32 @@ class shr_parameters:
 
         def is_old(self, other_param):
             return self.params_.stamp_ != other_param.stamp_
+
+        @staticmethod
+        def unpack_parameter_dict(namespace: str, parameter_dict: dict):
+            """
+            Flatten a parameter dictionary recursively.
+
+            :param namespace: The namespace to prepend to the parameter names.
+            :param parameter_dict: A dictionary of parameters keyed by the parameter names
+            :return: A list of rclpy Parameter objects
+            """
+            parameters = []
+            for param_name, param_value in parameter_dict.items():
+                full_param_name = namespace + param_name
+                # Unroll nested parameters
+                if isinstance(param_value, dict):
+                    nested_params = unpack_parameter_dict(
+                            namespace=full_param_name + rclpy.parameter.PARAMETER_SEPARATOR_STRING,
+                            parameter_dict=param_value)
+                    parameters.extend(nested_params)
+                else:
+                    parameters.append(rclpy.parameter.Parameter(full_param_name, value=param_value))
+            return parameters
+
+        def set_params_from_dict(self, param_dict):
+            params_to_set = unpack_parameter_dict('', param_dict)
+            self.update(params_to_set)
 
         def refresh_dynamic_parameters(self):
             updated_params = self.get_params()
@@ -128,6 +161,14 @@ class shr_parameters:
 
                 if param.name == self.prefix_ + "pddl.MoveReminderProtocols.move_reminder_times":
                     updated_params.pddl.MoveReminderProtocols.move_reminder_times = param.value
+                    self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
+
+                if param.name == self.prefix_ + "pddl.ExerciseReminderProtocols.instances":
+                    updated_params.pddl.ExerciseReminderProtocols.instances = param.value
+                    self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
+
+                if param.name == self.prefix_ + "pddl.ExerciseReminderProtocols.exercise_reminder_times":
+                    updated_params.pddl.ExerciseReminderProtocols.exercise_reminder_times = param.value
                     self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
 
                 if param.name == self.prefix_ + "topics.time":
@@ -221,6 +262,16 @@ class shr_parameters:
                 parameter = updated_params.pddl.MoveReminderProtocols.move_reminder_times
                 self.node_.declare_parameter(self.prefix_ + "pddl.MoveReminderProtocols.move_reminder_times", parameter, descriptor)
 
+            if not self.node_.has_parameter(self.prefix_ + "pddl.ExerciseReminderProtocols.instances"):
+                descriptor = ParameterDescriptor(description="walking protocols", read_only = False)
+                parameter = updated_params.pddl.ExerciseReminderProtocols.instances
+                self.node_.declare_parameter(self.prefix_ + "pddl.ExerciseReminderProtocols.instances", parameter, descriptor)
+
+            if not self.node_.has_parameter(self.prefix_ + "pddl.ExerciseReminderProtocols.exercise_reminder_times"):
+                descriptor = ParameterDescriptor(description="time that each protocol is triggered", read_only = False)
+                parameter = updated_params.pddl.ExerciseReminderProtocols.exercise_reminder_times
+                self.node_.declare_parameter(self.prefix_ + "pddl.ExerciseReminderProtocols.exercise_reminder_times", parameter, descriptor)
+
             if not self.node_.has_parameter(self.prefix_ + "topics.time"):
                 descriptor = ParameterDescriptor(description="topic for protocol clock time", read_only = False)
                 parameter = updated_params.topics.time
@@ -286,6 +337,12 @@ class shr_parameters:
             param = self.node_.get_parameter(self.prefix_ + "pddl.MoveReminderProtocols.move_reminder_times")
             self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
             updated_params.pddl.MoveReminderProtocols.move_reminder_times = param.value
+            param = self.node_.get_parameter(self.prefix_ + "pddl.ExerciseReminderProtocols.instances")
+            self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
+            updated_params.pddl.ExerciseReminderProtocols.instances = param.value
+            param = self.node_.get_parameter(self.prefix_ + "pddl.ExerciseReminderProtocols.exercise_reminder_times")
+            self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
+            updated_params.pddl.ExerciseReminderProtocols.exercise_reminder_times = param.value
             param = self.node_.get_parameter(self.prefix_ + "topics.time")
             self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
             updated_params.topics.time = param.value

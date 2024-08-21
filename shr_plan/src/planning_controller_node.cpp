@@ -131,6 +131,16 @@ public:
         return TRUTH_VALUE::FALSE;
     }
 
+    TRUTH_VALUE time_for_exercise_reminder(TRUTH_VALUE val, ExerciseReminderProtocol m) const override {
+        auto params = world_state_converter->get_params();
+        if (auto index = get_inst_index(m, params)) {
+            if (compare_time(params.pddl.ExerciseReminderProtocols.exercise_reminder_times[index.value()])) {
+                return TRUTH_VALUE::TRUE;
+            }
+        }
+        return TRUTH_VALUE::FALSE;
+    }
+
     TRUTH_VALUE time_for_move_reminder(TRUTH_VALUE val, MoveReminderProtocol m) const override {
         auto params = world_state_converter->get_params();
         if (auto index = get_inst_index(m, params)) {

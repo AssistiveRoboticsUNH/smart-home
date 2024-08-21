@@ -3,6 +3,7 @@
   (:objects
      am_meds pm_meds - MedicineProtocol
      move_reminder - MoveReminderProtocol
+     exercise_reminder - ExerciseReminderProtocol
      internal_check_reminder - InternalCheckReminderProtocol
      practice_reminder - PracticeReminderProtocol
      living_room home outside bedroom - Landmark

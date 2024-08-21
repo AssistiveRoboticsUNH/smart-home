@@ -60,6 +60,17 @@ shr_parameters:
         default_value: [ "15h00m0s/15h30m0s" ],
         description: "time that each protocol is triggered",
       }
+    ExerciseReminderProtocols:
+        instances: {
+          type: string_array,
+          default_value: [ "exercise_reminder" ],
+          description: "walking protocols",
+        }
+        exercise_reminder_times: {
+          type: string_array,
+          default_value: [ "11h30m0s/12h30m0s" ],
+          description: "time that each protocol is triggered",
+        }
   topics:
     time: {
       type: string,

@@ -246,7 +246,7 @@
 	                ;;(person_currently_at ?p - Person ?lmp - Landmark)
 	                (person_at_success ?p ?lmp)
 	                (success_location ?lmp)
-	                ;;(not (abort))
+	                (not (abort))
                   )
     :effect (success)
 )
