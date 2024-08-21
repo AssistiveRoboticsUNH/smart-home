@@ -26,19 +26,19 @@ namespace pddl_lib {
         // name field should be the same as the name of the protocol in the high_level_problem
         // mak sure the txt files and mp3 are in shr_resources
         wait_times = {
-                {{"am_meds",                 "MedicineProtocol"},              {{"reminder_1_msg", {0, 10}},
-                                                                                       {"reminder_2_msg", {0, 10}},
+                {{"am_meds",                 "MedicineProtocol"},              {{"reminder_1_msg", {0, 1}},
+                                                                                       {"reminder_2_msg", {0, 1}},
                                                                                }},
-                {{"pm_meds",                 "MedicineProtocol"},              {{"reminder_1_msg", {0, 10}},
-                                                                                       {"reminder_2_msg", {0, 10}},
+                {{"pm_meds",                 "MedicineProtocol"},              {{"reminder_1_msg", {0, 1}},
+                                                                                       {"reminder_2_msg", {0, 1}},
                                                                                }},
-                {{"move_reminder",           "MoveReminderProtocol"},          {{"reminder_1_msg", {0, 10}},
+                {{"move_reminder",           "MoveReminderProtocol"},          {{"reminder_1_msg", {0, 1}},
 
                                                                                }},
-                {{"internal_check_reminder", "InternalCheckReminderProtocol"}, {{"reminder_1_msg", {0, 10}},
+                {{"internal_check_reminder", "InternalCheckReminderProtocol"}, {{"reminder_1_msg", {0, 1}},
 
                                                                                }},
-                {{"practice_reminder",       "PracticeReminderProtocol"},      {{"reminder_1_msg", {0, 10}},
+                {{"practice_reminder",       "PracticeReminderProtocol"},      {{"reminder_1_msg", {0, 1}},
 
                                                                                }},
         };
@@ -479,22 +479,22 @@ namespace pddl_lib {
 
 
                 std::cout << "dock " << std::endl;
-//
-//                shr_msgs::action::DockingRequest::Goal goal_msg_dock;
-//                RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=") + "high_level_domain_Idle" + "docking started"),
-//                            "user...");
-//
-//                auto status_dock = send_goal_blocking(goal_msg_dock, action, ps);
-//                std::cout << "status: " << status_dock << std::endl;
-//                if (!status_dock) {
-//                    ps.docking_->async_cancel_all_goals();
-//                    std::cout << "Fail: " << std::endl;
-//                    lock.UnLock();
-//                    return BT::NodeStatus::FAILURE;
-//                }
-//                ps.docking_->async_cancel_all_goals();
-//                std::cout << "success: " << std::endl;
+// comment in sim
+               shr_msgs::action::DockingRequest::Goal goal_msg_dock;
+               RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=") + "high_level_domain_Idle" + "docking started"),
+                           "user...");
 
+               auto status_dock = send_goal_blocking(goal_msg_dock, action, ps);
+               std::cout << "status: " << status_dock << std::endl;
+               if (!status_dock) {
+                   ps.docking_->async_cancel_all_goals();
+                   std::cout << "Fail: " << std::endl;
+                   lock.UnLock();
+                   return BT::NodeStatus::FAILURE;
+               }
+               ps.docking_->async_cancel_all_goals();
+               std::cout << "success: " << std::endl;
+// comment in sim
 
                 // // sleep for 60 seconds to deal with the delay from //charging topic
                 std::cout << " waiting  " << std::endl;
