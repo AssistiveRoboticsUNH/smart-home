@@ -1,0 +1,9 @@
+# ninja log v5
+247	2178	1723955412076606387	CMakeFiles/planning_controller_node.dir/home/marzan/pddl_test_ws/src/smart-home/external/PDDL-Executor/pddl_parser/tests/test.cpp.o	18c59f2538ec9d43
+26942	28876	1723954814987619435	planning_controller_node	bcc1917ad17c0f0d
+2	1922	1723956678210500870	build.ninja	903b9fa3c164456f
+14	246	1723955410120575086	bt_shr_actions/include/bt_shr_actions.hpp	bc1cb80d554f1402
+14	246	1723955410120575086	/home/marzan/pddl_test_ws/src/smart-home/shr_plan/cmake-build-debug/bt_shr_actions/include/bt_shr_actions.hpp	bc1cb80d554f1402
+247	30603	1723955440461049857	CMakeFiles/planning_controller_node.dir/src/planning_controller_node.cpp.o	1a6ecdf6ca9122c8
+3	26240	1723956756122815034	CMakeFiles/planning_controller_node.dir/src/planning_controller_node.cpp.o	1a6ecdf6ca9122c8
+26240	28298	1723956758230823371	planning_controller_node	bcc1917ad17c0f0d

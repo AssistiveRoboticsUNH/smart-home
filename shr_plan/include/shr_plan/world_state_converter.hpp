@@ -68,7 +68,7 @@ public:
             mesh_vert_map_robot[name_robot] = verts_robot;
         }
 
-        auto mesh_file_person = (pkg_dir / "resources" / "new_olson_person.obj").string();
+        auto mesh_file_person = (pkg_dir / "resources" / "person.obj").string();
         auto [mesh_verts_person, mesh_names_person] = shr_utils::load_meshes(mesh_file_person);
         for (int i = 0; i < mesh_names_person.size(); i++) {
             auto name_person = mesh_names_person[i];
