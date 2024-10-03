@@ -28,20 +28,26 @@ namespace pddl_lib {
         wait_times = {
                 {{"am_meds",                 "MedicineProtocol"},              {{"reminder_1_msg", {0, 1}},
                                                                                        {"reminder_2_msg", {0, 1}},
+                                                                                       {"wait", {60,0}},
                                                                                }},
-                {{"pm_meds",                 "MedicineProtocol"},              {{"reminder_1_msg", {0, 1}},
-                                                                                       {"reminder_2_msg", {0, 1}},
+                {{"pm_meds",                 "MedicineProtocol"},              {{"reminder_1_msg", {0, 12}},
+                                                                                       {"reminder_2_msg", {0, 12}},
+                                                                                       {"wait", {60,0}},
                                                                                }},
                 {{"move_reminder",           "MoveReminderProtocol"},          {{"reminder_1_msg", {0, 1}},
+                                                                                {"wait", {0,0}},
 
                                                                                }},
                 {{"internal_check_reminder", "InternalCheckReminderProtocol"}, {{"reminder_1_msg", {0, 1}},
+                                                                                {"wait", {0,0}},
 
                                                                                }},
                 {{"practice_reminder",       "PracticeReminderProtocol"},      {{"reminder_1_msg", {0, 1}},
+                                                                                {"wait", {0,0}},
 
                                                                                }},
                 {{"exercise_reminder",       "ExerciseReminderProtocol"},      {{"reminder_1_msg", {0, 1}},
+                                                                                {"wait", {0,0}},
 
                                                                                }},
         };
@@ -503,13 +509,13 @@ namespace pddl_lib {
 
                 // // sleep for 60 seconds to deal with the delay from //charging topic
                 std::cout << " waiting  " << std::endl;
-                rclcpp::sleep_for(std::chrono::seconds(3));
+                rclcpp::sleep_for(std::chrono::seconds(60));
 
                 std::cout << "High level ending " << std::endl;
 
             }
 
-            if (!ps.world_state_converter->get_world_state_msg()->robot_charging == 1){
+            if (ps.world_state_converter->get_world_state_msg()->robot_charging != 1){
                 std::cout << "Undock " << std::endl;
 
                 shr_msgs::action::DockingRequest::Goal goal_msg;
@@ -807,6 +813,29 @@ namespace pddl_lib {
             RCLCPP_INFO(ps.world_state_converter->get_logger(), log_message.c_str());
             lock.UnLock();
             return BT::NodeStatus::SUCCESS;
+        }
+
+        BT::NodeStatus shr_domain_Wait(const InstantiatedAction &action) override {
+            auto [ps, lock] = ProtocolState::getConcurrentInstance();
+            lock.Lock();
+            auto &kb = KnowledgeBase::getInstance();
+            std::string msg = "wait";
+            //std::string currentDateTime = getCurrentDateTime();
+            //  fix for all 
+            int wait_time = ps.wait_times.at(ps.active_protocol).at(msg).first;
+
+            for (int i = 0; i < wait_time; i++) {
+                if (ps.world_state_converter->get_world_state_msg()->person_taking_medicine == 1){
+                    RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=") + "shr_domain_Wait" + "medicine!"),
+                                "user...");
+                    lock.UnLock();
+                    return BT::NodeStatus::SUCCESS;
+                }
+                rclcpp::sleep_for(std::chrono::seconds(10));
+            }
+
+            lock.UnLock();
+            return BT::NodeStatus::SUCCESS;;
         }
 
         BT::NodeStatus shr_domain_DetectEatingFood(const InstantiatedAction &action) override {

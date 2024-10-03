@@ -35,7 +35,7 @@ shr_parameters:
       }
       internal_check_reminder_times: {
         type: string_array,
-        default_value: [ "08h45m0s/09h45m0s" ],
+        default_value: [ "08h15m0s/08h45m0s" ],
         description: "time that each protocol is triggered",
       }
     PracticeReminderProtocols:
@@ -46,7 +46,7 @@ shr_parameters:
       }
       practice_reminder_times: {
         type: string_array,
-        default_value: [ "07h30m0s/08h30m0s" ],
+        default_value: [ "07h30m0s/08h00m0s" ],
         description: "time that each protocol is triggered",
       }
     MoveReminderProtocols:
@@ -57,7 +57,7 @@ shr_parameters:
       }
       move_reminder_times: {
         type: string_array,
-        default_value: [ "15h00m0s/15h30m0s" ],
+        default_value: [ "15h00m0s/16h00m0s" ],
         description: "time that each protocol is triggered",
       }
     ExerciseReminderProtocols:

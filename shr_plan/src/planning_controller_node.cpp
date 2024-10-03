@@ -21,8 +21,6 @@
 
 using namespace pddl_lib;
 
-// CREATE A FOLDER IN HOME DIRECTORY CALLED PLANNER_DATA
-
 Domain load_domain(const std::string &domain_file) {
     std::string domain_str;
     std::filesystem::path pkg_dir = ament_index_cpp::get_package_share_directory("shr_plan");

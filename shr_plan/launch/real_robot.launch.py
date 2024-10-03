@@ -116,7 +116,7 @@ def generate_launch_description():
     ld.add_action(tf_broadcast)
     ld.add_action(smartthings_node)
     ld.add_action(smartthings_node_plug)
-#    ld.add_action(protocol_time_node)
+    ld.add_action(protocol_time_node)
     ld.add_action(smartthings_node_bump)
 
     return ld
