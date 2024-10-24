@@ -61,15 +61,6 @@
   (success)
 )
 
-(:action MoveToLandmark
-	:parameters (?from - Landmark ?to - Landmark)
-	:precondition (and
-	                (robot_at ?from)
-	          )
-	:effect (and (robot_at ?to) (not (robot_at ?from)) )
-)
-
-
 (:action ChangePriority_1_2
 	:parameters ()
 	:precondition (and
@@ -106,8 +97,6 @@
       (time_to_take_medicine ?m)
       (not (already_took_medicine ?m))
       (not (already_reminded_medicine ?m))
-      (person_currently_at ?p ?lmp)
-      (robot_at ?lmp)
       (forall (?med - MedicineProtocol) (not (medicine_reminder_enabled ?med)) )
 
       ;; person in visible area
@@ -146,8 +135,6 @@
 	  (priority_2)
       (time_for_exercise_reminder ?ex)
       (not (already_reminded_exercise ?ex))
-      (person_currently_at ?p ?lmp)
-      (robot_at ?lmp)
       (forall (?ex - ExerciseReminderProtocol) (not (exercise_reminder_enabled ?ex)) )
 
       ;; person in visible area
@@ -188,8 +175,7 @@
       (time_for_move_reminder ?mv)
       (not (already_reminded_move ?mv))
       (forall (?mv - MoveReminderProtocol) (not (move_reminder_enabled ?mv)) )
-      (person_currently_at ?p ?lmp)
-      (robot_at ?lmp)
+
       ;; person in visible area
       (person_currently_at ?p ?lmp)
       (visible_location ?lmp)
@@ -230,8 +216,7 @@
       (time_for_internal_check_reminder ?ic)
       (not (already_reminded_internal_check ?ic))
       (forall (?ic - InternalCheckReminderProtocol) (not (internal_check_reminder_enabled ?ic)) )
-      (person_currently_at ?p ?lmp)
-      (robot_at ?lmp)
+
       ;; person in visible area
       (person_currently_at ?p ?lmp)
       (visible_location ?lmp)
@@ -271,8 +256,7 @@
       (time_for_practice_reminder ?pra)
       (not (already_reminded_practice ?pra))
       (forall (?pra - PracticeReminderProtocol) (not (practice_reminder_enabled ?pra)) )
-      (person_currently_at ?p ?lmp)
-      (robot_at ?lmp)
+
       ;; person in visible area
       (person_currently_at ?p ?lmp)
       (visible_location ?lmp)

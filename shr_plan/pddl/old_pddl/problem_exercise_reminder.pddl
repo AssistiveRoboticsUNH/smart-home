@@ -1,4 +1,4 @@
-(define (problem practice_reminder)
+(define (problem exercise_reminder)
 (:domain shr_domain)
 (:objects
     living_room home outside bedroom - Landmark
@@ -34,18 +34,18 @@
     (traversable home living_room)
     (traversable living_room outside)
     (traversable outside living_room)
+
     (traversable bedroom home)
     (traversable home bedroom)
+
     (traversable outside home)
     (traversable home outside)
-    (traversable living_room bedroom)
-    (traversable bedroom living_room)
 
     (same_location_constraint)
     ;;(not_same_location_constraint)
 
-
     ;;success states
+
     (message_given_success reminder_1_msg)
     (person_at_success nathan outside)
 
@@ -53,7 +53,7 @@
     (valid_reminder_message first_reminder reminder_1_msg)
 
     ;; specify world state constraints for all actions
-    (reminder_person_location_constraint first_reminder nathan living_room)
+    (reminder_person_location_constraint first_reminder nathan bedroom)
     (reminder_robot_location_constraint first_reminder outside)
 
     (wait_not_person_location_constraint t1 nathan outside)
@@ -66,6 +66,7 @@
     (noaction_person_location_constraint na1 nathan outside)
     (noaction_person_location_constraint na2 nathan outside)
     (noaction_person_location_constraint na3 nathan outside)
+
 
     (wait_robot_location_constraint t1 home)
     (wait_robot_location_constraint t2 home)

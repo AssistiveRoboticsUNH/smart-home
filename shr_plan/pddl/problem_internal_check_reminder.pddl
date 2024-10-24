@@ -33,12 +33,12 @@
     (traversable home living_room)
     (traversable living_room outside)
     (traversable outside living_room)
-
     (traversable bedroom home)
     (traversable home bedroom)
-
     (traversable outside home)
     (traversable home outside)
+    (traversable living_room bedroom)
+    (traversable bedroom living_room)
 
     ;;success states
     (message_given_success reminder_1_msg)

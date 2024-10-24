@@ -12,7 +12,6 @@
   )
   (:init
       ;;(priority_5)
-      ;;(abort)
       (visible_location living_room)
       (visible_location bedroom)
 

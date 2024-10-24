@@ -1,24 +1,22 @@
 (define (problem medicine_reminder)
 (:domain shr_domain)
 (:objects
-    living_room home outside - Landmark
+    living_room home outside bedroom - Landmark
     nathan - Person
     t1 t2 t3 t4 t5 - Time
-    reminder_1_msg reminder_2_msg call_caregiver_msg - Msg
+    reminder_1_msg reminder_2_msg - Msg
     first_reminder second_reminder - ReminderAction
     w1 w2 w3 w4 w5 - WaitAction
     na1 na2 na3 - NoAction
-    caregiver_call - CallAction
 )
 (:init
-    ;;(person_at t1 nathan living_room)
-    ;;(robot_at living_room)
-    ;;(robot_at_time t1 living_room)
+    ;;(person_at t1 nathan visible_area)
+    ;;(robot_at designated_space)
+    ;;(robot_at_time t1 designated_space)
     
     (DetectPerson_enabled)
     (GiveReminder_enabled)
     (DetectTakingMedicine_enabled)
-    (MakeCall_enabled)
 
     (current_time t1)
     (next_time t1 t2)
@@ -26,22 +24,25 @@
     (next_time t3 t4)
     (next_time t4 t5)
 
-    (oneof (person_at t2 nathan living_room) (person_at t2 nathan outside) )
-    (oneof (person_at t3 nathan living_room) (person_at t3 nathan outside) )
-    (oneof (person_at t4 nathan living_room) (person_at t4 nathan outside) )
-    (oneof (person_at t5 nathan living_room) (person_at t5 nathan outside))
+    (oneof (person_at t2 nathan living_room) (person_at t2 nathan bedroom)  (person_at t2 nathan outside) )
+    (oneof (person_at t3 nathan living_room) (person_at t3 nathan bedroom)  (person_at t3 nathan outside) )
+    (oneof (person_at t4 nathan living_room) (person_at t4 nathan bedroom)  (person_at t4 nathan outside) )
+    (oneof (person_at t5 nathan living_room) (person_at t5 nathan bedroom)  (person_at t5 nathan outside))
 
     (traversable living_room home)
     (traversable home living_room)
     (traversable living_room outside)
     (traversable outside living_room)
-
+    (traversable bedroom home)
+    (traversable home bedroom)
     (traversable outside home)
     (traversable home outside)
+    (traversable living_room bedroom)
+    (traversable bedroom living_room)
 
 
     ;;success states
-    (message_given_success call_caregiver_msg)
+    (message_given_success reminder_2_msg)
     (medicine_taken_success)
 
 
@@ -52,18 +53,16 @@
 
     ;; specify which actions must come before others
     (reminder_blocks_reminder first_reminder second_reminder)
-     (reminder_blocks_call second_reminder caregiver_call)
 
     ;; specify valid input argument combinations for all actions
-    (valid_call_message caregiver_call call_caregiver_msg)
     (valid_reminder_message first_reminder reminder_1_msg)
     (valid_reminder_message second_reminder reminder_2_msg)
 
     ;; specify world state constraints for all actions
-    ;;(reminder_person_location_constraint first_reminder nathan living_room)
-    ;;(reminder_robot_location_constraint first_reminder living_room)
-    ;;(reminder_person_location_constraint second_reminder nathan living_room)
-    ;;(reminder_robot_location_constraint second_reminder living_room)
+    (reminder_person_location_constraint first_reminder nathan living_room)
+    (reminder_robot_location_constraint first_reminder living_room)
+    (reminder_person_location_constraint second_reminder nathan living_room)
+    (reminder_robot_location_constraint second_reminder living_room)
 
     (reminder_person_not_taking_medicine_constraint first_reminder nathan)
     (reminder_person_not_taking_medicine_constraint second_reminder nathan)

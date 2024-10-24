@@ -317,6 +317,11 @@ int main(int argc, char **argv) {
         while (!ps.localize_->wait_for_action_server(std::chrono::seconds(5))) {
             RCLCPP_INFO(rclcpp::get_logger("localize"), "Waiting for /localize action server...");
         }
+        ps.call_client_ = rclcpp_action::create_client<shr_msgs::action::CallRequest>(
+                world_state_converter, "make_call");
+        while (!ps.call_client_->wait_for_action_server(std::chrono::seconds(5))) {
+            RCLCPP_INFO(rclcpp::get_logger("make_call"), "Waiting for /make_call action server...");
+        }
         lock.UnLock();
     }
 

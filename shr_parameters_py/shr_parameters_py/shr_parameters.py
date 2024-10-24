@@ -10,7 +10,6 @@ from rclpy.exceptions import InvalidParameterValueException
 from rclpy.time import Time
 import copy
 import rclpy
-import rclpy.parameter
 from generate_parameter_library_py.python_validators import ParameterValidators
 
 
@@ -35,15 +34,15 @@ class shr_parameters:
             MedicineProtocols = __Medicineprotocols()
             class __Internalcheckreminderprotocols:
                 instances = ["internal_check_reminder"]
-                internal_check_reminder_times = ["08h45m0s/09h45m0s"]
+                internal_check_reminder_times = ["08h15m0s/08h45m0s"]
             InternalCheckReminderProtocols = __Internalcheckreminderprotocols()
             class __Practicereminderprotocols:
                 instances = ["practice_reminder"]
-                practice_reminder_times = ["07h30m0s/08h30m0s"]
+                practice_reminder_times = ["07h30m0s/08h00m0s"]
             PracticeReminderProtocols = __Practicereminderprotocols()
             class __Movereminderprotocols:
                 instances = ["move_reminder"]
-                move_reminder_times = ["15h00m0s/15h30m0s"]
+                move_reminder_times = ["15h00m0s/16h00m0s"]
             MoveReminderProtocols = __Movereminderprotocols()
             class __Exercisereminderprotocols:
                 instances = ["exercise_reminder"]
@@ -81,32 +80,6 @@ class shr_parameters:
 
         def is_old(self, other_param):
             return self.params_.stamp_ != other_param.stamp_
-
-        @staticmethod
-        def unpack_parameter_dict(namespace: str, parameter_dict: dict):
-            """
-            Flatten a parameter dictionary recursively.
-
-            :param namespace: The namespace to prepend to the parameter names.
-            :param parameter_dict: A dictionary of parameters keyed by the parameter names
-            :return: A list of rclpy Parameter objects
-            """
-            parameters = []
-            for param_name, param_value in parameter_dict.items():
-                full_param_name = namespace + param_name
-                # Unroll nested parameters
-                if isinstance(param_value, dict):
-                    nested_params = unpack_parameter_dict(
-                            namespace=full_param_name + rclpy.parameter.PARAMETER_SEPARATOR_STRING,
-                            parameter_dict=param_value)
-                    parameters.extend(nested_params)
-                else:
-                    parameters.append(rclpy.parameter.Parameter(full_param_name, value=param_value))
-            return parameters
-
-        def set_params_from_dict(self, param_dict):
-            params_to_set = unpack_parameter_dict('', param_dict)
-            self.update(params_to_set)
 
         def refresh_dynamic_parameters(self):
             updated_params = self.get_params()

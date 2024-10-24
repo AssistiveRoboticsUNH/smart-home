@@ -1,8 +1,7 @@
-(define (problem practice_reminder)
+(define (problem internal_check_reminder)
 (:domain shr_domain)
 (:objects
     living_room home outside bedroom - Landmark
-    nathan - Person
     t1 t2 t3 t4 t5 - Time
     reminder_1_msg - Msg
     first_reminder  - ReminderAction
@@ -34,27 +33,26 @@
     (traversable home living_room)
     (traversable living_room outside)
     (traversable outside living_room)
+
     (traversable bedroom home)
     (traversable home bedroom)
+
     (traversable outside home)
     (traversable home outside)
-    (traversable living_room bedroom)
-    (traversable bedroom living_room)
-
-    (same_location_constraint)
-    ;;(not_same_location_constraint)
-
 
     ;;success states
     (message_given_success reminder_1_msg)
     (person_at_success nathan outside)
+
+    (same_location_constraint)
+    ;;(not_same_location_constraint)
 
     ;; specify valid input argument combinations for all actions
     (valid_reminder_message first_reminder reminder_1_msg)
 
     ;; specify world state constraints for all actions
     (reminder_person_location_constraint first_reminder nathan living_room)
-    (reminder_robot_location_constraint first_reminder outside)
+    (reminder_robot_location_constraint first_reminder bedroom)
 
     (wait_not_person_location_constraint t1 nathan outside)
     (wait_not_person_location_constraint t2 nathan outside)
@@ -62,7 +60,8 @@
     (wait_not_person_location_constraint t4 nathan outside)
     (wait_not_person_location_constraint t5 nathan outside)
 
-    ;; outside or no action will be used
+    ;; if person is not in outside then wait
+    ;; should be changed
     (noaction_person_location_constraint na1 nathan outside)
     (noaction_person_location_constraint na2 nathan outside)
     (noaction_person_location_constraint na3 nathan outside)

@@ -52,6 +52,15 @@ namespace pddl_lib {
                                                                                }},
         };
 
+        const std::unordered_map<InstantiatedParameter, std::unordered_map<std::string, std::pair<std::string, std::string>>> call_msgs = {
+
+                {{"am_meds",  "MedicineProtocol"}, {{"call_caregiver_msg", {"call_msg_medical.xml", "7742257735"}},
+                                                    }},
+                {{"pm_meds",  "MedicineProtocol"},  {{"call_caregiver_msg",     {"call_msg_medical.xml", "7742257735"}},
+                                                    }},
+        };
+
+
 
         const std::unordered_map <InstantiatedParameter, std::unordered_map<std::string, std::string>> automated_reminder_msgs = {
                 {{"am_meds",       "MedicineProtocol"},              {{"reminder_1_msg", "am_med_reminder.txt"},
@@ -83,6 +92,7 @@ namespace pddl_lib {
         rclcpp_action::Client<shr_msgs::action::ReadScriptRequest>::SharedPtr read_action_client_ = {};
         rclcpp_action::Client<shr_msgs::action::LocalizeRequest>::SharedPtr localize_ = {};
         rclcpp_action::Client<shr_msgs::action::PlayAudioRequest>::SharedPtr audio_action_client_ = {};
+        rclcpp_action::Client<shr_msgs::action::CallRequest>::SharedPtr call_client_ = {};
 
         static InstantiatedParameter getActiveProtocol() {
             std::lock_guard <std::mutex> lock(getInstance().active_protocol_mtx);
@@ -170,6 +180,27 @@ namespace pddl_lib {
         bool is_locked;
     };
 
+    int send_goal_blocking(const shr_msgs::action::CallRequest::Goal &goal, const InstantiatedAction &action) {
+        auto [ps, lock] = ProtocolState::getConcurrentInstance();
+        auto &kb = KnowledgeBase::getInstance();
+        auto success = std::make_shared<std::atomic<int>>(-1);
+        auto send_goal_options = rclcpp_action::Client<shr_msgs::action::CallRequest>::SendGoalOptions();
+        send_goal_options.result_callback = [&success](
+                const rclcpp_action::ClientGoalHandle<shr_msgs::action::CallRequest>::WrappedResult result) {
+            *success = result.code == rclcpp_action::ResultCode::SUCCEEDED;
+        };
+        ps.call_client_->async_send_goal(goal, send_goal_options);
+        rclcpp::sleep_for(std::chrono::seconds(15)); //automatically wait because call is not blocking
+        auto tmp = ps.active_protocol;
+        while (*success == -1) {
+            if (!(tmp == ps.active_protocol)) {
+                ps.call_client_->async_cancel_all_goals();
+                return false;
+            }
+            rclcpp::sleep_for(std::chrono::seconds(1));
+        }
+        return *success;
+    }
 
     int send_goal_blocking(const nav2_msgs::action::NavigateToPose::Goal &goal, const InstantiatedAction &action,
                            ProtocolState &ps) {
@@ -668,6 +699,39 @@ namespace pddl_lib {
             ps.active_protocol = inst;
             lock.UnLock();
             return BT::NodeStatus::SUCCESS;
+        }
+
+        BT::NodeStatus high_level_domain_MoveToLandmark(const InstantiatedAction &action) override {
+            InstantiatedParameter from = action.parameters[0];
+            InstantiatedParameter to = action.parameters[1];
+            InstantiatedParameter t1 = {"t1", "Time"};
+            InstantiatedAction action_inst = {"MoveToLandmark",
+                                              {t1, from, to}};
+            return shr_domain_MoveToLandmark(action_inst);
+        }
+
+        BT::NodeStatus shr_domain_MakeCall(const InstantiatedAction &action) override {
+            auto [ps, lock] = ProtocolState::getConcurrentInstance();
+            auto params = ps.world_state_converter->get_params();
+            auto &kb = KnowledgeBase::getInstance();
+            std::string msg = action.parameters[3].name;
+            int wait_time = ps.wait_times.at(ps.active_protocol).at(msg).first;
+            for (int i = 0; i < wait_time; i++) {
+                if (kb.check_conditions(action.precondtions) == TRUTH_VALUE::FALSE) {
+                    abort(action);
+                    return BT::NodeStatus::FAILURE;
+                }
+                rclcpp::sleep_for(std::chrono::seconds(1));
+            }
+
+            shr_msgs::action::CallRequest::Goal call_goal_;
+            call_goal_.script_name = ps.call_msgs.at(ps.active_protocol).at(msg).first;
+            call_goal_.phone_number = ps.call_msgs.at(ps.active_protocol).at(msg).second;
+            auto ret = send_goal_blocking(call_goal_, action) ? BT::NodeStatus::SUCCESS : BT::NodeStatus::FAILURE;
+            if (ret == BT::NodeStatus::SUCCESS) {
+                rclcpp::sleep_for(std::chrono::seconds(ps.wait_times.at(ps.active_protocol).at(msg).second));
+            }
+            return ret;
         }
 
         BT::NodeStatus shr_domain_MedicineTakenSuccess(const InstantiatedAction &action) override {
