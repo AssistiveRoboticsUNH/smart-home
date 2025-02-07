@@ -13,7 +13,7 @@ def generate_launch_description():
     #
     aptags_file = DeclareLaunchArgument(
         "aptags",
-        default_value=pkg_path + "sajay_aptags.yaml",
+        default_value=pkg_path + "aptags_location.yaml",
         description="aptags location"
     )
     ld.add_action(aptags_file)
@@ -26,11 +26,11 @@ def generate_launch_description():
         ]
     )
 
-    ld.add_action(aptags)
+    #ld.add_action(aptags)
 
     room_file = DeclareLaunchArgument(
         "rooms_location",
-        default_value=pkg_path + "sajay_mod_house.yaml",
+        default_value=pkg_path + "olson_rooms.yaml",
         description="rooms location"
     )
     ld.add_action(room_file)

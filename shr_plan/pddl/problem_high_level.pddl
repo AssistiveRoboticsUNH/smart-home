@@ -1,23 +1,64 @@
 (define (problem high_level)
   (:domain high_level_domain)
   (:objects
-     daily_med - MedicineProtocol
+     living_room kitchen home outside dining_room bedroom bathroom - Landmark
+     am_meds pm_meds - MedicineProtocol
+     move_reminder - MoveReminderProtocol
+     exercise_reminder - ExerciseReminderProtocol
+     internal_check_reminder - InternalCheckReminderProtocol
+     practice_reminder - PracticeReminderProtocol
      breakfast - FoodProtocol
-     lunch - FoodProtocol
-     dinner - FoodProtocol
-     daily_wand - WanderingProtocol
-     bedroom door outside living_room kitchen bathroom dining_room home - Landmark
-     t1 - Time ;;t2 t3 t4 t5
      nathan - Person
+     t1 - Time ;;t2 t3 t4 t5
   )
   (:init
-      (priority_1)
-      (medicine_location kitchen)
-      (food_location dining_room)
-      ;;(oneof (person_at t2 nathan bedroom) (person_at t2 nathan door) (person_at t2 nathan couch) (person_at t2 nathan outside) (person_at t2 nathan living_room) (person_at t2 nathan kitchen) (person_at t2 nathan bathroom) (person_at t2 nathan dining_room) )
-      ;;(oneof (person_at t3 nathan bedroom) (person_at t3 nathan door) (person_at t3 nathan couch) (person_at t3 nathan outside) (person_at t3 nathan living_room) (person_at t3 nathan kitchen) (person_at t3 nathan bathroom) (person_at t3 nathan dining_room) )
-      ;;(oneof (person_at t4 nathan bedroom) (person_at t4 nathan door) (person_at t4 nathan couch) (person_at t4 nathan outside) (person_at t4 nathan living_room) (person_at t4 nathan kitchen) (person_at t4 nathan bathroom) (person_at t4 nathan dining_room) )
-      ;;(oneof (person_at t5 nathan bedroom) (person_at t5 nathan door) (person_at t5 nathan couch) (person_at t5 nathan outside) (person_at t5 nathan living_room) (person_at t5 nathan kitchen) (person_at t5 nathan bathroom) (person_at t5 nathan dining_room) )
+      ;;(priority_5)
+      ;;(abort)
+      (visible_location living_room)
+      (visible_location dining_room)
+      (visible_location bedroom)
+      (visible_location bathroom)
+      (visible_location kitchen)
+
+      ;;(person_currently_at nathan bathroom)
+
+      ;;(person_currently_at nathan bathroom)
+      ;;(time_for_walk_reminder walking_reminder)
+
+      ;; testing medicine
+      ;;(time_to_eat breakfast)
+      ;;(already_reminded_eating  breakfast)
+
+      ;; alert walk
+      ;;(time_to_alert night_alert)
+
+      ;; testing walk
+      ;;(time_for_walk_reminder walking_reminder)
+      ;;(already_reminded_walk walking_reminder)
+
+      ;; testing gym
+      ;;(time_for_gym_reminder gym_reminder)
+      ;;(already_reminded_gym gym_reminder)
+
+      ;; testing medicine
+      ;;(time_to_take_medicine morning)
+      ;;(already_took_medicine  noon)
+
+      ;; testing sleep
+      ;;(time_for_sleep_reminder sleep_reminder)
+      ;;(already_reminded_sleep  sleep_reminder)
+
+      ;; testing move
+      ;;(time_for_move_reminder move_reminder)
+      ;;(already_reminded_move  move_reminder)
+
+      ;; testing internal check
+      ;;(time_for_internalcheck_reminder internalcheck_reminder)
+      ;;(already_reminded_internalcheck  internalcheck_reminder)
+
+      ;; testing practice
+      ;;(time_for_practice_reminder practice_reminder)
+      ;;(already_reminded_practice  practice_reminder)
   )
   (:goal (and (success)  ) )
 )

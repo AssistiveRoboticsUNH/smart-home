@@ -1,2 +1,2 @@
-ros2 topic pub /protocol_time builtin_interfaces/msg/Time "sec: 25200
-nanosec: 0" --once
+ros2 topic pub /protocol_time builtin_interfaces/msg/Time "sec: 34200
+nanosec: 0"

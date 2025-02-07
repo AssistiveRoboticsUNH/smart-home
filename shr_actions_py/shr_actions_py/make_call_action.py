@@ -37,12 +37,11 @@ class MakeCallActionServer(Node):
         client = Client(account_sid, token)
         try:
             with open(file_path) as f:
-                # call = client.calls.create(
-                    # twiml=f.read(),
-                    # to=goal_handle.request.phone_number,
-                    # from_='+18336905018')
-                ### twilio account stopped
-                pass
+                call = client.calls.create(
+                    twiml=f.read(),
+                    to=goal_handle.request.phone_number,
+                    from_='+18337893523')
+
         except Exception as e:
 
             result.status = "failed: " + str(e)

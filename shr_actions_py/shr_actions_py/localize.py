@@ -63,7 +63,7 @@ class LocalizationActionServer(Node):
         self.tf_buffer = tf2_ros.Buffer()
         self.tf_listener = tf2_ros.transform_listener.TransformListener(self.tf_buffer, self, spin_thread=True)
         # self.used_apriltags = [0, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 29]  # add the apriltag ids that you used
-        self.used_apriltags = [0, 2, 3, 4, 6, 7, 8, 25, 15, 29, 28, 203]
+        self.used_apriltags = [16,17]
         # add the apriltag ids that you used
         self.transform_cam_in_aptag_dict = {}  # location of apriltags in camera frame
         self.transform_aptag_in_world_dict = {}  # global location of apriltags
@@ -495,6 +495,47 @@ class LocalizationActionServer(Node):
         self.feedback = msg.feedback
         return
 
+    # def execute_callback(self, goal_handle):
+    #
+    #     self.get_logger().info('Executing goal...')
+    #     result = LocalizeRequest.Result()
+    #
+    #     self.get_logger().info("weblog=" + 'Executing goal...')
+    #
+    #     # Perform the navigation and localization logic here.
+    #     # Access the goal from the goal handle
+    #
+    #     if goal_handle.request.force_localize:
+    #         self.max_weight = 0.0
+    #     print("self.max_weight", self.max_weight)
+    #     if (self.max_weight >= 0.0015):  # 0.0015):
+    #         self.get_logger().info('Robot is not lost; continuing without localizing')
+    #         goal_handle.succeed()
+    #         result.result = True
+    #         return result
+    #
+    #     else:
+    #         self.get_logger().info("weblog=" + 'Robot is lost; Localizing')
+    #         self.localize()
+    #         self.get_logger().info("weblog=" + 'Robot Localized')
+    #
+    #     self.get_logger().info('Sending goal')
+    #
+    #     # Assuming you successfully navigated and localized, set the goal state to succeeded or abort since the code is already in executing state
+    #     if self.successfully_localized:
+    #         goal_handle.succeed()
+    #         result.result = True
+    #     else:
+    #         goal_handle.succeed()
+    #         result.result = True
+    #         # goal_handle.abort()
+    #         # result.result = False
+    #
+    #     # If you want to set the goal state to aborted in case of an error, use:
+    #     # goal_handle.abort(result)
+    #     self.get_logger().info("weblog=" + 'Goal Executed...')
+    #
+    #     return result
     def execute_callback(self, goal_handle):
 
         self.get_logger().info('Executing goal...')
@@ -502,41 +543,15 @@ class LocalizationActionServer(Node):
 
         self.get_logger().info("weblog=" + 'Executing goal...')
 
-        # Perform the navigation and localization logic here.
-        # Access the goal from the goal handle
 
-        if goal_handle.request.force_localize:
-            self.max_weight = 0.0
-        print("self.max_weight", self.max_weight)
-        if (self.max_weight >= 0.0015):  # 0.0015):
-            self.get_logger().info('Robot is not lost; continuing without localizing')
-            goal_handle.succeed()
-            result.result = True
-            return result
-
-        else:
-            self.get_logger().info("weblog=" + 'Robot is lost; Localizing')
-            self.localize()
-            self.get_logger().info("weblog=" + 'Robot Localized')
-
-        self.get_logger().info('Sending goal')
-
-        # Assuming you successfully navigated and localized, set the goal state to succeeded or abort since the code is already in executing state
-        if self.successfully_localized:
-            goal_handle.succeed()
-            result.result = True
-        else:
-            goal_handle.succeed()
-            result.result = True
-            # goal_handle.abort()
-            # result.result = False
+        goal_handle.succeed()
+        result.result = True
 
         # If you want to set the goal state to aborted in case of an error, use:
         # goal_handle.abort(result)
         self.get_logger().info("weblog=" + 'Goal Executed...')
 
         return result
-
 
 def main(args=None):
     rclpy.init(args=args)

@@ -22,7 +22,9 @@ private:
     std::mutex world_state_mtx;
     bool terminate_node_;
     std::shared_ptr<shr_parameters::ParamListener> param_listener_;
-    std::unordered_map<std::string, Eigen::MatrixXd> mesh_vert_map_;
+    std::unordered_map<std::string, Eigen::MatrixXd> mesh_vert_map_robot;
+    std::unordered_map<std::string, Eigen::MatrixXd> mesh_vert_map_person;
+
 public:
 
     WorldStateListener(const std::string &node_name, std::shared_ptr<shr_parameters::ParamListener> param_listener)
@@ -58,20 +60,28 @@ public:
                 });
 
         std::filesystem::path pkg_dir = ament_index_cpp::get_package_share_directory("shr_resources");
-        auto mesh_file = (pkg_dir / "resources" / "modified_mesh_sajay.obj").string();
-        auto [mesh_verts, mesh_names] = shr_utils::load_meshes(mesh_file);
-        for (int i = 0; i < mesh_names.size(); i++) {
-            auto name = mesh_names[i];
-            auto verts = mesh_verts[i];
-            mesh_vert_map_[name] = verts;
+        auto mesh_file_robot = (pkg_dir / "resources" / "olson_robot_.obj").string();
+        auto [mesh_verts_robot, mesh_names_robot] = shr_utils::load_meshes(mesh_file_robot);
+        for (int i = 0; i < mesh_names_robot.size(); i++) {
+            auto name_robot = mesh_names_robot[i];
+            auto verts_robot = mesh_verts_robot[i];
+            mesh_vert_map_robot[name_robot] = verts_robot;
+        }
+
+        auto mesh_file_person = (pkg_dir / "resources" / "olson_person_.obj").string();
+        auto [mesh_verts_person, mesh_names_person] = shr_utils::load_meshes(mesh_file_person);
+        for (int i = 0; i < mesh_names_person.size(); i++) {
+            auto name_person = mesh_names_person[i];
+            auto verts_person = mesh_verts_person[i];
+            mesh_vert_map_person[name_person] = verts_person;
         }
     }
 
     bool check_robot_at_loc(const std::string &loc) {
-        if (mesh_vert_map_.find(loc) == mesh_vert_map_.end()) {
+        if (mesh_vert_map_robot.find(loc) == mesh_vert_map_robot.end()) {
             return false;
         }
-        auto verts = mesh_vert_map_.at(loc);
+        auto verts = mesh_vert_map_robot.at(loc);
         Eigen::MatrixXd verts2d = verts.block(0, 0, 2, verts.cols());
 
         auto params = param_listener_->get_params();
@@ -79,6 +89,8 @@ public:
         std::lock_guard<std::mutex> lock(tf_buffer_mtx);
         try {
 //            robot_location = tf_buffer_->lookupTransform("odom", params.robot_tf, tf2::TimePointZero); //TODO fix
+//            RCLCPP_INFO(get_logger(), "Could not transform %s to %s: %s", "unity", params.robot_tf.c_str(), ex.what());
+
 
             robot_location = tf_buffer_->lookupTransform("unity", params.robot_tf, tf2::TimePointZero, std::chrono::seconds(10)); //TODO fix
 
@@ -93,10 +105,10 @@ public:
     }
 
     bool check_person_at_loc(const std::string &loc) {
-        if (mesh_vert_map_.find(loc) == mesh_vert_map_.end()) {
+        if (mesh_vert_map_person.find(loc) == mesh_vert_map_person.end()) {
             return false;
         }
-        auto verts = mesh_vert_map_.at(loc);
+        auto verts = mesh_vert_map_person.at(loc);
         Eigen::MatrixXd verts2d = verts.block(0, 0, 2, verts.cols());
 
         auto params = param_listener_->get_params();
@@ -104,7 +116,7 @@ public:
         std::lock_guard<std::mutex> lock(tf_buffer_mtx);
         try {
 //            patient_location = tf_buffer_->lookupTransform("odom", params.person_tf, tf2::TimePointZero); //TODO fix
-// changed from odom to unity because odom is
+// changed from odom to unity because odom is not fixed
             patient_location = tf_buffer_->lookupTransform("unity", params.person_tf, tf2::TimePointZero, std::chrono::seconds(100000)); //TODO fix
 
         } catch (const tf2::TransformException &ex) {

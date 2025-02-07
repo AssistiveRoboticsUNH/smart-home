@@ -1,15 +1,15 @@
 shr_parameters:
   pddl:
     instances:
-      Landmarks: {
+      LandmarksPerson: {
         type: string_array,
-        default_value: [ "kitchen", "couch", "home" , "door", "outside", "hallway", "bedroom", "dining_room" ],
+        default_value: [ "bedroom", "inside_not_bedroom", "outside" ],
         description: "all landmarks in protocols",
       }
-      Robots: {
+      LandmarksRobot: {
         type: string_array,
-        default_value: [ "jackal" ],
-        description: "all robots in protocols",
+        default_value: [ "home" , "designated_space" ],
+        description: "all landmarks in protocols",
       }
       Persons: {
         type: string_array,
@@ -19,100 +19,71 @@ shr_parameters:
     FoodProtocols:
       instances: {
         type: string_array,
-        default_value: [ "breakfast", "lunch", "dinner" ],
+        default_value: [ "breakfast" ],
         description: "food protocols",
       }
       eat_times: {
         type: string_array,
-        default_value: [ "06h45m0s/08h00m0s", "00h00m00s/00h00m00s",  "00h00m00s/00h00m00s" ],
+        
+        default_value: [ "08h15m0s/08h45m0s"  ],
+
         description: "time that each protocol is triggered",
-      }
-      eat_locations: {
-        type: string_array,
-        default_value: [ "kitchen", "kitchen", "kitchen" ],
-        description: "topic for detecting pills being taken",
-      }
-      check_guide_to_succeeded_times: {
-        type: string_array,
-        default_value: [ "0h1m0s", "0h1m0s", "0h1m0s" ],
-        description: "time to wait for observation",
-      }
-      remind_automated_food_at_times: {
-        type: string_array,
-        default_value: [ "0h10m0s", "0h10m0s", "0h10m0s" ],
-        description: "time to wait for observation",
-      }
-      remind_automated_food_at_2_times: {
-        type: string_array,
-        default_value: [ "0h10m0s", "0h1m0s", "0h10m0s" ],
-        description: "time to wait for observation",
       }
     MedicineProtocols:
       instances: {
         type: string_array,
-        default_value: [ "daily_med" ],
+        default_value: [ "am_meds" , "pm_meds" ],
         description: "medicine protocols",
       }
-      medicine_location: {
+      take_medication_times: {
         type: string_array,
-        default_value: [ "kitchen" ],
-        description: "location of medicine",
-      }
-      take_medication_time: {
-        type: string_array,
-        default_value: [ "19h00m0s/20h00m0s" ],
+        default_value: [ "09h00m0s/10h00m0s", "21h00m0s/22h00m0s" ],
         description: "time that each protocol is triggered",
       }
-    WanderingProtocols:
+    InternalCheckReminderProtocols:
       instances: {
         type: string_array,
-        default_value: [ "daily_wand" ],
-        description: "wandering protocols",
+        default_value: [ "internal_check_reminder" ],
+        description: "internal check reminder protocols",
       }
-      outside_location: {
+      internal_check_reminder_times: {
         type: string_array,
-        default_value: [ "outside" ],
-        description: "topic for detecting pills being taken",
+        default_value: [ "22h00m0s/23h00m0s"],
+        description: "time that each protocol is triggered",
       }
-      door_location: {
-        type: string_array,
-        default_value: [ "door" ],
-        description: "topic for detecting pills being taken",
-      }
-      bedroom_location: {
-        type: string_array,
-        default_value: [ "bedroom" ],
-        description: "topic for detecting pills being taken",
-      }
-      too_late_to_leave_time: {
-        type: string_array,
-        default_value: [ "0h00m00s/0h00m00s" ],
-        description: "time that the person must not go outside",
-      }
-    FallProtocols:
+    PracticeReminderProtocols:
       instances: {
         type: string_array,
-        default_value: [ "daily_fall" ],
-        description: "wandering protocols",
+        default_value: [ "practice_reminder" ],
+        description: "medicine protocols",
       }
-      wait_times: {
+      practice_reminder_times: {
         type: string_array,
-        default_value: [ "0h10m0s" ],
-        description: "time to wait for observation",
+        default_value: [ "07h30m0s/08h00m0s" ],
+        description: "time that each protocol is triggered",
       }
-
-  caregiver_phone_number: {
-    type: string,
-    default_value: "7742257735",
-    description: "caregiver phone number",
-  }
-
-  emergency_phone_number: {
-    type: string,
-    default_value: "7742257735",
-    description: "emergency phone number",
-  }
-
+    MoveReminderProtocols:
+      instances: {
+        type: string_array,
+        default_value: [ "move_reminder" ],
+        description: "walking protocols",
+      }
+      move_reminder_times: {
+        type: string_array,
+        default_value: [ "15h00m0s/16h00m0s" ],
+        description: "time that each protocol is triggered",
+      }
+    ExerciseReminderProtocols:
+        instances: {
+          type: string_array,
+          default_value: [ "exercise_reminder" ],
+          description: "walking protocols",
+        }
+        exercise_reminder_times: {
+          type: string_array,
+          default_value: [ "11h30m0s/12h30m0s" ],
+          description: "time that each protocol is triggered",
+        }
   topics:
     time: {
       type: string,

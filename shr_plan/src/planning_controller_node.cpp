@@ -17,9 +17,9 @@
 #include <shr_plan/actions.hpp>
 
 #include <shr_plan/world_state_converter.hpp>
+#include <cstdlib>  // for getenv
 
 using namespace pddl_lib;
-
 
 Domain load_domain(const std::string &domain_file) {
     std::string domain_str;
@@ -36,14 +36,24 @@ Domain load_domain(const std::string &domain_file) {
 std::optional<std::string> getPlan(const std::string &domain, const std::string &problem) {
     static std::mutex mutex;
     std::lock_guard<std::mutex> lock(mutex);
-    std::string path = "/home/hello-robot/planner_data";
+    // std::string path = homeDir + "/planner_data";
+    std::string homeDir = std::getenv("HOME");
+//    std::cout << "homeDir: " << homeDir << std::endl;
+    std::string path = homeDir + "/planner_data";
     {
         std::ofstream domainFile(path + "/plan_solver/domain.pddl");
         domainFile << domain;
         std::ofstream problemFile(path + "/plan_solver/problem.pddl");
         problemFile << problem;
     }
-    std::string cmd = "ros2 run plan_solver_py plan_solver -o /home/hello-robot/planner_data/plan_solver/domain.pddl -f /home/hello-robot/planner_data/plan_solver/problem.pddl > /dev/null";
+
+//    std::string cmd = "ros2 run plan_solver_py plan_solver -o /home/olagh48652/planner_data/plan_solver/domain.pddl -f /home/olagh48652/planner_data/plan_solver/problem.pddl > /dev/null";
+    std::string cmd = "ros2 run plan_solver_py plan_solver -o ";
+    cmd += homeDir;
+    cmd += "/planner_data/plan_solver/domain.pddl -f ";
+    cmd += homeDir;
+    cmd += "/planner_data/plan_solver/problem.pddl > /dev/null";
+//    std::cout << "Command: " << cmd << std::endl;
     std::system(cmd.c_str());
 
     std::ifstream file(path + "/plan_solver/bt.xml");
@@ -83,53 +93,6 @@ public:
         }
     }
 
-    TRUTH_VALUE person_at(TRUTH_VALUE val, Time t, Person p, Landmark lm) const override {
-        if (val == TRUTH_VALUE::UNKNOWN || t != "t1") {
-            return val;
-        }
-        if (world_state_converter->check_person_at_loc(lm)) {
-            return TRUTH_VALUE::TRUE;
-        } else {
-            return TRUTH_VALUE::FALSE;
-        }
-    }
-
-    TRUTH_VALUE person_currently_at(TRUTH_VALUE val,Person p, Landmark lm) const override {
-        if (val == TRUTH_VALUE::UNKNOWN) {
-            return val;
-        }
-        if (world_state_converter->check_person_at_loc(lm)) {
-            std::cout << "person_At " << lm << std::endl;
-            return TRUTH_VALUE::TRUE;
-        } else {
-            return TRUTH_VALUE::FALSE;
-        }
-    }
-
-    TRUTH_VALUE person_at_door(TRUTH_VALUE val, WanderingProtocol w) const override {
-        auto params = world_state_converter->get_params();
-        if (auto index = get_inst_index(w, params)) {
-            auto msg = world_state_converter->get_world_state_msg();
-            if (world_state_converter->check_person_at_loc(
-                    params.pddl.WanderingProtocols.door_location[index.value()])) {
-                return TRUTH_VALUE::TRUE;
-            }
-        }
-        return TRUTH_VALUE::FALSE;
-    }
-
-    TRUTH_VALUE person_outside(TRUTH_VALUE val, WanderingProtocol w) const override {
-        auto params = world_state_converter->get_params();
-        if (auto index = get_inst_index(w, params)) {
-            auto msg = world_state_converter->get_world_state_msg();
-            if (world_state_converter->check_person_at_loc(
-                    params.pddl.WanderingProtocols.outside_location[index.value()])) {
-                return TRUTH_VALUE::TRUE;
-            }
-        }
-        return TRUTH_VALUE::FALSE;
-    }
-
     TRUTH_VALUE time_to_eat(TRUTH_VALUE val, FoodProtocol f) const override {
         auto params = world_state_converter->get_params();
         if (auto index = get_inst_index(f, params)) {
@@ -144,47 +107,93 @@ public:
         if (val == TRUTH_VALUE::TRUE) {
             return TRUTH_VALUE::TRUE;
         }
-        // modification
-        auto params = world_state_converter->get_params();
-        if (auto index = get_inst_index(f, params)) {
-//            std::cout << "params.pddl.FoodProtocols.eat_times[index.value()]: " << params.pddl.FoodProtocols.eat_times[index.value()] << std::endl;
-//            std::cout << "compare_time(params.pddl.FoodProtocols.eat_times[index.value()]): " << compare_time(params.pddl.FoodProtocols.eat_times[index.value()]) << std::endl;
-//            std::cout << "world_state_converter->get_world_state_msg()->person_eating : " << world_state_converter->get_world_state_msg()->person_eating << std::endl;
-            if (world_state_converter->get_world_state_msg()->person_eating == 1 && compare_time(params.pddl.FoodProtocols.eat_times[index.value()])) {
-                return TRUTH_VALUE::TRUE;
-            }
-            return val;
-        }
-        // finish modification
         //TODO this is not right. It should check if the current time window corresponds to f
-
-//        if (world_state_converter->get_world_state_msg()->person_eating == 1) {
-//            return TRUTH_VALUE::TRUE;
-//        }
-//        return val;
+        if (world_state_converter->get_world_state_msg()->person_eating == 1) {
+            return TRUTH_VALUE::TRUE;
+        }
+        return val;
     }
 
 
-    TRUTH_VALUE too_late_to_go_outside(TRUTH_VALUE val, WanderingProtocol w) const override {
-        auto params = world_state_converter->get_params();
-        if (auto index = get_inst_index(w, params)) {
-            if (compare_time(params.pddl.WanderingProtocols.too_late_to_leave_time[index.value()])) {
-                return TRUTH_VALUE::TRUE;
-            }
+    TRUTH_VALUE person_at(TRUTH_VALUE val, Time t, Person p, Landmark lm) const override {
+        if (val == TRUTH_VALUE::UNKNOWN || t != "t1") {
+            return val;
         }
-        return TRUTH_VALUE::FALSE;
+
+        if (world_state_converter->check_person_at_loc(lm)) {
+            return TRUTH_VALUE::TRUE;
+        } else {
+            return TRUTH_VALUE::FALSE;
+        }
+    }
+
+    // In high level found
+    TRUTH_VALUE person_currently_at(TRUTH_VALUE val, Person p, Landmark lm) const override {
+        if (val == TRUTH_VALUE::UNKNOWN) {
+            return val;
+        }
+        if (world_state_converter->check_person_at_loc(lm)) {
+            std::cout << "person_At " << lm << std::endl;
+            return TRUTH_VALUE::TRUE;
+        } else {
+            return TRUTH_VALUE::FALSE;
+        }
     }
 
     TRUTH_VALUE time_to_take_medicine(TRUTH_VALUE val, MedicineProtocol m) const override {
         auto params = world_state_converter->get_params();
         if (auto index = get_inst_index(m, params)) {
-            if (compare_time(params.pddl.MedicineProtocols.take_medication_time[index.value()])) {
+            if (compare_time(params.pddl.MedicineProtocols.take_medication_times[index.value()])) {
                 return TRUTH_VALUE::TRUE;
             }
         }
         return TRUTH_VALUE::FALSE;
     }
 
+    TRUTH_VALUE time_for_exercise_reminder(TRUTH_VALUE val, ExerciseReminderProtocol m) const override {
+        auto params = world_state_converter->get_params();
+        if (auto index = get_inst_index(m, params)) {
+            if (compare_time(params.pddl.ExerciseReminderProtocols.exercise_reminder_times[index.value()])) {
+                return TRUTH_VALUE::TRUE;
+            }
+        }
+        return TRUTH_VALUE::FALSE;
+    }
+
+    TRUTH_VALUE time_for_move_reminder(TRUTH_VALUE val, MoveReminderProtocol m) const override {
+        auto params = world_state_converter->get_params();
+        if (auto index = get_inst_index(m, params)) {
+            if (compare_time(params.pddl.MoveReminderProtocols.move_reminder_times[index.value()])) {
+                return TRUTH_VALUE::TRUE;
+            }
+        }
+        return TRUTH_VALUE::FALSE;
+    }
+
+    TRUTH_VALUE time_for_internal_check_reminder(TRUTH_VALUE val, InternalCheckReminderProtocol m) const override {
+        auto params = world_state_converter->get_params();
+        if (auto index = get_inst_index(m, params)) {
+            if (compare_time(params.pddl.InternalCheckReminderProtocols.internal_check_reminder_times[index.value()])) {
+                return TRUTH_VALUE::TRUE;
+            }
+        }
+        return TRUTH_VALUE::FALSE;
+    }
+
+    TRUTH_VALUE time_for_practice_reminder(TRUTH_VALUE val, PracticeReminderProtocol m) const override {
+        auto params = world_state_converter->get_params();
+        if (auto index = get_inst_index(m, params)) {
+            if (compare_time(params.pddl.PracticeReminderProtocols.practice_reminder_times[index.value()])) {
+                return TRUTH_VALUE::TRUE;
+            }
+        }
+        return TRUTH_VALUE::FALSE;
+    }
+
+
+
+
+    // low level
     TRUTH_VALUE person_taking_medicine(TRUTH_VALUE val, Time t) const override {
         if (val == TRUTH_VALUE::TRUE) {
             return TRUTH_VALUE::TRUE;
@@ -195,14 +204,19 @@ public:
         return val;
     }
 
+    // TODO: Check if this needs to be sandwiched between time window
     TRUTH_VALUE already_took_medicine(TRUTH_VALUE val, MedicineProtocol m) const override {
         if (val == TRUTH_VALUE::TRUE) {
             return TRUTH_VALUE::TRUE;
         }
-        if (world_state_converter->get_world_state_msg()->person_taking_medicine == 1) {
-            return TRUTH_VALUE::TRUE;
+        auto params = world_state_converter->get_params();
+        if (auto index = get_inst_index(m, params)) {
+            if (world_state_converter->get_world_state_msg()->person_taking_medicine == 1 &&
+                compare_time(params.pddl.MedicineProtocols.take_medication_times[index.value()])) {
+                return TRUTH_VALUE::TRUE;
+            }
+            return val;
         }
-        return val;
     }
 
 
@@ -273,6 +287,7 @@ public:
 
 int main(int argc, char **argv) {
     rclcpp::init(argc, argv);
+
     auto node = std::make_shared<rclcpp::Node>("shrParameterNode");
     auto param_listener_ = std::make_shared<shr_parameters::ParamListener>(node);
 
@@ -291,47 +306,42 @@ int main(int argc, char **argv) {
         auto [ps, lock] = ProtocolState::getConcurrentInstance();
         lock.Lock();
         ps.world_state_converter = world_state_converter;
-        ps.call_client_ = rclcpp_action::create_client<shr_msgs::action::CallRequest>(
-                world_state_converter, "make_call");
-        while (!ps.call_client_->wait_for_action_server(std::chrono::seconds(5))) {
-            RCLCPP_INFO(rclcpp::get_logger("planning_controller"), "Waiting for /make_call action server...");
-        }
-       ps.nav_client_ = rclcpp_action::create_client<nav2_msgs::action::NavigateToPose>(
-               world_state_converter, "navigate_to_pose");
-       while (!ps.nav_client_->wait_for_action_server(std::chrono::seconds(5))) {
-           RCLCPP_INFO(rclcpp::get_logger("planning_controller"), "Waiting for /navigate_to_pose action server...");
-       }
 
-        // ps.waypoint_action_client_ = rclcpp_action::create_client<shr_msgs::action::WaypointRequest> (
-        //         world_state_converter, "waypoint_request");
-        // while (!ps.waypoint_action_client_->wait_for_action_server(std::chrono::seconds(5))) {
-        //     RCLCPP_INFO(rclcpp::get_logger("planning_controller"), "Waiting for /waypoint action server...");
-        // }
+        ps.nav_client_ = rclcpp_action::create_client<nav2_msgs::action::NavigateToPose>(
+                world_state_converter, "navigate_to_pose");
+        while (!ps.nav_client_->wait_for_action_server(std::chrono::seconds(5))) {
+            RCLCPP_INFO(rclcpp::get_logger("navigate_to_pose"), "Waiting for /navigate_to_pose action server...");
+        }
 
         ps.read_action_client_ = rclcpp_action::create_client<shr_msgs::action::ReadScriptRequest>(
                 world_state_converter, "read_script");
         while (!ps.read_action_client_->wait_for_action_server(std::chrono::seconds(5))) {
-            RCLCPP_INFO(rclcpp::get_logger("planning_controller"), "Waiting for /read_script action server...");
+            RCLCPP_INFO(rclcpp::get_logger("read_script"), "Waiting for /read_script action server...");
         }
         ps.audio_action_client_ = rclcpp_action::create_client<shr_msgs::action::PlayAudioRequest>(
                 world_state_converter, "play_audio");
         while (!ps.audio_action_client_->wait_for_action_server(std::chrono::seconds(5))) {
-            RCLCPP_INFO(rclcpp::get_logger("planning_controller"), "Waiting for /play_audio action server...");
+            RCLCPP_INFO(rclcpp::get_logger("play_audio"), "Waiting for /play_audio action server...");
         }
         ps.docking_ = rclcpp_action::create_client<shr_msgs::action::DockingRequest>(
                 world_state_converter, "docking");
         while (!ps.docking_->wait_for_action_server(std::chrono::seconds(5))) {
-            RCLCPP_INFO(rclcpp::get_logger("planning_controller"), "Waiting for /docking action server...");
+            RCLCPP_INFO(rclcpp::get_logger("docking"), "Waiting for /docking action server...");
         }
         ps.undocking_ = rclcpp_action::create_client<shr_msgs::action::DockingRequest>(
                 world_state_converter, "undocking");
         while (!ps.undocking_->wait_for_action_server(std::chrono::seconds(5))) {
-            RCLCPP_INFO(rclcpp::get_logger("planning_controller"), "Waiting for /undocking action server...");
+            RCLCPP_INFO(rclcpp::get_logger("undocking"), "Waiting for /undocking action server...");
         }
         ps.localize_ = rclcpp_action::create_client<shr_msgs::action::LocalizeRequest>(
                 world_state_converter, "localize");
         while (!ps.localize_->wait_for_action_server(std::chrono::seconds(5))) {
-            RCLCPP_INFO(rclcpp::get_logger("planning_controller"), "Waiting for /localize action server...");
+            RCLCPP_INFO(rclcpp::get_logger("localize"), "Waiting for /localize action server...");
+        }
+        ps.call_client_ = rclcpp_action::create_client<shr_msgs::action::CallRequest>(
+                world_state_converter, "make_call");
+        while (!ps.call_client_->wait_for_action_server(std::chrono::seconds(5))) {
+            RCLCPP_INFO(rclcpp::get_logger("make_call"), "Waiting for /make_call action server...");
         }
         lock.UnLock();
     }
