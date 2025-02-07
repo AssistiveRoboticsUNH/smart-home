@@ -24,7 +24,9 @@ shr_parameters:
       }
       eat_times: {
         type: string_array,
+        
         default_value: [ "08h15m0s/08h45m0s"  ],
+
         description: "time that each protocol is triggered",
       }
     MedicineProtocols:

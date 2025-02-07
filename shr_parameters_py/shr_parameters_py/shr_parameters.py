@@ -28,6 +28,16 @@ class shr_parameters:
                 LandmarksRobot = ["home", "designated_space"]
                 Persons = ["nathan"]
             instances = __Instances()
+
+            class __Foodprotocols:
+                instances = ["breakfast", "lunch", "dinner"]
+                eat_times = ["06h45m0s/08h00m0s", "00h00m00s/00h00m00s", "00h00m00s/00h00m00s"]
+                eat_locations = ["kitchen", "kitchen", "kitchen"]
+                check_guide_to_succeeded_times = ["0h1m0s", "0h1m0s", "0h1m0s"]
+                remind_automated_food_at_times = ["0h10m0s", "0h10m0s", "0h10m0s"]
+                remind_automated_food_at_2_times = ["0h10m0s", "0h1m0s", "0h10m0s"]
+            FoodProtocols = __Foodprotocols()
+
             class __Medicineprotocols:
                 instances = ["am_meds", "pm_meds"]
                 take_medication_times = ["09h00m0s/10h00m0s", "21h00m0s/22h00m0s"]
