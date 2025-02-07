@@ -28,11 +28,13 @@ namespace pddl_lib {
         wait_times = {
                 {{"am_meds",                 "MedicineProtocol"},              {{"reminder_1_msg", {0, 1}},
                                                                                        {"reminder_2_msg", {0, 1}},
-                                                                                       {"wait", {60,0}},
+                                                                                       {"call_caregiver_msg", {0, 1}},
+                                                                                       {"wait", {2,0}},
                                                                                }},
-                {{"pm_meds",                 "MedicineProtocol"},              {{"reminder_1_msg", {0, 12}},
-                                                                                       {"reminder_2_msg", {0, 12}},
-                                                                                       {"wait", {60,0}},
+                {{"pm_meds",                 "MedicineProtocol"},              {{"reminder_1_msg", {0, 1}},
+                                                                                       {"reminder_2_msg", {0, 1}},
+                                                                                       {"call_caregiver_msg", {0, 1}},
+                                                                                       {"wait", {2,0}},
                                                                                }},
                 {{"move_reminder",           "MoveReminderProtocol"},          {{"reminder_1_msg", {0, 1}},
                                                                                 {"wait", {0,0}},
@@ -50,6 +52,10 @@ namespace pddl_lib {
                                                                                 {"wait", {0,0}},
 
                                                                                }},
+                {{"breakfast",                 "FoodProtocol"},              {{"reminder_1_msg", {0, 1}},
+                                                                                       {"reminder_2_msg", {0, 1}},
+                                                                                       {"wait", {2,0}},
+                                                                               }},
         };
 
         const std::unordered_map<InstantiatedParameter, std::unordered_map<std::string, std::pair<std::string, std::string>>> call_msgs = {
@@ -57,7 +63,7 @@ namespace pddl_lib {
                 {{"am_meds",  "MedicineProtocol"}, {{"call_caregiver_msg", {"call_msg_medical.xml", "7742257735"}},
                                                     }},
                 {{"pm_meds",  "MedicineProtocol"},  {{"call_caregiver_msg",     {"call_msg_medical.xml", "7742257735"}},
-                                                    }},
+                                                    }},                                
         };
 
 
@@ -75,12 +81,16 @@ namespace pddl_lib {
                                                                      }},
                 {{"exercise_reminder",      "ExerciseReminderProtocol"},      {{"reminder_1_msg", "exercise_reminder.txt"},
                                                                      }},
+                {{"breakfast",       "FoodProtocol"},              {{"reminder_1_msg", "food_reminder.txt"},
+                                                                     }},
         };
 
         const std::unordered_map <InstantiatedParameter, std::unordered_map<std::string, std::string>> recorded_reminder_msgs = {
                 {{"am_meds", "MedicineProtocol"}, {{"reminder_2_msg", "am_med_reminder.mp3"},
                                                   }},
                 {{"pm_meds", "MedicineProtocol"}, {{"reminder_2_msg", "pm_med_reminder.mp3"},
+                                                  }},
+                {{"breakfast", "FoodProtocol"}, {{"reminder_2_msg", "food_reminder.mp3"},
                                                   }},
 
         };
@@ -540,7 +550,7 @@ namespace pddl_lib {
 
                 // // sleep for 60 seconds to deal with the delay from //charging topic
                 std::cout << " waiting  " << std::endl;
-                rclcpp::sleep_for(std::chrono::seconds(60));
+                rclcpp::sleep_for(std::chrono::seconds(30));
 
                 std::cout << "High level ending " << std::endl;
 
@@ -613,6 +623,21 @@ namespace pddl_lib {
             RCLCPP_INFO(ps.world_state_converter->get_logger(), log_message.c_str());
             ps.active_protocol = protocol;
             lock.UnLock();
+            return BT::NodeStatus::SUCCESS;
+        }
+
+        BT::NodeStatus high_level_domain_StartFoodProtocol(const InstantiatedAction &action) override {
+
+            auto &kb = KnowledgeBase::getInstance();
+            InstantiatedParameter protocol = action.parameters[0];
+            
+            instantiate_protocol("food_reminder.pddl");
+
+            auto [ps, lock] = ProtocolState::getConcurrentInstance();
+            lock.Lock();
+            ps.active_protocol = protocol;
+            lock.UnLock();
+
             return BT::NodeStatus::SUCCESS;
         }
 
@@ -714,6 +739,7 @@ namespace pddl_lib {
             auto [ps, lock] = ProtocolState::getConcurrentInstance();
             auto params = ps.world_state_converter->get_params();
             auto &kb = KnowledgeBase::getInstance();
+
             std::string msg = action.parameters[3].name;
             int wait_time = ps.wait_times.at(ps.active_protocol).at(msg).first;
             for (int i = 0; i < wait_time; i++) {
@@ -724,9 +750,14 @@ namespace pddl_lib {
                 rclcpp::sleep_for(std::chrono::seconds(1));
             }
 
+
             shr_msgs::action::CallRequest::Goal call_goal_;
             call_goal_.script_name = ps.call_msgs.at(ps.active_protocol).at(msg).first;
             call_goal_.phone_number = ps.call_msgs.at(ps.active_protocol).at(msg).second;
+
+            
+
+
             auto ret = send_goal_blocking(call_goal_, action) ? BT::NodeStatus::SUCCESS : BT::NodeStatus::FAILURE;
             if (ret == BT::NodeStatus::SUCCESS) {
                 rclcpp::sleep_for(std::chrono::seconds(ps.wait_times.at(ps.active_protocol).at(msg).second));
@@ -826,6 +857,9 @@ namespace pddl_lib {
             if (active_protocol.type == "MedicineProtocol") {
                 kb.insert_predicate({"already_reminded_medicine", {active_protocol}});
                 kb.erase_predicate({"medicine_reminder_enabled", {active_protocol}});
+            }else if (active_protocol.type == "FoodProtocol") {
+                kb.insert_predicate({"already_called_about_eating", {active_protocol}});
+                kb.erase_predicate({"food_protocol_enabled", {active_protocol}});
             }else if (active_protocol.type == "MoveReminderProtocol") {
                 kb.insert_predicate({"already_reminded_move", {active_protocol}});
                 kb.erase_predicate({"move_reminder_enabled", {active_protocol}});
@@ -859,6 +893,9 @@ namespace pddl_lib {
             if (active_protocol.type == "MedicineProtocol") {
                 kb.insert_predicate({"already_reminded_medicine", {active_protocol}});
                 kb.erase_predicate({"medicine_reminder_enabled", {active_protocol}});
+            }else if (active_protocol.type == "FoodProtocol") {
+                kb.insert_predicate({"already_called_about_eating", {active_protocol}});
+                kb.erase_predicate({"food_protocol_enabled", {active_protocol}});
             }else if (active_protocol.type == "MoveReminderProtocol") {
                 kb.insert_predicate({"already_reminded_move", {active_protocol}});
                 kb.erase_predicate({"move_reminder_enabled", {active_protocol}});
@@ -889,8 +926,14 @@ namespace pddl_lib {
             int wait_time = ps.wait_times.at(ps.active_protocol).at(msg).first;
 
             for (int i = 0; i < wait_time; i++) {
-                if (ps.world_state_converter->get_world_state_msg()->person_taking_medicine == 1){
-                    RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=") + "shr_domain_Wait" + "medicine!"),
+                if (ps.world_state_converter->get_world_state_msg()->person_taking_medicine == 1 && ps.active_protocol.type == "MedicineProtocol"){
+                    RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=") + "shr_domain_Wait " + "medicine taken!"),
+                                "user...");
+                    lock.UnLock();
+                    return BT::NodeStatus::SUCCESS;
+                }
+                if (ps.world_state_converter->get_world_state_msg()->person_eating == 1 && ps.active_protocol.type == "FoodProtocol"){
+                    RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=") + "shr_domain_Wait " + "food eaten!"),
                                 "user...");
                     lock.UnLock();
                     return BT::NodeStatus::SUCCESS;

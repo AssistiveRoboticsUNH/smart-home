@@ -16,6 +16,17 @@ shr_parameters:
         default_value: [ "nathan" ],
         description: "all people in protocols",
       }
+    FoodProtocols:
+      instances: {
+        type: string_array,
+        default_value: [ "breakfast" ],
+        description: "food protocols",
+      }
+      eat_times: {
+        type: string_array,
+        default_value: [ "08h15m0s/08h45m0s"  ],
+        description: "time that each protocol is triggered",
+      }
     MedicineProtocols:
       instances: {
         type: string_array,
@@ -35,7 +46,7 @@ shr_parameters:
       }
       internal_check_reminder_times: {
         type: string_array,
-        default_value: [ "08h15m0s/08h45m0s" ],
+        default_value: [ "22h00m0s/23h00m0s"],
         description: "time that each protocol is triggered",
       }
     PracticeReminderProtocols:

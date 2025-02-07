@@ -1,7 +1,7 @@
 (define (problem move_reminder)
 (:domain shr_domain)
 (:objects
-    living_room home outside bedroom - Landmark
+    living_room kitchen home outside dining_room bedroom bathroom - Landmark
     nathan - Person
     t1 t2 t3 t4 t5 - Time
     reminder_1_msg - Msg

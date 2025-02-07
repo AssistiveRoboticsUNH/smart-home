@@ -58,15 +58,22 @@ def generate_launch_description():
         name='undock',
         output='screen')
 
+    play_audio_text_node_cmd = Node(
+        package='shr_actions_py',
+        executable='play_audio_text_action',
+        name='play_audio_text_action',
+        output='screen')
+
     ld = LaunchDescription()
-    ld.add_action(read_script_node_cmd)
+    #ld.add_action(read_script_node_cmd)
     ld.add_action(docking_server_cmd)
-    ld.add_action(play_audio_node_cmd)
+    #ld.add_action(play_audio_node_cmd)
     # ld.add_action(play_video_node_cmd)
     ld.add_action(make_call_node_cmd)
     #ld.add_action(send_text_node_cmd)
     ld.add_action(localize_cmd)
     ld.add_action(undock_cmd)
+    ld.add_action(play_audio_text_node_cmd)
     #ld.add_action(waypoint_cmd)
 
     return ld

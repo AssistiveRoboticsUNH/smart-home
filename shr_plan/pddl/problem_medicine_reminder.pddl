@@ -1,7 +1,9 @@
 (define (problem medicine_reminder)
 (:domain shr_domain)
 (:objects
-    living_room home outside - Landmark
+    living_room home outside bedroom - Landmark
+    ;;living_room kitchen home outside dining_room bedroom bathroom - Landmark
+
     nathan - Person
     t1 t2 t3 t4 t5 - Time
     reminder_1_msg reminder_2_msg call_caregiver_msg - Msg
@@ -11,9 +13,9 @@
     caregiver_call - CallAction
 )
 (:init
-    ;;(person_at t1 nathan living_room)
-    ;;(robot_at living_room)
-    ;;(robot_at_time t1 living_room)
+    (person_at t1 nathan bedroom)
+     (robot_at bedroom)
+    (robot_at_time t1 bedroom)
     
     (DetectPerson_enabled)
     (GiveReminder_enabled)
@@ -26,15 +28,17 @@
     (next_time t3 t4)
     (next_time t4 t5)
 
-    (oneof (person_at t2 nathan living_room) (person_at t2 nathan outside) )
-    (oneof (person_at t3 nathan living_room) (person_at t3 nathan outside) )
-    (oneof (person_at t4 nathan living_room) (person_at t4 nathan outside) )
-    (oneof (person_at t5 nathan living_room) (person_at t5 nathan outside))
+    (oneof (person_at t2 nathan living_room) (person_at t2 nathan bedroom) )
+    (oneof (person_at t3 nathan living_room) (person_at t3 nathan bedroom) )
+    (oneof (person_at t4 nathan living_room) (person_at t4 nathan bedroom) )
+    (oneof (person_at t5 nathan living_room) (person_at t5 nathan bedroom) )
 
     (traversable living_room home)
     (traversable home living_room)
     (traversable living_room outside)
     (traversable outside living_room)
+    (traversable bedroom home)
+    (traversable home bedroom)
 
     (traversable outside home)
     (traversable home outside)
@@ -52,7 +56,7 @@
 
     ;; specify which actions must come before others
     (reminder_blocks_reminder first_reminder second_reminder)
-     (reminder_blocks_call second_reminder caregiver_call)
+    (reminder_blocks_call second_reminder caregiver_call)
 
     ;; specify valid input argument combinations for all actions
     (valid_call_message caregiver_call call_caregiver_msg)
@@ -68,22 +72,12 @@
     (reminder_person_not_taking_medicine_constraint first_reminder nathan)
     (reminder_person_not_taking_medicine_constraint second_reminder nathan)
 
-    ;;(wait_person_location_constraint t1 nathan visible_area)
-    ;;(wait_person_location_constraint t2 nathan visible_area)
-    ;;(wait_person_location_constraint t3 nathan visible_area)
-    ;;(wait_person_location_constraint t4 nathan visible_area)
-    ;;(wait_person_location_constraint t5 nathan visible_area)
-
     (wait_not_person_location_constraint t1 nathan outside)
     (wait_not_person_location_constraint t2 nathan outside)
     (wait_not_person_location_constraint t3 nathan outside)
     (wait_not_person_location_constraint t4 nathan outside)
     (wait_not_person_location_constraint t5 nathan outside)
 
-    ;; if person is not in visible_area then wait
-    ;;(noaction_not_person_location_constraint na1 nathan visible_area)
-    ;;(noaction_not_person_location_constraint na2 nathan visible_area)
-    ;;(noaction_not_person_location_constraint na3 nathan visible_area)
 
     ;; outside or no action will be used
     (noaction_person_location_constraint na1 nathan outside)

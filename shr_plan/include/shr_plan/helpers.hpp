@@ -13,6 +13,17 @@ namespace pddl_lib {
         return std::stoi(hour) * 60 * 60 + std::stoi(minute) * 60 + std::stoi(seconds);
     }
 
+    std::optional<long> get_inst_index(FoodProtocol m, const shr_parameters::Params &params) {
+        const auto &instances = params.pddl.FoodProtocols.instances;
+        auto it = std::find(instances.begin(), instances.end(), m);
+        if (it != instances.end()) {
+            auto index = std::distance(instances.begin(), it);
+            return index;
+        } else {
+            return {};
+        }
+    }
+
     std::optional<long> get_inst_index(MedicineProtocol m, const shr_parameters::Params &params) {
         const auto &instances = params.pddl.MedicineProtocols.instances;
         auto it = std::find(instances.begin(), instances.end(), m);
@@ -67,7 +78,7 @@ namespace pddl_lib {
             return {};
         }
     }
-
+// names same as in high level domain
     std::optional<long> get_inst_index(InstantiatedParameter inst, const shr_parameters::Params &params) {
         if (inst.type == "MedicineProtocol") {
             return get_inst_index((MedicineProtocol) inst.name, params);
@@ -79,6 +90,8 @@ namespace pddl_lib {
             return get_inst_index((PracticeReminderProtocol) inst.name, params);
         }else if (inst.type == "ExerciseReminderProtocol") {
             return get_inst_index((ExerciseReminderProtocol) inst.name, params);
+        }else if (inst.type == "FoodProtocol") {
+            return get_inst_index((FoodProtocol) inst.name, params);
         }
         return {};
     }

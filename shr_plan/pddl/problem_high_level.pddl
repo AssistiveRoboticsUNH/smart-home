@@ -1,12 +1,13 @@
 (define (problem high_level)
   (:domain high_level_domain)
   (:objects
+     living_room kitchen home outside dining_room bedroom bathroom - Landmark
      am_meds pm_meds - MedicineProtocol
      move_reminder - MoveReminderProtocol
      exercise_reminder - ExerciseReminderProtocol
      internal_check_reminder - InternalCheckReminderProtocol
      practice_reminder - PracticeReminderProtocol
-     living_room home outside bedroom - Landmark
+     breakfast - FoodProtocol
      nathan - Person
      t1 - Time ;;t2 t3 t4 t5
   )
@@ -14,11 +15,14 @@
       ;;(priority_5)
       ;;(abort)
       (visible_location living_room)
+      (visible_location dining_room)
       (visible_location bedroom)
+      (visible_location bathroom)
+      (visible_location kitchen)
 
-      ;;(person_currently_at nathan visible_area)
+      ;;(person_currently_at nathan bathroom)
 
-      ;;(person_currently_at nathan visible_area)
+      ;;(person_currently_at nathan bathroom)
       ;;(time_for_walk_reminder walking_reminder)
 
       ;; testing medicine

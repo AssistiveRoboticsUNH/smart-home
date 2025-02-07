@@ -21,7 +21,6 @@
     ;;(person_currently_at ?p - Person ?lmp - Landmark)
     (person_at_success ?p - Person ?lmp - Landmark)
 
-
     (person_taking_medicine ?t - Time)
     (person_eating_food ?t - Time)
 
@@ -152,7 +151,6 @@
             )
 	        )
 )
-
 
 ;;make call
 (:action MakeCall

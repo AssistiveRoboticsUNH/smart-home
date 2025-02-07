@@ -6,6 +6,7 @@
 )
 
 (:types
+  FoodProtocol
   MedicineProtocol
   ExerciseReminderProtocol
   MoveReminderProtocol
@@ -22,11 +23,16 @@
   (person_currently_at ?p - Person ?lmp - Landmark)
   (visible_location ?lmp - Landmark)
 
+  (food_protocol_enabled ?f - FoodProtocol)
   (medicine_reminder_enabled ?med - MedicineProtocol)
   (exercise_reminder_enabled ?ex - ExerciseReminderProtocol)
   (move_reminder_enabled ?mv - MoveReminderProtocol)
   (internal_check_reminder_enabled ?ic - InternalCheckReminderProtocol)
   (practice_reminder_enabled ?pra - PracticeReminderProtocol)
+
+  (time_to_eat ?f - FoodProtocol)
+  (already_ate  ?f - FoodProtocol)
+  (already_called_about_eating  ?f - FoodProtocol)
 
   ;; medicine
   (time_to_take_medicine ?med - MedicineProtocol)
@@ -111,18 +117,20 @@
       (forall (?med - MedicineProtocol) (not (medicine_reminder_enabled ?med)) )
 
       ;; person in visible area
-      (person_currently_at ?p ?lmp)
+   
       (visible_location ?lmp)
     )
 	:effect (and
 	          (success)
-	          (not (priority_2))
+	          (not (priority_1))
 	          (medicine_reminder_enabled ?m)
 	          (not (low_level_failed))
               (forall (?internal - InternalCheckReminderProtocol) (not (internal_check_reminder_enabled ?internal)) )
               (forall (?practice - PracticeReminderProtocol) (not (practice_reminder_enabled ?practice)) )
               (forall (?mv - MoveReminderProtocol) (not (move_reminder_enabled ?mv)) )
               (forall (?ex - ExerciseReminderProtocol) (not (exercise_reminder_enabled ?ex)) )
+              (forall (?food - FoodProtocol) (not (food_protocol_enabled ?food)) )
+
           )
 )
 
@@ -136,6 +144,44 @@
       (not (already_reminded_medicine ?m))
       (time_to_take_medicine ?m)
     )
+	:effect (and (success) (not (priority_1)) )
+)
+
+(:action StartFoodProtocol
+	:parameters (?f - FoodProtocol ?lmp - Landmark ?p - Person)
+	:precondition (and
+	    (priority_2)
+      (time_to_eat ?f)
+      (person_currently_at ?p ?lmp)
+      (robot_at ?lmp)
+      (visible_location ?lmp)
+      (not (already_ate ?f))
+      (not (already_called_about_eating ?f))
+      (forall (?food - FoodProtocol) (not (food_protocol_enabled ?food)) )
+		)
+	:effect (and
+	          (success)
+            (not (priority_2))
+            (food_protocol_enabled ?f)
+            (not (low_level_failed))
+            (forall (?internal - InternalCheckReminderProtocol) (not (internal_check_reminder_enabled ?internal)) )
+            (forall (?practice - PracticeReminderProtocol) (not (practice_reminder_enabled ?practice)) )
+            (forall (?mv - MoveReminderProtocol) (not (move_reminder_enabled ?mv)) )
+            (forall (?ex - ExerciseReminderProtocol) (not (exercise_reminder_enabled ?ex)) )
+            (forall (?med - MedicineProtocol) (not (medicine_reminder_enabled ?med)) )
+
+          )
+)
+(:action ContinueFoodProtocol
+	:parameters (?f - FoodProtocol)
+	:precondition (and
+	    (priority_2)
+	    (not (low_level_failed))
+      (time_to_eat ?f)
+      (not (already_ate ?f))
+      (not (already_called_about_eating ?f))
+      (food_protocol_enabled ?f)
+		)
 	:effect (and (success) (not (priority_2)) )
 )
 
@@ -164,6 +210,8 @@
               (forall (?internal - InternalCheckReminderProtocol) (not (internal_check_reminder_enabled ?internal)) )
               (forall (?practice - PracticeReminderProtocol) (not (practice_reminder_enabled ?practice)) )
               (forall (?mv - MoveReminderProtocol) (not (move_reminder_enabled ?mv)) )
+              (forall (?food - FoodProtocol) (not (food_protocol_enabled ?food)) )
+
           )
 )
 
@@ -204,6 +252,8 @@
               (forall (?internal - InternalCheckReminderProtocol) (not (internal_check_reminder_enabled ?internal)) )
               (forall (?practice - PracticeReminderProtocol) (not (practice_reminder_enabled ?practice)) )
               (forall (?ex - ExerciseReminderProtocol) (not (exercise_reminder_enabled ?ex)) )
+              (forall (?food - FoodProtocol) (not (food_protocol_enabled ?food)) )
+
           )
 )
 
@@ -246,6 +296,8 @@
               (forall (?move - MoveReminderProtocol) (not (move_reminder_enabled ?move)) )
               (forall (?practice - PracticeReminderProtocol) (not (practice_reminder_enabled ?practice)) )
               (forall (?ex - ExerciseReminderProtocol) (not (exercise_reminder_enabled ?ex)) )
+              (forall (?food - FoodProtocol) (not (food_protocol_enabled ?food)) )
+
           )
 )
 
@@ -287,6 +339,8 @@
               (forall (?move - MoveReminderProtocol) (not (move_reminder_enabled ?move)) )
               (forall (?internal - InternalCheckReminderProtocol) (not (internal_check_reminder_enabled ?internal)) )
               (forall (?ex - ExerciseReminderProtocol) (not (exercise_reminder_enabled ?ex)) )
+              (forall (?food - FoodProtocol) (not (food_protocol_enabled ?food)) )
+
           )
 )
 
@@ -315,7 +369,7 @@
                 (forall (?practice - PracticeReminderProtocol) (not (practice_reminder_enabled ?practice)) )
                 (forall (?move - MoveReminderProtocol) (not (move_reminder_enabled ?move)) )
                 (forall (?ex - ExerciseReminderProtocol) (not (exercise_reminder_enabled ?ex)) )
-
+                (forall (?food - FoodProtocol) (not (food_protocol_enabled ?food)) )
                 (not (low_level_failed))
           )
 )
