@@ -1,0 +1,8 @@
+already_took_medicine
+already_reminded_medicine
+already_reminded_exercise
+already_reminded_move
+already_reminded_practice
+already_reminded_internal_check
+already_ate
+already_called_about_eating

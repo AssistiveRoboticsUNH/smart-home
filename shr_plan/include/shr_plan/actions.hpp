@@ -12,6 +12,7 @@
 #include "shr_msgs/action/waypoint_request.hpp"
 #include <shr_plan/world_state_converter.hpp>
 #include "shr_plan/helpers.hpp"
+#include <shr_plan/intersection_helpers.hpp>
 
 
 namespace pddl_lib {
@@ -546,6 +547,9 @@ namespace pddl_lib {
                     rclcpp::sleep_for(std::chrono::seconds(1));
                 }
                 ps.undocking_->async_cancel_all_goals();
+
+                // indicating that robot didnt charge itself and needs ot start again
+                return BT::NodeStatus::FAILURE;
             }
 
             return BT::NodeStatus::SUCCESS;
@@ -726,7 +730,44 @@ namespace pddl_lib {
 //            if (dest.name == cur.name) {
 //                cur.name = "living_room";
 //            }
-            RCLCPP_INFO(rclcpp::get_logger("@@@@@@@ ########## Shutdown #################"), "Your message here");
+            RCLCPP_INFO(rclcpp::get_logger("@@@@@@@ ########## Shutdown #################"), "Starting shutdown");
+            BT::NodeStatus status;
+            auto [ps, lock] = ProtocolState::getConcurrentInstance();
+
+            // dock the robot if it is not charging
+            while (status !=BT::NodeStatus::SUCCESS){
+                /// TODO: IF IT RUNS FOR TOO LONG ISSUE MIGHT BE IN THE CHARGER
+                /// TODO: DISPLAY A WARNING ON THE SCREEN THAT IT NEEDS HELP
+                lock.Lock();
+                status = charge_robot(ps, action);
+                lock.UnLock();
+            }
+
+            // Get keyword predicates to load them in next protocol
+            std::cout << " RUNNING MATCH " << std::endl;
+            std::filesystem::path pkg_dir = ament_index_cpp::get_package_share_directory("shr_plan");
+            std::filesystem::path domain_file_path = pkg_dir / "pddl" / "problem_high_level.pddl";
+
+            write_from_problem_file(domain_file_path.c_str());
+
+            // reboot
+            std::cout << " RUNNING REBOOT " << std::endl;
+
+            const char* password = std::getenv("robot_pass");
+
+            if (!password) {
+                std::cerr << "Environment variable 'robot_pass' not set!" << std::endl;
+                BT::NodeStatus::FAILURE;
+            }
+
+            std::string cmd_reboot = "echo '" + std::string(password) + "' | sudo -S reboot";
+            std::system(cmd_reboot.c_str());
+
+
+
+
+
+
 
 //            std::string currentDateTime = getCurrentDateTime();
             //RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=")+"high_level_domain_StartWanderingProtocol"+"started"), "user...");
@@ -746,12 +787,6 @@ namespace pddl_lib {
 //            ps.active_protocol = inst;
 //            lock.UnLock();
 
-            // dock the robot if it is not charging
-
-            // Get keyword predicates to load them in next protocol
-
-            // reboot
-
             return BT::NodeStatus::SUCCESS;
         }
 
@@ -760,6 +795,13 @@ namespace pddl_lib {
             auto &kb = KnowledgeBase::getInstance();
 
             RCLCPP_INFO(rclcpp::get_logger("########## STARTT #################"), "Your message here");
+
+            const char* homeDir = std::getenv("HOME");
+
+            std::string cmd_startros = ".";
+            cmd_startros += homeDir;
+            cmd_startros += "/manual_start.sh";
+            std::system(cmd_startros.c_str());
 
             // start actions servers and navigation
 

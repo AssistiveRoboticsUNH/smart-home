@@ -17,6 +17,7 @@
 #include <shr_plan/actions.hpp>
 
 #include <shr_plan/world_state_converter.hpp>
+#include <shr_plan/intersection_helpers.hpp>
 #include <cstdlib>  // for getenv
 
 using namespace pddl_lib;
@@ -363,6 +364,36 @@ int main(int argc, char **argv) {
                 }
             }
     );
+
+    // insert predicates from the file
+    //kb.insert_predicate({"abort", {}});
+    // InstantiatedPredicate pred{"already_took_medicine", {ps.active_protocol}};
+    // kb.insert_predicate(pred);
+    const std::unordered_map<std::string, std::string> protocol_type = {
+            {"am_meds", "MedicineProtocol"},
+            {"pm_meds", "MedicineProtocol"},
+            {"move_reminder", "MoveReminderProtocol"},
+            {"internal_check_reminder", "InternalCheckReminderProtocol"},
+            {"practice_reminder", "PracticeReminderProtocol"},
+            {"exercise_reminder", "ExerciseReminderProtocol"},
+            {"breakfast", "FoodProtocol"}
+    };
+
+    auto predicates = read_predicates_from_file();
+
+    for (const auto& [first, second] : predicates) {
+        std::cout << "First: " << first << ", Second: " << second << std::endl;
+
+        if (protocol_type.find(second) != protocol_type.end()) {
+            InstantiatedParameter active_protocol = {second, protocol_type.at(second)};
+            InstantiatedPredicate pred{first, {active_protocol}};
+            kb.insert_predicate(pred);
+        } else {
+            std::cerr << "Error: Protocol type for '" << second << "' not found!" << std::endl;
+        }
+    }
+
+
 
     // run the domains
     BT::BehaviorTreeFactory factory = create_tree_factory<ProtocolActions>();
