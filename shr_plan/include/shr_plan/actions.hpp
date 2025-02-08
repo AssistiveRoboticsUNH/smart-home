@@ -453,25 +453,8 @@ namespace pddl_lib {
 
     class ProtocolActions : public pddl_lib::ActionInterface {
     public:
-        // Timeout for now doesnt do anything inrodere for the protocol to be retriggered
-        BT::NodeStatus high_level_domain_Idle(const InstantiatedAction &action) override {
-            auto &kb = KnowledgeBase::getInstance();
-            kb.clear_unknowns();
-            kb.insert_predicate({"abort", {}});
 
-            // CHECKING IF ROBOT IS CHARGING FIRST
-            auto [ps, lock] = ProtocolState::getConcurrentInstance();
-            lock.Lock();
-//            auto params = ps.world_state_converter->get_params();
-
-            //RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=") + "high_level_domain_Idle" + "started"), "user...");
-            RCLCPP_INFO(rclcpp::get_logger(std::string("user=") + "high_level_domain_Idle" + "started"), "user...");
-
-            // std::string currentDateTime = getCurrentDateTime();
-            // std::string log_message =
-            //         std::string("weblog=") + currentDateTime + " high_level_domain_Idle " + " started!";
-            // RCLCPP_INFO(ps.world_state_converter->get_logger(), log_message.c_str());
-
+        BT::NodeStatus charge_robot(ProtocolState &ps, const InstantiatedAction &action){
             if (!ps.world_state_converter->get_world_state_msg()->robot_charging == 1) {
                 std::cout << "High level claim robot called " << std::endl;
                 auto robot_resource = ps.claimRobot();
@@ -479,36 +462,8 @@ namespace pddl_lib {
                 ps.audio_action_client_->async_cancel_all_goals();
                 ps.undocking_->async_cancel_all_goals();
                 ps.docking_->async_cancel_all_goals();
-                // ps.localize_->async_cancel_all_goals();
 
 
-                std::cout << "localize " << std::endl;
-//                RCLCPP_INFO(
-//                        rclcpp::get_logger(std::string("weblog=") + "high_level_domain_Idle" + "localizing started"),
-//                        "user...");
-//
-//                shr_msgs::action::LocalizeRequest::Goal goal_msg_loc;
-//                goal_msg_loc.force_localize = false;
-//
-//
-//                auto status_loc = send_goal_blocking(goal_msg_loc, action, ps);
-//                std::cout << "status: " << status_loc << std::endl;
-//                if (!status_loc) {
-//                    std::cout << "Fail: " << std::endl;
-//                    ps.localize_->async_cancel_all_goals();
-//                    //lock.UnLock();
-//                    //return BT::NodeStatus::FAILURE;
-//                }
-//                ps.localize_->async_cancel_all_goals();
-
-                std::string currentDateTime = getCurrentDateTime();
-                std::string log_message =
-                        std::string("weblog=") + currentDateTime + " high_level_domain_Idle " + " started!";
-                RCLCPP_INFO(ps.world_state_converter->get_logger(), log_message.c_str());
-
-                RCLCPP_INFO(
-                        rclcpp::get_logger(std::string("weblog=") + "high_level_domain_Idle" + "Navigation started"),
-                        "user...");
                 std::cout << "navigate " << std::endl;
 
                 nav2_msgs::action::NavigateToPose::Goal navigation_goal_;
@@ -524,7 +479,7 @@ namespace pddl_lib {
                 std::cout << "status: " << status_nav << std::endl;
                 if (!status_nav) {
                     std::cout << "Fail: " << std::endl;
-                    lock.UnLock();
+                    // lock.UnLock();
                     return BT::NodeStatus::FAILURE;
                 }
                 std::cout << "success navigation : " << std::endl;
@@ -532,20 +487,20 @@ namespace pddl_lib {
 
                 std::cout << "dock " << std::endl;
 // comment in sim
-               shr_msgs::action::DockingRequest::Goal goal_msg_dock;
-               RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=") + "high_level_domain_Idle" + "docking started"),
-                           "user...");
+                shr_msgs::action::DockingRequest::Goal goal_msg_dock;
+                RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=") + "high_level_domain_Idle" + "docking started"),
+                            "user...");
 
-               auto status_dock = send_goal_blocking(goal_msg_dock, action, ps);
-               std::cout << "status: " << status_dock << std::endl;
-               if (!status_dock) {
-                   ps.docking_->async_cancel_all_goals();
-                   std::cout << "Fail: " << std::endl;
-                   lock.UnLock();
-                   return BT::NodeStatus::FAILURE;
-               }
-               ps.docking_->async_cancel_all_goals();
-               std::cout << "success: " << std::endl;
+                auto status_dock = send_goal_blocking(goal_msg_dock, action, ps);
+                std::cout << "status: " << status_dock << std::endl;
+                if (!status_dock) {
+                    ps.docking_->async_cancel_all_goals();
+                    std::cout << "Fail: " << std::endl;
+                    //lock.UnLock();
+                    return BT::NodeStatus::FAILURE;
+                }
+                ps.docking_->async_cancel_all_goals();
+                std::cout << "success: " << std::endl;
 // comment in sim
 
                 // // sleep for 60 seconds to deal with the delay from //charging topic
@@ -555,7 +510,7 @@ namespace pddl_lib {
                 std::cout << "High level ending " << std::endl;
 
             }
-
+            // for safety have it undock so that nav2 doesnt have to move when the robot is sp close to the docking
             if (ps.world_state_converter->get_world_state_msg()->robot_charging != 1){
                 std::cout << "Undock " << std::endl;
 
@@ -592,9 +547,37 @@ namespace pddl_lib {
                 }
                 ps.undocking_->async_cancel_all_goals();
             }
+
+            return BT::NodeStatus::SUCCESS;
+
+        }
+
+        // Timeout for now doesnt do anything inrodere for the protocol to be retriggered
+        BT::NodeStatus high_level_domain_Idle(const InstantiatedAction &action) override {
+            auto &kb = KnowledgeBase::getInstance();
+            kb.clear_unknowns();
+            kb.insert_predicate({"abort", {}});
+
+            // CHECKING IF ROBOT IS CHARGING FIRST
+            auto [ps, lock] = ProtocolState::getConcurrentInstance();
+
+            RCLCPP_INFO(rclcpp::get_logger(std::string("user=") + "high_level_domain_Idle" + "started"), "user...");
+
+            std::string currentDateTime = getCurrentDateTime();
+            std::string log_message =
+                    std::string("weblog=") + currentDateTime + " high_level_domain_Idle " + " started!";
+            RCLCPP_INFO(ps.world_state_converter->get_logger(), log_message.c_str());
+
+            RCLCPP_INFO(
+                    rclcpp::get_logger(std::string("weblog=") + "high_level_domain_Idle" + "Navigation started"),
+                    "user...");
+
+            lock.Lock();
+            BT::NodeStatus status = charge_robot(ps, action);
+
             ps.active_protocol = {};
             lock.UnLock();
-            return BT::NodeStatus::SUCCESS;
+            return status;
         }
 
         void abort(const InstantiatedAction &action) override {
@@ -734,6 +717,73 @@ namespace pddl_lib {
                                               {t1, from, to}};
             return shr_domain_MoveToLandmark(action_inst);
         }
+        BT::NodeStatus high_level_domain_Shutdown(const InstantiatedAction &action) override {
+            std::cout << " ------ Shutdown  ----" << std::endl;
+            auto &kb = KnowledgeBase::getInstance();
+//            InstantiatedParameter inst = action.parameters[0];
+//            InstantiatedParameter cur = action.parameters[2];
+//            InstantiatedParameter dest = action.parameters[3];
+//            if (dest.name == cur.name) {
+//                cur.name = "living_room";
+//            }
+            RCLCPP_INFO(rclcpp::get_logger("@@@@@@@ ########## Shutdown #################"), "Your message here");
+
+//            std::string currentDateTime = getCurrentDateTime();
+            //RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=")+"high_level_domain_StartWanderingProtocol"+"started"), "user...");
+//            RCLCPP_INFO(rclcpp::get_logger(
+//                                currentDateTime + std::string("user=") + "StartMoveReminderProtocol" + "started"),
+//                        "user...");
+//            auto [ps, lock] = ProtocolState::getConcurrentInstance();
+//            lock.Lock();
+//            std::string log_message =
+//                    std::string("weblog=") + currentDateTime + " high_level_domain_StartMoveReminderProtocol" +
+//                    " started";
+//            RCLCPP_INFO(ps.world_state_converter->get_logger(), log_message.c_str());
+
+//            instantiate_protocol("move_reminder.pddl");
+//            instantiate_protocol("move_reminder.pddl", {{"current_loc", cur.name},
+//                                                        {"dest_loc",    dest.name}});
+//            ps.active_protocol = inst;
+//            lock.UnLock();
+
+            // dock the robot if it is not charging
+
+            // Get keyword predicates to load them in next protocol
+
+            // reboot
+
+            return BT::NodeStatus::SUCCESS;
+        }
+
+        BT::NodeStatus high_level_domain_StartROS(const InstantiatedAction &action) override {
+            std::cout << " ------ Start ros ----" << std::endl;
+            auto &kb = KnowledgeBase::getInstance();
+
+            RCLCPP_INFO(rclcpp::get_logger("########## STARTT #################"), "Your message here");
+
+            // start actions servers and navigation
+
+//            std::string currentDateTime = getCurrentDateTime();
+            //RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=")+"high_level_domain_StartWanderingProtocol"+"started"), "user...");
+//
+//            RCLCPP_INFO(rclcpp::get_logger(
+//                                currentDateTime + std::string("user=") + "StartMoveReminderProtocol" + "started"),
+//                        "user...");
+//            auto [ps, lock] = ProtocolState::getConcurrentInstance();
+//            lock.Lock();
+//            std::string log_message =
+//                    std::string("weblog=") + currentDateTime + " high_level_domain_StartMoveReminderProtocol" +
+//                    " started";
+//            RCLCPP_INFO(ps.world_state_converter->get_logger(), log_message.c_str());
+
+//            instantiate_protocol("move_reminder.pddl");
+//            instantiate_protocol("move_reminder.pddl", {{"current_loc", cur.name},
+//                                                        {"dest_loc",    dest.name}});
+//            ps.active_protocol = inst;
+//            lock.UnLock();
+            return BT::NodeStatus::SUCCESS;
+        }
+
 
         BT::NodeStatus shr_domain_MakeCall(const InstantiatedAction &action) override {
             auto [ps, lock] = ProtocolState::getConcurrentInstance();
