@@ -171,8 +171,8 @@ class Docking(Node):
                 dt = (current_time - self.saved_time).nanoseconds / 1e9
                 pid_output =self.velocity_control(current_error, dt, self.prev_error)
                 pid_output_x = self.velocity_control_X(modified_error_x, dt, self.prev_error_x)
-                self.vel.linear.x = pid_output_x
-                print("pid_output_x", pid_output_x)
+                self.vel.linear.x = -pid_output_x
+                print("pid_output_x", -pid_output_x)
                 print("pid_output ", pid_output)
                 self.saved_time = current_time
                 if(pid_output>0.3):

@@ -3,7 +3,7 @@ import rclpy
 from rclpy.action import ActionServer, GoalResponse, CancelResponse
 from rclpy.node import Node
 from shr_msgs.action import DockingRequest
-from shr_actions_py.docking_main import Docking
+from shr_docking.docking_camera_main import Docking
 from geometry_msgs.msg import Twist
 from rclpy.executors import MultiThreadedExecutor
 from rclpy.callback_groups import ReentrantCallbackGroup
@@ -13,14 +13,14 @@ import os
 class DockingActionServer(Node):
 
     def __init__(self):
-        super().__init__('Docking_action_server')
+        super().__init__('Docking_camere_action_server')
         self.docking = Docking()
         #self.goal_cancel = False
         self.rate = self.docking.create_rate(10)
         self.action_server = ActionServer(
             self,
             DockingRequest,  # Replace with the actual action type
-            'docking',
+            'docking_camera',
             execute_callback=self.execute_callback,
             callback_group=ReentrantCallbackGroup(),
             goal_callback=self.goal_callback,
