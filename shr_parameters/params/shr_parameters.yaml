@@ -3,12 +3,12 @@ shr_parameters:
     instances:
       LandmarksPerson: {
         type: string_array,
-        default_value: [ "bedroom", "inside_not_bedroom", "outside" ],
+        default_value: [ "livingroom", "dining_room", "kitchen","outside", "door" ],
         description: "all landmarks in protocols",
       }
       LandmarksRobot: {
         type: string_array,
-        default_value: [ "home" , "designated_space" ],
+        default_value: [ "home" , "livingroom", "kitchen", "dining_room", "door"],
         description: "all landmarks in protocols",
       }
       Persons: {

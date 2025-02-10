@@ -308,7 +308,7 @@
 	:effect (and (success)
 	              (not (priority_5))
                 (forall (?med - MedicineProtocol) (not (medicine_protocol_enabled ?med)) )
-                (forall (?medicine_pharmacy - MedicineRefillPharmacyReminderProtocoli) (not (medicine_pharmacy_reminder_enabled ?medicine_pharmacy)) )
+                (forall (?medicine_pharmacy - MedicineRefillPharmacyReminderProtocol) (not (medicine_pharmacy_reminder_enabled ?medicine_pharmacy)) )
                 (forall (?mdrf - MedicineRefillReminderProtocol) (not (medicine_refill_reminder_enabled ?mdrf)) )
                 (forall (?gy - GymReminderProtocol) (not (gym_reminder_enabled ?gy)) )
                 (not (low_level_failed))
