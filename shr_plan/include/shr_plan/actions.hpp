@@ -579,6 +579,8 @@ namespace pddl_lib {
             lock.Lock();
             BT::NodeStatus status = charge_robot(ps, action);
 
+            std::cout << "%%%%%%%  IDLE %%%%%%%  IDLE " << std::endl;
+
             ps.active_protocol = {};
             lock.UnLock();
             return status;
@@ -724,13 +726,7 @@ namespace pddl_lib {
         BT::NodeStatus high_level_domain_Shutdown(const InstantiatedAction &action) override {
             std::cout << " ------ Shutdown  ----" << std::endl;
             auto &kb = KnowledgeBase::getInstance();
-//            InstantiatedParameter inst = action.parameters[0];
-//            InstantiatedParameter cur = action.parameters[2];
-//            InstantiatedParameter dest = action.parameters[3];
-//            if (dest.name == cur.name) {
-//                cur.name = "living_room";
-//            }
-            RCLCPP_INFO(rclcpp::get_logger("@@@@@@@ ########## Shutdown #################"), "Starting shutdown");
+
             BT::NodeStatus status;
             auto [ps, lock] = ProtocolState::getConcurrentInstance();
 
@@ -739,53 +735,36 @@ namespace pddl_lib {
                 /// TODO: IF IT RUNS FOR TOO LONG ISSUE MIGHT BE IN THE CHARGER
                 /// TODO: DISPLAY A WARNING ON THE SCREEN THAT IT NEEDS HELP
                 lock.Lock();
-                status = charge_robot(ps, action);
+                    BT::NodeStatus status = charge_robot(ps, action);
                 lock.UnLock();
             }
 
             // Get keyword predicates to load them in next protocol
             std::cout << " RUNNING MATCH " << std::endl;
             std::filesystem::path pkg_dir = ament_index_cpp::get_package_share_directory("shr_plan");
-            std::filesystem::path domain_file_path = pkg_dir / "pddl" / "problem_high_level.pddl";
 
-            write_from_problem_file(domain_file_path.c_str());
+            std::filesystem::path keywordsFile = pkg_dir / "include" / "shr_plan" / "keywords.txt";
+
+            const char* homeDir = std::getenv("HOME");
+
+            std::filesystem::path outputFile = pkg_dir / "include" / "shr_plan" / "intersection.txt";
+            std::string domain_file_path = std::string(homeDir) + "/planner_data/plan_solver/problem.pddl";
+            write_from_problem_file(domain_file_path, keywordsFile.c_str(), outputFile.c_str());
 
             // reboot
             std::cout << " RUNNING REBOOT " << std::endl;
 
-            const char* password = std::getenv("robot_pass");
+//            const char* password = std::getenv("robot_pass");
+//
+//            if (!password) {
+//                std::cerr << "Environment variable 'robot_pass' not set!" << std::endl;
+//                BT::NodeStatus::FAILURE;
+//            }
 
-            if (!password) {
-                std::cerr << "Environment variable 'robot_pass' not set!" << std::endl;
-                BT::NodeStatus::FAILURE;
-            }
-
-            std::string cmd_reboot = "echo '" + std::string(password) + "' | sudo -S reboot";
-            std::system(cmd_reboot.c_str());
-
-
+//            std::string cmd_reboot = "echo '" + std::string(password) + "' | sudo -S reboot";
+//            std::system(cmd_reboot.c_str());
 
 
-
-
-
-//            std::string currentDateTime = getCurrentDateTime();
-            //RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=")+"high_level_domain_StartWanderingProtocol"+"started"), "user...");
-//            RCLCPP_INFO(rclcpp::get_logger(
-//                                currentDateTime + std::string("user=") + "StartMoveReminderProtocol" + "started"),
-//                        "user...");
-//            auto [ps, lock] = ProtocolState::getConcurrentInstance();
-//            lock.Lock();
-//            std::string log_message =
-//                    std::string("weblog=") + currentDateTime + " high_level_domain_StartMoveReminderProtocol" +
-//                    " started";
-//            RCLCPP_INFO(ps.world_state_converter->get_logger(), log_message.c_str());
-
-//            instantiate_protocol("move_reminder.pddl");
-//            instantiate_protocol("move_reminder.pddl", {{"current_loc", cur.name},
-//                                                        {"dest_loc",    dest.name}});
-//            ps.active_protocol = inst;
-//            lock.UnLock();
 
             return BT::NodeStatus::SUCCESS;
         }
@@ -797,11 +776,12 @@ namespace pddl_lib {
             RCLCPP_INFO(rclcpp::get_logger("########## STARTT #################"), "Your message here");
 
             const char* homeDir = std::getenv("HOME");
-
             std::string cmd_startros = ".";
-            cmd_startros += homeDir;
+            cmd_startros += std::string(homeDir);
             cmd_startros += "/manual_start.sh";
             std::system(cmd_startros.c_str());
+
+            std::cout << " ------ finish start ----" << std::endl;
 
             // start actions servers and navigation
 
@@ -1060,6 +1040,8 @@ namespace pddl_lib {
             lock.UnLock();
             return BT::NodeStatus::FAILURE;
         }
+
+
 
         BT::NodeStatus shr_domain_MoveToLandmark(const InstantiatedAction &action) override {
             /// move robot to location

@@ -13,8 +13,8 @@
 #include <unordered_set>
 
 
-std::vector<std::pair<std::string, std::string>> read_predicates_from_file(){
-    std::ifstream file("intersection.txt");
+std::vector<std::pair<std::string, std::string>> read_predicates_from_file(const std::string &outputFile){
+    std::ifstream file(outputFile);
     if (!file.is_open()) {
         std::cerr << "Error opening file!" << std::endl;
         return {};
@@ -42,9 +42,9 @@ std::vector<std::pair<std::string, std::string>> read_predicates_from_file(){
     return predicates;
 }
 
-std::unordered_set<std::string> readKeywords(const std::string &filename) {
+std::unordered_set<std::string> readKeywords(const std::string &keywords_filename) {
     std::unordered_set<std::string> keywords;
-    std::ifstream file(filename);
+    std::ifstream file(keywords_filename);
     if (!file.is_open()) {
         std::cerr << "Error opening keywords file!" << std::endl;
         return keywords;
@@ -107,23 +107,47 @@ std::vector<std::string> extractMatchingPredicates(const std::string &initBlock,
     return predicates;
 }
 
+// Function to trim leading and trailing spaces
+std::string trim(const std::string &str) {
+    size_t start = str.find_first_not_of(" \t\n\r");
+    size_t end = str.find_last_not_of(" \t\n\r");
+    return (start == std::string::npos || end == std::string::npos) ? "" : str.substr(start, end - start + 1);
+}
+
+// Function to write unique predicates to a file
 void writeToFile(const std::string &filename, const std::vector<std::string> &predicates) {
-    std::ofstream file(filename);
-    if (!file.is_open()) {
+    std::unordered_set<std::string> existingPredicates;
+
+    // Read existing content from the file and add to the set
+    std::ifstream file(filename);
+    std::string line;
+    while (std::getline(file, line)) {
+        existingPredicates.insert(trim(line));  // Trim and insert each line from the file
+    }
+    file.close();
+
+    // Open the file again in append mode
+    std::ofstream outFile(filename, std::ios::app);
+    if (!outFile.is_open()) {
         std::cerr << "Error opening output file!" << std::endl;
         return;
     }
 
+    // Only append unique predicates (after trimming)
     for (const auto &predicate : predicates) {
-        file << predicate << "\n";
+        std::string trimmedPredicate = trim(predicate);  // Trim the current predicate
+        if (existingPredicates.find(trimmedPredicate) == existingPredicates.end()) {
+            outFile << predicate << "\n";  // Append if it's not already in the set
+            existingPredicates.insert(trimmedPredicate);  // Mark this predicate as written
+        }
     }
 
-    file.close();
+    outFile.close();
 }
 
-int write_from_problem_file(std::string problemFile) {
-    std::string keywordsFile = "keywords.txt";
-    std::string outputFile = "intersection.txt";
+int write_from_problem_file(const std::string &problemFile,
+                            const std::string &keywordsFile,
+                            const std::string &outputFile){
 
     // Read keywords
     std::unordered_set<std::string> keywords = readKeywords(keywordsFile);
