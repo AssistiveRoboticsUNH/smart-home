@@ -403,9 +403,9 @@
 	:parameters ()
 	:precondition
 	    (and
-	        (started)
+	        ;;(started)
 	        ;; has to be higher priority than idle
-            (priority_4)
+            ;;(priority_4)
 
             ;; CANT SHUTDOWN IF time to do something is true and
             ;; all predicates indicating that they it is done are false

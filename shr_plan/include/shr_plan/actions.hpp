@@ -735,21 +735,88 @@ namespace pddl_lib {
                 /// TODO: IF IT RUNS FOR TOO LONG ISSUE MIGHT BE IN THE CHARGER
                 /// TODO: DISPLAY A WARNING ON THE SCREEN THAT IT NEEDS HELP
                 lock.Lock();
-                    BT::NodeStatus status = charge_robot(ps, action);
+                    status = charge_robot(ps, action);
                 lock.UnLock();
             }
 
             // Get keyword predicates to load them in next protocol
             std::cout << " RUNNING MATCH " << std::endl;
             std::filesystem::path pkg_dir = ament_index_cpp::get_package_share_directory("shr_plan");
-
             std::filesystem::path keywordsFile = pkg_dir / "include" / "shr_plan" / "keywords.txt";
 
             const char* homeDir = std::getenv("HOME");
 
             std::filesystem::path outputFile = pkg_dir / "include" / "shr_plan" / "intersection.txt";
-            std::string domain_file_path = std::string(homeDir) + "/planner_data/plan_solver/problem.pddl";
-            write_from_problem_file(domain_file_path, keywordsFile.c_str(), outputFile.c_str());
+            const std::unordered_map<std::string, std::string> protocol_type_ = {
+                    {"am_meds", "MedicineProtocol"},
+                    {"pm_meds", "MedicineProtocol"},
+                    {"move_reminder", "MoveReminderProtocol"},
+                    {"internal_check_reminder", "InternalCheckReminderProtocol"},
+                    {"practice_reminder", "PracticeReminderProtocol"},
+                    {"exercise_reminder", "ExerciseReminderProtocol"},
+                    {"breakfast", "FoodProtocol"}
+            };
+
+            const std::unordered_map<std::string, std::vector<std::string>> keyword_protocol_ = {
+                    {"already_took_medicine", {"am_meds", "pm_meds"}},
+                    {"already_reminded_medicine", {"am_meds", "pm_meds"}},
+                    {"already_reminded_move",{"move_reminder"}},
+                    {"already_reminded_internal_check",{"internal_check_reminder"}},
+                    {"already_reminded_practice",{"practice_reminder"}},
+                    {"already_ate",{"breakfast"}},
+                    {"already_called_about_eating",{"breakfast"}},
+                    {"already_reminded_exercise",{"exercise_reminder"}}
+            };
+
+            std::ifstream ifs(keywordsFile);
+            if (!ifs) {
+                std::cerr << "Failed to open keywords file: " << keywordsFile << std::endl;
+//                return BT::NodeStatus::FAILURE;
+            }
+
+            std::vector<std::tuple<std::string, std::string, std::string>> keyword_protocol_list;
+            std::string line;
+
+            while (std::getline(ifs, line)) {
+                // Here, 'line' is the keyword
+                // make sure no leading space
+                // TODO: trim leading space
+                std::string keyword = line;
+
+                // Check if the keyword exists in keyword_protocol_.
+                auto keywordIt = keyword_protocol_.find(keyword);
+                if (keywordIt != keyword_protocol_.end()) {
+
+                    // For each protocol name associated with this keyword...
+                    for (const auto& protocolName : keywordIt->second) {
+                        // Look up the protocol type using protocol_type_.
+                        auto typeIt = protocol_type_.find(protocolName);
+                        if (typeIt != protocol_type_.end()) {
+                            // Create an InstantiatedParameter with the protocol name and its type.
+                            InstantiatedParameter active_protocol { protocolName, typeIt->second };
+                            InstantiatedPredicate pred{keyword, {active_protocol}};
+
+                            // "Find" the predicate in the knowledge base.
+                            if (kb.find_predicate(pred)){
+                                // add to the list
+                                keyword_protocol_list.emplace_back(keyword, protocolName, typeIt->second);
+                            }
+
+                        } else {
+                            std::cerr << "Protocol name '" << protocolName
+                                      << "' not found in protocol_type_." << std::endl;
+                        }
+                    }
+
+
+                } else {
+                    std::cout << "Keyword '" << keyword << "' not associated with any protocol." << std::endl;
+                }
+            }
+            ifs.close();
+
+            write_to_intersection(outputFile.c_str(), keyword_protocol_list);
+
 
             // reboot
             std::cout << " RUNNING REBOOT " << std::endl;

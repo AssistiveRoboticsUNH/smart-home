@@ -1,66 +1,69 @@
 #include <iostream>
 #include <fstream>
-#include <unordered_set>
 #include <vector>
-#include <string>
-#include <algorithm>
-#include <cctype>
-#include <sstream>
+#include <tuple>
 
-// Function to trim leading and trailing spaces
-std::string trim(const std::string &str) {
-    size_t start = str.find_first_not_of(" \t\n\r");
-    size_t end = str.find_last_not_of(" \t\n\r");
-    return (start == std::string::npos || end == std::string::npos) ? "" : str.substr(start, end - start + 1);
-}
-
-// Function to write unique predicates to a file
-void writeToFile(const std::string &filename, const std::vector<std::string> &predicates) {
-    std::unordered_set<std::string> existingPredicates;
-
-    // Read existing content from the file and add to the set
-    std::ifstream file(filename);
-    std::string line;
-    while (std::getline(file, line)) {
-        existingPredicates.insert(trim(line));  // Trim and insert each line from the file
-    }
-    file.close();
-
-    // Open the file again in append mode
-    std::ofstream outFile(filename, std::ios::app);
-    if (!outFile.is_open()) {
-        std::cerr << "Error opening output file!" << std::endl;
+// --- Function: write_to_intersection ---
+// Writes a list of tuples (keyword, protocolName, type) to a file.
+void write_to_intersection(const std::string& filePath,
+                           const std::vector<std::tuple<std::string, std::string, std::string>>& keyword_protocol_list) {
+    std::ofstream ofs(filePath);
+    if (!ofs) {
+        std::cerr << "Failed to open output file: " << filePath << std::endl;
         return;
     }
 
-    // Only append unique predicates (after trimming)
-    for (const auto &predicate : predicates) {
-        std::string trimmedPredicate = trim(predicate);  // Trim the current predicate
-        if (existingPredicates.find(trimmedPredicate) == existingPredicates.end()) {
-            outFile << predicate << "\n";  // Append if it's not already in the set
-            existingPredicates.insert(trimmedPredicate);  // Mark this predicate as written
-        }
+    // Write each tuple to the file
+    for (const auto& entry : keyword_protocol_list) {
+        ofs << std::get<0>(entry) << " "   // Keyword
+            << std::get<1>(entry) << " "   // Protocol Name
+            << std::get<2>(entry) << "\n"; // Protocol Type
+    }
+    ofs.close();
+    std::cout << "Predicates successfully written to " << filePath << std::endl;
+}
+
+// --- Function: read_from_intersection ---
+// Reads from the file and prints each line.
+std::vector<std::tuple<std::string, std::string, std::string>> read_predicates_from_file(const std::string& filePath) {
+    std::ifstream ifs(filePath);
+    if (!ifs) {
+        std::cerr << "Failed to open file for reading: " << filePath << std::endl;
+        return {};
     }
 
-    outFile.close();
+    std::vector<std::tuple<std::string, std::string, std::string>> predicates;
+    std::string keyword, protocolName, protocolType;
+
+    // Read each line and extract keyword, protocolName, and protocolType
+    while (ifs >> keyword >> protocolName >> protocolType) {
+        predicates.emplace_back(keyword, protocolName, protocolType);
+    }
+
+    ifs.close();
+    return predicates;
 }
 
 int main() {
-    // Define some sample predicates to write
-    std::vector<std::string> predicates = {
-            "already_took_medicine pm_meds",
-            "already_took_medicine pm_meds", // Duplicate, will not be written again
-            "already_reminded_move move_reminder",
-            "already_reminded_move move_reminder"  // Duplicate, will not be written again
+    std::string outputFile = "intersection.txt";
+
+    // Sample data to write
+    std::vector<std::tuple<std::string, std::string, std::string>> keyword_protocol_list = {
+            {"already_took_medicine", "am_meds", "MedicineProtocol"},
+            {"already_took_medicine", "pm_meds", "MedicineProtocol"},
+            {"already_reminded_exercise", "exercise_reminder", "ExerciseReminderProtocol"}
     };
 
-    // Output file where predicates will be appended
-    std::string outputFile = "output.txt";
+    // Write to file
+    write_to_intersection(outputFile, keyword_protocol_list);
 
-    // Call the function to write unique predicates
-    writeToFile(outputFile, predicates);
+    // Read from file
+    auto predicates = read_predicates_from_file(outputFile);
 
-    std::cout << "Predicates written to " << outputFile << std::endl;
+    // Print the predicates
+    for (const auto& [first, second, third] : predicates) {
+        std::cout << "First: " << first << ", Second: " << second << ", Third: " << third << std::endl;
+    }
 
     return 0;
 }
