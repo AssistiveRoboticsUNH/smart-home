@@ -455,8 +455,11 @@ namespace pddl_lib {
     class ProtocolActions : public pddl_lib::ActionInterface {
     public:
 
-        BT::NodeStatus charge_robot(ProtocolState &ps, const InstantiatedAction &action){
-            if (!ps.world_state_converter->get_world_state_msg()->robot_charging == 1) {
+        BT::NodeStatus charge_robot(ProtocolState &ps, const InstantiatedAction &action, bool pred_started){
+            std::cout << "ps.world_state_converter->get_world_state_msg()->robot_charging" << ps.world_state_converter->get_world_state_msg()->robot_charging  << std::endl;
+            std::cout << "pred_started" << pred_started << std::endl;
+
+            if (!ps.world_state_converter->get_world_state_msg()->robot_charging == 1 && pred_started ) {
                 std::cout << "High level claim robot called " << std::endl;
                 auto robot_resource = ps.claimRobot();
                 ps.read_action_client_->async_cancel_all_goals();
@@ -487,7 +490,7 @@ namespace pddl_lib {
 
 
                 std::cout << "dock " << std::endl;
-// comment in sim
+                // comment in sim
                 shr_msgs::action::DockingRequest::Goal goal_msg_dock;
                 RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=") + "high_level_domain_Idle" + "docking started"),
                             "user...");
@@ -502,7 +505,7 @@ namespace pddl_lib {
                 }
                 ps.docking_->async_cancel_all_goals();
                 std::cout << "success: " << std::endl;
-// comment in sim
+                // comment in sim
 
                 // // sleep for 60 seconds to deal with the delay from //charging topic
                 std::cout << " waiting  " << std::endl;
@@ -562,6 +565,9 @@ namespace pddl_lib {
             kb.clear_unknowns();
             kb.insert_predicate({"abort", {}});
 
+            bool pred_started = kb.find_predicate({"started", {}});
+            std::cout <<  "kb.find_predicate " << pred_started << std::endl;
+
             // CHECKING IF ROBOT IS CHARGING FIRST
             auto [ps, lock] = ProtocolState::getConcurrentInstance();
 
@@ -577,7 +583,7 @@ namespace pddl_lib {
                     "user...");
 
             lock.Lock();
-            BT::NodeStatus status = charge_robot(ps, action);
+            BT::NodeStatus status = charge_robot(ps, action, pred_started);
 
             std::cout << "%%%%%%%  IDLE %%%%%%%  IDLE " << std::endl;
 
@@ -727,7 +733,7 @@ namespace pddl_lib {
             std::cout << " ------ Shutdown  ----" << std::endl;
             auto &kb = KnowledgeBase::getInstance();
 
-            BT::NodeStatus status;
+            BT::NodeStatus status = BT::NodeStatus::FAILURE;
             auto [ps, lock] = ProtocolState::getConcurrentInstance();
 
             // dock the robot if it is not charging
@@ -735,7 +741,7 @@ namespace pddl_lib {
                 /// TODO: IF IT RUNS FOR TOO LONG ISSUE MIGHT BE IN THE CHARGER
                 /// TODO: DISPLAY A WARNING ON THE SCREEN THAT IT NEEDS HELP
                 lock.Lock();
-                    status = charge_robot(ps, action);
+                status = charge_robot(ps, action, true);
                 lock.UnLock();
             }
 
@@ -817,19 +823,25 @@ namespace pddl_lib {
 
             write_to_intersection(outputFile.c_str(), keyword_protocol_list);
 
+            
+            // KILING ROS2 
 
+            std::system("python3 /home/hello-robot/kill_ros.py");
+            
+            rclcpp::sleep_for(std::chrono::seconds(120));
+        
             // reboot
             std::cout << " RUNNING REBOOT " << std::endl;
 
-//            const char* password = std::getenv("robot_pass");
-//
-//            if (!password) {
-//                std::cerr << "Environment variable 'robot_pass' not set!" << std::endl;
-//                BT::NodeStatus::FAILURE;
-//            }
+           const char* password = std::getenv("robot_pass");
 
-//            std::string cmd_reboot = "echo '" + std::string(password) + "' | sudo -S reboot";
-//            std::system(cmd_reboot.c_str());
+           if (!password) {
+               std::cerr << "Environment variable 'robot_pass' not set!" << std::endl;
+               BT::NodeStatus::FAILURE;
+           }
+
+           std::string cmd_reboot = "echo '" + std::string(password) + "' | sudo -S reboot";
+           std::system(cmd_reboot.c_str());
 
 
 
@@ -843,9 +855,8 @@ namespace pddl_lib {
             RCLCPP_INFO(rclcpp::get_logger("########## STARTT #################"), "Your message here");
 
             const char* homeDir = std::getenv("HOME");
-            std::string cmd_startros = ".";
-            cmd_startros += std::string(homeDir);
-            cmd_startros += "/manual_start.sh";
+            std::string cmd_startros = std::string(homeDir);
+            cmd_startros += "/start_nav.sh";
             std::system(cmd_startros.c_str());
 
             std::cout << " ------ finish start ----" << std::endl;
