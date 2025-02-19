@@ -1,16 +1,6 @@
 shr_parameters:
   pddl:
     instances:
-      LandmarksPerson: {
-        type: string_array,
-        default_value: [ "livingroom", "dining_room", "kitchen","outside", "door" ],
-        description: "all landmarks in protocols",
-      }
-      LandmarksRobot: {
-        type: string_array,
-        default_value: [ "home" , "livingroom", "kitchen", "dining_room", "door"],
-        description: "all landmarks in protocols",
-      }
       Persons: {
         type: string_array,
         default_value: [ "nathan" ],

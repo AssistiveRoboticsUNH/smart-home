@@ -25,8 +25,6 @@ class shr_parameters:
         robot_tf = "base_link"
         class __Pddl:
             class __Instances:
-                LandmarksPerson = ["bedroom", "inside_not_bedroom", "outside"]
-                LandmarksRobot = ["home", "designated_space"]
                 Persons = ["nathan"]
             instances = __Instances()
             class __Medicineprotocols:
@@ -114,14 +112,6 @@ class shr_parameters:
             updated_params = self.get_params()
 
             for param in parameters:
-                if param.name == self.prefix_ + "pddl.instances.LandmarksPerson":
-                    updated_params.pddl.instances.LandmarksPerson = param.value
-                    self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
-
-                if param.name == self.prefix_ + "pddl.instances.LandmarksRobot":
-                    updated_params.pddl.instances.LandmarksRobot = param.value
-                    self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
-
                 if param.name == self.prefix_ + "pddl.instances.Persons":
                     updated_params.pddl.instances.Persons = param.value
                     self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
@@ -194,16 +184,6 @@ class shr_parameters:
         def declare_params(self):
             updated_params = self.get_params()
             # declare all parameters and give default values to non-required ones
-            if not self.node_.has_parameter(self.prefix_ + "pddl.instances.LandmarksPerson"):
-                descriptor = ParameterDescriptor(description="all landmarks in protocols", read_only = False)
-                parameter = updated_params.pddl.instances.LandmarksPerson
-                self.node_.declare_parameter(self.prefix_ + "pddl.instances.LandmarksPerson", parameter, descriptor)
-
-            if not self.node_.has_parameter(self.prefix_ + "pddl.instances.LandmarksRobot"):
-                descriptor = ParameterDescriptor(description="all landmarks in protocols", read_only = False)
-                parameter = updated_params.pddl.instances.LandmarksRobot
-                self.node_.declare_parameter(self.prefix_ + "pddl.instances.LandmarksRobot", parameter, descriptor)
-
             if not self.node_.has_parameter(self.prefix_ + "pddl.instances.Persons"):
                 descriptor = ParameterDescriptor(description="all people in protocols", read_only = False)
                 parameter = updated_params.pddl.instances.Persons
@@ -281,12 +261,6 @@ class shr_parameters:
 
             # TODO: need validation
             # get parameters and fill struct fields
-            param = self.node_.get_parameter(self.prefix_ + "pddl.instances.LandmarksPerson")
-            self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
-            updated_params.pddl.instances.LandmarksPerson = param.value
-            param = self.node_.get_parameter(self.prefix_ + "pddl.instances.LandmarksRobot")
-            self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
-            updated_params.pddl.instances.LandmarksRobot = param.value
             param = self.node_.get_parameter(self.prefix_ + "pddl.instances.Persons")
             self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
             updated_params.pddl.instances.Persons = param.value

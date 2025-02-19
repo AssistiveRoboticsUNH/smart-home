@@ -1,8 +1,0 @@
-# ninja log v6
-3	209	1739170909657837363	bt_shr_actions/include/bt_shr_actions.hpp	15ce66cd84191a29
-3	209	1739170909657837363	/home/marzan/smart_ws/src/smart-home/shr_plan/cmake-build-debug/bt_shr_actions/include/bt_shr_actions.hpp	15ce66cd84191a29
-3	205	1739170951693201575	bt_shr_actions/include/bt_shr_actions.hpp	15ce66cd84191a29
-3	205	1739170951693201575	/home/marzan/smart_ws/src/smart-home/shr_plan/cmake-build-debug/bt_shr_actions/include/bt_shr_actions.hpp	15ce66cd84191a29
-3	16	1739171413306369480	CMakeFiles/planning_controller_node.dir/src/planning_controller_node.cpp.o	d4b96a2b7a835cc0
-3	3082	1739171896013268813	CMakeFiles/planning_controller_node.dir/src/planning_controller_node.cpp.o	d4b96a2b7a835cc0
-3083	3348	1739171899093292846	planning_controller_node	bcc1917ad17c0f0d
