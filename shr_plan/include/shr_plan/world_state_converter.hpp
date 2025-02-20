@@ -52,7 +52,11 @@ public:
                 params.topics.time, 10, [this](const builtin_interfaces::msg::Time::SharedPtr msg) {
                     std::lock_guard<std::mutex> lock(world_state_mtx);
                     world_state_->time = *msg;
+
+                    // 🔍 Debugging: Print received time
+                    RCLCPP_INFO(rclcpp::get_logger(std::string("user=") + "high_level_domain_Idle" + "started"), "⏳ Received protocol time update: sec = %d, nanosec = %d", msg->sec, msg->nanosec);
                 });
+
         charging_sub_ = create_subscription<std_msgs::msg::Int32>(
                 params.topics.robot_charging, 10, [this](const std_msgs::msg::Int32::SharedPtr msg) {
                     std::lock_guard<std::mutex> lock(world_state_mtx);

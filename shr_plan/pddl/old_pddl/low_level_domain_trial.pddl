@@ -10,7 +10,6 @@
 	ReminderAction
     WaitAction
     NoAction
-    CallAction
   )
 
 (:predicates
@@ -20,9 +19,7 @@
     (person_at ?t - Time ?p - Person ?lmp - Landmark)
     ;;(person_currently_at ?p - Person ?lmp - Landmark)
     (person_at_success ?p - Person ?lmp - Landmark)
-    (same_location ?l1 ?l2 - Landmark)
-    (home_location ?l - Landmark)
-    (same_location_check ?l1 - Landmark ?l2 - Landmark)
+
 
     (person_taking_medicine ?t - Time)
     (person_eating_food ?t - Time)
@@ -51,22 +48,14 @@
     (DetectPerson_enabled)
     (DetectEatingFood_enabled)
     (DetectTakingMedicine_enabled)
-    (MakeCall_enabled)
-
 
     ;; enforce action sequence dependencies
-    (call_blocks_call ?a1 ?a2 - CallAction)
-    (reminder_blocks_call ?a1 - ReminderAction ?a2 - CallAction)
     (reminder_blocks_reminder ?a1 ?a2 - ReminderAction)
     (executed_reminder ?a - ReminderAction)
-    (executed_call ?c - CallAction)
     (executed_wait ?t - Time)
-    (executed_wait ?a - WaitAction)
-    (wait_blocks_wait ?a1 - WaitAction ?a2 - WaitAction)
 
     ;; enforce that actions are called with valid object instances
     (valid_reminder_message ?a - ReminderAction ?m - Msg)
-    (valid_call_message ?a - CallAction ?m - Msg)
 
     (same_location_constraint)
     (not_same_location_constraint)
@@ -75,23 +64,18 @@
     (time_critical)
     (used_move ?tc - Time ?lmr - Landmark)
     (used_reminder ?tc - Time)
-    (used_call ?tc - Time)
 
     (current_time ?tc - Time)
     (next_time ?tc ?tn - Time)
 
     ;; constraints on the state of the world. object instances here refer to non-input instances
-    ;;(reminder_robot_location_constraint ?a - ReminderAction ?lmr - Landmark)
+    (reminder_robot_location_constraint ?a - ReminderAction ?lmr - Landmark)
     (reminder_person_location_constraint ?a - ReminderAction ?p - Person ?lmp - Landmark)
     (reminder_person_not_location_constraint ?a - ReminderAction ?p - Person ?lmp - Landmark)
     (wait_not_person_location_constraint ?t - Time ?p - Person ?lmp - Landmark )
     (wait_person_location_constraint ?t - Time ?p - Person ?lmp - Landmark )
     (noaction_not_person_location_constraint ?na - NoAction ?p - Person ?lmp - Landmark)
     (noaction_person_location_constraint ?na - NoAction ?p - Person ?lmp - Landmark)
-    (call_person_location_constraint ?a - CallAction ?p - Person ?loc - Landmark)
-    (call_not_person_location_constraint ?a - CallAction ?p - Person ?loc - Landmark)
-    (call_person_not_taking_medicine_constraint ?a - CallAction ?p - Person)
-    (call_person_not_eating_food_constraint ?a - CallAction ?p - Person)
 
     (reminder_person_not_taking_medicine_constraint ?a - ReminderAction ?p - Person)
     (reminder_person_not_eating_food_constraint ?a - ReminderAction ?p - Person)
@@ -157,63 +141,11 @@
 	        )
 )
 
-
-;;make call
-(:action MakeCall
-    :parameters (?a - CallAction ?t - Time ?p - Person ?m - Msg)
-    :precondition (and
-            (MakeCall_enabled)
-            (current_time ?t)
-
-            (not (used_reminder ?t))
-            (not (executed_call ?a))
-            (valid_call_message ?a ?m)
-
-            ;; enforce that the person didn't take medicine constraint
-            (not (and (call_person_not_taking_medicine_constraint ?a ?p)  (not (not (person_taking_medicine ?t)) ) ) )
-            ;; enforce that the person didn't eat food constraint
-            (not (and (call_person_not_eating_food_constraint ?a ?p)  (not (not (person_eating_food ?t)) ) ) )
-
-            ;; certain action instances block others, for example, we must call caregiver before calling emergency
-            (forall (?ai - CallAction)
-              (not (and (call_blocks_call ?ai ?a)  (not (executed_call ?ai) ) ) )
-            )
-            (forall (?ai - ReminderAction)
-              (not (and (reminder_blocks_call ?ai ?a)  (not (executed_reminder ?ai) ) ) )
-            )
-
-            (same_location_constraint)
-
-            ;; the robot and person must be at the same location
-            ;; gives true when robot and person are at the same location
-            (not
-                (forall (?loc - Landmark)
-                    (not (and (person_at ?t ?p ?loc) (robot_at ?loc)) )
-                )
-            )
-            ;; certain things must be true about the world state for the specific action instance
-            ;; this condition enforces that the person is at the location specified in person_location_constraint
-            ;;(forall (?loc - Landmark)
-            ;;  (not (and (not (person_at ?t ?p ?loc)) (call_person_location_constraint ?a ?p ?loc) ) )
-            ;;)
-            ;; this condition enforces that the person is not at the location specified in not_person_location_constraint
-            ;;(forall (?loc - Landmark)
-            ;;  (not (and (person_at ?t ?p ?loc) (call_not_person_location_constraint ?a ?p ?loc) ) )
-            ;;)
-            (not (abort))
-		)
-    :effect (and (message_given ?m)  (executed_call ?a)
-              (forall (?tn - Time)
-                (when (next_time ?t ?tn) (and (not (current_time ?t)) (current_time ?tn)) )
-              )
-              (used_reminder ?t)
-    )
-)
-
 ;;give reminder
 (:action GiveReminder
     :parameters (?a - ReminderAction ?t - Time ?p - Person ?m - Msg)
     :precondition (and
+            ;;(not move_to_home_enabled)
             (GiveReminder_enabled)
             (current_time ?t)
 
@@ -227,6 +159,7 @@
             ;; enforce that the person didn't eat food constraint
             (not (and (reminder_person_not_eating_food_constraint ?a ?p)  (not (not (person_eating_food ?t)) ) ) )
 
+
             ;; certain action instances block others, for example, we must call caregiver before calling emergency
             (forall (?ai - ReminderAction)
               (not (and (reminder_blocks_reminder ?ai ?a)  (not (executed_reminder ?ai) ) ) )
@@ -236,15 +169,41 @@
             ;; !(a || b) is equivalent to !a && !b
             ;; !!(a || b) = (a || b)  is equivalent to ! (!a && !b)
 
-            (same_location_constraint)
-
-            ;; the robot and person must be at the same location
-            ;; gives true when robot and person are at the same location
             (not
-                (forall (?loc - Landmark)
-                    (not (and (person_at ?t ?p ?loc) (robot_at ?loc)) )
+                (and
+                    (not
+                       (and
+                            (same_location_constraint)
+
+                            ;; the robot and person must be at the same location
+                            ;; gives true when robot and person are at the same location
+                            (not
+                                (forall (?loc - Landmark)
+                                    (not (and (person_at ?t ?p ?loc) (robot_at ?loc)) )
+                                )
+                            )
+
+                       )
+                   )
+                   (not
+                        (and
+                            (not_same_location_constraint)
+
+                            ;; this condition enforces that the robot is at the location specified in person_location_constraint
+                            (forall (?lmr - Landmark)
+                             (not (and (not (robot_at ?lmr)) (reminder_robot_location_constraint ?a ?lmr) ) )
+                            )
+
+                            ;; this condition enforces that the person is at the location specified in person_location_constraint
+                            (forall (?lmp - Landmark)
+                              (not (and (not (person_at ?t ?p ?lmp)) (reminder_person_location_constraint ?a ?p ?lmp) ) )
+                            )
+
+                        )
+                   )
                 )
             )
+
 
             ;; this condition enforces that the person is not at the location specified in not_person_location_constraint
             ;;(forall (?lmp - Landmark)
@@ -261,6 +220,7 @@
             )
 )
 
+
 ;; Wait for timestep
 (:action Wait
 	:parameters (?t - Time ?p - Person)
@@ -273,7 +233,9 @@
                   (current_time ?t)
 	              (not (executed_wait ?t))
                   (not (abort))
-
+                  ;;(forall (?lmp - Landmark)
+                  ;;  (not (and (not (person_at ?t ?p ?lmp)) (wait_person_location_constraint ?t ?p ?lmp) ) )
+                  ;;)
                   (forall (?lmp - Landmark)
                     (not (and (not (person_at ?t ?p ?lmp)) (wait_person_location_constraint ?t ?p ?lmp) ) )
                   )
@@ -287,8 +249,6 @@
             )
 	)
 )
-
-
 
 
 ;; Update success status
@@ -311,7 +271,7 @@
 	                ;;(person_currently_at ?p - Person ?lmp - Landmark)
 	                (person_at_success ?p ?lmp)
 	                (success_location ?lmp)
-	                (not (abort))
+	                ;;(not (abort))
                   )
     :effect (success)
 )
@@ -339,7 +299,7 @@
                     (not (and (person_at ?t ?p ?loc) (noaction_not_person_location_constraint ?na ?p ?loc) ) )
                   )
                   (current_time ?t)
-	              (not (abort))
+	                (not (abort))
                 )
     :effect (and (na_used ?na)
             (forall (?tn - Time)

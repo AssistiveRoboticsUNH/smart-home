@@ -123,11 +123,31 @@ public:
 
     TRUTH_VALUE time_to_take_medicine(TRUTH_VALUE val, MedicineProtocol m) const override {
         auto params = world_state_converter->get_params();
-        if (auto index = get_inst_index(m, params)) {
-            if (compare_time(params.pddl.MedicineProtocols.take_medication_times[index.value()])) {
-                return TRUTH_VALUE::TRUE;
-            }
+
+        // Debugging: Print all available medicine protocols
+        for (const auto &protocol : params.pddl.MedicineProtocols.instances) {
+            RCLCPP_INFO(rclcpp::get_logger("time_to_take_medicine"), "🔍 Available protocol: %s", protocol.c_str());
         }
+
+        if (auto index = get_inst_index(m, params)) {
+            std::string time_range = params.pddl.MedicineProtocols.take_medication_times[index.value()];
+            RCLCPP_INFO(rclcpp::get_logger("time_to_take_medicine"), 
+                "Checking MedicineProtocol: %s | Time Range: %s", 
+                m.c_str(), time_range.c_str());
+
+            if (compare_time(time_range)) {
+                RCLCPP_INFO(rclcpp::get_logger("time_to_take_medicine"), 
+                    "✅ TIME MATCH! Triggering protocol for: %s", m.c_str());
+                return TRUTH_VALUE::TRUE;
+            } else {
+                RCLCPP_INFO(rclcpp::get_logger("time_to_take_medicine"), 
+                    "❌ Time does not match for: %s", m.c_str());
+            }
+        } else {
+            RCLCPP_ERROR(rclcpp::get_logger("time_to_take_medicine"), 
+                "⚠️ Could not find index for protocol: %s", m.c_str());
+        }
+
         return TRUTH_VALUE::FALSE;
     }
 
@@ -154,7 +174,7 @@ public:
     TRUTH_VALUE time_for_medicine_pharmacy_reminder(TRUTH_VALUE val, MedicineRefillPharmacyReminderProtocol m) const override {
         auto params = world_state_converter->get_params();
         if (auto index = get_inst_index(m, params)) {
-            if (compare_time(params.pddl.MedicineRefillReminderProtocols.medicine_refill_reminder_times[index.value()])) {
+            if (compare_time(params.pddl.MedicineRefillPharmacyReminderProtocols.medicine_refill_pharmacy_reminder_times[index.value()])) {
                 return TRUTH_VALUE::TRUE;
             }
         }
@@ -195,20 +215,29 @@ private:
     bool compare_time(std::string param_time) const {
         auto msg = world_state_converter->get_world_state_msg();
         auto time = msg->time;
+
         std::stringstream ss(param_time);
-        std::string time_1;
-        std::string time_2;
+        std::string time_1, time_2;
         std::getline(ss, time_1, '/');
         std::getline(ss, time_2);
 
         auto time_1_secs = get_seconds(time_1);
         auto time_2_secs = get_seconds(time_2);
+        auto current_time_secs = time.sec;
 
         const int second_in_day = 60 * 60 * 24;
         double clock_distance = fmod((time_2_secs - time_1_secs + second_in_day), second_in_day);
-        double time_to_check_normalized = fmod((time.sec - time_1_secs + second_in_day), second_in_day);
+        double time_to_check_normalized = fmod((current_time_secs - time_1_secs + second_in_day), second_in_day);
+
+        // 🔍 Debugging Log
+        RCLCPP_INFO(rclcpp::get_logger("compare_time"), 
+                    "⏳ Checking Time: param_time: %s | Start: %d | End: %d | Current: %d | time_to_check_normalized: %d | clock_distance: %d",
+                    param_time.c_str(), time_1_secs, time_2_secs, current_time_secs, 
+                    (int)time_to_check_normalized, (int)clock_distance);
+
         return time_to_check_normalized <= clock_distance;
     }
+
 
 };
 

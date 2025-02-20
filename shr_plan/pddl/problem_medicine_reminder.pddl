@@ -11,13 +11,13 @@
 )
 (:init
     ;; Initial person and robot locations
-    (person_at t1 nathan dest_loc)
-    (robot_at current_loc)
+    ;;(person_at t1 nathan dest_loc)
+    ;;(robot_at current_loc)
 
     ;; Enabled actions
     (DetectPerson_enabled)
     (GiveReminder_enabled)
-    ;;(DetectTakingMedicine_enabled)
+    (DetectTakingMedicine_enabled)
 
     ;; Time progression
     (current_time t1)
@@ -47,7 +47,7 @@
 
     ;; Define success states
     (message_given_success reminder_2_msg)
-    (person_at_success nathan outside)
+    (medicine_taken_success)
 
     ;; Enforce same location constraint for interactions
     (same_location_constraint)
@@ -60,8 +60,8 @@
     (valid_reminder_message second_reminder reminder_2_msg)
 
     ;; Constraints: Reminders should not be given if Nathan is taking medicine
-    ;;(reminder_person_not_taking_medicine_constraint first_reminder nathan)
-    ;;(reminder_person_not_taking_medicine_constraint second_reminder nathan)
+    (reminder_person_not_taking_medicine_constraint first_reminder nathan)
+    (reminder_person_not_taking_medicine_constraint second_reminder nathan)
 
     ;; Ensure robot waits only when not outside
     (wait_not_person_location_constraint t1 nathan outside)

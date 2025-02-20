@@ -33,14 +33,14 @@ class shr_parameters:
             MedicineProtocols = __Medicineprotocols()
             class __Gymreminderprotocols:
                 instances = ["gym_reminder"]
-                gym_reminder_times = ["22h00m0s/23h00m0s"]
+                gym_reminder_times = ["07h00m0s/8h00m0s"]
             GymReminderProtocols = __Gymreminderprotocols()
             class __Medicinerefillreminderprotocols:
                 instances = ["medicine_refill_reminder"]
-                medicine_refill_reminder_times = ["07h30m0s/08h00m0s"]
+                medicine_refill_reminder_times = ["11h30m0s/12h00m0s"]
             MedicineRefillReminderProtocols = __Medicinerefillreminderprotocols()
             class __Medicinerefillpharmacyreminderprotocols:
-                instances = ["medicine_refill_pharmacy_reminder"]
+                instances = ["medicine_pharmacy_reminder"]
                 medicine_refill_pharmacy_reminder_times = ["15h00m0s/16h00m0s"]
             MedicineRefillPharmacyReminderProtocols = __Medicinerefillpharmacyreminderprotocols()
         pddl = __Pddl()
@@ -210,7 +210,7 @@ class shr_parameters:
                 self.node_.declare_parameter(self.prefix_ + "pddl.GymReminderProtocols.gym_reminder_times", parameter, descriptor)
 
             if not self.node_.has_parameter(self.prefix_ + "pddl.MedicineRefillReminderProtocols.instances"):
-                descriptor = ParameterDescriptor(description="medicine protocols", read_only = False)
+                descriptor = ParameterDescriptor(description="medicine refill protocols", read_only = False)
                 parameter = updated_params.pddl.MedicineRefillReminderProtocols.instances
                 self.node_.declare_parameter(self.prefix_ + "pddl.MedicineRefillReminderProtocols.instances", parameter, descriptor)
 
@@ -220,7 +220,7 @@ class shr_parameters:
                 self.node_.declare_parameter(self.prefix_ + "pddl.MedicineRefillReminderProtocols.medicine_refill_reminder_times", parameter, descriptor)
 
             if not self.node_.has_parameter(self.prefix_ + "pddl.MedicineRefillPharmacyReminderProtocols.instances"):
-                descriptor = ParameterDescriptor(description="walking protocols", read_only = False)
+                descriptor = ParameterDescriptor(description="medicine pharmacy refill phramacy protocols", read_only = False)
                 parameter = updated_params.pddl.MedicineRefillPharmacyReminderProtocols.instances
                 self.node_.declare_parameter(self.prefix_ + "pddl.MedicineRefillPharmacyReminderProtocols.instances", parameter, descriptor)
 

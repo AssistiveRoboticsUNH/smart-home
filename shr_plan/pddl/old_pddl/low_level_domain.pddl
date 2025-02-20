@@ -10,7 +10,6 @@
 	ReminderAction
     WaitAction
     NoAction
-    CallAction
   )
 
 (:predicates
@@ -20,11 +19,6 @@
     (person_at ?t - Time ?p - Person ?lmp - Landmark)
     ;;(person_currently_at ?p - Person ?lmp - Landmark)
     (person_at_success ?p - Person ?lmp - Landmark)
-    (same_location ?l1 ?l2 - Landmark)
-    (home_location ?l - Landmark)
-    (moved_after_landmark ?t - Time)
-    (wait_completed ?t - Time)
-    (waiting_required ?t - Time)
 
 
     (person_taking_medicine ?t - Time)
@@ -54,21 +48,14 @@
     (DetectPerson_enabled)
     (DetectEatingFood_enabled)
     (DetectTakingMedicine_enabled)
-    (MakeCall_enabled)
-
 
     ;; enforce action sequence dependencies
-    (call_blocks_call ?a1 ?a2 - CallAction)
-    (reminder_blocks_call ?a1 - ReminderAction ?a2 - CallAction)
     (reminder_blocks_reminder ?a1 ?a2 - ReminderAction)
     (executed_reminder ?a - ReminderAction)
-    (executed_call ?c - CallAction)
-    (executed_wait ?a - WaitAction)
-    (wait_blocks_wait ?a1 - WaitAction ?a2 - WaitAction)
+    (executed_wait ?t - Time)
 
     ;; enforce that actions are called with valid object instances
     (valid_reminder_message ?a - ReminderAction ?m - Msg)
-    (valid_call_message ?a - CallAction ?m - Msg)
 
     (same_location_constraint)
     (not_same_location_constraint)
@@ -77,23 +64,18 @@
     (time_critical)
     (used_move ?tc - Time ?lmr - Landmark)
     (used_reminder ?tc - Time)
-    (used_call ?tc - Time)
 
     (current_time ?tc - Time)
     (next_time ?tc ?tn - Time)
 
     ;; constraints on the state of the world. object instances here refer to non-input instances
-    ;;(reminder_robot_location_constraint ?a - ReminderAction ?lmr - Landmark)
+    (reminder_robot_location_constraint ?a - ReminderAction ?lmr - Landmark)
     (reminder_person_location_constraint ?a - ReminderAction ?p - Person ?lmp - Landmark)
     (reminder_person_not_location_constraint ?a - ReminderAction ?p - Person ?lmp - Landmark)
     (wait_not_person_location_constraint ?t - Time ?p - Person ?lmp - Landmark )
     (wait_person_location_constraint ?t - Time ?p - Person ?lmp - Landmark )
     (noaction_not_person_location_constraint ?na - NoAction ?p - Person ?lmp - Landmark)
     (noaction_person_location_constraint ?na - NoAction ?p - Person ?lmp - Landmark)
-    (call_person_location_constraint ?a - CallAction ?p - Person ?loc - Landmark)
-    (call_not_person_location_constraint ?a - CallAction ?p - Person ?loc - Landmark)
-    (call_person_not_taking_medicine_constraint ?a - CallAction ?p - Person)
-    (call_person_not_eating_food_constraint ?a - CallAction ?p - Person)
 
     (reminder_person_not_taking_medicine_constraint ?a - ReminderAction ?p - Person)
     (reminder_person_not_eating_food_constraint ?a - ReminderAction ?p - Person)
@@ -139,185 +121,109 @@
 
 ;; Move to any landmark, avoiding terrain
 (:action MoveToLandmark
-    :parameters (?t - Time ?from - Landmark ?to - Landmark ?tn - Time)
-    :precondition (and
-        (current_time ?t)
-        (next_time ?t ?tn)
-        (robot_at ?from)
-        (traversable ?from ?to)
-        (not (abort))
-        (not (wait_completed ?t)) ;; Ensure Wait must follow Move
-    )
-    :effect (and
-        (robot_at ?to)
-        (not (robot_at ?from))
-        (moved_after_landmark ?tn)
-        (not (wait_completed ?t)) ;; Block other actions until Wait executes
-
-        ;; ✅ NEW: Enforce waiting after movement
-        (waiting_required ?t)
-
-        (forall (?tn - Time)
-            (when (next_time ?t ?tn)
-                (and (not (current_time ?t)) (current_time ?tn) (robot_at_time ?tn ?to))
+	:parameters (?t - Time ?from - Landmark ?to - Landmark)
+	:precondition (and
+	                (current_time ?t)
+	                (not (used_move ?t ?to))
+	                (robot_at ?from)
+	                (traversable ?from ?to)
+	                (not (abort))
+	          )
+	:effect (and (robot_at ?to) (not (robot_at ?from)) (used_move ?t ?to)
+	          (when (time_critical)
+              (forall (?tn - Time)
+                (when (next_time ?t ?tn) (and (not (current_time ?t)) (current_time ?tn) (robot_at_time ?tn ?to) ) )
+              )
+	          )
+            (when (not (time_critical))
+              (robot_at_time ?t ?to)
             )
-        )
-    )
+	        )
 )
-
-
-
-
-
-
-
-
-;; Make a call action with enforced waiting
-(:action MakeCall
-    :parameters (?a - CallAction ?t - Time ?p - Person ?m - Msg)
-    :precondition (and
-        (MakeCall_enabled)
-        (current_time ?t)
-
-        (not (used_reminder ?t))
-        (not (executed_call ?a))
-        (valid_call_message ?a ?m)
-        (wait_completed ?t)
-
-        ;; Enforce that the person didn't take medicine
-        (not (and (call_person_not_taking_medicine_constraint ?a ?p)
-                  (not (not (person_taking_medicine ?t)) ) ) )
-
-        ;; Enforce that the person didn't eat food
-        (not (and (call_person_not_eating_food_constraint ?a ?p)
-                  (not (not (person_eating_food ?t)) ) ) )
-
-        ;; Ensure blocked calls must be executed first
-        (forall (?ai - CallAction)
-            (not (and (call_blocks_call ?ai ?a)
-                      (not (executed_call ?ai)) ) ) )
-
-        (forall (?ai - ReminderAction)
-            (not (and (reminder_blocks_call ?ai ?a)
-                      (not (executed_reminder ?ai)) ) ) )
-
-        ;; Ensure robot and person are at the same location
-        (same_location_constraint)
-        (not
-            (forall (?loc - Landmark)
-                (not (and (person_at ?t ?p ?loc) (robot_at ?loc)) )
-            )
-        )
-
-        (not (abort))
-    )
-    :effect (and
-        (message_given ?m)
-        (executed_call ?a)
-
-        ;; ✅ Advances time
-        (forall (?tn - Time)
-            (when (next_time ?t ?tn)
-                (and (not (current_time ?t)) (current_time ?tn)) ) )
-
-        (used_reminder ?t)
-    )
-)
-
-
 
 ;;give reminder
 (:action GiveReminder
     :parameters (?a - ReminderAction ?t - Time ?p - Person ?m - Msg)
     :precondition (and
-        (GiveReminder_enabled)
-        (current_time ?t)
-        (not (used_reminder ?t))
-        (valid_reminder_message ?a ?m)
-        (not (executed_reminder ?a))
-        (wait_completed ?t) ;; Ensure Wait must have executed
+            ;;(not move_to_home_enabled)
+            (GiveReminder_enabled)
+            (current_time ?t)
 
-        ;; ✅ NEW: Ensure Wait has fully completed before executing GiveReminder
-        (not (waiting_required ?t))
+            (not (used_reminder ?t))
+            (valid_reminder_message ?a ?m)
 
-        ;; Ensure person is not taking medicine
-        (not (and (reminder_person_not_taking_medicine_constraint ?a ?p)
-                  (not (not (person_taking_medicine ?t))) ) )
+            (not (executed_reminder ?a))
 
-        ;; Ensure person is not eating food
-        (not (and (reminder_person_not_eating_food_constraint ?a ?p)
-                  (not (not (person_eating_food ?t))) ) )
+            ;; enforce that the person didn't take medicine constraint
+            (not (and (reminder_person_not_taking_medicine_constraint ?a ?p)  (not (not (person_taking_medicine ?t)) ) ) )
+            ;; enforce that the person didn't eat food constraint
+            (not (and (reminder_person_not_eating_food_constraint ?a ?p)  (not (not (person_eating_food ?t)) ) ) )
 
-        ;; Block reminders if required
-        (forall (?ai - ReminderAction)
-            (not (and (reminder_blocks_reminder ?ai ?a)
-                      (not (executed_reminder ?ai)) ) ) )
 
-        ;; Ensure robot and person are at the same location
-        (same_location_constraint)
-        (not
-            (forall (?loc - Landmark)
-                (not (and (person_at ?t ?p ?loc) (robot_at ?loc))) )
-        )
+            ;; certain action instances block others, for example, we must call caregiver before calling emergency
+            (forall (?ai - ReminderAction)
+              (not (and (reminder_blocks_reminder ?ai ?a)  (not (executed_reminder ?ai) ) ) )
+            )
 
-        (not (abort))
-    )
-    :effect (and
-        (message_given ?m)
-        (executed_reminder ?a)
+            ;; Either robot and person have to be in same location or in designated locations
+            ;; !(a || b) is equivalent to !a && !b
+            ;; !!(a || b) = (a || b)  is equivalent to ! (!a && !b)
 
-        ;; ✅ Advances time
-        (forall (?tn - Time)
-            (when (next_time ?t ?tn)
-                (and (not (current_time ?t)) (current_time ?tn)) ) )
 
-        (used_reminder ?t)
-    )
+            (same_location_constraint)
+
+            ;; the robot and person must be at the same location
+            ;; gives true when robot and person are at the same location
+            (not
+                (forall (?loc - Landmark)
+                    (not (and (person_at ?t ?p ?loc) (robot_at ?loc)) )
+                )
+            )
+
+            ;; this condition enforces that the person is not at the location specified in not_person_location_constraint
+            ;;(forall (?lmp - Landmark)
+            ;;  (not (and (person_at ?t ?p ?lmp) (reminder_person_not_location_constraint ?a ?p ?lmp) ) )
+            ;;)
+            (not (abort))
+		)
+    :effect (and (message_given ?m)  (executed_reminder ?a)
+              ;;(forall (?tn - Time)
+              ;;  (when (next_time ?t ?tn) (and (not (current_time ?t)) (current_time ?tn)) )
+              ;;)
+              (used_reminder ?t)
+
+            )
 )
-
-
 
 
 ;; Wait for timestep
 (:action Wait
-  :parameters (?a - WaitAction ?t - Time ?tn - Time)
-  :precondition (and
-    (current_time ?t)
-    (next_time ?t ?tn) ;; Ensure time progression
-    (moved_after_landmark ?t)  ;; Ensures Wait is only considered after movement
-    (not (executed_wait ?a))
-    (not (abort))
+	:parameters (?t - Time ?p - Person)
+	:precondition (and
+                  ;; this condition enforces that the robot is at the location specified in person_location_constraint
+                  (forall (?lmr - Landmark)
+                    (not (and (not (robot_at ?lmr)) (wait_robot_location_constraint ?t ?lmr) ) )
+                  )
 
-    ;; ✅ NEW: Enforce that Wait must be the next action
-    (waiting_required ?t)
-
-    ;; Enforce that nothing else (reminder/call) happens before waiting
-    (forall (?r - ReminderAction)
-        (not (executed_reminder ?r))
-    )
-    (forall (?c - CallAction)
-        (not (executed_call ?c))
-    )
-  )
-  :effect (and
-    (executed_wait ?a)
-    (wait_completed ?t)
-
-    ;; ✅ NEW: Mark that waiting is done, allowing further actions
-    (not (waiting_required ?t))
-
-    ;; Ensure time advances after waiting
-    (forall (?tn - Time)
-      (when (next_time ?t ?tn)
-        (and (not (current_time ?t)) (current_time ?tn))
-      )
-    )
-  )
+                  (current_time ?t)
+	              (not (executed_wait ?t))
+                  (not (abort))
+                  ;;(forall (?lmp - Landmark)
+                  ;;  (not (and (not (person_at ?t ?p ?lmp)) (wait_person_location_constraint ?t ?p ?lmp) ) )
+                  ;;)
+                  (forall (?lmp - Landmark)
+                    (not (and (not (person_at ?t ?p ?lmp)) (wait_person_location_constraint ?t ?p ?lmp) ) )
+                  )
+                  (forall (?lmp - Landmark)
+                    (not (and (person_at ?t ?p ?lmp) (wait_not_person_location_constraint ?t ?p ?lmp) ) )
+                  )
+	             )
+	:effect (and (executed_wait ?t)
+            (forall (?tn - Time)
+              (when (next_time ?t ?tn) (and (not (current_time ?t)) (current_time ?tn)) )
+            )
+	)
 )
-
-
-
-
 
 
 ;; Update success status
@@ -368,7 +274,7 @@
                     (not (and (person_at ?t ?p ?loc) (noaction_not_person_location_constraint ?na ?p ?loc) ) )
                   )
                   (current_time ?t)
-	              (not (abort))
+	                (not (abort))
                 )
     :effect (and (na_used ?na)
             (forall (?tn - Time)

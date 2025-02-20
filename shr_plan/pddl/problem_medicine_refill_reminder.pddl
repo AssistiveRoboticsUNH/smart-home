@@ -4,15 +4,15 @@
     current_loc dest_loc home outside - Landmark
     nathan - Person
     t1 t2 t3 t4 t5 - Time
-    reminder_1_msg reminder_2_msg - Msg
-    first_reminder second_reminder - ReminderAction
+    reminder_1_msg - Msg
+    first_reminder - ReminderAction
     w1 w2 w3 w4 w5 - WaitAction
     na1 na2 na3 - NoAction
 )
 (:init
     ;; Initial person and robot locations
-    (person_at t1 nathan dest_loc)
-    (robot_at current_loc)
+    ;;(person_at t1 nathan dest_loc)
+    ;;(robot_at current_loc)
 
     ;; Enabled actions
     (DetectPerson_enabled)
@@ -53,11 +53,11 @@
     (same_location_constraint)
 
     ;; Specify required action order
-    (reminder_blocks_reminder first_reminder second_reminder)
+    ;;(reminder_blocks_reminder first_reminder second_reminder)
 
     ;; Define valid messages for reminders
     (valid_reminder_message first_reminder reminder_1_msg)
-    (valid_reminder_message second_reminder reminder_2_msg)
+    ;;(valid_reminder_message second_reminder reminder_2_msg)
 
     ;; Constraints: Reminders should not be given if Nathan is taking medicine
     ;;(reminder_person_not_taking_medicine_constraint first_reminder nathan)

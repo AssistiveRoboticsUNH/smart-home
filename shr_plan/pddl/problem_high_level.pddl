@@ -1,7 +1,7 @@
 (define (problem high_level)
   (:domain high_level_domain)
   (:objects
-     daily_med - MedicineProtocol
+     am_meds pm_meds - MedicineProtocol
 
      gym_reminder - GymReminderProtocol
      medicine_refill_reminder - MedicineRefillReminderProtocol
@@ -30,8 +30,8 @@
 
 
 
-      (robot_at bedroom)
-      (person_currently_at nathan living_room)
+      ;;(robot_at bedroom)
+      ;;(person_currently_at nathan living_room)
 
       ;;check move
       ;;(time_for_move_reminder move_reminder)
@@ -50,7 +50,7 @@
 
       ;;check practice
       ;;(time_for_gym_reminder gym_reminder)
-      (already_reminded_gym  gym_reminder)
+      ;;(already_reminded_gym  gym_reminder)
 
 
       ;;(oneof (person_at t2 nathan bed) (person_at t2 nathan door) (person_at t2 nathan couch) (person_at t2 nathan outside) (person_at t2 nathan living_room) (person_at t2 nathan kitchen) (person_at t2 nathan bathroom) (person_at t2 nathan dinning_room) )

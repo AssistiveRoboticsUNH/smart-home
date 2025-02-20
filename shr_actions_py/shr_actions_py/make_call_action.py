@@ -41,7 +41,6 @@ class MakeCallActionServer(Node):
                     twiml=f.read(),
                     to=goal_handle.request.phone_number,
                     from_='+18337893523')
-
         except Exception as e:
 
             result.status = "failed: " + str(e)

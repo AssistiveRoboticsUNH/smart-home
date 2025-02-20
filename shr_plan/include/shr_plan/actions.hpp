@@ -31,11 +31,11 @@ namespace pddl_lib {
         wait_times = {
                 {{"am_meds",                           "MedicineProtocol"},                       {{"reminder_1_msg", {0, 1}},
                                                                                                           {"reminder_2_msg", {0, 1}},
-                                                                                                          {"wait", {60, 0}},
+                                                                                                          {"wait", {2, 0}},
                                                                                                   }},
                 {{"pm_meds",                           "MedicineProtocol"},                       {{"reminder_1_msg", {0, 12}},
                                                                                                           {"reminder_2_msg", {0, 12}},
-                                                                                                          {"wait", {60, 0}},
+                                                                                                          {"wait", {2, 0}},
                                                                                                   }},
                 {{"gym_reminder",                      "GymReminderProtocol"},                    {{"reminder_1_msg", {0, 1}},
                                                                                                           {"wait",           {0, 0}},
@@ -45,7 +45,7 @@ namespace pddl_lib {
                                                                                                           {"wait",           {0, 0}},
 
                                                                                                   }},
-                {{"medicine_refill_pharmacy_reminder", "MedicineRefillPharmacyReminderProtocol"}, {{"reminder_1_msg", {0, 1}},
+                {{"medicine_pharmacy_reminder", "MedicineRefillPharmacyReminderProtocol"}, {{"reminder_1_msg", {0, 1}},
                                                                                                           {"wait",           {0, 0}},
 
                                                                                                   }},
@@ -57,13 +57,11 @@ namespace pddl_lib {
                                                                      }},
                 {{"pm_meds",       "MedicineProtocol"},              {{"reminder_1_msg", "pm_med_reminder.txt"},
                                                                      }},
-                {{"gym_reminder",          "GymReminderProtocol"},          {{"reminder_1_msg", "move_reminder.txt"},
+                {{"gym_reminder",          "GymReminderProtocol"},          {{"reminder_1_msg", "gym_reminder1.txt"},
                                                                      }},
-                {{"internal_check_reminder", "InternalCheckReminderProtocol"}, {{"reminder_1_msg", "internal_check_reminder.txt"},
+                {{"medicine_refill_reminder",      "MedicineRefillReminderProtocol"},      {{"reminder_1_msg", "medicine_refill.txt"},
                                                                      }},
-                {{"medicine_refill_reminder",      "MedicineRefillReminderProtocol"},      {{"reminder_1_msg", "practice_reminder.txt"},
-                                                                     }},
-                {{"medicine_refill_pharmacy_reminder",      "MedicineRefillPharmacyReminderProtocol"},      {{"reminder_1_msg", "exercise_reminder.txt"},
+                {{"medicine_pharmacy_reminder",      "MedicineRefillPharmacyReminderProtocol"},      {{"reminder_1_msg", "pharmacy_refill.txt"},
                                                                      }},
         };
 
@@ -395,26 +393,57 @@ namespace pddl_lib {
     }
 
     void instantiate_protocol(const std::string &protocol_name,
-                              const std::vector <std::pair<std::string, std::string>> &replacements = {}) {
+        const std::vector<std::pair<std::string, std::string>> &replacements = {}) {
         auto &kb = KnowledgeBase::getInstance();
-        auto high_level_domain_content = get_file_content("high_level_domain.pddl");
+
+        // 1️⃣ Load high-level domain
+        std::string high_level_domain_content = get_file_content("high_level_domain.pddl");
+        if (high_level_domain_content.empty()) {
+        throw std::runtime_error("Failed to load high_level_domain.pddl");
+        }
+
         auto high_level_domain = parse_domain(high_level_domain_content).value();
         auto current_high_level = parse_problem(kb.convert_to_problem(high_level_domain),
-                                                high_level_domain_content).value();
+                                high_level_domain_content).value();
 
-        auto protocol_content = get_file_content("problem_" + protocol_name);
-        auto domain_content = get_file_content("low_level_domain.pddl");
-        for (const auto &replacement: replacements) {
-            protocol_content = replace_token(protocol_content, replacement.first, replacement.second);
+        // 2️⃣ Load protocol content
+        std::string protocol_file = "problem_" + protocol_name;
+        std::string protocol_content = get_file_content(protocol_file);
+        if (protocol_content.empty()) {
+        throw std::runtime_error("Failed to load " + protocol_file);
         }
-        auto prob = parse_problem(protocol_content, domain_content).value();
 
+        std::string domain_content = get_file_content("low_level_domain.pddl");
+        if (domain_content.empty()) {
+        throw std::runtime_error("Failed to load low_level_domain.pddl");
+        }
+
+        // 3️⃣ Replace tokens
+        for (const auto &replacement : replacements) {
+        protocol_content = replace_token(protocol_content, replacement.first, replacement.second);
+        }
+
+        // Debugging: Check final protocol content before parsing
+        RCLCPP_INFO(rclcpp::get_logger("debug"),
+        "Final protocol content after token replacement:\n%s", protocol_content.c_str());
+
+        // 4️⃣ Parse the modified protocol
+        std::optional<pddl_lib::Problem> prob;
+        try {
+            auto parse_result = parse_problem(protocol_content, domain_content);
+            if (!parse_result) {
+                throw std::runtime_error("Parsing protocol problem failed: " + parse_result.error());
+            }
+            prob = std::move(parse_result.value());
+        } catch (const std::exception &e) {
+            throw std::runtime_error(std::string("Exception during parse_problem(): ") + e.what());
+        }
+
+        // 5️⃣ Clear KB & Load New Knowledge
         kb.clear();
-        kb.load_kb(current_high_level);
-        kb.load_kb(prob);
-
-    }
-
+        kb.load_kb(current_high_level);  // Restore high-level knowledge
+        kb.load_kb(prob.value());        // Load new protocol
+}
 
     class ProtocolActions : public pddl_lib::ActionInterface {
     public:
@@ -578,14 +607,28 @@ namespace pddl_lib {
         BT::NodeStatus high_level_domain_StartMedicineProtocol(const InstantiatedAction &action) override {
             auto &kb = KnowledgeBase::getInstance();
             InstantiatedParameter protocol = action.parameters[0];
+            InstantiatedParameter cur = action.parameters[2];
+            InstantiatedParameter dest = action.parameters[3];
 
-            instantiate_protocol("medicine_reminder.pddl");
+
+            // instantiate_protocol("medicine_reminder.pddl", {{"current_loc", cur.name},
+            //                                                 {"dest_loc",    dest.name}});
             auto [ps, lock] = ProtocolState::getConcurrentInstance();
             lock.Lock();
             std::string currentDateTime = getCurrentDateTime();
             std::string log_message =
                     std::string("weblog=") + currentDateTime + " high_level_domain_StartMedicineProtocol" + " started";
             RCLCPP_INFO(ps.world_state_converter->get_logger(), log_message.c_str());
+
+            if (dest.name == cur.name) {
+                RCLCPP_INFO(rclcpp::get_logger("debug"),
+                            "StartMedicineProtocol: Robot is already at %s. Skipping movement.", cur.name.c_str());
+                // Just proceed with the protocol without moving
+                instantiate_protocol("medicine_reminder.pddl", {{"current_loc", cur.name}, {"dest_loc", "bedroom"}});
+            } else {
+                // Move to the medicine location if not already there
+                instantiate_protocol("medicine_reminder.pddl", {{"current_loc", cur.name}, {"dest_loc", dest.name}});
+            }
             ps.active_protocol = protocol;
             lock.UnLock();
             return BT::NodeStatus::SUCCESS;
@@ -595,18 +638,34 @@ namespace pddl_lib {
         BT::NodeStatus high_level_domain_StartGymReminderProtocol(const InstantiatedAction &action) override {
             auto &kb = KnowledgeBase::getInstance();
             InstantiatedParameter inst = action.parameters[0];
+            InstantiatedParameter cur = action.parameters[2];
+            InstantiatedParameter dest = action.parameters[3];
+            auto [ps, lock] = ProtocolState::getConcurrentInstance();
+            lock.Lock();
+
             std::string currentDateTime = getCurrentDateTime();
             //RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=")+"high_level_domain_StartExerciseReminderProtocol"+"started"), "user...");
             RCLCPP_INFO(rclcpp::get_logger(
                     currentDateTime + std::string("user=") + "StartGymReminderProtocol" + "started"),
                         "user...");
-            auto [ps, lock] = ProtocolState::getConcurrentInstance();
-            lock.Lock();
+
             std::string log_message =
                     std::string("weblog=") + currentDateTime + " high_level_domain_StartGymReminderProtocol" +
                     " started";
             RCLCPP_INFO(ps.world_state_converter->get_logger(), log_message.c_str());
-            instantiate_protocol("gym_reminder.pddl");
+
+            
+
+            if (dest.name == cur.name) {
+                RCLCPP_INFO(rclcpp::get_logger("debug"),
+                            "StartGymReminderProtocol: Robot is already at %s. Skipping movement.", cur.name.c_str());
+                // Just proceed with the protocol without moving
+                instantiate_protocol("gym_reminder.pddl", {{"current_loc", cur.name}, {"dest_loc", "bedroom"}});
+            } else {
+                // Move to the medicine location if not already there
+                instantiate_protocol("gym_reminder.pddl", {{"current_loc", cur.name}, {"dest_loc", dest.name}});
+            }
+            
             ps.active_protocol = inst;
             lock.UnLock();
             return BT::NodeStatus::SUCCESS;
@@ -617,18 +676,33 @@ namespace pddl_lib {
         BT::NodeStatus high_level_domain_StartMedicineRefillReminderProtocol(const InstantiatedAction &action) override {
             auto &kb = KnowledgeBase::getInstance();
             InstantiatedParameter inst = action.parameters[0];
+            InstantiatedParameter cur = action.parameters[2];
+            InstantiatedParameter dest = action.parameters[3];
+
+            auto [ps, lock] = ProtocolState::getConcurrentInstance();
+            lock.Lock();
+
             std::string currentDateTime = getCurrentDateTime();
             //RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=")+"high_level_domain_StartWanderingProtocol"+"started"), "user...");
             RCLCPP_INFO(rclcpp::get_logger(
                     currentDateTime + std::string("user=") + "StartMedicineRefillReminderProtocol" + "started"),
                         "user...");
-            auto [ps, lock] = ProtocolState::getConcurrentInstance();
-            lock.Lock();
+            
             std::string log_message =
                     std::string("weblog=") + currentDateTime + " high_level_domain_StartMedicineRefillReminderProtocol" +
                     " started";
             RCLCPP_INFO(ps.world_state_converter->get_logger(), log_message.c_str());
-            instantiate_protocol("medicine_refill_reminder.pddl");
+
+            if (dest.name == cur.name) {
+                RCLCPP_INFO(rclcpp::get_logger("debug"),
+                            "StartGymReminderProtocol: Robot is already at %s. Skipping movement.", cur.name.c_str());
+                // Just proceed with the protocol without moving
+                instantiate_protocol("medicine_refill_reminder.pddl", {{"current_loc", cur.name}, {"dest_loc", "bedroom"}});
+            } else {
+                // Move to the medicine location if not already there
+                instantiate_protocol("medicine_refill_reminder.pddl", {{"current_loc", cur.name}, {"dest_loc", dest.name}});
+            }
+            
             ps.active_protocol = inst;
             lock.UnLock();
             return BT::NodeStatus::SUCCESS;
@@ -638,18 +712,34 @@ namespace pddl_lib {
         BT::NodeStatus high_level_domain_StartMedicineRefillPharmacyReminderProtocol(const InstantiatedAction &action) override {
             auto &kb = KnowledgeBase::getInstance();
             InstantiatedParameter inst = action.parameters[0];
+            InstantiatedParameter cur = action.parameters[2];
+            InstantiatedParameter dest = action.parameters[3];
+            
+            auto [ps, lock] = ProtocolState::getConcurrentInstance();
+            lock.Lock();
+
             std::string currentDateTime = getCurrentDateTime();
             //RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=")+"high_level_domain_StartWanderingProtocol"+"started"), "user...");
             RCLCPP_INFO(rclcpp::get_logger(
                     currentDateTime + std::string("user=") + "StartMedicineRefillPharmacyReminderProtocol" + "started"),
                         "user...");
-            auto [ps, lock] = ProtocolState::getConcurrentInstance();
-            lock.Lock();
+            
             std::string log_message =
                     std::string("weblog=") + currentDateTime + " high_level_domain_StartMedicineRefillPharmacyReminderProtocol" +
                     " started";
             RCLCPP_INFO(ps.world_state_converter->get_logger(), log_message.c_str());
-            instantiate_protocol("medicine_pharmacy_reminder.pddl");
+
+            if (dest.name == cur.name) {
+                RCLCPP_INFO(rclcpp::get_logger("debug"),
+                            "StartGymReminderProtocol: Robot is already at %s. Skipping movement.", cur.name.c_str());
+                // Just proceed with the protocol without moving
+                instantiate_protocol("medicine_pharmacy_reminder.pddl", {{"current_loc", cur.name}, {"dest_loc", "bedroom"}});
+            } else {
+                // Move to the medicine location if not already there
+                instantiate_protocol("medicine_pharmacy_reminder.pddl", {{"current_loc", cur.name}, {"dest_loc", dest.name}});
+            }
+
+            
             ps.active_protocol = inst;
             lock.UnLock();
             return BT::NodeStatus::SUCCESS;

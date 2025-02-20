@@ -25,25 +25,25 @@ shr_parameters:
       }
       gym_reminder_times: {
         type: string_array,
-        default_value: [ "22h00m0s/23h00m0s"],
+        default_value: [ "07h00m0s/8h00m0s"],
         description: "time that each protocol is triggered",
       }
     MedicineRefillReminderProtocols:
       instances: {
         type: string_array,
         default_value: [ "medicine_refill_reminder" ],
-        description: "medicine protocols",
+        description: "medicine refill protocols",
       }
       medicine_refill_reminder_times: {
         type: string_array,
-        default_value: [ "07h30m0s/08h00m0s" ],
+        default_value: [ "11h30m0s/12h00m0s" ],
         description: "time that each protocol is triggered",
       }
     MedicineRefillPharmacyReminderProtocols:
       instances: {
         type: string_array,
-        default_value: [ "medicine_refill_pharmacy_reminder" ],
-        description: "walking protocols",
+        default_value: [ "medicine_pharmacy_reminder" ],
+        description: "medicine pharmacy refill phramacy protocols",
       }
       medicine_refill_pharmacy_reminder_times: {
         type: string_array,

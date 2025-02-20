@@ -30,7 +30,9 @@
   (medicine_location ?lm - Landmark)
   (time_to_take_medicine ?m - MedicineProtocol)
   (already_took_medicine ?m - MedicineProtocol)
+  (already_reminded_medicine ?m - MedicineProtocol)
   (already_called_about_medicine ?m - MedicineProtocol)
+  
 
   ;; gym reminder
   (gym_location ?lm - Landmark)
@@ -119,7 +121,7 @@
 
 
 (:action StartMedicineProtocol
-	:parameters (?m - MedicineProtocol ?p - Person ?cur ?dest - Landmark)
+	:parameters (?m - MedicineProtocol ?p - Person ?cur - Landmark ?dest - Landmark)
 	:precondition (and
 	    (priority_2)
       (time_to_take_medicine ?m)
@@ -131,7 +133,7 @@
       (robot_at ?cur)
       (medicine_location ?dest)
       (not (already_took_medicine ?m))
-      (not (already_called_about_medicine ?m))
+      (not (already_reminded_medicine ?m))
       (forall (?med - MedicineProtocol) (not (medicine_protocol_enabled ?med)) )
 		)
 	:effect (and
@@ -152,6 +154,7 @@
 	    (not (low_level_failed))
       (time_to_take_medicine ?m)
       (not (already_took_medicine ?m))
+      (not (already_reminded_medicine ?m))
       (not (already_called_about_medicine ?m))
       (medicine_protocol_enabled ?m)
 		)
@@ -161,7 +164,7 @@
 
 ;; Gym reminder Protocol
 (:action StartGymReminderProtocol
-	:parameters (?gy - GymReminderProtocol ?p - Person ?cur ?dest - Landmark)
+	:parameters (?gy - GymReminderProtocol ?p - Person ?cur - Landmark ?dest - Landmark)
 	:precondition (and
 	  (priority_2)
 
@@ -210,7 +213,7 @@
 
 ;; medicine_refill reminder Protocol
 (:action StartMedicineRefillReminderProtocol
-	:parameters (?mdrf - MedicineRefillReminderProtocol ?p - Person ?cur ?dest - Landmark)
+	:parameters (?mdrf - MedicineRefillReminderProtocol ?p - Person ?cur - Landmark ?dest - Landmark)
 	:precondition (and
 	    (priority_2)
 
@@ -257,7 +260,7 @@
 ;; medicine_pharmacy  Reminder Protocol
 
 (:action StartMedicineRefillPharmacyReminderProtocol
-	:parameters (?ic - MedicineRefillPharmacyReminderProtocol ?p - Person ?cur ?dest - Landmark)
+	:parameters (?ic - MedicineRefillPharmacyReminderProtocol ?p - Person ?cur - Landmark ?dest - Landmark)
 	:precondition (and
 	    (priority_2)
 
