@@ -48,7 +48,7 @@ class UnDockingActionServer(Node):
             truncated_ranges = msg.ranges[start_ind:end_ind]
             # print("tracated", truncated_ranges)
             self.min_range = min(msg.ranges[start_ind:end_ind])
-            print("self.min_range", self.min_range)
+            # print("self.min_range", self.min_range)
 
     def goal_callback(self, goal_request):
         # You can add logic here to decide whether to accept or reject the goal.
@@ -74,7 +74,7 @@ class UnDockingActionServer(Node):
 
         while time.time() - start_time < self.time_out:
             print("&&&&&&&&& self.min_range in while #################")
-            msg.linear.x = -speed
+            msg.linear.x = speed # Go forward to undock
             self.vel_pub.publish(msg)
             print(self.min_range)
 
