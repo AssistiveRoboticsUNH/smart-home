@@ -1,11 +1,11 @@
-(define (problem medicine_reminder)
+(define (problem medicine_refill_reminder)
 (:domain shr_domain)
 (:objects
     current_loc dest_loc home outside - Landmark
     nathan - Person
     t1 t2 t3 t4 t5 - Time
-    reminder_1_msg reminder_2_msg call_caregiver_msg - Msg
-    first_reminder second_reminder - ReminderAction
+    reminder_1_msg - Msg
+    first_reminder - ReminderAction
     w1 w2 w3 w4 w5 - WaitAction
     na1 na2 na3 - NoAction
 )
@@ -17,7 +17,7 @@
     ;; Enabled actions
     (DetectPerson_enabled)
     (GiveReminder_enabled)
-    (DetectTakingMedicine_enabled)
+    ;;(DetectTakingMedicine_enabled)
 
     ;; Time progression
     (current_time t1)
@@ -46,22 +46,22 @@
     (traversable home dest_loc)
 
     ;; Define success states
-    (message_given_success reminder_2_msg)
-    (medicine_taken_success)
+    (message_given_success reminder_1_msg)
+    (person_at_success nathan outside)
 
     ;; Enforce same location constraint for interactions
     (same_location_constraint)
 
     ;; Specify required action order
-    (reminder_blocks_reminder first_reminder second_reminder)
+    ;;(reminder_blocks_reminder first_reminder second_reminder)
 
     ;; Define valid messages for reminders
     (valid_reminder_message first_reminder reminder_1_msg)
-    (valid_reminder_message second_reminder reminder_2_msg)
+    ;;(valid_reminder_message second_reminder reminder_2_msg)
 
     ;; Constraints: Reminders should not be given if Nathan is taking medicine
-    (reminder_person_not_taking_medicine_constraint first_reminder nathan)
-    (reminder_person_not_taking_medicine_constraint second_reminder nathan)
+    ;;(reminder_person_not_taking_medicine_constraint first_reminder nathan)
+    ;;(reminder_person_not_taking_medicine_constraint second_reminder nathan)
 
     ;; Ensure robot waits only when not outside
     (wait_not_person_location_constraint t1 nathan outside)

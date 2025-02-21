@@ -581,7 +581,7 @@ namespace pddl_lib {
         }
 
         // medicine_protocol
-        BT::NodeStatus high_level_domain_StartMedReminderProtocol(const InstantiatedAction &action) override {
+        BT::NodeStatus high_level_domain_StartMedicineProtocol(const InstantiatedAction &action) override {
             auto &kb = KnowledgeBase::getInstance();
             InstantiatedParameter protocol = action.parameters[0];
             InstantiatedParameter cur = action.parameters[2];
@@ -931,21 +931,6 @@ namespace pddl_lib {
             return BT::NodeStatus::SUCCESS;
         }
 
-        BT::NodeStatus shr_domain_FoodEatenSuccess(const InstantiatedAction &action) override {
-            auto &kb = KnowledgeBase::getInstance();
-            auto [ps, lock] = ProtocolState::getConcurrentInstance();
-            lock.Lock();
-            //std::string currentDateTime = getCurrentDateTime();
-            InstantiatedPredicate pred{"already_ate", {ps.active_protocol}};
-            kb.insert_predicate(pred);
-            //RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=")+"shr_domain_FoodEatenSuccess"), "user...");
-            //RCLCPP_INFO(rclcpp::get_logger(currentDateTime+std::string("user=")+"Patient finished food!"), "user...");
-            std::string currentDateTime = getCurrentDateTime();
-            std::string log_message = std::string("weblog=") + currentDateTime + " Patient finished food!";
-            RCLCPP_INFO(ps.world_state_converter->get_logger(), log_message.c_str());
-            lock.UnLock();
-            return BT::NodeStatus::SUCCESS;
-        }
 
         BT::NodeStatus shr_domain_TimeOut(const InstantiatedAction &action) override {
             auto &kb = KnowledgeBase::getInstance();
@@ -972,22 +957,16 @@ namespace pddl_lib {
             //std::string currentDateTime = getCurrentDateTime();
             if (active_protocol.type == "MedicineProtocol") {
                 kb.insert_predicate({"already_reminded_medicine", {active_protocol}});
-                kb.erase_predicate({"medicine_reminder_enabled", {active_protocol}});
-            }else if (active_protocol.type == "FoodProtocol") {
-                kb.insert_predicate({"already_called_about_eating", {active_protocol}});
-                kb.erase_predicate({"food_protocol_enabled", {active_protocol}});
-            }else if (active_protocol.type == "MoveReminderProtocol") {
-                kb.insert_predicate({"already_reminded_move", {active_protocol}});
-                kb.erase_predicate({"move_reminder_enabled", {active_protocol}});
-            } else if (active_protocol.type == "InternalCheckReminderProtocol") {
-                kb.insert_predicate({"already_reminded_internal_check", {active_protocol}});
-                kb.erase_predicate({"internal_check_reminder_enabled", {active_protocol}});
-            } else if (active_protocol.type == "PracticeReminderProtocol") {
-                kb.insert_predicate({"already_reminded_practice", {active_protocol}});
-                kb.erase_predicate({"practice_reminder_enabled", {active_protocol}});
-            }else if (active_protocol.type == "ExerciseReminderProtocol") {
-                kb.insert_predicate({"already_reminded_exercise", {active_protocol}});
-                kb.erase_predicate({"exercise_reminder_enabled", {active_protocol}});
+                kb.erase_predicate({"medicine_protocol_enabled", {active_protocol}});
+            }else if (active_protocol.type == "GymReminderProtocol") {
+                kb.insert_predicate({"already_reminded_gym", {active_protocol}});
+                kb.erase_predicate({"gym_reminder_enabled", {active_protocol}});
+            } else if (active_protocol.type == "MedicineRefillReminderProtocol") {
+                kb.insert_predicate({"already_reminded_medicine_refill", {active_protocol}});
+                kb.erase_predicate({"medicine_refill_reminder_enabled", {active_protocol}});
+            } else if (active_protocol.type == "MedicineRefillPharmacyReminderProtocol") {
+                kb.insert_predicate({"already_reminded_medicine_pharmacy", {active_protocol}});
+                kb.erase_predicate({"medicine_pharmacy_reminder_enabled", {active_protocol}});
             }
 
             // RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=")+"shr_domain_MessageGivenSuccess"+active_protocol.type), "user...");
@@ -1008,19 +987,16 @@ namespace pddl_lib {
             //std::string currentDateTime = getCurrentDateTime();
             if (active_protocol.type == "MedicineProtocol") {
                 kb.insert_predicate({"already_reminded_medicine", {active_protocol}});
-                kb.erase_predicate({"medicine_reminder_enabled", {active_protocol}});
-            }else if (active_protocol.type == "FoodProtocol") {
-                kb.insert_predicate({"already_called_about_eating", {active_protocol}});
-                kb.erase_predicate({"food_protocol_enabled", {active_protocol}});
-            }else if (active_protocol.type == "MoveReminderProtocol") {
-                kb.insert_predicate({"already_reminded_move", {active_protocol}});
-                kb.erase_predicate({"move_reminder_enabled", {active_protocol}});
-            } else if (active_protocol.type == "InternalCheckReminderProtocol") {
-                kb.insert_predicate({"already_reminded_internal_check", {active_protocol}});
-                kb.erase_predicate({"internal_check_reminder_enabled", {active_protocol}});
-            } else if (active_protocol.type == "PracticeReminderProtocol") {
-                kb.insert_predicate({"already_reminded_practice", {active_protocol}});
-                kb.erase_predicate({"practice_reminder_enabled", {active_protocol}});
+                kb.erase_predicate({"medicine_protocol_enabled", {active_protocol}});
+            }else if (active_protocol.type == "GymReminderProtocol") {
+                kb.insert_predicate({"already_reminded_gym", {active_protocol}});
+                kb.erase_predicate({"gym_reminder_enabled", {active_protocol}});
+            } else if (active_protocol.type == "MedicineRefillReminderProtocol") {
+                kb.insert_predicate({"already_reminded_medicine_refill", {active_protocol}});
+                kb.erase_predicate({"medicine_refill_reminder_enabled", {active_protocol}});
+            } else if (active_protocol.type == "MedicineRefillPharmacyReminderProtocol") {
+                kb.insert_predicate({"already_reminded_medicine_pharmacy", {active_protocol}});
+                kb.erase_predicate({"medicine_pharmacy_reminder_enabled", {active_protocol}});
             }
             // RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=")+"shr_domain_PersonAtSuccess"+active_protocol.type), "user...");
             // RCLCPP_INFO(rclcpp::get_logger(currentDateTime+std::string("user=")+"active protocol"+active_protocol.type), "user...");
@@ -1048,41 +1024,12 @@ namespace pddl_lib {
                     lock.UnLock();
                     return BT::NodeStatus::SUCCESS;
                 }
-                if (ps.world_state_converter->get_world_state_msg()->person_eating == 1 && ps.active_protocol.type == "FoodProtocol"){
-                    RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=") + "shr_domain_Wait " + "food eaten!"),
-                                "user...");
-                    lock.UnLock();
-                    return BT::NodeStatus::SUCCESS;
-                }
+
                 rclcpp::sleep_for(std::chrono::seconds(10));
             }
 
             lock.UnLock();
             return BT::NodeStatus::SUCCESS;;
-        }
-
-        BT::NodeStatus shr_domain_DetectEatingFood(const InstantiatedAction &action) override {
-            auto &kb = KnowledgeBase::getInstance();
-            auto [ps, lock] = ProtocolState::getConcurrentInstance();
-            lock.Lock();
-            auto t = action.parameters[0];
-            //std::string currentDateTime = getCurrentDateTime();
-            InstantiatedPredicate ate_food = {"person_eating", {t}};
-            if (kb.find_predicate(ate_food)) {
-                //RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=") + "shr_domain_DetectEatingFood" + "ate food success"), "user...");
-                std::string currentDateTime = getCurrentDateTime();
-                std::string log_message = std::string("weblog=") + currentDateTime + " person is eating food";
-                RCLCPP_INFO(ps.world_state_converter->get_logger(), log_message.c_str());
-                lock.UnLock();
-                return BT::NodeStatus::SUCCESS;
-            }
-            // RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=")+"shr_domain_DetectEatingFood"+"ate food failure!"), "user...");
-            // RCLCPP_INFO(rclcpp::get_logger(currentDateTime+std::string("user=")+"person is not eating food!"), "user...");
-            std::string currentDateTime = getCurrentDateTime();
-            std::string log_message = std::string("weblog=") + currentDateTime + " person is not eating food";
-            RCLCPP_INFO(ps.world_state_converter->get_logger(), log_message.c_str());
-            lock.UnLock();
-            return BT::NodeStatus::FAILURE;
         }
 
 

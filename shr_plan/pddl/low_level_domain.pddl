@@ -20,6 +20,9 @@
     (person_at ?t - Time ?p - Person ?lmp - Landmark)
     ;;(person_currently_at ?p - Person ?lmp - Landmark)
     (person_at_success ?p - Person ?lmp - Landmark)
+    (same_location ?l1 ?l2 - Landmark)
+    (home_location ?l - Landmark)
+    (same_location_check ?l1 - Landmark ?l2 - Landmark)
 
     (person_taking_medicine ?t - Time)
     (person_eating_food ?t - Time)
@@ -58,6 +61,8 @@
     (executed_reminder ?a - ReminderAction)
     (executed_call ?c - CallAction)
     (executed_wait ?t - Time)
+    (executed_wait ?a - WaitAction)
+    (wait_blocks_wait ?a1 - WaitAction ?a2 - WaitAction)
 
     ;; enforce that actions are called with valid object instances
     (valid_reminder_message ?a - ReminderAction ?m - Msg)
@@ -76,7 +81,7 @@
     (next_time ?tc ?tn - Time)
 
     ;; constraints on the state of the world. object instances here refer to non-input instances
-    (reminder_robot_location_constraint ?a - ReminderAction ?lmr - Landmark)
+    ;;(reminder_robot_location_constraint ?a - ReminderAction ?lmr - Landmark)
     (reminder_person_location_constraint ?a - ReminderAction ?p - Person ?lmp - Landmark)
     (reminder_person_not_location_constraint ?a - ReminderAction ?p - Person ?lmp - Landmark)
     (wait_not_person_location_constraint ?t - Time ?p - Person ?lmp - Landmark )
@@ -151,6 +156,7 @@
             )
 	        )
 )
+
 
 ;;make call
 (:action MakeCall
@@ -255,7 +261,6 @@
             )
 )
 
-
 ;; Wait for timestep
 (:action Wait
 	:parameters (?t - Time ?p - Person)
@@ -282,6 +287,8 @@
             )
 	)
 )
+
+
 
 
 ;; Update success status

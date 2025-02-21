@@ -126,49 +126,44 @@
           )
 )
 
-(:action StartMedReminderProtocol
+(:action StartMedicineProtocol
 	:parameters (?m - MedicineProtocol ?p - Person ?cur - Landmark ?dest - Landmark)
 	:precondition (and
-
-            (priority_2)
-            (time_to_take_medicine ?m)
-            (visible_location ?dest)
-            (not (not_visible_location ?dest))
-            (visible_location ?cur)
-            (not (not_visible_location ?cur))
-            (person_currently_at ?p ?cur)
-            (robot_at ?cur)
-            (medicine_location ?dest)
-            (not (already_took_medicine ?m))
-            (not (already_reminded_medicine ?m))
-            (forall (?med - MedicineProtocol) (not (medicine_protocol_enabled ?med)) )
-
-
-            (started)
-    )
+	    (priority_2)
+      (time_to_take_medicine ?m)
+      (visible_location ?dest)
+      (not (not_visible_location ?dest))
+      (visible_location ?cur)
+      (not (not_visible_location ?cur))
+      (person_currently_at ?p ?cur)
+      (robot_at ?cur)
+      (medicine_location ?dest)
+      (not (already_took_medicine ?m))
+      (not (already_reminded_medicine ?m))
+      (forall (?med - MedicineProtocol) (not (medicine_protocol_enabled ?med)) )
+		)
 	:effect (and
 	          (success)
-	          (not (priority_2))
-              (medicine_protocol_enabled ?m)
-              (not (low_level_failed))
-              (forall (?medicine_pharmacy - MedicineRefillPharmacyReminderProtocol) (not (medicine_pharmacy_reminder_enabled ?medicine_pharmacy)) )
-              (forall (?mdrf - MedicineRefillReminderProtocol) (not (medicine_refill_reminder_enabled ?mdrf)) )
-              (forall (?gy - GymReminderProtocol) (not (gym_reminder_enabled ?gy)) )
-
+            (not (priority_2))
+            (medicine_protocol_enabled ?m)
+            (not (low_level_failed))
+            (forall (?medicine_pharmacy - MedicineRefillPharmacyReminderProtocol) (not (medicine_pharmacy_reminder_enabled ?medicine_pharmacy)) )
+            (forall (?mdrf - MedicineRefillReminderProtocol) (not (medicine_refill_reminder_enabled ?mdrf)) )
+            (forall (?gy - GymReminderProtocol) (not (gym_reminder_enabled ?gy)) )
           )
 )
 
-(:action ContinueMedReminderProtocol
+(:action ContinueMedicineProtocol
 	:parameters (?m - MedicineProtocol)
 	:precondition (and
-	      (priority_2)
-          (not (low_level_failed))
-          (time_to_take_medicine ?m)
-          (not (already_took_medicine ?m))
-          (not (already_reminded_medicine ?m))
-          (not (already_called_about_medicine ?m))
-          (medicine_protocol_enabled ?m)
-    )
+	    (priority_2)
+	    (not (low_level_failed))
+      (time_to_take_medicine ?m)
+      (not (already_took_medicine ?m))
+      (not (already_reminded_medicine ?m))
+      (not (already_called_about_medicine ?m))
+      (medicine_protocol_enabled ?m)
+		)
 	:effect (and (success) (not (priority_2)) )
 )
 

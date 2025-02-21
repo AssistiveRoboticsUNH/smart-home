@@ -72,32 +72,30 @@ namespace pddl_lib {
     }
 
 
-    std::string
-    replace_token(const std::string &protocol_content, const std::string &token, const std::string &new_token) {
+    std::string replace_token(const std::string &protocol_content, const std::string &token, const std::string &new_token) {
         if (token == new_token) {
             return protocol_content;
         }
-        auto check_string = [token](const std::string &protocol_content, size_t index) {
-            if (token.size() + index > protocol_content.size()) {
-                return 0ul;
-            }
-            if (protocol_content.substr(index, token.size()) == token) {
-                return token.size();
-            }
-            return 0ul;
-        };
+
+        bool found = false;
         std::stringstream ss;
         auto i = 0ul;
         while (i < protocol_content.size()) {
-            auto offset = check_string(protocol_content, i);
-            if (offset > 0) {
-                ss << new_token;
-                i += offset;
+            size_t offset = protocol_content.find(token, i);
+            if (offset != std::string::npos) {
+                ss << protocol_content.substr(i, offset - i);  // Append previous part
+                ss << new_token;  // Replace token
+                i = offset + token.size();
+                found = true;
             } else {
-                ss << protocol_content[i];
-                i++;
+                ss << protocol_content[i++];
             }
         }
+
+        if (!found) {
+            RCLCPP_WARN(rclcpp::get_logger("debug"), "Warning: Token '%s' was not found in protocol_content!", token.c_str());
+        }
+
         return ss.str();
     }
 

@@ -123,11 +123,31 @@ public:
 
     TRUTH_VALUE time_to_take_medicine(TRUTH_VALUE val, MedicineProtocol m) const override {
         auto params = world_state_converter->get_params();
-        if (auto index = get_inst_index(m, params)) {
-            if (compare_time(params.pddl.MedicineProtocols.take_medication_times[index.value()])) {
-                return TRUTH_VALUE::TRUE;
-            }
+
+        // Debugging: Print all available medicine protocols
+        for (const auto &protocol : params.pddl.MedicineProtocols.instances) {
+            RCLCPP_INFO(rclcpp::get_logger("time_to_take_medicine"), "🔍 Available protocol: %s", protocol.c_str());
         }
+
+        if (auto index = get_inst_index(m, params)) {
+            std::string time_range = params.pddl.MedicineProtocols.take_medication_times[index.value()];
+            RCLCPP_INFO(rclcpp::get_logger("time_to_take_medicine"),
+                        "Checking MedicineProtocol: %s | Time Range: %s",
+                        m.c_str(), time_range.c_str());
+
+            if (compare_time(time_range)) {
+                RCLCPP_INFO(rclcpp::get_logger("time_to_take_medicine"),
+                            "✅ TIME MATCH! Triggering protocol for: %s", m.c_str());
+                return TRUTH_VALUE::TRUE;
+            } else {
+                RCLCPP_INFO(rclcpp::get_logger("time_to_take_medicine"),
+                            "❌ Time does not match for: %s", m.c_str());
+            }
+        } else {
+            RCLCPP_ERROR(rclcpp::get_logger("time_to_take_medicine"),
+                         "⚠️ Could not find index for protocol: %s", m.c_str());
+        }
+
         return TRUTH_VALUE::FALSE;
     }
 
