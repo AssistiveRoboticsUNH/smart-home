@@ -1,31 +1,10 @@
 shr_parameters:
   pddl:
     instances:
-      LandmarksPerson: {
-        type: string_array,
-        default_value: [ "bedroom", "inside_not_bedroom", "outside" ],
-        description: "all landmarks in protocols",
-      }
-      LandmarksRobot: {
-        type: string_array,
-        default_value: [ "home" , "designated_space" ],
-        description: "all landmarks in protocols",
-      }
       Persons: {
         type: string_array,
         default_value: [ "nathan" ],
         description: "all people in protocols",
-      }
-    FoodProtocols:
-      instances: {
-        type: string_array,
-        default_value: [ "breakfast" ],
-        description: "food protocols",
-      }
-      eat_times: {
-        type: string_array,
-        default_value: [ "08h15m0s/08h45m0s"  ],
-        description: "time that each protocol is triggered",
       }
     MedicineProtocols:
       instances: {
@@ -38,50 +17,39 @@ shr_parameters:
         default_value: [ "09h00m0s/10h00m0s", "21h00m0s/22h00m0s" ],
         description: "time that each protocol is triggered",
       }
-    InternalCheckReminderProtocols:
+    GymReminderProtocols:
       instances: {
         type: string_array,
-        default_value: [ "internal_check_reminder" ],
-        description: "internal check reminder protocols",
+        default_value: [ "gym_reminder" ],
+        description: "gym reminder protocols",
       }
-      internal_check_reminder_times: {
+      gym_reminder_times: {
         type: string_array,
-        default_value: [ "22h00m0s/23h00m0s"],
+        default_value: [ "07h00m0s/8h00m0s"],
         description: "time that each protocol is triggered",
       }
-    PracticeReminderProtocols:
+    MedicineRefillReminderProtocols:
       instances: {
         type: string_array,
-        default_value: [ "practice_reminder" ],
-        description: "medicine protocols",
+        default_value: [ "medicine_refill_reminder" ],
+        description: "medicine refill protocols",
       }
-      practice_reminder_times: {
+      medicine_refill_reminder_times: {
         type: string_array,
-        default_value: [ "07h30m0s/08h00m0s" ],
+        default_value: [ "11h30m0s/12h00m0s" ],
         description: "time that each protocol is triggered",
       }
-    MoveReminderProtocols:
+    MedicineRefillPharmacyReminderProtocols:
       instances: {
         type: string_array,
-        default_value: [ "move_reminder" ],
-        description: "walking protocols",
+        default_value: [ "medicine_pharmacy_reminder" ],
+        description: "medicine pharmacy refill phramacy protocols",
       }
-      move_reminder_times: {
+      medicine_refill_pharmacy_reminder_times: {
         type: string_array,
         default_value: [ "15h00m0s/16h00m0s" ],
         description: "time that each protocol is triggered",
       }
-    ExerciseReminderProtocols:
-        instances: {
-          type: string_array,
-          default_value: [ "exercise_reminder" ],
-          description: "walking protocols",
-        }
-        exercise_reminder_times: {
-          type: string_array,
-          default_value: [ "11h30m0s/12h30m0s" ],
-          description: "time that each protocol is triggered",
-        }
   topics:
     time: {
       type: string,
@@ -114,14 +82,3 @@ shr_parameters:
     default_value: "base_link",
     description: "robot tf frame id",
   }
-
-
-
-
-
-
-
-
-
-
-

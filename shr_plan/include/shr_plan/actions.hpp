@@ -27,46 +27,28 @@ namespace pddl_lib {
         // name field should be the same as the name of the protocol in the high_level_problem
         // mak sure the txt files and mp3 are in shr_resources
         wait_times = {
-                {{"am_meds",                 "MedicineProtocol"},              {{"reminder_1_msg", {0, 1}},
-                                                                                       {"reminder_2_msg", {0, 1}},
-                                                                                       {"call_caregiver_msg", {0, 1}},
-                                                                                       {"wait", {2,0}},
-                                                                               }},
-                {{"pm_meds",                 "MedicineProtocol"},              {{"reminder_1_msg", {0, 1}},
-                                                                                       {"reminder_2_msg", {0, 1}},
-                                                                                       {"call_caregiver_msg", {0, 1}},
-                                                                                       {"wait", {2,0}},
-                                                                               }},
-                {{"move_reminder",           "MoveReminderProtocol"},          {{"reminder_1_msg", {0, 1}},
-                                                                                {"wait", {0,0}},
+                {{"am_meds",                           "MedicineProtocol"},                       {{"reminder_1_msg", {0, 1}},
+                                                                                                          {"reminder_2_msg", {0, 1}},
+                                                                                                          {"wait", {2, 0}},
+                                                                                                  }},
+                {{"pm_meds",                           "MedicineProtocol"},                       {{"reminder_1_msg", {0, 12}},
+                                                                                                          {"reminder_2_msg", {0, 12}},
+                                                                                                          {"wait", {2, 0}},
+                                                                                                  }},
+                {{"gym_reminder",                      "GymReminderProtocol"},                    {{"reminder_1_msg", {0, 1}},
+                                                                                                          {"wait",           {0, 0}},
 
-                                                                               }},
-                {{"internal_check_reminder", "InternalCheckReminderProtocol"}, {{"reminder_1_msg", {0, 1}},
-                                                                                {"wait", {0,0}},
+                                                                                                  }},
+                {{"medicine_refill_reminder",          "MedicineRefillReminderProtocol"},         {{"reminder_1_msg", {0, 1}},
+                                                                                                          {"wait",           {0, 0}},
 
-                                                                               }},
-                {{"practice_reminder",       "PracticeReminderProtocol"},      {{"reminder_1_msg", {0, 1}},
-                                                                                {"wait", {0,0}},
+                                                                                                  }},
+                {{"medicine_pharmacy_reminder", "MedicineRefillPharmacyReminderProtocol"}, {{"reminder_1_msg", {0, 1}},
+                                                                                                          {"wait",           {0, 0}},
 
-                                                                               }},
-                {{"exercise_reminder",       "ExerciseReminderProtocol"},      {{"reminder_1_msg", {0, 1}},
-                                                                                {"wait", {0,0}},
+                                                                                                  }},
 
-                                                                               }},
-                {{"breakfast",                 "FoodProtocol"},              {{"reminder_1_msg", {0, 1}},
-                                                                                       {"reminder_2_msg", {0, 1}},
-                                                                                       {"wait", {2,0}},
-                                                                               }},
         };
-
-        const std::unordered_map<InstantiatedParameter, std::unordered_map<std::string, std::pair<std::string, std::string>>> call_msgs = {
-
-                {{"am_meds",  "MedicineProtocol"}, {{"call_caregiver_msg", {"call_msg_medical.xml", "7742257735"}},
-                                                    }},
-                {{"pm_meds",  "MedicineProtocol"},  {{"call_caregiver_msg",     {"call_msg_medical.xml", "7742257735"}},
-                                                    }},                                
-        };
-
 
 
         const std::unordered_map <InstantiatedParameter, std::unordered_map<std::string, std::string>> automated_reminder_msgs = {
@@ -74,15 +56,11 @@ namespace pddl_lib {
                                                                      }},
                 {{"pm_meds",       "MedicineProtocol"},              {{"reminder_1_msg", "pm_med_reminder.txt"},
                                                                      }},
-                {{"move_reminder",          "MoveReminderProtocol"},          {{"reminder_1_msg", "move_reminder.txt"},
+                {{"gym_reminder",          "GymReminderProtocol"},          {{"reminder_1_msg", "gym_reminder1.txt"},
                                                                      }},
-                {{"internal_check_reminder", "InternalCheckReminderProtocol"}, {{"reminder_1_msg", "internal_check_reminder.txt"},
+                {{"medicine_refill_reminder",      "MedicineRefillReminderProtocol"},      {{"reminder_1_msg", "medicine_refill.txt"},
                                                                      }},
-                {{"practice_reminder",      "PracticeReminderProtocol"},      {{"reminder_1_msg", "practice_reminder.txt"},
-                                                                     }},
-                {{"exercise_reminder",      "ExerciseReminderProtocol"},      {{"reminder_1_msg", "exercise_reminder.txt"},
-                                                                     }},
-                {{"breakfast",       "FoodProtocol"},              {{"reminder_1_msg", "food_reminder.txt"},
+                {{"medicine_pharmacy_reminder",      "MedicineRefillPharmacyReminderProtocol"},      {{"reminder_1_msg", "pharmacy_refill.txt"},
                                                                      }},
         };
 
@@ -90,8 +68,6 @@ namespace pddl_lib {
                 {{"am_meds", "MedicineProtocol"}, {{"reminder_2_msg", "am_med_reminder.mp3"},
                                                   }},
                 {{"pm_meds", "MedicineProtocol"}, {{"reminder_2_msg", "pm_med_reminder.mp3"},
-                                                  }},
-                {{"breakfast", "FoodProtocol"}, {{"reminder_2_msg", "food_reminder.mp3"},
                                                   }},
 
         };
@@ -608,114 +584,139 @@ namespace pddl_lib {
         BT::NodeStatus high_level_domain_StartMedReminderProtocol(const InstantiatedAction &action) override {
             auto &kb = KnowledgeBase::getInstance();
             InstantiatedParameter protocol = action.parameters[0];
+            InstantiatedParameter cur = action.parameters[2];
+            InstantiatedParameter dest = action.parameters[3];
 
-            instantiate_protocol("medicine_reminder.pddl");
+
+            // instantiate_protocol("medicine_reminder.pddl", {{"current_loc", cur.name},
+            //                                                 {"dest_loc",    dest.name}});
             auto [ps, lock] = ProtocolState::getConcurrentInstance();
             lock.Lock();
             std::string currentDateTime = getCurrentDateTime();
             std::string log_message =
                     std::string("weblog=") + currentDateTime + " high_level_domain_StartMedicineProtocol" + " started";
             RCLCPP_INFO(ps.world_state_converter->get_logger(), log_message.c_str());
+
+            if (dest.name == cur.name) {
+                RCLCPP_INFO(rclcpp::get_logger("debug"),
+                            "StartMedicineProtocol: Robot is already at %s. Skipping movement.", cur.name.c_str());
+                // Just proceed with the protocol without moving
+                instantiate_protocol("medicine_reminder.pddl", {{"current_loc", cur.name}, {"dest_loc", "bedroom"}});
+            } else {
+                // Move to the medicine location if not already there
+                instantiate_protocol("medicine_reminder.pddl", {{"current_loc", cur.name}, {"dest_loc", dest.name}});
+            }
             ps.active_protocol = protocol;
             lock.UnLock();
             return BT::NodeStatus::SUCCESS;
         }
 
-        BT::NodeStatus high_level_domain_StartFoodProtocol(const InstantiatedAction &action) override {
-
-            auto &kb = KnowledgeBase::getInstance();
-            InstantiatedParameter protocol = action.parameters[0];
-            
-            instantiate_protocol("food_reminder.pddl");
-
-            auto [ps, lock] = ProtocolState::getConcurrentInstance();
-            lock.Lock();
-            ps.active_protocol = protocol;
-            lock.UnLock();
-
-            return BT::NodeStatus::SUCCESS;
-        }
-
-        // exercise protocol
-        BT::NodeStatus high_level_domain_StartExerciseReminderProtocol(const InstantiatedAction &action) override {
+        // Gym protocol
+        BT::NodeStatus high_level_domain_StartGymReminderProtocol(const InstantiatedAction &action) override {
             auto &kb = KnowledgeBase::getInstance();
             InstantiatedParameter inst = action.parameters[0];
+            InstantiatedParameter cur = action.parameters[2];
+            InstantiatedParameter dest = action.parameters[3];
+            auto [ps, lock] = ProtocolState::getConcurrentInstance();
+            lock.Lock();
+
             std::string currentDateTime = getCurrentDateTime();
             //RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=")+"high_level_domain_StartExerciseReminderProtocol"+"started"), "user...");
             RCLCPP_INFO(rclcpp::get_logger(
-                    currentDateTime + std::string("user=") + "StartExerciseReminderProtocol" + "started"),
+                    currentDateTime + std::string("user=") + "StartGymReminderProtocol" + "started"),
                         "user...");
-            auto [ps, lock] = ProtocolState::getConcurrentInstance();
-            lock.Lock();
+
             std::string log_message =
-                    std::string("weblog=") + currentDateTime + " high_level_domain_StartMoveReminderProtocol" +
+                    std::string("weblog=") + currentDateTime + " high_level_domain_StartGymReminderProtocol" +
                     " started";
             RCLCPP_INFO(ps.world_state_converter->get_logger(), log_message.c_str());
-            instantiate_protocol("exercise_reminder.pddl");
+
+
+
+            if (dest.name == cur.name) {
+                RCLCPP_INFO(rclcpp::get_logger("debug"),
+                            "StartGymReminderProtocol: Robot is already at %s. Skipping movement.", cur.name.c_str());
+                // Just proceed with the protocol without moving
+                instantiate_protocol("gym_reminder.pddl", {{"current_loc", cur.name}, {"dest_loc", "bedroom"}});
+            } else {
+                // Move to the medicine location if not already there
+                instantiate_protocol("gym_reminder.pddl", {{"current_loc", cur.name}, {"dest_loc", dest.name}});
+            }
+
             ps.active_protocol = inst;
             lock.UnLock();
             return BT::NodeStatus::SUCCESS;
         }
 
 
-        // move protocol
-        BT::NodeStatus high_level_domain_StartMoveReminderProtocol(const InstantiatedAction &action) override {
+        // StartMedicineRefill protocol
+        BT::NodeStatus high_level_domain_StartMedicineRefillReminderProtocol(const InstantiatedAction &action) override {
             auto &kb = KnowledgeBase::getInstance();
             InstantiatedParameter inst = action.parameters[0];
+            InstantiatedParameter cur = action.parameters[2];
+            InstantiatedParameter dest = action.parameters[3];
+
+            auto [ps, lock] = ProtocolState::getConcurrentInstance();
+            lock.Lock();
+
             std::string currentDateTime = getCurrentDateTime();
             //RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=")+"high_level_domain_StartWanderingProtocol"+"started"), "user...");
             RCLCPP_INFO(rclcpp::get_logger(
-                                currentDateTime + std::string("user=") + "StartMoveReminderProtocol" + "started"),
+                    currentDateTime + std::string("user=") + "StartMedicineRefillReminderProtocol" + "started"),
                         "user...");
-            auto [ps, lock] = ProtocolState::getConcurrentInstance();
-            lock.Lock();
+
             std::string log_message =
-                    std::string("weblog=") + currentDateTime + " high_level_domain_StartMoveReminderProtocol" +
+                    std::string("weblog=") + currentDateTime + " high_level_domain_StartMedicineRefillReminderProtocol" +
                     " started";
             RCLCPP_INFO(ps.world_state_converter->get_logger(), log_message.c_str());
-            instantiate_protocol("move_reminder.pddl");
+
+            if (dest.name == cur.name) {
+                RCLCPP_INFO(rclcpp::get_logger("debug"),
+                            "StartGymReminderProtocol: Robot is already at %s. Skipping movement.", cur.name.c_str());
+                // Just proceed with the protocol without moving
+                instantiate_protocol("medicine_refill_reminder.pddl", {{"current_loc", cur.name}, {"dest_loc", "bedroom"}});
+            } else {
+                // Move to the medicine location if not already there
+                instantiate_protocol("medicine_refill_reminder.pddl", {{"current_loc", cur.name}, {"dest_loc", dest.name}});
+            }
+
             ps.active_protocol = inst;
             lock.UnLock();
             return BT::NodeStatus::SUCCESS;
         }
 
-        // internal check protocol
-        BT::NodeStatus high_level_domain_StartInternalCheckReminderProtocol(const InstantiatedAction &action) override {
+        // MedicineRefillPharmacy check protocol
+        BT::NodeStatus high_level_domain_StartMedicineRefillPharmacyReminderProtocol(const InstantiatedAction &action) override {
             auto &kb = KnowledgeBase::getInstance();
             InstantiatedParameter inst = action.parameters[0];
-            std::string currentDateTime = getCurrentDateTime();
-            //RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=")+"high_level_domain_StartWanderingProtocol"+"started"), "user...");
-            RCLCPP_INFO(rclcpp::get_logger(
-                                currentDateTime + std::string("user=") + "StartInternalCheckReminderProtocol" + "started"),
-                        "user...");
-            auto [ps, lock] = ProtocolState::getConcurrentInstance();
-            lock.Lock();
-            std::string log_message =
-                    std::string("weblog=") + currentDateTime + " high_level_domain_StartInternalCheckReminderProtocol" +
-                    " started";
-            RCLCPP_INFO(ps.world_state_converter->get_logger(), log_message.c_str());
-            instantiate_protocol("internal_check_reminder.pddl");
-            ps.active_protocol = inst;
-            lock.UnLock();
-            return BT::NodeStatus::SUCCESS;
-        }
+            InstantiatedParameter cur = action.parameters[2];
+            InstantiatedParameter dest = action.parameters[3];
 
-        // practice protocol
-        BT::NodeStatus high_level_domain_StartPracticeReminderProtocol(const InstantiatedAction &action) override {
-            auto &kb = KnowledgeBase::getInstance();
-            InstantiatedParameter inst = action.parameters[0];
+            auto [ps, lock] = ProtocolState::getConcurrentInstance();
+            lock.Lock();
+
             std::string currentDateTime = getCurrentDateTime();
             //RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=")+"high_level_domain_StartWanderingProtocol"+"started"), "user...");
             RCLCPP_INFO(rclcpp::get_logger(
-                                currentDateTime + std::string("user=") + "StartPracticeReminderProtocol" + "started"),
+                    currentDateTime + std::string("user=") + "StartMedicineRefillPharmacyReminderProtocol" + "started"),
                         "user...");
-            auto [ps, lock] = ProtocolState::getConcurrentInstance();
-            lock.Lock();
+
             std::string log_message =
-                    std::string("weblog=") + currentDateTime + " high_level_domain_StartPracticeReminderProtocol" +
+                    std::string("weblog=") + currentDateTime + " high_level_domain_StartMedicineRefillPharmacyReminderProtocol" +
                     " started";
             RCLCPP_INFO(ps.world_state_converter->get_logger(), log_message.c_str());
-            instantiate_protocol("practice_reminder.pddl");
+
+            if (dest.name == cur.name) {
+                RCLCPP_INFO(rclcpp::get_logger("debug"),
+                            "StartGymReminderProtocol: Robot is already at %s. Skipping movement.", cur.name.c_str());
+                // Just proceed with the protocol without moving
+                instantiate_protocol("medicine_pharmacy_reminder.pddl", {{"current_loc", cur.name}, {"dest_loc", "bedroom"}});
+            } else {
+                // Move to the medicine location if not already there
+                instantiate_protocol("medicine_pharmacy_reminder.pddl", {{"current_loc", cur.name}, {"dest_loc", dest.name}});
+            }
+
+
             ps.active_protocol = inst;
             lock.UnLock();
             return BT::NodeStatus::SUCCESS;
@@ -756,22 +757,18 @@ namespace pddl_lib {
             const std::unordered_map<std::string, std::string> protocol_type_ = {
                     {"am_meds", "MedicineProtocol"},
                     {"pm_meds", "MedicineProtocol"},
-                    {"move_reminder", "MoveReminderProtocol"},
-                    {"internal_check_reminder", "InternalCheckReminderProtocol"},
-                    {"practice_reminder", "PracticeReminderProtocol"},
-                    {"exercise_reminder", "ExerciseReminderProtocol"},
-                    {"breakfast", "FoodProtocol"}
+                    {"gym_reminder", "GymReminderProtocol"},
+                    {"medicine_refill_reminder", "MedicineRefillReminderProtocol"},
+                    {"medicine_pharmacy_reminder", "MedicineRefillPharmacyReminderProtocol"}
             };
 
             const std::unordered_map<std::string, std::vector<std::string>> keyword_protocol_ = {
                     {"already_took_medicine", {"am_meds", "pm_meds"}},
                     {"already_reminded_medicine", {"am_meds", "pm_meds"}},
-                    {"already_reminded_move",{"move_reminder"}},
-                    {"already_reminded_internal_check",{"internal_check_reminder"}},
-                    {"already_reminded_practice",{"practice_reminder"}},
-                    {"already_ate",{"breakfast"}},
-                    {"already_called_about_eating",{"breakfast"}},
-                    {"already_reminded_exercise",{"exercise_reminder"}}
+                    {"already_called_about_medicine", {"am_meds", "pm_meds"}},
+                    {"already_reminded_gym",{"gym_reminder"}},
+                    {"already_reminded_medicine_refill",{"medicine_refill_reminder"}},
+                    {"already_reminded_medicine_pharmacy",{"medicine_pharmacy_reminder"}}
             };
 
             std::ifstream ifs(keywordsFile);
@@ -882,37 +879,6 @@ namespace pddl_lib {
 //            ps.active_protocol = inst;
 //            lock.UnLock();
             return BT::NodeStatus::SUCCESS;
-        }
-
-
-        BT::NodeStatus shr_domain_MakeCall(const InstantiatedAction &action) override {
-            auto [ps, lock] = ProtocolState::getConcurrentInstance();
-            auto params = ps.world_state_converter->get_params();
-            auto &kb = KnowledgeBase::getInstance();
-
-            std::string msg = action.parameters[3].name;
-            int wait_time = ps.wait_times.at(ps.active_protocol).at(msg).first;
-            for (int i = 0; i < wait_time; i++) {
-                if (kb.check_conditions(action.precondtions) == TRUTH_VALUE::FALSE) {
-                    abort(action);
-                    return BT::NodeStatus::FAILURE;
-                }
-                rclcpp::sleep_for(std::chrono::seconds(1));
-            }
-
-
-            shr_msgs::action::CallRequest::Goal call_goal_;
-            call_goal_.script_name = ps.call_msgs.at(ps.active_protocol).at(msg).first;
-            call_goal_.phone_number = ps.call_msgs.at(ps.active_protocol).at(msg).second;
-
-            
-
-
-            auto ret = send_goal_blocking(call_goal_, action) ? BT::NodeStatus::SUCCESS : BT::NodeStatus::FAILURE;
-            if (ret == BT::NodeStatus::SUCCESS) {
-                rclcpp::sleep_for(std::chrono::seconds(ps.wait_times.at(ps.active_protocol).at(msg).second));
-            }
-            return ret;
         }
 
         BT::NodeStatus shr_domain_MedicineTakenSuccess(const InstantiatedAction &action) override {

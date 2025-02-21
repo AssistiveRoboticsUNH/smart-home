@@ -13,17 +13,6 @@ namespace pddl_lib {
         return std::stoi(hour) * 60 * 60 + std::stoi(minute) * 60 + std::stoi(seconds);
     }
 
-    std::optional<long> get_inst_index(FoodProtocol m, const shr_parameters::Params &params) {
-        const auto &instances = params.pddl.FoodProtocols.instances;
-        auto it = std::find(instances.begin(), instances.end(), m);
-        if (it != instances.end()) {
-            auto index = std::distance(instances.begin(), it);
-            return index;
-        } else {
-            return {};
-        }
-    }
-
     std::optional<long> get_inst_index(MedicineProtocol m, const shr_parameters::Params &params) {
         const auto &instances = params.pddl.MedicineProtocols.instances;
         auto it = std::find(instances.begin(), instances.end(), m);
@@ -35,8 +24,8 @@ namespace pddl_lib {
         }
     }
 
-    std::optional<long> get_inst_index(MoveReminderProtocol m, const shr_parameters::Params &params) {
-        const auto &instances = params.pddl.MoveReminderProtocols.instances;
+    std::optional<long> get_inst_index(GymReminderProtocol m, const shr_parameters::Params &params) {
+        const auto &instances = params.pddl.GymReminderProtocols.instances;
         auto it = std::find(instances.begin(), instances.end(), m);
         if (it != instances.end()) {
             auto index = std::distance(instances.begin(), it);
@@ -46,8 +35,8 @@ namespace pddl_lib {
         }
     }
 
-    std::optional<long> get_inst_index(InternalCheckReminderProtocol m, const shr_parameters::Params &params) {
-        const auto &instances = params.pddl.InternalCheckReminderProtocols.instances;
+    std::optional<long> get_inst_index(MedicineRefillReminderProtocol m, const shr_parameters::Params &params) {
+        const auto &instances = params.pddl.MedicineRefillReminderProtocols.instances;
         auto it = std::find(instances.begin(), instances.end(), m);
         if (it != instances.end()) {
             auto index = std::distance(instances.begin(), it);
@@ -57,8 +46,8 @@ namespace pddl_lib {
         }
     }
 
-    std::optional<long> get_inst_index(PracticeReminderProtocol m, const shr_parameters::Params &params) {
-        const auto &instances = params.pddl.PracticeReminderProtocols.instances;
+    std::optional<long> get_inst_index(MedicineRefillPharmacyReminderProtocol m, const shr_parameters::Params &params) {
+        const auto &instances = params.pddl.MedicineRefillPharmacyReminderProtocols.instances;
         auto it = std::find(instances.begin(), instances.end(), m);
         if (it != instances.end()) {
             auto index = std::distance(instances.begin(), it);
@@ -68,33 +57,20 @@ namespace pddl_lib {
         }
     }
 
-    std::optional<long> get_inst_index(ExerciseReminderProtocol m, const shr_parameters::Params &params) {
-        const auto &instances = params.pddl.ExerciseReminderProtocols.instances;
-        auto it = std::find(instances.begin(), instances.end(), m);
-        if (it != instances.end()) {
-            auto index = std::distance(instances.begin(), it);
-            return index;
-        } else {
-            return {};
-        }
-    }
-// names same as in high level domain
     std::optional<long> get_inst_index(InstantiatedParameter inst, const shr_parameters::Params &params) {
         if (inst.type == "MedicineProtocol") {
             return get_inst_index((MedicineProtocol) inst.name, params);
-        } else if (inst.type == "MoveReminderProtocol") {
-            return get_inst_index((MoveReminderProtocol) inst.name, params);
-        }else if (inst.type == "InternalCheckReminderProtocol") {
-            return get_inst_index((InternalCheckReminderProtocol) inst.name, params);
-        }else if (inst.type == "PracticeReminderProtocol") {
-            return get_inst_index((PracticeReminderProtocol) inst.name, params);
-        }else if (inst.type == "ExerciseReminderProtocol") {
-            return get_inst_index((ExerciseReminderProtocol) inst.name, params);
-        }else if (inst.type == "FoodProtocol") {
-            return get_inst_index((FoodProtocol) inst.name, params);
+        } else if (inst.type == "GymReminderProtocol") {
+            return get_inst_index((GymReminderProtocol) inst.name, params);
+        }
+        else if (inst.type == "MedicineRefillReminderProtocol") {
+            return get_inst_index((MedicineRefillReminderProtocol) inst.name, params);
+        }else if (inst.type == "MedicineRefillPharmacyReminderProtocol") {
+            return get_inst_index((MedicineRefillPharmacyReminderProtocol) inst.name, params);
         }
         return {};
     }
+
 
     std::string
     replace_token(const std::string &protocol_content, const std::string &token, const std::string &new_token) {

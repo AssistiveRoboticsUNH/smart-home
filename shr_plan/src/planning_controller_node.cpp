@@ -95,27 +95,6 @@ public:
         }
     }
 
-    TRUTH_VALUE time_to_eat(TRUTH_VALUE val, FoodProtocol f) const override {
-        auto params = world_state_converter->get_params();
-        if (auto index = get_inst_index(f, params)) {
-            if (compare_time(params.pddl.FoodProtocols.eat_times[index.value()])) {
-                return TRUTH_VALUE::TRUE;
-            }
-        }
-        return TRUTH_VALUE::FALSE;
-    }
-
-    TRUTH_VALUE already_ate(TRUTH_VALUE val, FoodProtocol f) const override {
-        if (val == TRUTH_VALUE::TRUE) {
-            return TRUTH_VALUE::TRUE;
-        }
-        //TODO this is not right. It should check if the current time window corresponds to f
-        if (world_state_converter->get_world_state_msg()->person_eating == 1) {
-            return TRUTH_VALUE::TRUE;
-        }
-        return val;
-    }
-
 
     TRUTH_VALUE person_at(TRUTH_VALUE val, Time t, Person p, Landmark lm) const override {
         if (val == TRUTH_VALUE::UNKNOWN || t != "t1") {
@@ -152,40 +131,31 @@ public:
         return TRUTH_VALUE::FALSE;
     }
 
-    TRUTH_VALUE time_for_exercise_reminder(TRUTH_VALUE val, ExerciseReminderProtocol m) const override {
+
+    TRUTH_VALUE time_for_gym_reminder(TRUTH_VALUE val, GymReminderProtocol m) const override {
         auto params = world_state_converter->get_params();
         if (auto index = get_inst_index(m, params)) {
-            if (compare_time(params.pddl.ExerciseReminderProtocols.exercise_reminder_times[index.value()])) {
+            if (compare_time(params.pddl.GymReminderProtocols.gym_reminder_times[index.value()])) {
                 return TRUTH_VALUE::TRUE;
             }
         }
         return TRUTH_VALUE::FALSE;
     }
 
-    TRUTH_VALUE time_for_move_reminder(TRUTH_VALUE val, MoveReminderProtocol m) const override {
+    TRUTH_VALUE time_for_medicine_refill_reminder(TRUTH_VALUE val, MedicineRefillReminderProtocol m) const override {
         auto params = world_state_converter->get_params();
         if (auto index = get_inst_index(m, params)) {
-            if (compare_time(params.pddl.MoveReminderProtocols.move_reminder_times[index.value()])) {
+            if (compare_time(params.pddl.MedicineRefillReminderProtocols.medicine_refill_reminder_times[index.value()])) {
                 return TRUTH_VALUE::TRUE;
             }
         }
         return TRUTH_VALUE::FALSE;
     }
 
-    TRUTH_VALUE time_for_internal_check_reminder(TRUTH_VALUE val, InternalCheckReminderProtocol m) const override {
+    TRUTH_VALUE time_for_medicine_pharmacy_reminder(TRUTH_VALUE val, MedicineRefillPharmacyReminderProtocol m) const override {
         auto params = world_state_converter->get_params();
         if (auto index = get_inst_index(m, params)) {
-            if (compare_time(params.pddl.InternalCheckReminderProtocols.internal_check_reminder_times[index.value()])) {
-                return TRUTH_VALUE::TRUE;
-            }
-        }
-        return TRUTH_VALUE::FALSE;
-    }
-
-    TRUTH_VALUE time_for_practice_reminder(TRUTH_VALUE val, PracticeReminderProtocol m) const override {
-        auto params = world_state_converter->get_params();
-        if (auto index = get_inst_index(m, params)) {
-            if (compare_time(params.pddl.PracticeReminderProtocols.practice_reminder_times[index.value()])) {
+            if (compare_time(params.pddl.MedicineRefillPharmacyReminderProtocols.medicine_refill_pharmacy_reminder_times[index.value()])) {
                 return TRUTH_VALUE::TRUE;
             }
         }
@@ -220,6 +190,7 @@ public:
             return val;
         }
     }
+
 
 
 private:
