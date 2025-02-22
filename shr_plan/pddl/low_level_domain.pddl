@@ -11,6 +11,7 @@
     WaitAction
     NoAction
     CallAction
+    VoiceAction
   )
 
 (:predicates
@@ -52,21 +53,29 @@
     (DetectEatingFood_enabled)
     (DetectTakingMedicine_enabled)
     (MakeCall_enabled)
+    (MakeVoice_enabled)
 
 
     ;; enforce action sequence dependencies
     (call_blocks_call ?a1 ?a2 - CallAction)
     (reminder_blocks_call ?a1 - ReminderAction ?a2 - CallAction)
     (reminder_blocks_reminder ?a1 ?a2 - ReminderAction)
+    (voice_blocks_voice ?v1 ?v2 - VoiceAction)
+    (voice_blocks_reminder ?a1 - VoiceAction ?r - ReminderAction)
+
+
+
     (executed_reminder ?a - ReminderAction)
     (executed_call ?c - CallAction)
     (executed_wait ?t - Time)
     (executed_wait ?a - WaitAction)
+    (executed_voice ?a - VoiceAction)
     (wait_blocks_wait ?a1 - WaitAction ?a2 - WaitAction)
 
     ;; enforce that actions are called with valid object instances
     (valid_reminder_message ?a - ReminderAction ?m - Msg)
     (valid_call_message ?a - CallAction ?m - Msg)
+    (valid_voice_message ?v - VoiceAction ?m - Msg)
 
     (same_location_constraint)
     (not_same_location_constraint)
@@ -75,6 +84,7 @@
     (time_critical)
     (used_move ?tc - Time ?lmr - Landmark)
     (used_reminder ?tc - Time)
+    (used_voice ?tc - Time)
     (used_call ?tc - Time)
 
     (current_time ?tc - Time)
@@ -232,6 +242,7 @@
               (not (and (reminder_blocks_reminder ?ai ?a)  (not (executed_reminder ?ai) ) ) )
             )
 
+
             ;; Either robot and person have to be in same location or in designated locations
             ;; !(a || b) is equivalent to !a && !b
             ;; !!(a || b) = (a || b)  is equivalent to ! (!a && !b)
@@ -260,6 +271,44 @@
 
             )
 )
+
+
+
+(:action MakeVoiceCommand
+    :parameters (?v - VoiceAction ?t - Time ?p - Person ?m - Msg)
+    :precondition (and
+            (MakeVoice_enabled)  ;; Ensure voice system is active
+            (current_time ?t)
+            (not (used_voice ?t))
+            (not (executed_voice ?v)) ;; Ensure it hasn't been used
+            (valid_voice_message ?v ?m)
+
+            ;; Ensure actions follow dependencies correctly
+            (forall (?vi - VoiceAction)
+              (not (and (voice_blocks_voice ?vi ?v) (not (executed_voice ?vi)) ) )
+            )
+
+            (same_location_constraint)
+
+            ;; Ensure the robot and person are at the same location
+            (not
+                (forall (?loc - Landmark)
+                    (not (and (person_at ?t ?p ?loc) (robot_at ?loc)) )
+                )
+            )
+
+            (not (abort))
+        )
+    :effect (and
+              (message_given ?m)
+              (executed_voice ?v)  ;; Mark as executed
+              (used_voice ?t)  ;; Track usage
+              (forall (?tn - Time)
+                (when (next_time ?t ?tn) (and (not (current_time ?t)) (current_time ?tn)) )
+              )
+    )
+)
+
 
 ;; Wait for timestep
 (:action Wait

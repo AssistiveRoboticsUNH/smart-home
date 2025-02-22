@@ -1,0 +1,84 @@
+tts_node:
+  ros__parameters:
+    tts_model: "gTTS" #Select from ["gTTS", "googleAPI"]
+    api_credential_file : "ttsCred.json" # Inside config/ folder
+
+question_response_action:
+  ros__parameters:
+    tts_model: "gTTS" #Select from ["gTTS", "googleAPI"]
+    api_credential_file : "ttsCred.json" # Inside config/ folder
+
+conversation_action:
+  ros__parameters:
+    wake_words:
+      - "stretch"
+      - "sarah"
+      - "scratch"
+      - "tom"
+      
+    wake_responses:
+      - "Hello! How can I assist you today?"
+      - "How I can I help?"
+      - "You called? How can I assist?"
+      - "You called me? What can I do for you?"
+      - "Listening! What's up?"
+      - "Hello there! How can I help today?"
+      - "Right here! What do you need?"
+      - "Hi! I am Ready to assist. You can ask."
+      - "Standing by. How can I be of service?"
+      - "Yes?, I’m listening. Go ahead!"
+      - "Here and ready to assist!"
+      - "Hello! I'm here and ready to help."
+      - "What do you need? I’m all ears!"
+      - "Yes?, I’m ready. What do you need?"
+
+    trigger_keywords:
+      - "weather"
+      - "way there"
+      - "temperature"
+      - "time"
+      - "bye"
+      - "thanks"
+      - "thank"
+      - "hear me"
+      - "come"
+      - "go home"
+
+    incapability_responses:
+      - "Sorry?"
+      - "Hmmm?"
+      # - "I'm sorry, I cannot perform that task at the moment."
+      # - "Unfortunately, that's beyond my current abilities."
+      # - "I am unable to complete that request right now."
+      # - "Sorry, that function is not available to me."
+      - "Mmmm Hmmm?"
+      # - "Apologies, but I'm not equipped to handle that task."
+      # - "I currently lack the ability to perform that action."
+      - "Hmmmmmm?"
+      # - "Regrettably, I am not capable of doing that right now."
+      - "What is that again please?"
+      - "I'm sorry."
+      - "I'm unable to help with that."
+      # - "That task is outside my current operational parameters."
+      - "I'm not programmed to perform that function."
+      # - "This task is currently outside my capabilities."
+      - "Sorry, I can't assist with that at this time."
+      # - "That request is beyond what I can do at the moment."
+
+    
+speech_processor:
+  ros__parameters:
+    wake_words:
+      - "stretch"
+      - "sarah"
+      - "sara"
+      - "zara"
+      - "strict"
+      - "scratch"
+      - "straight?"
+      
+    wake_responses:
+      - "I'm listening! Please wait while I guide myself towards you."
+      - "I'm coming"
+      - "Mmm Hmm? Hang on! I'm coming."
+      - "Am I being called? Wait there, I'm coming."

@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>convros_bot</name>
+  <version>0.0.0</version>
+  <description>Package to add conversation capability to robot</description>
+  <maintainer email="moniruzzaman.akash@unh.edu">akash</maintainer>
+  <license>TODO: License declaration</license>
+
+  <depend>rclpy</depend>
+  <depend>action_msgs</depend>
+
+  <test_depend>ament_copyright</test_depend>
+  <test_depend>ament_flake8</test_depend>
+  <test_depend>ament_pep257</test_depend>
+  <test_depend>python3-pytest</test_depend>
+
+  <exec_depend>std_msgs</exec_depend>
+  <exec_depend>convros_interfaces</exec_depend>
+  
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>

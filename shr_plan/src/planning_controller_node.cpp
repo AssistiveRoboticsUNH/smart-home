@@ -325,6 +325,13 @@ int main(int argc, char **argv) {
         while (!ps.audio_action_client_->wait_for_action_server(std::chrono::seconds(5))) {
             RCLCPP_INFO(rclcpp::get_logger("play_audio"), "Waiting for /play_audio action server...");
         }
+
+//        ps.audio_action_client_ = rclcpp_action::create_client<shr_msgs::action::PlayAudioRequest>(
+//                world_state_converter, "play_audio");
+//        while (!ps.audio_action_client_->wait_for_action_server(std::chrono::seconds(5))) {
+//            RCLCPP_INFO(rclcpp::get_logger("play_audio"), "Waiting for /play_audio action server...");
+//        }
+
         ps.docking_ = rclcpp_action::create_client<shr_msgs::action::DockingRequest>(
                 world_state_converter, "docking");
         while (!ps.docking_->wait_for_action_server(std::chrono::seconds(5))) {
@@ -339,6 +346,14 @@ int main(int argc, char **argv) {
                 world_state_converter, "localize");
         while (!ps.localize_->wait_for_action_server(std::chrono::seconds(5))) {
             RCLCPP_INFO(rclcpp::get_logger("localize"), "Waiting for /localize action server...");
+        }
+
+        // 🔴 Ensure the action client exists
+        ps.voice_action_client_ = rclcpp_action::create_client<shr_msgs::action::QuestionResponseRequest>(
+                ps.world_state_converter, "question_response_action");
+
+        while (!ps.voice_action_client_->wait_for_action_server(std::chrono::seconds(5))) {
+            RCLCPP_INFO(rclcpp::get_logger("voice"), "Waiting for /question_response_action server...");
         }
 
         lock.UnLock();

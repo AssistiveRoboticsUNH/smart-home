@@ -6,6 +6,8 @@ from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node
+from launch.substitutions import PathJoinSubstitution
+from launch_ros.substitutions import FindPackageShare
 
 
 def generate_launch_description():
@@ -64,6 +66,16 @@ def generate_launch_description():
         name='play_audio_text_action',
         output='screen')
 
+    ask_question_cmd = Node(
+        package='convros_bot',
+        executable='question_response_action',
+        name='question_response_action',
+        output='screen',
+        parameters=[PathJoinSubstitution([
+            FindPackageShare('convros_bot'), 'config', 'config.yaml'
+        ])]
+    )
+
     ld = LaunchDescription()
     #ld.add_action(read_script_node_cmd)
     ld.add_action(docking_server_cmd)
@@ -74,6 +86,6 @@ def generate_launch_description():
     ld.add_action(localize_cmd)
     ld.add_action(undock_cmd)
     ld.add_action(play_audio_text_node_cmd)
-    #ld.add_action(waypoint_cmd)
+    ld.add_action(ask_question_cmd)
 
     return ld
