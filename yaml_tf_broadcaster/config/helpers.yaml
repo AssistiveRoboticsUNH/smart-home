@@ -1,21 +1,24 @@
+# This transforms are for docking camera and charger wrt. base_link
+
 transformations:
   - frame_id: base_link
     id: camera_color_optical_frame
     transform:
-      - 0.000
-      - 0.000
-      - 0.500
-      - 0.500
-      - -0.500
-      - 0.500
-      - -0.500
-  - frame_id: camera_color_optical_frame
+      - -0.1     # Translation X
+      - -0.04    # Translation Y
+      -  0.25    # Translation Z
+      - -0.5     # Quaternion X
+      - -0.5     # Quaternion Y
+      -  0.5     # Quaternion Z
+      -  0.5     # Quaternion W
+  
+  - frame_id: base_link
     id: charger
     transform:
-      - -0.06
-      - 0.176
-      - 0.325
-      - 0.500
-      - -0.500
-      - 0.500
-      - 0.500
+      - -0.384    # Translation X
+      -  0.0      # Translation Y
+      -  0.17     # Translation Z
+      -  0        # Quaternion X
+      -  0        # Quaternion Y
+      -  1        # Quaternion Z
+      -  0        # Quaternion W

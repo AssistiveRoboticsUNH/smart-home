@@ -44,6 +44,15 @@ def generate_launch_description():
         output='screen'
     )
 
+    # Define the micro_ros_node launch action
+    micro_ros_node = Node(
+            package='micro_ros_agent',
+            executable='micro_ros_agent',
+            name='micro_ros_agent',
+            output='screen',
+            arguments=['serial', '--dev', '/dev/hello-esp', '-b', '115200'],
+        )
+
     # nav_cmd = IncludeLaunchDescription(
     #     PythonLaunchDescriptionSource(PathJoinSubstitution([
     #         get_package_share_directory('jackal_navigation'), 'launch', 'navigation2_jackal.launch.py']))
@@ -117,6 +126,7 @@ def generate_launch_description():
     ld.add_action(smartthings_node)
     ld.add_action(smartthings_node_plug)
     #ld.add_action(protocol_time_node)
-    ld.add_action(smartthings_node_bump)
+    # ld.add_action(smartthings_node_bump)
+    ld.add_action(micro_ros_node)
 
     return ld
