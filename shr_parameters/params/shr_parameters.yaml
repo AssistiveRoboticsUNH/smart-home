@@ -50,6 +50,19 @@ shr_parameters:
         default_value: [ "15h00m0s/16h00m0s" ],
         description: "time that each protocol is triggered",
       }
+
+    WalkingProtocols:
+      instances: {
+        type: string_array,
+        default_value: [ "walking_reminder" ],
+        description: "gym reminder protocols",
+      }
+      walking_reminder_times: {
+        type: string_array,
+        default_value: [ "13h00m0s/14h00m0s"],
+        description: "time that each protocol is triggered",
+      }
+
   topics:
     time: {
       type: string,
@@ -69,6 +82,12 @@ shr_parameters:
     robot_charging: {
       type: string,
       default_value: "/charging",
+      description: "topic for smart plug that detect if robot is charging",
+    }
+
+    good_weather: {
+      type: string,
+      default_value: "/good_weather",
       description: "topic for smart plug that detect if robot is charging",
     }
 

@@ -21,6 +21,13 @@ def generate_launch_description():
         executable='bump_sensor',
         output='screen'
     )
+
+    smartthings_weather = Node(
+        package='smartthings_ros',
+        executable='weather_node',
+        output='screen'
+    )
+
     smartthings_node_plug = Node(
         package='smartthings_ros',
         executable='smartplug_node',
@@ -118,5 +125,6 @@ def generate_launch_description():
     ld.add_action(smartthings_node_plug)
     #ld.add_action(protocol_time_node)
     ld.add_action(smartthings_node_bump)
+    #ld.add_action(smartthings_weather)
 
     return ld

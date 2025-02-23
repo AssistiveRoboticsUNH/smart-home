@@ -181,6 +181,39 @@ public:
         return TRUTH_VALUE::FALSE;
     }
 
+    TRUTH_VALUE time_for_walking_reminder(TRUTH_VALUE val, WalkingProtocol m) const override {
+        auto params = world_state_converter->get_params();
+        if (auto index = get_inst_index(m, params)) {
+            if (compare_time(params.pddl.WalkingProtocols.walking_reminder_times[index.value()])) {
+                return TRUTH_VALUE::TRUE;
+            }
+        }
+        return TRUTH_VALUE::FALSE;
+    }
+
+    TRUTH_VALUE good_weather(TRUTH_VALUE val, WalkingProtocol w) const override {
+        RCLCPP_INFO(rclcpp::get_logger("WeatherDebug"), "🌤️ Entering good_weather function for WalkingProtocol: ");
+    
+        auto world_state_msg = world_state_converter->get_world_state_msg();
+        if (!world_state_msg) {
+            RCLCPP_ERROR(rclcpp::get_logger("WeatherDebug"), "❌ Error: world_state_msg is NULL! Returning UNKNOWN.");
+            return TRUTH_VALUE::UNKNOWN;
+        }
+    
+        int weather_status = world_state_msg->good_weather;
+        RCLCPP_INFO(rclcpp::get_logger("WeatherDebug"), "🔍 Current good_weather value: %d", weather_status);
+    
+        if (weather_status == 1) {
+            RCLCPP_INFO(rclcpp::get_logger("WeatherDebug"), "✅ Weather is GOOD for WalkingProtocol: ");
+            return TRUTH_VALUE::TRUE;
+        }
+    
+        RCLCPP_WARN(rclcpp::get_logger("WeatherDebug"), "⚠️ Weather is NOT good for WalkingProtocol: ");
+        return TRUTH_VALUE::FALSE;
+    }
+    
+    
+
 
 
 

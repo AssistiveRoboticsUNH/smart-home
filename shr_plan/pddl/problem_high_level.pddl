@@ -6,6 +6,7 @@
      gym_reminder - GymReminderProtocol
      medicine_refill_reminder - MedicineRefillReminderProtocol
      medicine_pharmacy_reminder - MedicineRefillPharmacyReminderProtocol
+     walking_reminder - WalkingProtocol
 
 
      home door outside living_room bedroom - Landmark
@@ -26,12 +27,17 @@
       (gym_location living_room)
       (medicine_refill_location living_room)
       (medicine_pharmacy_location living_room)
+      (walking_reminder_location living_room)
 
 
 
 
       ;;(robot_at bedroom)
       ;;(person_currently_at nathan living_room)
+
+      ;; check walking
+      ;;(time_for_walking_reminder walking_reminder)
+      ;;(good_weather walking_reminder)
 
       ;;check move
       ;;(time_for_move_reminder move_reminder)
