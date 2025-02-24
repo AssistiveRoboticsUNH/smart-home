@@ -144,11 +144,11 @@ class Docking(Node):
             for at in msg.detections:
                 if(at.id ==203):
                     self.is_detect = True 
-                    print("True!")            
+                    # print("True!")            
         else:
             # pass
             self.is_detect = False
-            print('No aptags from callback')
+            # print('No aptags from callback')
 
 
     def move_towards_tag(self):
