@@ -1,0 +1,8 @@
+# Goal
+string question
+---
+# Result
+string response
+---
+# Feedback
+float32 seconds_running  # For how long the converation running

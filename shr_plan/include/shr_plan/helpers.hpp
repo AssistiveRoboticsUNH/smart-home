@@ -1,3 +1,7 @@
+//
+// Created by marzan on 2/10/25.
+//
+
 #pragma once
 
 namespace pddl_lib {
@@ -57,6 +61,17 @@ namespace pddl_lib {
         }
     }
 
+    std::optional<long> get_inst_index(WalkingProtocol m, const shr_parameters::Params &params) {
+        const auto &instances = params.pddl.WalkingProtocols.instances;
+        auto it = std::find(instances.begin(), instances.end(), m);
+        if (it != instances.end()) {
+            auto index = std::distance(instances.begin(), it);
+            return index;
+        } else {
+            return {};
+        }
+    }
+
     std::optional<long> get_inst_index(InstantiatedParameter inst, const shr_parameters::Params &params) {
         if (inst.type == "MedicineProtocol") {
             return get_inst_index((MedicineProtocol) inst.name, params);
@@ -67,10 +82,11 @@ namespace pddl_lib {
             return get_inst_index((MedicineRefillReminderProtocol) inst.name, params);
         }else if (inst.type == "MedicineRefillPharmacyReminderProtocol") {
             return get_inst_index((MedicineRefillPharmacyReminderProtocol) inst.name, params);
+        }else if (inst.type == "WalkingProtocol") {
+            return get_inst_index((WalkingProtocol) inst.name, params);
         }
         return {};
     }
-
 
     std::string replace_token(const std::string &protocol_content, const std::string &token, const std::string &new_token) {
         if (token == new_token) {
@@ -98,5 +114,6 @@ namespace pddl_lib {
 
         return ss.str();
     }
+
 
 } // pddl_lib

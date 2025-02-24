@@ -14,6 +14,7 @@ private:
     rclcpp::Subscription<std_msgs::msg::Int32>::SharedPtr charging_sub_;
     rclcpp::Subscription<builtin_interfaces::msg::Time>::SharedPtr time_sub_;
     rclcpp::Subscription<std_msgs::msg::Int32>::SharedPtr taking_medicine_sub_;
+    rclcpp::Subscription<std_msgs::msg::Int32>::SharedPtr good_weather_sub_;
     std::unique_ptr<tf2_ros::Buffer> tf_buffer_;
     std::shared_ptr<tf2_ros::TransformListener> tf_listener_;
     std::shared_ptr<shr_msgs::msg::WorldState> world_state_;
@@ -52,11 +53,21 @@ public:
                 params.topics.time, 10, [this](const builtin_interfaces::msg::Time::SharedPtr msg) {
                     std::lock_guard<std::mutex> lock(world_state_mtx);
                     world_state_->time = *msg;
+
+                    // 🔍 Debugging: Print received time
+                    RCLCPP_INFO(rclcpp::get_logger(std::string("user=") + "high_level_domain_Idle" + "started"), "⏳ Received protocol time update: sec = %d, nanosec = %d", msg->sec, msg->nanosec);
                 });
+
         charging_sub_ = create_subscription<std_msgs::msg::Int32>(
                 params.topics.robot_charging, 10, [this](const std_msgs::msg::Int32::SharedPtr msg) {
                     std::lock_guard<std::mutex> lock(world_state_mtx);
                     world_state_->robot_charging = msg->data;
+                });
+
+        good_weather_sub_ = create_subscription<std_msgs::msg::Int32>(
+                params.topics.good_weather, 10, [this](const std_msgs::msg::Int32::SharedPtr msg) {
+                    std::lock_guard<std::mutex> lock(world_state_mtx);
+                    world_state_->good_weather = msg->data;
                 });
 
         std::filesystem::path pkg_dir = ament_index_cpp::get_package_share_directory("shr_resources");
@@ -100,7 +111,7 @@ public:
         }
 
         Eigen::Vector3d point = {robot_location.transform.translation.x, robot_location.transform.translation.y, 0.0};
-                                 // cause it doesnt matter sice its 2D robot_location.transform.translation.z};
+        // cause it doesnt matter sice its 2D robot_location.transform.translation.z};
         return shr_utils::PointInMesh(point, verts, verts2d);
     }
 

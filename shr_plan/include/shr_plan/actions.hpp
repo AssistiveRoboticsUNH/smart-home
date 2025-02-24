@@ -10,6 +10,7 @@
 #include "shr_msgs/action/docking_request.hpp"
 #include "shr_msgs/action/localize_request.hpp"
 #include "shr_msgs/action/waypoint_request.hpp"
+#include "shr_msgs/action/question_response_request.hpp"
 #include <shr_plan/world_state_converter.hpp>
 #include "shr_plan/helpers.hpp"
 #include <shr_plan/intersection_helpers.hpp>
@@ -35,7 +36,7 @@ namespace pddl_lib {
                                                                                                           {"reminder_2_msg", {0, 12}},
                                                                                                           {"wait", {2, 0}},
                                                                                                   }},
-                {{"gym_reminder",                      "GymReminderProtocol"},                    {{"reminder_1_msg", {0, 1}},
+                {{"gym_reminder",                      "GymReminderProtocol"},                    {{"voice_msg", {0, 1}},
                                                                                                           {"wait",           {0, 0}},
 
                                                                                                   }},
@@ -47,6 +48,11 @@ namespace pddl_lib {
                                                                                                           {"wait",           {0, 0}},
 
                                                                                                   }},
+
+                {{"walking_reminder",                   "WalkingProtocol"}, {{"reminder_1_msg", {0, 1}},
+                                                                                    {"wait",           {0, 0}},
+
+                                                                            }},
 
         };
 
@@ -62,6 +68,8 @@ namespace pddl_lib {
                                                                      }},
                 {{"medicine_pharmacy_reminder",      "MedicineRefillPharmacyReminderProtocol"},      {{"reminder_1_msg", "pharmacy_refill.txt"},
                                                                      }},
+                {{"walking_reminder",       "WalkingProtocol"},              {{"reminder_1_msg", "walking_reminder.txt"},
+                                                                             }},
         };
 
         const std::unordered_map <InstantiatedParameter, std::unordered_map<std::string, std::string>> recorded_reminder_msgs = {
@@ -72,6 +80,15 @@ namespace pddl_lib {
 
         };
 
+        const std::unordered_map<InstantiatedParameter, std::unordered_map<std::string, std::vector<std::string>>> voice_msgs = {
+                {
+                        {"gym_reminder", "GymReminderProtocol"},
+                        {
+                                {"voice_msg", {"Good morning Howie, this is Florence, “would like to go to the gym, please say Yes or No ?", "if_true_text.txt", "if_false_text.txt"}}
+                        }
+                },
+        };
+
         // action servers
         rclcpp_action::Client<nav2_msgs::action::NavigateToPose>::SharedPtr nav_client_ = {};
         rclcpp_action::Client<shr_msgs::action::DockingRequest>::SharedPtr docking_ = {};
@@ -80,6 +97,8 @@ namespace pddl_lib {
         rclcpp_action::Client<shr_msgs::action::LocalizeRequest>::SharedPtr localize_ = {};
         rclcpp_action::Client<shr_msgs::action::PlayAudioRequest>::SharedPtr audio_action_client_ = {};
         rclcpp_action::Client<shr_msgs::action::CallRequest>::SharedPtr call_client_ = {};
+        rclcpp_action::Client<shr_msgs::action::QuestionResponseRequest>::SharedPtr voice_action_client_ = {};
+
 
         static InstantiatedParameter getActiveProtocol() {
             std::lock_guard <std::mutex> lock(getInstance().active_protocol_mtx);
@@ -337,6 +356,57 @@ namespace pddl_lib {
             rclcpp::sleep_for(std::chrono::seconds(1));
         }
         return *success;
+    }
+
+    int send_goal_blocking(const shr_msgs::action::QuestionResponseRequest::Goal &goal,
+                           const InstantiatedAction &action,
+                           ProtocolState &ps) {
+        auto &kb = KnowledgeBase::getInstance();
+        auto success = std::make_shared<std::atomic<int>>(-1);
+
+        // ✅ Configure send goal options
+        auto send_goal_options = rclcpp_action::Client<shr_msgs::action::QuestionResponseRequest>::SendGoalOptions();
+        send_goal_options.result_callback = [&success](
+                const rclcpp_action::ClientGoalHandle<shr_msgs::action::QuestionResponseRequest>::WrappedResult &result) {
+
+            if (result.code == rclcpp_action::ResultCode::SUCCEEDED) {
+                if (result.result->response == "yes") {
+                    RCLCPP_INFO(rclcpp::get_logger("VoiceCommand"), "✅ User said YES.");
+                    *success = 1;  // ✅ "Yes" response
+                } else if (result.result->response == "no") {
+                    RCLCPP_INFO(rclcpp::get_logger("VoiceCommand"), "✅ User said NO.");
+                    *success = 0;  // ✅ "No" response
+                } else {
+                    RCLCPP_WARN(rclcpp::get_logger("VoiceCommand"), "⚠️ Unexpected response: %s", result.result->response.c_str());
+                    *success = -1;  // Invalid response
+                }
+            } else {
+                RCLCPP_ERROR(rclcpp::get_logger("VoiceCommand"), "❌ Voice command failed.");
+                *success = -1;  // Indicates failure
+            }
+        };
+
+        // ✅ Send goal asynchronously
+        auto goal_handle_future = ps.voice_action_client_->async_send_goal(goal, send_goal_options);
+        auto goal_handle = goal_handle_future.get();
+
+        if (!goal_handle) {
+            RCLCPP_ERROR(rclcpp::get_logger("VoiceAction"), "❌ Goal was rejected by the voice action server.");
+            return -1;  // Indicates failure
+        }
+
+        // ✅ Track the active protocol while waiting for completion
+        auto tmp_protocol = ps.active_protocol;
+        while (*success == -1) {
+            if (!(tmp_protocol == ps.active_protocol)) {
+                ps.voice_action_client_->async_cancel_all_goals();
+                RCLCPP_WARN(rclcpp::get_logger("VoiceAction"), "⚠️ Voice command aborted due to protocol change.");
+                return -1;  // Indicates failure
+            }
+            rclcpp::sleep_for(std::chrono::seconds(1));
+        }
+
+        return *success;  // Returns 1 for "yes", 0 for "no", -1 for failure
     }
 
     int send_goal_blocking(const shr_msgs::action::PlayAudioRequest::Goal &goal, const InstantiatedAction &action,
@@ -722,6 +792,42 @@ namespace pddl_lib {
             return BT::NodeStatus::SUCCESS;
         }
 
+        BT::NodeStatus high_level_domain_StartWalkingProtocol(const InstantiatedAction &action) override {
+            auto &kb = KnowledgeBase::getInstance();
+            InstantiatedParameter inst = action.parameters[0];
+            InstantiatedParameter cur = action.parameters[2];
+            InstantiatedParameter dest = action.parameters[3];
+
+            auto [ps, lock] = ProtocolState::getConcurrentInstance();
+            lock.Lock();
+
+            std::string currentDateTime = getCurrentDateTime();
+            //RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=")+"high_level_domain_StartWanderingProtocol"+"started"), "user...");
+            RCLCPP_INFO(rclcpp::get_logger(
+                                currentDateTime + std::string("user=") + "StartWalkingReminderProtocol" + "started"),
+                        "user...");
+
+            std::string log_message =
+                    std::string("weblog=") + currentDateTime + " high_level_domain_StartWalkingReminderProtocol" +
+                    " started";
+            RCLCPP_INFO(ps.world_state_converter->get_logger(), log_message.c_str());
+
+            if (dest.name == cur.name) {
+                RCLCPP_INFO(rclcpp::get_logger("debug"),
+                            "StartGymReminderProtocol: Robot is already at %s. Skipping movement.", cur.name.c_str());
+                // Just proceed with the protocol without moving
+                instantiate_protocol("walking_reminder.pddl", {{"current_loc", cur.name}, {"dest_loc", "bedroom"}});
+            } else {
+                // Move to the medicine location if not already there
+                instantiate_protocol("walking_reminder.pddl", {{"current_loc", cur.name}, {"dest_loc", dest.name}});
+            }
+
+
+            ps.active_protocol = inst;
+            lock.UnLock();
+            return BT::NodeStatus::SUCCESS;
+        }
+
         BT::NodeStatus high_level_domain_MoveToLandmark(const InstantiatedAction &action) override {
             InstantiatedParameter from = action.parameters[0];
             InstantiatedParameter to = action.parameters[1];
@@ -967,6 +1073,9 @@ namespace pddl_lib {
             } else if (active_protocol.type == "MedicineRefillPharmacyReminderProtocol") {
                 kb.insert_predicate({"already_reminded_medicine_pharmacy", {active_protocol}});
                 kb.erase_predicate({"medicine_pharmacy_reminder_enabled", {active_protocol}});
+            } else if (active_protocol.type == "WalkingProtocol") {
+                kb.insert_predicate({"already_reminded_walking", {active_protocol}});
+                kb.erase_predicate({"walking_reminder_enabled", {active_protocol}});
             }
 
             // RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=")+"shr_domain_MessageGivenSuccess"+active_protocol.type), "user...");
@@ -997,7 +1106,11 @@ namespace pddl_lib {
             } else if (active_protocol.type == "MedicineRefillPharmacyReminderProtocol") {
                 kb.insert_predicate({"already_reminded_medicine_pharmacy", {active_protocol}});
                 kb.erase_predicate({"medicine_pharmacy_reminder_enabled", {active_protocol}});
+            }else if (active_protocol.type == "WalkingProtocol") {
+                kb.insert_predicate({"already_reminded_walking", {active_protocol}});
+                kb.erase_predicate({"walking_reminder_enabled", {active_protocol}});
             }
+
             // RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=")+"shr_domain_PersonAtSuccess"+active_protocol.type), "user...");
             // RCLCPP_INFO(rclcpp::get_logger(currentDateTime+std::string("user=")+"active protocol"+active_protocol.type), "user...");
             std::string currentDateTime = getCurrentDateTime();
@@ -1228,6 +1341,64 @@ namespace pddl_lib {
             }
             lock.UnLock();
             return ret;
+        }
+
+        BT::NodeStatus shr_domain_MakeVoiceCommand(const InstantiatedAction &action) override {
+
+            auto [ps, lock] = ProtocolState::getConcurrentInstance();
+            auto params = ps.world_state_converter->get_params();
+            auto &kb = KnowledgeBase::getInstance();
+
+            std::string msg = action.parameters[3].name;
+            int wait_time = ps.wait_times.at(ps.active_protocol).at(msg).first;
+
+            for (int i = 0; i < wait_time; i++) {
+                if (kb.check_conditions(action.precondtions) == TRUTH_VALUE::FALSE) {
+                    abort(action);
+                    return BT::NodeStatus::FAILURE;
+                }
+                rclcpp::sleep_for(std::chrono::seconds(1));
+            }
+
+            // 🔴 Retrieve voice message details
+            auto voice_data = ps.voice_msgs.at(ps.active_protocol).at("voice_msg");
+
+            std::string gym_question_text = voice_data[0]; // Main question
+            std::string if_true_text = voice_data[1];      // Text to read if response is "yes"
+            std::string if_false_text = voice_data[2];     // Text to read if response is "no"
+
+            // ✅ Create action goal for Voice Command
+            shr_msgs::action::QuestionResponseRequest::Goal voice_goal_;
+            voice_goal_.question = gym_question_text;
+
+            // ✅ Send the goal using `send_goal_blocking`
+            int response = send_goal_blocking(voice_goal_, action, ps);
+
+            // ✅ Prepare text reading action goal
+            shr_msgs::action::ReadScriptRequest::Goal read_goal_;
+
+            if (response == 1) {
+                RCLCPP_INFO(rclcpp::get_logger("VoiceAction"), "User responded YES. Reading: %s", if_true_text.c_str());
+                read_goal_.script_name = if_true_text;
+            } else if (response == 0) {
+                RCLCPP_INFO(rclcpp::get_logger("VoiceAction"), "User responded NO. Reading: %s", if_false_text.c_str());
+                read_goal_.script_name = if_false_text;
+            } else {
+                RCLCPP_ERROR(rclcpp::get_logger("VoiceAction"), "❌ Failed to get a valid response. Proceeding anyway.");
+                return BT::NodeStatus::FAILURE;  // **Return FAILURE if the response was invalid**
+            }
+
+            // ✅ Read the appropriate text file using ReadScriptRequest
+            int read_result = send_goal_blocking(read_goal_, action, ps);
+            if (read_result == -1) {
+                RCLCPP_ERROR(rclcpp::get_logger("VoiceAction"), "❌ Failed to read text. Returning FAILURE.");
+                return BT::NodeStatus::FAILURE;  // **Return FAILURE if reading action fails**
+            }
+
+            // ✅ Sleep for additional wait time before exiting
+            rclcpp::sleep_for(std::chrono::seconds(ps.wait_times.at(ps.active_protocol).at(msg).second));
+
+            return BT::NodeStatus::SUCCESS;  // **Only return SUCCESS if everything succeeded**
         }
 
         BT::NodeStatus shr_domain_DetectTakingMedicine(const InstantiatedAction &action) override {

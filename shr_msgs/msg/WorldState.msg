@@ -3,4 +3,5 @@ geometry_msgs/Point robot_location
 int32 person_taking_medicine
 int32 robot_charging
 int32 person_eating
+int32 good_weather
 builtin_interfaces/Time time

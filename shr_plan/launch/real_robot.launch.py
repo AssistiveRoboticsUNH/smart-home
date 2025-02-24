@@ -21,6 +21,13 @@ def generate_launch_description():
         executable='bump_sensor',
         output='screen'
     )
+
+    smartthings_weather = Node(
+        package='smartthings_ros',
+        executable='weather_node',
+        output='screen'
+    )
+
     smartthings_node_plug = Node(
         package='smartthings_ros',
         executable='smartplug_node',
@@ -43,15 +50,6 @@ def generate_launch_description():
         executable='simple_logger_web',
         output='screen'
     )
-
-    # Define the micro_ros_node launch action
-    micro_ros_node = Node(
-            package='micro_ros_agent',
-            executable='micro_ros_agent',
-            name='micro_ros_agent',
-            output='screen',
-            arguments=['serial', '--dev', '/dev/hello-esp', '-b', '115200'],
-        )
 
     # nav_cmd = IncludeLaunchDescription(
     #     PythonLaunchDescriptionSource(PathJoinSubstitution([
@@ -114,8 +112,8 @@ def generate_launch_description():
         # )
         # ld.add_action(particle_filter)
 
-# ld.add_action(planner_cmd)
-#     ld.add_action(nav_cmd)
+    # ld.add_action(planner_cmd)
+    #     ld.add_action(nav_cmd)
     # ld.add_action(logger_node)
     # ld.add_action(jackal_navigation)
     # ld.add_action(realsense_cam)
@@ -126,7 +124,7 @@ def generate_launch_description():
     ld.add_action(smartthings_node)
     ld.add_action(smartthings_node_plug)
     #ld.add_action(protocol_time_node)
-    # ld.add_action(smartthings_node_bump)
-    ld.add_action(micro_ros_node)
+    ld.add_action(smartthings_node_bump)
+    #ld.add_action(smartthings_weather)
 
     return ld

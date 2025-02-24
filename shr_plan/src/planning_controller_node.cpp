@@ -182,6 +182,37 @@ public:
         return TRUTH_VALUE::FALSE;
     }
 
+    TRUTH_VALUE time_for_walking_reminder(TRUTH_VALUE val, WalkingProtocol m) const override {
+        auto params = world_state_converter->get_params();
+        if (auto index = get_inst_index(m, params)) {
+            if (compare_time(params.pddl.WalkingProtocols.walking_reminder_times[index.value()])) {
+                return TRUTH_VALUE::TRUE;
+            }
+        }
+        return TRUTH_VALUE::FALSE;
+    }
+
+    TRUTH_VALUE good_weather(TRUTH_VALUE val, WalkingProtocol w) const override {
+        RCLCPP_INFO(rclcpp::get_logger("WeatherDebug"), "🌤️ Entering good_weather function for WalkingProtocol: ");
+
+        auto world_state_msg = world_state_converter->get_world_state_msg();
+        if (!world_state_msg) {
+            RCLCPP_ERROR(rclcpp::get_logger("WeatherDebug"), "❌ Error: world_state_msg is NULL! Returning UNKNOWN.");
+            return TRUTH_VALUE::UNKNOWN;
+        }
+
+        int weather_status = world_state_msg->good_weather;
+        RCLCPP_INFO(rclcpp::get_logger("WeatherDebug"), "🔍 Current good_weather value: %d", weather_status);
+
+        if (weather_status == 1) {
+            RCLCPP_INFO(rclcpp::get_logger("WeatherDebug"), "✅ Weather is GOOD for WalkingProtocol: ");
+            return TRUTH_VALUE::TRUE;
+        }
+
+        RCLCPP_WARN(rclcpp::get_logger("WeatherDebug"), "⚠️ Weather is NOT good for WalkingProtocol: ");
+        return TRUTH_VALUE::FALSE;
+    }
+
 
 
 
@@ -335,6 +366,15 @@ int main(int argc, char **argv) {
 //        while (!ps.call_client_->wait_for_action_server(std::chrono::seconds(5))) {
 //            RCLCPP_INFO(rclcpp::get_logger("make_call"), "Waiting for /make_call action server...");
 //        }
+
+        // 🔴 Ensure the action client exists
+        ps.voice_action_client_ = rclcpp_action::create_client<shr_msgs::action::QuestionResponseRequest>(
+                ps.world_state_converter, "question_response_action");
+
+        while (!ps.voice_action_client_->wait_for_action_server(std::chrono::seconds(5))) {
+            RCLCPP_INFO(rclcpp::get_logger("voice"), "Waiting for /question_response_action server...");
+        }
+
         lock.UnLock();
     }
 
