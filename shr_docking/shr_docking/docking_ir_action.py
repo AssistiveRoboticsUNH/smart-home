@@ -63,15 +63,16 @@ class DockingIRActionServer(Node):
 
         print(self.docking_ir.bumped)
         if self.docking_ir.bumped or self.docking_ir.is_charging:
-            # print("Bumped!!")
+            self.get_logger().info(f'Bump:{self.docking_ir.bump}')
             self.docking_ir.move_robot(0, 0)
             # print(self.docking_ir.is_charging)
-            # time.sleep(10)
+            time.sleep(1)
             if(self.docking_ir.is_charging is not None and self.docking_ir.is_charging == True):
                 goal_handle.succeed()
                 result = DockingRequest.Result()
                 result.result = True
                 self.docking_ir.bumped = False
+                self.docking_ir.is_charging = False
                 self.docking_ir.move_robot(0, 0)
                 self.rate.sleep()
                 self.get_logger().info("weblog="+' docked and charging!')
@@ -81,6 +82,7 @@ class DockingIRActionServer(Node):
                 result = DockingRequest.Result()
                 result.result = False
                 self.docking_ir.bumped = False
+                self.docking_ir.is_charging = False
                 self.docking_ir.move_robot(0, 0)
                 self.rate.sleep()
                 self.get_logger().info("weblog="+' docking aborted for not charging!')

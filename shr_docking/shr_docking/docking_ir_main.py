@@ -45,10 +45,13 @@ class Docking_IR(Node):
 
         # Move to docking station method variables
         self.forward_speed = -0.05
-        self.rotation_speed = -0.15
-        self.sensor_data_receiving = False
+        self.rotation_speed = 0
+        self.sensor_data_receiving = False #check if ir sensor is active
+        self.sensor_oriented = False # Check if sensor is oriented to docking station once
         self.close_counter = 0
         self.mode = 'far'
+        self.centre_ir_weight = 4
+        self.centre_ir_set = False
 
     def bump_callback(self, msg):
         #self.get_logger().info(f'Received float: {msg.data}')
@@ -65,7 +68,7 @@ class Docking_IR(Node):
         else:
             self.voltage = msg.data
             spike_ratio = (self.voltage - self.voltage_prev) / self.voltage_prev
-            if spike_ratio >  0.03:
+            if spike_ratio >  0.03 and self.voltage > 12:
                 self.is_charging = True
                 self.get_logger().info(f'Charger Connected!')
             # elif spike_ratio <  0:
@@ -78,6 +81,7 @@ class Docking_IR(Node):
     def ir_sensor_callback(self, msg):
         # self.get_logger().info(f'Received IR sensor: {msg.data}')
         self.ir_sensor_weight = msg.data
+        self.sensor_data_receiving = True
 
     def scan_callback(self, msg):
         # Scans laser and returns obstacle distane towards the back of the robot.
@@ -91,6 +95,15 @@ class Docking_IR(Node):
             self.obstacle_back = min(msg.ranges[start_ind:end_ind])
             self.isLidarActive = True
             # print("obstacle_back: ", self.obstacle_back)
+            
+            ## Set the mode, whethre robot is close to docking station or far away
+            if 0 < self.obstacle_back < 0.6:
+                self.close_counter += 1
+                if self.close_counter > 15:
+                    self.mode = 'close'
+            elif self.obstacle_back > 0.65: # if enough amount of close proximity not detected consider station not close (handles null laser values)
+                self.close_counter = 0
+                self.mode = 'far'
 
     def move_robot(self, x, z):
         print("I am moving from IR")
@@ -100,6 +113,12 @@ class Docking_IR(Node):
 
     def move_to_docking_station(self):
         if not self.isLidarActive: self.get_logger().info(f'Lidar: Not Active')
+        if not self.sensor_oriented and not self.centre_ir_set:
+            if self.ir_sensor_weight > 4:
+                self.centre_ir_weight = 4
+            else:
+                self.centre_ir_weight = 4.5
+            self.centre_ir_set = True
 
         if self.isLidarActive:
             # Move robot by limit swithc bump and charging condition check
@@ -111,44 +130,45 @@ class Docking_IR(Node):
                 try:
                     # self.get_logger().info(f'IR Weight: {self.ir_sensor_weight}')
 
-                    if self.ir_sensor_weight == -1: 
-                        self.close_counter = 0 # While orienting first dont count close proximity. It might consider surrounding as close
-                        # self.sensor_data_receiving = False
-                    # else:
-                        # self.sensor_data_receiving = True
+                    if self.ir_sensor_weight == -1:
+                        self.sensor_data_receiving = False
+
                     # self.get_logger().info(f'Obstacle Back: {self.obstacle_back}')
                     
                     # ======= Limit velocity in case of close proximity of docking station
-                    if 0 < self.obstacle_back < 0.6:
-                        self.forward_speed = -0.015
-                        self.mode = 'close'
-                        self.close_counter += 1
-                        # self.get_logger().info("Slow")
-                    elif self.close_counter < 15: # if enough amount of close proximity not detected consider station not close (handles null laser values)
+                    if self.mode == 'close':
+                        self.forward_speed = -0.03
+
+                    elif self.mode == 'far': # if enough amount of close proximity not detected consider station not close (handles null laser values)
                         self.forward_speed = -0.05
-                        self.mode = 'far'
-                        # self.get_logger().info("Fast")
+                    
+                    if self.sensor_data_receiving:
+                        # ======= Set robot velocity to dock
+                        if(self.ir_sensor_weight < self.centre_ir_weight-0.1):
+                            if not self.sensor_oriented:
+                                # First roation for self orienting to station should be fast
+                                # self.get_logger().info("Rotating Fast")
+                                self.move_robot(0, 0.3)
+                            elif self.mode == 'close': self.move_robot(forward_speed, 0.01) #slow rotation
+                            else:
+                                self.rotation_speed += 0.005
+                                self.rotation_speed = min(max(self.rotation_speed, -0.16), 0.16) # clip between [-0.16, 0.16]
+                                self.move_robot(self.forward_speed, self.rotation_speed) # if far, rotate fast
 
-                    # ======= Set robot velocity to dock
-                    if(self.ir_sensor_weight < 3.4):
-                        if not self.sensor_data_receiving:
-                            # First roation for self orienting to station should be fast
-                            # self.get_logger().info("Rotating Fast")
-                            self.move_robot(0, 0.3)
-                        elif self.mode == 'close': self.move_robot(0, 0.08) #slow rotation
-                        else: self.move_robot(self.forward_speed, 0.15) # if far, rotate fast
+                        elif(self.ir_sensor_weight > self.centre_ir_weight +0.1):
+                            if not self.sensor_oriented:
+                                # First roation for self orienting to station should be fast
+                                # self.get_logger().info("Rotating Fast")
+                                self.move_robot(0, -0.3)
+                            elif self.mode == 'close' :self.move_robot(forward_speed, -0.01)
+                            else:
+                                self.rotation_speed -= 0.005
+                                self.rotation_speed = min(max(self.rotation_speed, -0.16), 0.16) # clip between [-0.16, 0.16]
+                                self.move_robot(self.forward_speed, self.rotation_speed)
 
-                    elif(self.ir_sensor_weight > 3.6):
-                        if not self.sensor_data_receiving:
-                            # First roation for self orienting to station should be fast
-                            self.get_logger().info("Rotating Fast")
-                            self.move_robot(0, -0.3)
-                        elif self.mode == 'close' :self.move_robot(0, -0.08)
-                        else: self.move_robot(self.forward_speed, -0.15)
-
-                    else: # Move to forward to docking
-                        self.move_robot(self.forward_speed, 0)
-                        self.sensor_data_receiving = True # Set True if ever oriented to docking station in the loop
+                        else: # Move to forward to docking
+                            self.move_robot(self.forward_speed, 0)
+                            self.sensor_oriented = True # Set True if ever oriented to docking station in the loop
                             
                     
                 except:
@@ -157,7 +177,11 @@ class Docking_IR(Node):
                     pass
             else:
                 self.bumped = True
+                self.sensor_oriented = False
+                self.rotation_speed = 0
+                self.centre_ir_set = False
                 print("Bumped")
+
                 # self.get_logger().info(f'Bumped')
                 # self.is_charging = False # Reset it to false in action server to get ready for next docking
 

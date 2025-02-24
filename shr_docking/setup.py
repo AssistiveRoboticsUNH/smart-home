@@ -16,10 +16,10 @@ setup(
     ],
     install_requires=['setuptools'],
     zip_safe=True,
-    maintainer='hello-robot',
-    maintainer_email='carl@todo.todo',
-    description='TODO: This package is built for the docking management',
-    license='TODO: License declaration',
+    maintainer='akash',
+    maintainer_email='moniruzzaman.akash@unh.edu',
+    description='This package is built for the docking management',
+    license='GPL-3.0 license',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
