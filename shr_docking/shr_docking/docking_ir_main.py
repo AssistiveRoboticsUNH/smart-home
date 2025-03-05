@@ -50,7 +50,7 @@ class Docking_IR(Node):
         self.sensor_oriented = False # Check if sensor is oriented to docking station once
         self.close_counter = 0
         self.mode = 'far'
-        self.centre_ir_weight = 4
+        self.centre_ir_weight = 3.5
         self.centre_ir_set = False
 
     def bump_callback(self, msg):
@@ -60,7 +60,7 @@ class Docking_IR(Node):
 
     def charger_callback(self, msg):
         # For first call initialize both voltage and previous voltage 
-        if self.voltage == None:
+        if self.voltage == None or self.voltage == 0:
             self.voltage = msg.data
             self.voltage_prev = msg.data
         
@@ -112,16 +112,22 @@ class Docking_IR(Node):
         self.pub.publish(self.vel)
 
     def move_to_docking_station(self):
+        if (self.bump == None):
+            self.get_logger().info(f'Bump not avaialable, waiting...')
+            time.sleep(0.5)
+            return 1
+            
         if not self.isLidarActive: self.get_logger().info(f'Lidar: Not Active')
-        if not self.sensor_oriented and not self.centre_ir_set:
-            if self.ir_sensor_weight > 4:
-                self.centre_ir_weight = 4
-            else:
-                self.centre_ir_weight = 4.5
-            self.centre_ir_set = True
+        # if not self.sensor_oriented and not self.centre_ir_set:
+            # if self.ir_sensor_weight > 4:
+            #     self.centre_ir_weight = 4
+            # else:
+            #     self.centre_ir_weight = 4.5
+            # self.centre_ir_set = True
 
         if self.isLidarActive:
             # Move robot by limit swithc bump and charging condition check
+            self.get_logger().info(f'Bump: {self.bump}, is_charging: {self.is_charging}')
             if (not self.bump and not self.is_charging):
                 # print("Bump: ", self.bump)
                 # print("is_charging: ", self.is_charging)
@@ -185,6 +191,7 @@ class Docking_IR(Node):
                 # self.get_logger().info(f'Bumped')
                 # self.is_charging = False # Reset it to false in action server to get ready for next docking
 
+        return 0
 
 
 def main(args=None):

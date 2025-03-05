@@ -52,6 +52,12 @@ def generate_launch_description():
             output='screen',
             arguments=['serial', '--dev', '/dev/hello-esp', '-b', '115200'],
         )
+    
+    docking_data_manager = Node(
+        package='shr_docking',
+        executable='docking_data_manager',
+        output='screen'
+    )
 
     # nav_cmd = IncludeLaunchDescription(
     #     PythonLaunchDescriptionSource(PathJoinSubstitution([
@@ -127,6 +133,6 @@ def generate_launch_description():
     ld.add_action(smartthings_node_plug)
     #ld.add_action(protocol_time_node)
     # ld.add_action(smartthings_node_bump)
-    ld.add_action(micro_ros_node)
+    ld.add_action(docking_data_manager)
 
     return ld
