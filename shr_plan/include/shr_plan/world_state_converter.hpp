@@ -55,7 +55,7 @@ public:
                     world_state_->time = *msg;
 
                     // 🔍 Debugging: Print received time
-                    RCLCPP_INFO(rclcpp::get_logger(std::string("user=") + "high_level_domain_Idle" + "started"), "⏳ Received protocol time update: sec = %d, nanosec = %d", msg->sec, msg->nanosec);
+                    // RCLCPP_INFO(rclcpp::get_logger(std::string("user=") + "high_level_domain_Idle" + "started"), "⏳ Received protocol time update: sec = %d, nanosec = %d", msg->sec, msg->nanosec);
                 });
 
         charging_sub_ = create_subscription<std_msgs::msg::Int32>(

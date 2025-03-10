@@ -2,6 +2,14 @@
 #include <filesystem>
 #include <fstream>
 
+
+#include <ctime>
+#include <unordered_map>
+#include <vector>
+#include <sstream>
+#include <algorithm>
+#include <cmath>
+
 #include "ament_index_cpp/get_package_share_directory.hpp"
 
 #include "rclcpp/rclcpp.hpp"
@@ -88,11 +96,25 @@ public:
     }
 
     TRUTH_VALUE robot_at(TRUTH_VALUE val, Landmark lm) const override {
-        if (world_state_converter->check_robot_at_loc(lm)) {
-            return TRUTH_VALUE::TRUE;
-        } else {
-            return TRUTH_VALUE::FALSE;
-        }
+        auto &kb = KnowledgeBase::getInstance();
+        bool pred_started = kb.find_predicate({"started", {}});
+        
+        if (pred_started){
+            // RCLCPP_WARN(rclcpp::get_logger("pred_started inside AT"), "robot at true  ");
+            if (world_state_converter->check_robot_at_loc(lm)) {
+                return TRUTH_VALUE::TRUE;
+            } else {
+                return TRUTH_VALUE::FALSE;
+            }
+         } else {
+            if (lm == "home"){
+                // RCLCPP_WARN(rclcpp::get_logger("ROBOT AT"), "robot at true  ");
+                std::cout << "robot at true " << lm << std::endl;
+
+                return TRUTH_VALUE::TRUE;
+            }
+         }
+         return TRUTH_VALUE::FALSE;
     }
 
 
@@ -125,28 +147,28 @@ public:
         auto params = world_state_converter->get_params();
 
         // Debugging: Print all available medicine protocols
-        for (const auto &protocol : params.pddl.MedicineProtocols.instances) {
-            RCLCPP_INFO(rclcpp::get_logger("time_to_take_medicine"), "🔍 Available protocol: %s", protocol.c_str());
-        }
+        // for (const auto &protocol : params.pddl.MedicineProtocols.instances) {
+        //     RCLCPP_INFO(rclcpp::get_logger("time_to_take_medicine"), "🔍 Available protocol: %s", protocol.c_str());
+        // }
 
         if (auto index = get_inst_index(m, params)) {
             std::string time_range = params.pddl.MedicineProtocols.take_medication_times[index.value()];
-            RCLCPP_INFO(rclcpp::get_logger("time_to_take_medicine"),
-                        "Checking MedicineProtocol: %s | Time Range: %s",
-                        m.c_str(), time_range.c_str());
+            // RCLCPP_INFO(rclcpp::get_logger("time_to_take_medicine"),
+            //             "Checking MedicineProtocol: %s | Time Range: %s",
+            //             m.c_str(), time_range.c_str());
 
             if (compare_time(time_range)) {
-                RCLCPP_INFO(rclcpp::get_logger("time_to_take_medicine"),
-                            "✅ TIME MATCH! Triggering protocol for: %s", m.c_str());
+                // RCLCPP_INFO(rclcpp::get_logger("time_to_take_medicine"),
+                //             "✅ TIME MATCH! Triggering protocol for: %s", m.c_str());
                 return TRUTH_VALUE::TRUE;
-            } else {
-                RCLCPP_INFO(rclcpp::get_logger("time_to_take_medicine"),
-                            "❌ Time does not match for: %s", m.c_str());
-            }
-        } else {
-            RCLCPP_ERROR(rclcpp::get_logger("time_to_take_medicine"),
-                         "⚠️ Could not find index for protocol: %s", m.c_str());
-        }
+            } // else {
+            // //     RCLCPP_INFO(rclcpp::get_logger("time_to_take_medicine"),
+            // //                 "❌ Time does not match for: %s", m.c_str());
+            // }
+         } // else {
+        //     RCLCPP_ERROR(rclcpp::get_logger("time_to_take_medicine"),
+        //                  "⚠️ Could not find index for protocol: %s", m.c_str());
+        // }
 
         return TRUTH_VALUE::FALSE;
     }
@@ -193,28 +215,25 @@ public:
     }
 
     TRUTH_VALUE good_weather(TRUTH_VALUE val, WalkingProtocol w) const override {
-        RCLCPP_INFO(rclcpp::get_logger("WeatherDebug"), "🌤️ Entering good_weather function for WalkingProtocol: ");
+        // RCLCPP_INFO(rclcpp::get_logger("WeatherDebug"), "🌤️ Entering good_weather function for WalkingProtocol: ");
 
         auto world_state_msg = world_state_converter->get_world_state_msg();
         if (!world_state_msg) {
-            RCLCPP_ERROR(rclcpp::get_logger("WeatherDebug"), "❌ Error: world_state_msg is NULL! Returning UNKNOWN.");
+            // RCLCPP_ERROR(rclcpp::get_logger("WeatherDebug"), "❌ Error: world_state_msg is NULL! Returning UNKNOWN.");
             return TRUTH_VALUE::UNKNOWN;
         }
 
         int weather_status = world_state_msg->good_weather;
-        RCLCPP_INFO(rclcpp::get_logger("WeatherDebug"), "🔍 Current good_weather value: %d", weather_status);
+        // RCLCPP_INFO(rclcpp::get_logger("WeatherDebug"), "🔍 Current good_weather value: %d", weather_status);
 
         if (weather_status == 1) {
-            RCLCPP_INFO(rclcpp::get_logger("WeatherDebug"), "✅ Weather is GOOD for WalkingProtocol: ");
+            // RCLCPP_INFO(rclcpp::get_logger("WeatherDebug"), "✅ Weather is GOOD for WalkingProtocol: ");
             return TRUTH_VALUE::TRUE;
         }
 
-        RCLCPP_WARN(rclcpp::get_logger("WeatherDebug"), "⚠️ Weather is NOT good for WalkingProtocol: ");
+        // RCLCPP_WARN(rclcpp::get_logger("WeatherDebug"), "⚠️ Weather is NOT good for WalkingProtocol: ");
         return TRUTH_VALUE::FALSE;
     }
-
-
-
 
     // low level
     TRUTH_VALUE person_taking_medicine(TRUTH_VALUE val, Time t) const override {
@@ -245,21 +264,74 @@ public:
 
 
 private:
+
+    int get_current_weekday() const{
+        time_t now = time(0);
+        tm *ltm = localtime(&now);
+        return ltm->tm_wday;
+    }
+
+    std::vector<int> parse_days(const std::string& days_str) const{
+        static const std::unordered_map<std::string, int> days_map = {
+            {"Sunday", 0}, {"Monday", 1}, {"Tuesday", 2}, {"Wednesday", 3},
+            {"Thursday", 4}, {"Friday", 5}, {"Saturday", 6}
+        };
+    
+        std::vector<int> days;
+        std::stringstream ss(days_str);
+        std::string day;
+        
+        while (std::getline(ss, day, ',')) {
+            auto it = days_map.find(day);
+            if (it != days_map.end()) {
+                days.push_back(it->second);
+            }
+        }
+    
+        return days;
+    }
+
+    
+
+        // ✅ Compares time and day to trigger protocols
     bool compare_time(std::string param_time) const {
         auto msg = world_state_converter->get_world_state_msg();
         auto time = msg->time;
+
         std::stringstream ss(param_time);
-        std::string time_1;
-        std::string time_2;
-        std::getline(ss, time_1, '/');
-        std::getline(ss, time_2);
+        std::string days_str, time_1, time_2;
+        
+        std::getline(ss, days_str, ' ');  // Extract the days string (e.g., "Monday,Wednesday" or "Everyday")
+        std::getline(ss, time_1, '/');    // Extract start time (e.g., "15h00m0s")
+        std::getline(ss, time_2);         // Extract end time (e.g., "16h00m0s")
+
+        int current_weekday = get_current_weekday();
+        
+        // ✅ If "Everyday", skip day validation
+        if (days_str != "Everyday") {
+            std::vector<int> scheduled_days = parse_days(days_str);
+            if (std::find(scheduled_days.begin(), scheduled_days.end(), current_weekday) == scheduled_days.end()) {
+                // RCLCPP_WARN(rclcpp::get_logger("compare_time"), 
+                //             "❌ Today (%d) is not in the scheduled days (%s). Skipping trigger.",
+                //             current_weekday, days_str.c_str());
+                return false;
+            }
+        }
 
         auto time_1_secs = get_seconds(time_1);
         auto time_2_secs = get_seconds(time_2);
+        auto current_time_secs = time.sec;
 
         const int second_in_day = 60 * 60 * 24;
         double clock_distance = fmod((time_2_secs - time_1_secs + second_in_day), second_in_day);
-        double time_to_check_normalized = fmod((time.sec - time_1_secs + second_in_day), second_in_day);
+        double time_to_check_normalized = fmod((current_time_secs - time_1_secs + second_in_day), second_in_day);
+
+        // 🔍 Debugging Log
+        // RCLCPP_INFO(rclcpp::get_logger("compare_time"), 
+                    // "🕒 Checking Time: %s | Today: %d | Days: %s | Start: %d | End: %d | Current: %d | Normalized: %d | Distance: %d",
+                    // param_time.c_str(), current_weekday, days_str.c_str(), time_1_secs, time_2_secs, 
+                    // current_time_secs, (int)time_to_check_normalized, (int)clock_distance);
+
         return time_to_check_normalized <= clock_distance;
     }
 
@@ -369,11 +441,11 @@ int main(int argc, char **argv) {
 
         // 🔴 Ensure the action client exists
         ps.voice_action_client_ = rclcpp_action::create_client<shr_msgs::action::QuestionResponseRequest>(
-                ps.world_state_converter, "question_response_action");
+                world_state_converter, "question_response_action");
 
-        while (!ps.voice_action_client_->wait_for_action_server(std::chrono::seconds(5))) {
-            RCLCPP_INFO(rclcpp::get_logger("voice"), "Waiting for /question_response_action server...");
-        }
+        // while (!ps.voice_action_client_->wait_for_action_server(std::chrono::seconds(5))) {
+        //     RCLCPP_INFO(rclcpp::get_logger("voice"), "Waiting for /question_response_action server...");
+        // }
 
         lock.UnLock();
     }
@@ -387,13 +459,34 @@ int main(int argc, char **argv) {
     UpdatePredicatesImpl updater(world_state_converter);
     // run high level behavior tree on its own thread
     HighLevelBT high_level_bt(updater);
+    // std::thread thread_2(
+    //         [&high_level_bt]() {
+    //             while (!high_level_bt.should_terminate_thread()) {
+    //                 high_level_bt.tick_tree();
+    //                 rclcpp::sleep_for(std::chrono::milliseconds(2000));
+    //             }
+    //         }
+    // );
+
+
     std::thread thread_2(
-            [&high_level_bt]() {
-                while (!high_level_bt.should_terminate_thread()) {
-                    high_level_bt.tick_tree();
-                    rclcpp::sleep_for(std::chrono::milliseconds(2000));
+        [&high_level_bt, &ps]() {
+            bool first_run = true;  // Flag to ensure the check runs only once
+    
+            while (!high_level_bt.should_terminate_thread()) {
+                if (first_run) {
+                    auto start_time = std::chrono::steady_clock::now();
+                    while ((std::chrono::steady_clock::now() - start_time < std::chrono::seconds(20)) &&
+                           ps.world_state_converter->get_world_state_msg()->robot_charging != 1) {
+                        rclcpp::sleep_for(std::chrono::milliseconds(500));  // Check every 500ms
+                    }
+                    first_run = false;  // Ensure the check doesn't run again
                 }
+    
+                high_level_bt.tick_tree();
+                rclcpp::sleep_for(std::chrono::milliseconds(2000));  // Regular tick interval
             }
+        }
     );
 
     std::filesystem::path pkg_dir = ament_index_cpp::get_package_share_directory("shr_plan");
@@ -412,6 +505,22 @@ int main(int argc, char **argv) {
 
     // run the domains
     BT::BehaviorTreeFactory factory = create_tree_factory<ProtocolActions>();
+
+    // TODO: set landmark to dockign station at boot
+    // (robot_at ?lmr - Landmark)
+    InstantiatedParameter landmark = {"home", "Landmark"};
+    InstantiatedPredicate pred_rob_at{"robot_at", {landmark}};
+    kb.insert_predicate(pred_rob_at);
+
+    std::cout << "insert_predicate robot_at at home !.\n";
+
+    // if navigation is on set the started predicate to true
+    if (ps.nav_client_->wait_for_action_server(std::chrono::seconds(10))) {
+            kb.insert_predicate({"started", {}});
+            std::cout << "insert_predicate started !.\n";
+    }
+
+    
 
     while (true) {
         rclcpp::sleep_for(std::chrono::seconds(1));

@@ -11,9 +11,9 @@ def generate_launch_description():
 
     ld = LaunchDescription()
 
-    smartthings_node = Node(
+    homeseer_node = Node(
         package='smartthings_ros',
-        executable='smartthings_node',
+        executable='homeseer_node',
         output='screen'
     )
     smartthings_node_bump = Node(
@@ -51,6 +51,17 @@ def generate_launch_description():
         output='screen'
     )
 
+    docking_data_manager = Node(
+        package='shr_docking',
+        executable='docking_data_manager',
+        output='screen'
+    )
+
+    discord_logger = Node(
+        package='simple_logger',
+        executable='simple_logger_discord',
+        output='screen'
+    )
     # nav_cmd = IncludeLaunchDescription(
     #     PythonLaunchDescriptionSource(PathJoinSubstitution([
     #         get_package_share_directory('jackal_navigation'), 'launch', 'navigation2_jackal.launch.py']))
@@ -121,10 +132,11 @@ def generate_launch_description():
     ld.add_action(charger)
     ld.add_action(apriltags_realsense_loc)
     ld.add_action(tf_broadcast)
-    ld.add_action(smartthings_node)
+    ld.add_action(homeseer_node)
     ld.add_action(smartthings_node_plug)
-    #ld.add_action(protocol_time_node)
-    ld.add_action(smartthings_node_bump)
-    #ld.add_action(smartthings_weather)
+    # ld.add_action(protocol_time_node)
+    ld.add_action(smartthings_weather)
+    ld.add_action(docking_data_manager)
+    ld.add_action(discord_logger)
 
     return ld

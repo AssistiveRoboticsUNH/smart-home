@@ -4,10 +4,10 @@
 
 (:types
     Landmark
-	Person
-	Time
-	Msg
-	ReminderAction
+    Person
+    Time
+    Msg
+    ReminderAction
     WaitAction
     NoAction
     CallAction
@@ -21,6 +21,9 @@
     (person_at ?t - Time ?p - Person ?lmp - Landmark)
     ;;(person_currently_at ?p - Person ?lmp - Landmark)
     (person_at_success ?p - Person ?lmp - Landmark)
+    (same_location ?l1 ?l2 - Landmark)
+    (home_location ?l - Landmark)
+    (same_location_check ?l1 - Landmark ?l2 - Landmark)
 
     (person_taking_medicine ?t - Time)
     (person_eating_food ?t - Time)
@@ -60,6 +63,8 @@
     (voice_blocks_voice ?v1 ?v2 - VoiceAction)
     (voice_blocks_reminder ?a1 - VoiceAction ?r - ReminderAction)
 
+
+
     (executed_reminder ?a - ReminderAction)
     (executed_call ?c - CallAction)
     (executed_wait ?t - Time)
@@ -86,7 +91,7 @@
     (next_time ?tc ?tn - Time)
 
     ;; constraints on the state of the world. object instances here refer to non-input instances
-    (reminder_robot_location_constraint ?a - ReminderAction ?lmr - Landmark)
+    ;;(reminder_robot_location_constraint ?a - ReminderAction ?lmr - Landmark)
     (reminder_person_location_constraint ?a - ReminderAction ?p - Person ?lmp - Landmark)
     (reminder_person_not_location_constraint ?a - ReminderAction ?p - Person ?lmp - Landmark)
     (wait_not_person_location_constraint ?t - Time ?p - Person ?lmp - Landmark )
@@ -162,6 +167,7 @@
 	        )
 )
 
+
 ;;make call
 (:action MakeCall
     :parameters (?a - CallAction ?t - Time ?p - Person ?m - Msg)
@@ -236,6 +242,7 @@
               (not (and (reminder_blocks_reminder ?ai ?a)  (not (executed_reminder ?ai) ) ) )
             )
 
+
             ;; Either robot and person have to be in same location or in designated locations
             ;; !(a || b) is equivalent to !a && !b
             ;; !!(a || b) = (a || b)  is equivalent to ! (!a && !b)
@@ -264,6 +271,7 @@
 
             )
 )
+
 
 
 (:action MakeVoiceCommand
@@ -328,6 +336,8 @@
             )
 	)
 )
+
+
 
 
 ;; Update success status

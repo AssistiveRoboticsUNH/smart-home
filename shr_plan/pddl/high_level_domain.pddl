@@ -14,6 +14,12 @@
   Landmark
   Time
   Person
+
+  ;; low level
+    Msg
+    ReminderAction
+    CallAction
+    VoiceAction
 )
 
 (:predicates
@@ -27,7 +33,7 @@
   (not_visible_location ?lmp - Landmark)
 
 
-  (medicine_reminder_enabled ?med - MedicineProtocol)
+  (medicine_protocol_enabled ?med - MedicineProtocol)
   (gym_reminder_enabled ?gy - GymReminderProtocol)
   (medicine_refill_reminder_enabled ?mdrf - MedicineRefillReminderProtocol)
   (medicine_pharmacy_reminder_enabled ?ic - MedicineRefillPharmacyReminderProtocol)
@@ -77,8 +83,15 @@
   (priority_5)
 
   (low_level_failed)
-
+  (dont_use_shutdown)
   (success)
+
+  ;; for low level
+    (executed_reminder ?a - ReminderAction)
+    (executed_call ?c - CallAction)
+    (executed_voice ?a - VoiceAction)
+
+    (message_given ?m - Msg)
 )
 
 (:action MoveToLandmark
@@ -152,6 +165,7 @@
       (not (already_took_medicine ?m))
       (not (already_reminded_medicine ?m))
       (forall (?med - MedicineProtocol) (not (medicine_protocol_enabled ?med)) )
+      (started)
 		)
 	:effect (and
 	          (success)
@@ -373,9 +387,6 @@
 	:effect (and (success) (not (priority_2)) )
 )
 
-
-
-
 (:action Idle
 	:parameters ()
 	:precondition (and
@@ -446,6 +457,17 @@
                     (and
                         (time_for_medicine_pharmacy_reminder ?mrp)
                         (not (already_reminded_medicine_pharmacy ?mrp))
+                    )
+                )
+            )
+
+            ;;; 5 
+            (forall (?wk - WalkingProtocol)
+                (not
+                    (and
+                        (time_for_walking_reminder ?wk)
+                        (good_weather ?wk)
+                        (not (already_reminded_walking ?wk))
                     )
                 )
             )
