@@ -46,24 +46,24 @@ def generate_launch_description():
 
     ld.add_action(rooms)
 
-    helper_file = DeclareLaunchArgument(
-        "helper_location",
-        default_value=pkg_path + "helpers.yaml",
-        description="helper location"
-    )
+    # helper_file = DeclareLaunchArgument(
+    #     "helper_location",
+    #     default_value=pkg_path + "helpers.yaml",
+    #     description="helper location"
+    # )
 
-    ld.add_action(helper_file)
+    # ld.add_action(helper_file)
 
-    helpers = Node(
-        package="yaml_tf_broadcaster",
-        executable="yaml_broadcaster_node",
-        name="helper_launch_ll",
-        parameters=[
-            {"yaml_file_name": LaunchConfiguration("helper_location")}
-        ]
-    )
+    # helpers = Node(
+    #     package="yaml_tf_broadcaster",
+    #     executable="yaml_broadcaster_node",
+    #     name="helper_launch_ll",
+    #     parameters=[
+    #         {"yaml_file_name": LaunchConfiguration("helper_location")}
+    #     ]
+    # )
 
-    ld.add_action(helpers)
+    # ld.add_action(helpers)
 
     # tf_mat_file = DeclareLaunchArgument(
     #     "tf_mat_Lo",
