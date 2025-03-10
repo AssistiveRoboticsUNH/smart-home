@@ -56,7 +56,9 @@ class DockingMainActionServer(Node):
         print("working init", goal_handle)
         self.docking_ir.is_charging = self.docking_camera.charger_status==1
         self.docking_camera.bumped = False
-
+        self.docking_ir.bumped = False
+        self.failed_count = 0
+        
         while not (self.docking_camera.bumped or self.docking_ir.bumped):
             if goal_handle.is_cancel_requested:
                 self.get_logger().info('Goal cancelled')
@@ -85,13 +87,19 @@ class DockingMainActionServer(Node):
             # **Execute the Active Docking Mode**
             if self.docking_camera.is_detect:
                 self.docking_camera.bumped = False
+                self.docking_ir.bumped = False
                 self.docking_camera.get_transformation_from_aptag_to_port()
-                self.docking_camera.move_towards_tag()
+                self.failed_count += self.docking_camera.move_towards_tag()
             else:
-                self.docking_ir.move_to_docking_station()
+                self.failed_count += self.docking_ir.move_to_docking_station()
                  
+            if self.failed_count > 10:
+                self.get_logger().info(f'Docking aborted for no bump sensor data')
+                break
+                
 
-        self.get_logger().info(f'Bumped: {self.docking_camera.bumped}')
+        self.get_logger().info(f'Bumped from Camera: {self.docking_camera.bumped}')
+        self.get_logger().info(f'Bumped from IR: {self.docking_ir.bumped}')
         if (self.docking_camera.bumped or self.docking_ir.bumped):
             print("Bumped!!")
             self.vel.linear.x = 0.0

@@ -22,10 +22,14 @@ from geometry_msgs.msg import TransformStamped
 
 import math
 from tf2_ros import LookupException, ConnectivityException, ExtrapolationException
-
-import yaml
+from tf2_ros import TransformBroadcaster
+import yaml, time
 
 import os
+
+# ros2 run tf2_ros static_transform_publisher 0 0 0 0 0 0 charger port
+# ros2 run tf2_ros tf2_echo charger port
+
 class PID:
     def __init__(self, Kp=0, Ki=0, Kd=0):
         '''
@@ -54,6 +58,8 @@ class Docking(Node):
 
         self.subscription = self.create_subscription(AprilTagDetectionArray, '/apriltag_detections',
                                                      self.apriltag_callback, 10)
+
+        self.tf_broadcaster = TransformBroadcaster(self)
         self.bump = None
         self.bump_subscriber = self.create_subscription(
             Int64,
@@ -152,6 +158,11 @@ class Docking(Node):
 
 
     def move_towards_tag(self):
+        if (self.bump == None):
+            self.get_logger().info(f'Bump not avaialable, waiting...')
+            time.sleep(0.5)
+            return 1
+
         if (self.is_detect is True and self.bumped is False):
             current_error = float(self.translation.get("translation_y", 0.0))
             transition_x = float(self.translation.get("translation_x", 0.0))
@@ -162,10 +173,17 @@ class Docking(Node):
             bump_logic = (self.bump is not None and (self.bump !=1))
             #charger_logic = (self.charger_status is not None and (self.charger_status !=1))
 
+            if transition_x== 0.0:
+                self.get_logger().warn(f'Charger and port has no transform.')
+                # self.connect_port_charger()
+                time.sleep(1)
+                # return
+
             #print("current_error", current_error)
             #print("x", transition_x)
+            self.get_logger().info(f'Bump: {self.bump}, Apriltag Far away: {apriltag_logic}')
             if (apriltag_logic and (bump_logic)):
-                print("apriltag_logic: %s bump_logic: %s" % (apriltag_logic, bump_logic))
+                # print("apriltag_logic: %s bump_logic: %s" % (apriltag_logic, bump_logic))
                 #print(apriltag_logic)
                 current_time = self.get_clock().now()
                 dt = (current_time - self.saved_time).nanoseconds / 1e9
@@ -193,7 +211,8 @@ class Docking(Node):
                 #logic = (self.bump is not None and (self.bump>0))
                 #print(logic)
             else:
-                print("apriltag_logic: %s bump_logic: %s" % (apriltag_logic, bump_logic))
+                # print("apriltag_logic: %s bump_logic: %s" % (apriltag_logic, bump_logic))
+                self.get_logger().info(f'Bumped true in camera for > Bump: {self.bump}, Apriltag Far away: {apriltag_logic}, Transform_x: {transition_x}')
                 self.bumped = True
                 self.vel.linear.x = 0.0
                 self.vel.angular.z =0.0
@@ -205,6 +224,7 @@ class Docking(Node):
             self.vel.angular.z = 0.2
             self.pub.publish(self.vel)
             self.bumped = False
+        return 0
 
 def main(args=None):
     rclpy.init(args=args)

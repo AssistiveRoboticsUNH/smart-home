@@ -33,6 +33,9 @@ setup(
 
             #Docking server with camera and infrared combined
             'docking_server = shr_docking.docking_action:main',
+
+            #Docking data manager
+            'docking_data_manager = shr_docking.docking_data_manager:main',
         ],
     },
 )

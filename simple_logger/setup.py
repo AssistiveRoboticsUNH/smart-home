@@ -22,6 +22,8 @@ setup(
         'console_scripts': [
             'simple_logger=simple_logger.log_rosout:main',
             'simple_logger_web=simple_logger.logweb_rosout:main',
+
+            'simple_logger_discord=simple_logger.log_discord:main',
         ],
     },
 )

@@ -161,11 +161,11 @@ class LocalizationActionServer(Node):
         ### THIS SHOULD HAVE A FLAG IF APRILTAG CALLBACK CALCULATE TF IS TRUE THEN DO THE CLACULATION BUT FIRST IJUST WANT TO CHECK IF THERE ARE TAGS DETECTED
         ## check what happens when the aptag is no longer there
         if msg.detections:
-            print('aptags detected from callback')
+            # print('aptags detected from callback')
             frame = msg.header.frame_id  # to
             ### get the frame at which the detection is taken
             if self.transform_base_in_cam is None:
-                print('self.transform_base_in_cam is None')
+                # print('self.transform_base_in_cam is None')
                 ## since cam no longer in tf tree wrt base link correct
                 try:
                     transformation = self.tf_buffer.lookup_transform(frame, "base_link", rclpy.time.Time(),
@@ -184,13 +184,14 @@ class LocalizationActionServer(Node):
 
                 except Exception as ex:
                     # self.aptags_detected_inside_callback = False
-                    print("transform_base_in_cam couldnt find transform")
+                    # print("transform_base_in_cam couldnt find transform")
+                    pass
 
 
             min_distance = np.inf
-            print('min_distance' , min_distance)
+            # print('min_distance' , min_distance)
             if self.get_tf_info:
-                print('self.get_tf_info' , self.get_tf_info)
+                # print('self.get_tf_info' , self.get_tf_info)
                 self.transform_cam_in_aptag_dict = {}
                 try:
                     for at in msg.detections:
@@ -207,7 +208,7 @@ class LocalizationActionServer(Node):
                                                                              seconds=1000.0))
 
                         # print("transformation.transform.translation.z", transformation.transform.translation.z)
-                        print("transformation.transform.translation.x", transformation.transform.translation.x)
+                        # print("transformation.transform.translation.x", transformation.transform.translation.x)
 
                         # print("transformation.transform.translation.y", transformation.transform.translation.y)
 
@@ -247,7 +248,7 @@ class LocalizationActionServer(Node):
 
         else:
             # pass
-            print('No aptags from callback')
+            # print('No aptags from callback')
             self.aptags_detected = False
             self.aptags_detected_inside_callback = False
 

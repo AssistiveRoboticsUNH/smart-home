@@ -1,4 +1,4 @@
-shr_parameters:
+shr_parameters_test:
   pddl:
     instances:
       Persons: {
@@ -14,7 +14,7 @@ shr_parameters:
       }
       take_medication_times: {
         type: string_array,
-        default_value: [ "Everyday 09h00m0s/10h00m0s", "Everyday 21h00m0s/22h00m0s" ],
+        default_value: [ "Everyday 18h00m0s/18h15m0s", "Everyday 19h30m0s/19h45m0s" ],
         description: "time that each protocol is triggered",
       }
     GymReminderProtocols:
@@ -25,7 +25,7 @@ shr_parameters:
       }
       gym_reminder_times: {
         type: string_array,
-        default_value: [ "Monday,Wednesday,Friday 07h00m0s/8h00m0s"],
+        default_value: [ "Saturday,Sunday,Monday 18h45m0s/19h00m0s"],
         description: "time that each protocol is triggered",
       }
     MedicineRefillReminderProtocols:
@@ -36,7 +36,7 @@ shr_parameters:
       }
       medicine_refill_reminder_times: {
         type: string_array,
-        default_value: [ "Everyday 11h30m0s/12h00m0s" ],
+        default_value: [ "Everyday 18h15m0s/18h30m0s" ],
         description: "time that each protocol is triggered",
       }
     MedicineRefillPharmacyReminderProtocols:
@@ -47,7 +47,7 @@ shr_parameters:
       }
       medicine_refill_pharmacy_reminder_times: {
         type: string_array,
-        default_value: [ "Tuesday,Monday 15h00m0s/16h00m0s" ],
+        default_value: [ "Saturday,Monday 19h00m0s/19h15m0s" ],
         description: "time that each protocol is triggered",
       }
 
@@ -59,7 +59,7 @@ shr_parameters:
       }
       walking_reminder_times: {
         type: string_array,
-        default_value: [ "Everyday 13h00m0s/14h00m0s"],
+        default_value: [ "Everyday 19h15m0s/19h30m0s"],
         description: "time that each protocol is triggered",
       }
 
@@ -88,13 +88,7 @@ shr_parameters:
     good_weather: {
       type: string,
       default_value: "/good_weather",
-      description: "topic for checking good weather",
-    }
-
-    display: {
-      type: string,
-      default_value: "/display",
-      description: "topic for changing status for display",
+      description: "topic for smart plug that detect if robot is charging",
     }
 
   person_tf: {

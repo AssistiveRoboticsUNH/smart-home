@@ -1,0 +1,121 @@
+03/05/2025 : 16:22:30 >> ACCEPTED undocking goal x
+-----
+
+03/05/2025 : 16:22:30 >> starting undocking!
+-----
+
+03/05/2025 : 16:22:32 >> undocking is successful x
+-----
+
+moving from to
+
+03/05/2025 : 16:22:56 >> 2025-03-05 16:22:56 high_level_domain_StartMedicineProtocol started 
+-----
+
+03/05/2025 : 16:22:59 >> Reading script..."Hello, Discord!"
+-----
+
+03/05/2025 : 16:22:59 >> script_file:/home/hello-robot/smarthome_ws/install/shr_resources/share/shr_resources/resources/pm_med_reminder.txt
+-----
+
+03/05/2025 : 16:22:59 >> Sent ZeroMQ message: 0
+-----
+
+03/05/2025 : 16:23:06 >> Reading script was successful
+-----
+
+03/05/2025 : 16:23:06 >> Sent ZeroMQ message: 1
+-----
+
+03/05/2025 : 16:23:07 >> 2025-03-05 16:23:07 GiveReminderpm_med_reminder.txt succeed!
+-----
+
+03/05/2025 : 16:23:38 >> ACCEPTED docking goal x
+-----
+
+03/05/2025 : 16:23:57 >>  docked and charging! 
+-----
+
+
+
+03/05/2025 : 16:25:08 >> ACCEPTED undocking goal x
+-----
+
+03/05/2025 : 16:25:08 >> starting undocking! x
+-----
+
+03/05/2025 : 16:25:10 >> undocking is successful 
+-----
+
+03/05/2025 : 16:25:31 >> Playing audio...
+-----
+
+03/05/2025 : 16:25:31 >> audio_file_path:/home/hello-robot/smarthome_ws/install/shr_resources/share/shr_resources/resources/pm_med_reminder.mp3
+-----
+
+03/05/2025 : 16:25:31 >> Sent ZeroMQ message: 0
+-----
+
+03/05/2025 : 16:25:34 >> Sent ZeroMQ message: 1
+-----
+
+03/05/2025 : 16:25:34 >> Playing audio was successful
+-----
+
+03/05/2025 : 16:25:34 >> 2025-03-05 16:25:34 GiveReminderpm_med_reminder.mp3 succeed!
+-----
+
+03/05/2025 : 16:25:46 >> 2025-03-05 16:25:46 Message is given for: MedicineProtocol
+-----
+
+03/05/2025 : 16:25:47 >> 2025-03-05 16:25:47 Message is given for: MedicineProtocol
+-----
+
+03/05/2025 : 16:26:06 >> ACCEPTED docking goal
+-----
+
+03/05/2025 : 16:26:25 >>  docked and charging!
+-----
+
+
+[INFO] [1741500643.045209714] [WorldStatePDDLConverter]: weblog=2025-03-09 01:10:43 high_level_domain_Idle  started!
+[INFO] [1741500643.045267562] [weblog=high_level_domain_IdleNavigation started]: user...
+[INFO] [1741500645.394358597] [user=high_level_domain_Idlestarted]: user...
+[INFO] [1741500645.394564908] [WorldStatePDDLConverter]: weblog=2025-03-09 01:10:45 high_level_domain_Idle  started!
+[INFO] [1741500645.394644024] [weblog=high_level_domain_IdleNavigation started]: user...
+[INFO] [1741500647.699438896] [StartROS]: weblog=----Starting ROS----
+[INFO] [1741500647.738824600] [StartROS]: ✅ Created publisher for display_status.
+[INFO] [1741500647.942200641] [StartROS]: Published: TURN_ON
+[INFO] [1741500692.950987599] [MoveToLandmark]: weblog=MoveToLandmark: dining_room
+[INFO] [1741500694.991637200] [weblog=MoveToLandmarkUnDocking goal Succeeded.]: user...
+[INFO] [1741500695.951618156] [weblog=MoveToLandmarkmoving to land mark succeed!]: user...
+[INFO] [1741500701.462938404] [weblog= Navigation goal Succeeded.]: user...
+[INFO] [1741500701.953066169] [WorldStatePDDLConverter]: weblog=2025-03-09 01:11:41 high_level_domain_StartMedicineProtocol started
+[INFO] [1741500706.256632041] [WorldStatePDDLConverter]: weblog= GiveReminderam_med_reminder.txt succeed!
+[INFO] [1741500707.257751729] [MoveToLandmark]: weblog=MoveToLandmark: home
+[INFO] [1741500707.257870397] [weblog=shr_domain_MoveToLandmarkmoving to land mark succeed!]: user...
+[INFO] [1741500719.568829662] [weblog= Navigation goal Succeeded.]: user...
+[INFO] [1741500720.260998809] [WorldStatePDDLConverter]: weblog=Robot Waiting
+[INFO] [1741500720.322467679] [weblog= Navigation goal Succeeded.]: user...
+[INFO] [1741500721.261795300] [weblog=high_level_domain_Idledocking started]: user...
+[INFO] [1741500750.163743157] [weblog= Docking goal Succeeded.]: user...
+[INFO] [1741500810.264785000] [weblog=shr_domain_DetectTakingMedicinefailed]: user...
+[INFO] [1741500810.265182318] [weblog=shr_domain_DetectPersonLocationsucceeded]: user...
+[INFO] [1741500810.265201292] [2025-03-09 01:13:30user=person location detectionsucceeded]: user...
+[INFO] [1741500810.266023279] [MoveToLandmark]: weblog=MoveToLandmark: dining_room
+[INFO] [1741500812.273850063] [weblog=MoveToLandmarkUnDocking goal Succeeded.]: user...
+[INFO] [1741500813.266680964] [weblog=MoveToLandmarkmoving to land mark succeed!]: user...
+[INFO] [1741500819.777616593] [weblog= Navigation goal Succeeded.]: user...
+[INFO] [1741500821.268636118] [WorldStatePDDLConverter]: weblog= GiveReminderam_med_reminder.mp3 succeed!
+[INFO] [1741500822.269509952] [WorldStatePDDLConverter]: weblog=Message is given for: MedicineProtocol
+[INFO] [1741500823.009776396] [Shutdown]: Published: TURN_OFF
+[INFO] [1741500823.791628732] [WorldStatePDDLConverter]: weblog=Message is given for: MedicineProtocol
+[INFO] [1741500825.243504478] [WorldStatePDDLConverter]: weblog=Message is given for: MedicineProtocol
+[INFO] [1741500826.689308943] [WorldStatePDDLConverter]: weblog=Message is given for: MedicineProtocol
+[INFO] [1741500828.159853965] [WorldStatePDDLConverter]: weblog=Message is given for: MedicineProtocol
+[INFO] [1741500829.634653828] [WorldStatePDDLConverter]: weblog=Message is given for: MedicineProtocol
+[INFO] [1741500831.133965598] [WorldStatePDDLConverter]: weblog=Message is given for: MedicineProtocol
+[INFO] [1741500832.634972822] [WorldStatePDDLConverter]: weblog=Message is given for: MedicineProtocol
+[INFO] [1741500843.171252667] [weblog= Navigation goal Succeeded.]: user...
+[INFO] [1741500844.011067618] [weblog=high_level_domain_Idledocking started]: user...
+[INFO] [1741500872.384046845] [weblog= Docking goal Succeeded.]: user...
