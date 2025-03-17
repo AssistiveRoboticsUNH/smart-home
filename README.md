@@ -66,6 +66,11 @@ run ''' crontab -e '''
 and add 
 1 0 * * * > /path_to_shr_plan/include/shr_plan/intersection.txt
 
+also add a cron job to reboot the robot after wiping the intersection text 
+because reboot requires priviledges then you need to run crontab with sudo
+run '''sudo crontab -e '''
+0 21 * * * /sbin/reboot
+
 Step2: 
 in The keyword.txt add all the predicates that indicate that a low level protocol is successful
 for example Medicine protolc is sucessful if either predicates  (already_took_medicine) (already_reminded_medicine) are true so they should be added to the keyword.txt
