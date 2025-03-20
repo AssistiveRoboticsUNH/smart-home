@@ -1,3 +1,7 @@
+#### NOTICE
+
+if you delete the include folder of the workspace you need to create a intersection.txt in /home/hello-robot/smarthome_ws/install/shr_plan/share/shr_plan/include/shr_plan/intersection.txt 
+
 ## Managing source package dependencies 
 A source package must be build in order to use it. It is recommended to manage these packages using a .repos file. In this file, git repositories are listed in a .yaml file format and can be downloaded using vcs. To install vcs you can run: 
 ``` 
