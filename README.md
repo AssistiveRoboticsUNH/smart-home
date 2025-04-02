@@ -1,3 +1,11 @@
+#### NOTICE
+if not using colcon build --symlink-install when building you will need to create a symbolic link
+ln -s /home/hello-robot/smarthome_ws/install/shr_plan/share/shr_plan/include/shr_plan/intersection.txt /home/hello-robot/smarthome_ws/src/smart-home/shr_plan/include/shr_plan/intersection.txt
+
+
+if you delete the include folder of the workspace you need to create a intersection.txt in /home/hello-robot/smarthome_ws/install/shr_plan/share/shr_plan/include/shr_plan/intersection.txt 
+
+
 ## Managing source package dependencies 
 A source package must be build in order to use it. It is recommended to manage these packages using a .repos file. In this file, git repositories are listed in a .yaml file format and can be downloaded using vcs. To install vcs you can run: 
 ``` 
@@ -65,6 +73,11 @@ add a  cron job to clear out the intersection.txt file that include the predicat
 run ''' crontab -e '''
 and add 
 1 0 * * * > /path_to_shr_plan/include/shr_plan/intersection.txt
+
+also add a cron job to reboot the robot after wiping the intersection text 
+because reboot requires priviledges then you need to run crontab with sudo
+run '''sudo crontab -e '''
+0 21 * * * /sbin/reboot
 
 Step2: 
 in The keyword.txt add all the predicates that indicate that a low level protocol is successful
