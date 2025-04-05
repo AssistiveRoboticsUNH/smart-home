@@ -1,33 +1,3 @@
- 
-## Simulator keyboard controls 
-`shift+O` : open door
-
-`shift+M` : move to door
-
-`shift+B` : move to bedroom
-
-`shift+C` : move to couch
-
-`shift+K` : toggle move to kitchen position 1/2
-
-`shift+V` : take medicine
-
-`shift+R` : go outside
-
-`shift+S` : move to dining
-
-`shift+J` : eat
-
-'arrows' : nagivate camera
-
-'shift+arrows' : move person around
-
-`right-click and drag` : pan camera
-
-`mouse wheel` : zoom in 
-
-
-  
 ## Managing source package dependencies 
 A source package must be build in order to use it. It is recommended to manage these packages using a .repos file. In this file, git repositories are listed in a .yaml file format and can be downloaded using vcs. To install vcs you can run: 
 ``` 
@@ -58,7 +28,6 @@ Note, the above command must be run at the root of the ROS workspace.
 Use Blender to view and edit mesh files. When exporting .obj files, make sure that Z is "up" and Y is "forward". 
 The values can be chosen from the export options.  
 
-
 # Smart Home Robot
 The project is about i) designing a smart home equipped with a socially assistive robot (SAR) and serval
 internet of things (IoT) devices and ii) evaluating the feasibility of using such a smart home to provide care-giving service for
@@ -75,207 +44,72 @@ elderly occupant and the safety of the home.
 
 [[pdf]](http://cs.unh.edu/~tg1034/publication/shr_sajay.pdf)
 
-# Install:
-**Speech module**  
-Better TTS voices: 
-Download the new voice from [here](https://universitysystemnh-my.sharepoint.com/:u:/g/personal/pac48_usnh_edu/ERrsvRkJHx1Fve_Uv4RBRQ0BOGGKMvEZCGmGE4-R7GwuyQ?e=9730gE) then extract and copy it into `/usr/share/festival/voices/english`
-
-Additional voices can be found here: http://www.festvox.org/packed/festival/2.5/voices/
-
-**ffmpeg**
-ffmpeg
-
-**face module package**  
-`sudo apt-get install ros-kinetic-people-msgs`  
-`sudo apt-get install ros-kinetic-jsk-rviz-plugin`   
-`sudo pip2 install face_recognition`  
-`sudo pip2 install opencv-python`  
-
-**Speech module**  
-`sudo apt-get install ros-kinetic-sound-play`
-Better TTS voice: https://ubuntuforums.org/archive/index.php/t-751169.html
-Download the new voice from [here](https://universitysystemnh-my.sharepoint.com/:u:/g/personal/pac48_usnh_edu/ERrsvRkJHx1Fve_Uv4RBRQ0BOGGKMvEZCGmGE4-R7GwuyQ?e=9730gE) then extract and copy it into `/usr/share/festival/voices/english`
-
-**primesense camera drive**  
-`sudo apt install libopenni2-dev`  
-`sudo apt install ros-kinetic-openni2-launch`  
-`sudo apt install ros-humble-depth-image-proc`
-The primesense camera has to be connect to usb2.0 port  
-
-**Aria package(for rosaria)**  
-`sudo apt install libaria-dev`
-
-**ROSPlan**  
-`sudo apt install ros-kinetic-mongodb-store`
-ROSPlan: https://github.com/KCL-Planning/ROSPlan
 
 **Pull and build SHR**
 ```bash
-mkdir -p ~/catkin_ws/src
-cd ~/catkin_ws/src
+mkdir -p ~/smart-home/src
+cd ~/smart-home/src
 git clone git@github.com:AssistiveRoboticsUNH/smart-home.git
-cd ~/catkin_ws
-catkin build 
+cd ~/smart-home 
+colcon build --symlink-install
+
 # if you are using youcompleteme so need a compile database:  
-# catkin build --cmake-args -DCMAKE_EXPORT_COMPILE_COMMANDS=1
+colcon build --symlink-install --cmake-args -DCMAKE_EXPORT_COMPILE_COMMANDS=1
 ```
 
-# Other pre-configuration:
-**Grant usb port read permission**  
-`sudo usermod -a -G dialout $USER`  
-Have to reboot after.
+# Setup planner to start and shutdown
 
-**Laser Scan Ethernet Config**  
-On onboard labtop, set ethernet ip as 192.168.0.10   
+Step 1:
+add a  cron job to clear out the intersection.txt file that include the predicates that need to be set true in the knowledge
 
-The default set for lms500 is 192.168.0.1, and we don't have to change this. The labtop ethernet have to be in the same ip domain, so anything similar to 192.168.0.x will work. Here we use 192.168.0.10.
- This is a [reference artical in chinese](https://blog.csdn.net/zhuoyueljl/article/details/75244563) about the LMS500 laser.
+run ''' crontab -e '''
+and add 
+1 0 * * * > /path_to_shr_plan/include/shr_plan/intersection.txt
 
-**Set up for remote control**  
+Step2: 
+in The keyword.txt add all the predicates that indicate that a low level protocol is successful
+for example Medicine protolc is sucessful if either predicates  (already_took_medicine) (already_reminded_medicine) are true so they should be added to the keyword.txt
 
-Add this to .bashr or .zshrc:  
-* on board labtop
-```bash
-# need to add this to onboard labtop that runs roscore
-export ROS_IP=0.0.0.0
+Step3:
 
-# set to localhost for onboard labtop that runs roscore
-export ROS_MASTER_URI=http://localhost:11311
+you need to set the two dictionaries protocol_type_ and keyword_protocol_ in action.hpp in the high_level_domain_Shutdown function.
 
-# IP of onboard labtop that runs roscore
-export ROS_HOSTNAME=10.21.152.74
-```
+this one should include all the protocols in :objects in the problem_high_level.pddl
 
-* remote control pc or labtop
-```bash
-# IP of onboard labtop that runs roscore
-export ROS_MASTER_URI=http://10.21.152.74:11311
+const std::unordered_map<std::string, std::string> protocol_type_ = {
+         {"protocol name ", "Type"}
+    };
+ for example 
 
-# IP of remote pc 
-export ROS_HOSTNAME=10.21.98,194
-```
-**Set up for audio and video resource**  
-`export ROS_WORKSPACE=/path/to/your/catkin_ws`  
+ problem_high_level.pddl if looks like this 
+  (:objects
+     living_room kitchen home outside dining_room bedroom bathroom - Landmark
+     am_meds pm_meds - MedicineProtocol
+     breakfast - FoodProtocol
+  )
+  
+  then protocol_type_ should look like 
+    const std::unordered_map<std::string, std::string> protocol_type_ = {
+            {"am_meds", "MedicineProtocol"},
+            {"pm_meds", "MedicineProtocol"},
+            {"breakfast", "FoodProtocol"}
+    };
 
-# Usage:
+As for the keyword_protocol_ it maps the success keyword to the its protocol.
+for example:
 
-## Simulator:
-**Bring up simulator:**  
-`roscore && roslaunch pioneer_shr pioneer_gazebo.launch`
+(already_took_medicine) (already_reminded_medicine) are success keywords for am_meds and pm_meds 
+and (already_reminded_move) is a success for move_reminder
 
-**Mapping in gazebo:**  
-`roslaunch pioneer_shr pioneer_gazebo_mapping.launch`
+the keyword_protocol will look like this:
 
-**Autonomous navigation in gazebo:**  
-`roslaunch pioneer_shr auto_navigation_gazebo.launch`
+ const std::unordered_map<std::string, std::vector<std::string>> keyword_protocol_ = {
+         {"already_took_medicine", {"am_meds", "pm_meds"}},
+         {"already_reminded_medicine", {"am_meds", "pm_meds"}},
+         {"already_reminded_move",{"move_reminder"}},
+ };
 
-**Visualize trajectory**    
-`roslaunch pioneer_shr trajectory_vis.launch`  
-(you may want to visualize the trajectory after mannually localize the robot)  
 
-## Real Robot mapping:
-**ssh into onboard labtop**
-
-**Bring up pioneer from onboard labtop:**  
-`roscore && roslaunch pioneer_shr real_mapping.launch`
-
-**Start teleop keyboard from onboard labtop:**  
-`roslaunch pioneer_shr keyboard_ctrl.launch`
-
-**Visualize from remote PC:**  
-`roslaunch pioneer_shr remote_vis.launch`
-
-## Real Robot auto-navigation:
-**ssh into onboard labtop**
-
-**Bring up pioneer from onboard labtop via ssh:**  
-`roscore && roslaunch pioneer_shr auto_navigation_real_world.launch`
-
-**Start teleop keyboard from onboard labtop via ssh:**  
-`roslaunch pioneer_shr keyboard_ctrl.launch`
-
-**Visualize from remote PC:**  
-`roslaunch pioneer_shr remote_vis.launch`
-
-## Auto-navigation trigger by sensor (obselet):
-**Do all steps in auto-navigation**
-
-**Bring up simple_navigation_goal ros node**  
-`roslaunch pioneer_shr sensor_trigger_move2goal_real.launch` (real world)  
-`roslaunch pioneer_shr sensor_trigger_move2goal_gazebo.launch` (gazebo)    
-
-## Face detection in gazebo:
-**Do Autonomous navigation in gazebo**  
-
-**start person sim**  
-`roslaunch person_sim init_standing_person.launch`  
-
-**keyboard control for the person**  
-`roslaunch person_sim move_person_standing.launch`
-
-**run face detection**  
-`roslaunch pioneer_shr face_detection_gazebo.launch`  
-
-## Face detection in real world:
-**Do Autonomous navigation in real world**  
-
-**run face detection**  
-`roslaunch pioneer_shr face_detection_real.launch`  
-
-## Face recognition in real world:
-**Do Autonomous navigation in real world**  
-
-**run camera on robot labtop**  
-`roslaunch pioneer_shr camera_real.launch`  
-(not needed if have face_detection running first)
-
-**start face recognition on remote labtop**  
-`roslaunch pioneer_shr face_recognition_real.launch`  
-
-## Medcial Protocal in simulation:
-**Do face detection and face recogniton in gazebo**  
-
-**run approach person service**  
-`roslaunch pioneer_shr action_service_gazebo.launch`  
-
-**run executive**  
-`rosrun pioneer_shr executive`  
-
-## Medcial Protocal in real world:
-**Do face detection and face recogniton in real world**  
-
-**run approach person service**  
-`roslaunch pioneer_shr action_service_real.launch`  
-
-**run executive**  
-`rosrun pioneer_shr executive`  
-
-## Mid Night Protocal in real world:
-
-**launch robot and run all service**  
-`roslaunch pioneer_shr shr_real.launch`  
-
-**launch face recognition on robot labtop**  
-`roslaunch pioneer_shr face_recognition_real.launch`  
-
-**run executive**  
-`rosrun pioneer_shr executive p2`  
-
-## rosplan simple demo:
-
-**launch robot and run all service**  
-`roslaunch pioneer_shr shr_real.launch`  
-
-**launch planner**  
-`roslaunch rosplan_shr shr.launchp`   
-
-**run executive**  
-`rosrun pioneer_shr executive pddl`  
-
-## rosplan dry run on contigent-FF:
-
-cd to catkin_ws/src/rosplan_shr  
-`rosrun rosplan_planning_system Contingent-FF -o ./common/domain_shr_conditional.pddl -f ./common/problem_shr_conditional.pddl`  
 
 
 

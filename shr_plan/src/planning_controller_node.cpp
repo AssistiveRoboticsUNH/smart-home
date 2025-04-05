@@ -17,6 +17,7 @@
 #include <shr_plan/actions.hpp>
 
 #include <shr_plan/world_state_converter.hpp>
+#include <shr_plan/intersection_helpers.hpp>
 #include <cstdlib>  // for getenv
 
 using namespace pddl_lib;
@@ -24,6 +25,7 @@ using namespace pddl_lib;
 Domain load_domain(const std::string &domain_file) {
     std::string domain_str;
     std::filesystem::path pkg_dir = ament_index_cpp::get_package_share_directory("shr_plan");
+    std::cout <<  "pkg_dir: "<< pkg_dir << std::endl;
     std::filesystem::path domain_file_path = pkg_dir / "pddl" / domain_file;
 
     std::ifstream domain_file_stream(domain_file_path.c_str());
@@ -309,40 +311,39 @@ int main(int argc, char **argv) {
 
         ps.nav_client_ = rclcpp_action::create_client<nav2_msgs::action::NavigateToPose>(
                 world_state_converter, "navigate_to_pose");
-        while (!ps.nav_client_->wait_for_action_server(std::chrono::seconds(5))) {
-            RCLCPP_INFO(rclcpp::get_logger("navigate_to_pose"), "Waiting for /navigate_to_pose action server...");
-        }
-
+//        while (!ps.nav_client_->wait_for_action_server(std::chrono::seconds(5))) {
+//            RCLCPP_INFO(rclcpp::get_logger("navigate_to_pose"), "Waiting for /navigate_to_pose action server...");
+//        }
         ps.read_action_client_ = rclcpp_action::create_client<shr_msgs::action::ReadScriptRequest>(
                 world_state_converter, "read_script");
-        while (!ps.read_action_client_->wait_for_action_server(std::chrono::seconds(5))) {
-            RCLCPP_INFO(rclcpp::get_logger("read_script"), "Waiting for /read_script action server...");
-        }
+//        while (!ps.read_action_client_->wait_for_action_server(std::chrono::seconds(5))) {
+//            RCLCPP_INFO(rclcpp::get_logger("read_script"), "Waiting for /read_script action server...");
+//        }
         ps.audio_action_client_ = rclcpp_action::create_client<shr_msgs::action::PlayAudioRequest>(
                 world_state_converter, "play_audio");
-        while (!ps.audio_action_client_->wait_for_action_server(std::chrono::seconds(5))) {
-            RCLCPP_INFO(rclcpp::get_logger("play_audio"), "Waiting for /play_audio action server...");
-        }
+//        while (!ps.audio_action_client_->wait_for_action_server(std::chrono::seconds(5))) {
+//            RCLCPP_INFO(rclcpp::get_logger("play_audio"), "Waiting for /play_audio action server...");
+//        }
         ps.docking_ = rclcpp_action::create_client<shr_msgs::action::DockingRequest>(
                 world_state_converter, "docking");
-        while (!ps.docking_->wait_for_action_server(std::chrono::seconds(5))) {
-            RCLCPP_INFO(rclcpp::get_logger("docking"), "Waiting for /docking action server...");
-        }
+//        while (!ps.docking_->wait_for_action_server(std::chrono::seconds(5))) {
+//            RCLCPP_INFO(rclcpp::get_logger("docking"), "Waiting for /docking action server...");
+//        }
         ps.undocking_ = rclcpp_action::create_client<shr_msgs::action::DockingRequest>(
                 world_state_converter, "undocking");
-        while (!ps.undocking_->wait_for_action_server(std::chrono::seconds(5))) {
-            RCLCPP_INFO(rclcpp::get_logger("undocking"), "Waiting for /undocking action server...");
-        }
+//        while (!ps.undocking_->wait_for_action_server(std::chrono::seconds(5))) {
+//            RCLCPP_INFO(rclcpp::get_logger("undocking"), "Waiting for /undocking action server...");
+//        }
         ps.localize_ = rclcpp_action::create_client<shr_msgs::action::LocalizeRequest>(
                 world_state_converter, "localize");
-        while (!ps.localize_->wait_for_action_server(std::chrono::seconds(5))) {
-            RCLCPP_INFO(rclcpp::get_logger("localize"), "Waiting for /localize action server...");
-        }
+//        while (!ps.localize_->wait_for_action_server(std::chrono::seconds(5))) {
+//            RCLCPP_INFO(rclcpp::get_logger("localize"), "Waiting for /localize action server...");
+//        }
         ps.call_client_ = rclcpp_action::create_client<shr_msgs::action::CallRequest>(
                 world_state_converter, "make_call");
-        while (!ps.call_client_->wait_for_action_server(std::chrono::seconds(5))) {
-            RCLCPP_INFO(rclcpp::get_logger("make_call"), "Waiting for /make_call action server...");
-        }
+//        while (!ps.call_client_->wait_for_action_server(std::chrono::seconds(5))) {
+//            RCLCPP_INFO(rclcpp::get_logger("make_call"), "Waiting for /make_call action server...");
+//        }
         lock.UnLock();
     }
 
@@ -363,6 +364,20 @@ int main(int argc, char **argv) {
                 }
             }
     );
+
+    std::filesystem::path pkg_dir = ament_index_cpp::get_package_share_directory("shr_plan");
+    std::filesystem::path outputFile = pkg_dir / "include" / "shr_plan" / "intersection.txt";
+
+    std::cout << "outputFile: "  << outputFile.c_str() << std::endl;
+    auto predicates = read_predicates_from_file(outputFile.c_str());
+
+    // Print the predicates
+    for (const auto& [first, second, third] : predicates) {
+        std::cout << "Keyword: " << first << ", ProtocolName: " << second << ", ProtocolType: " << third << std::endl;
+        InstantiatedParameter active_protocol = {second, third};
+        InstantiatedPredicate pred{first, {active_protocol}};
+        kb.insert_predicate(pred);
+    }
 
     // run the domains
     BT::BehaviorTreeFactory factory = create_tree_factory<ProtocolActions>();

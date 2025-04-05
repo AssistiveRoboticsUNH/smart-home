@@ -28,23 +28,17 @@ class shr_parameters:
                 LandmarksRobot = ["home", "designated_space"]
                 Persons = ["nathan"]
             instances = __Instances()
-
             class __Foodprotocols:
-                instances = ["breakfast", "lunch", "dinner"]
-                eat_times = ["06h45m0s/08h00m0s", "00h00m00s/00h00m00s", "00h00m00s/00h00m00s"]
-                eat_locations = ["kitchen", "kitchen", "kitchen"]
-                check_guide_to_succeeded_times = ["0h1m0s", "0h1m0s", "0h1m0s"]
-                remind_automated_food_at_times = ["0h10m0s", "0h10m0s", "0h10m0s"]
-                remind_automated_food_at_2_times = ["0h10m0s", "0h1m0s", "0h10m0s"]
+                instances = ["breakfast"]
+                eat_times = ["08h15m0s/08h45m0s"]
             FoodProtocols = __Foodprotocols()
-
             class __Medicineprotocols:
                 instances = ["am_meds", "pm_meds"]
                 take_medication_times = ["09h00m0s/10h00m0s", "21h00m0s/22h00m0s"]
             MedicineProtocols = __Medicineprotocols()
             class __Internalcheckreminderprotocols:
                 instances = ["internal_check_reminder"]
-                internal_check_reminder_times = ["08h15m0s/08h45m0s"]
+                internal_check_reminder_times = ["22h00m0s/23h00m0s"]
             InternalCheckReminderProtocols = __Internalcheckreminderprotocols()
             class __Practicereminderprotocols:
                 instances = ["practice_reminder"]
@@ -112,6 +106,14 @@ class shr_parameters:
 
                 if param.name == self.prefix_ + "pddl.instances.Persons":
                     updated_params.pddl.instances.Persons = param.value
+                    self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
+
+                if param.name == self.prefix_ + "pddl.FoodProtocols.instances":
+                    updated_params.pddl.FoodProtocols.instances = param.value
+                    self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
+
+                if param.name == self.prefix_ + "pddl.FoodProtocols.eat_times":
+                    updated_params.pddl.FoodProtocols.eat_times = param.value
                     self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
 
                 if param.name == self.prefix_ + "pddl.MedicineProtocols.instances":
@@ -205,6 +207,16 @@ class shr_parameters:
                 parameter = updated_params.pddl.instances.Persons
                 self.node_.declare_parameter(self.prefix_ + "pddl.instances.Persons", parameter, descriptor)
 
+            if not self.node_.has_parameter(self.prefix_ + "pddl.FoodProtocols.instances"):
+                descriptor = ParameterDescriptor(description="food protocols", read_only = False)
+                parameter = updated_params.pddl.FoodProtocols.instances
+                self.node_.declare_parameter(self.prefix_ + "pddl.FoodProtocols.instances", parameter, descriptor)
+
+            if not self.node_.has_parameter(self.prefix_ + "pddl.FoodProtocols.eat_times"):
+                descriptor = ParameterDescriptor(description="time that each protocol is triggered", read_only = False)
+                parameter = updated_params.pddl.FoodProtocols.eat_times
+                self.node_.declare_parameter(self.prefix_ + "pddl.FoodProtocols.eat_times", parameter, descriptor)
+
             if not self.node_.has_parameter(self.prefix_ + "pddl.MedicineProtocols.instances"):
                 descriptor = ParameterDescriptor(description="medicine protocols", read_only = False)
                 parameter = updated_params.pddl.MedicineProtocols.instances
@@ -296,6 +308,12 @@ class shr_parameters:
             param = self.node_.get_parameter(self.prefix_ + "pddl.instances.Persons")
             self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
             updated_params.pddl.instances.Persons = param.value
+            param = self.node_.get_parameter(self.prefix_ + "pddl.FoodProtocols.instances")
+            self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
+            updated_params.pddl.FoodProtocols.instances = param.value
+            param = self.node_.get_parameter(self.prefix_ + "pddl.FoodProtocols.eat_times")
+            self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
+            updated_params.pddl.FoodProtocols.eat_times = param.value
             param = self.node_.get_parameter(self.prefix_ + "pddl.MedicineProtocols.instances")
             self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
             updated_params.pddl.MedicineProtocols.instances = param.value

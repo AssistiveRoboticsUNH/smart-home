@@ -18,6 +18,8 @@
 )
 
 (:predicates
+  (started)
+
   (robot_at ?lmr - Landmark)
   (person_at ?t - Time ?p - Person ?lmp - Landmark)
   (person_currently_at ?p - Person ?lmp - Landmark)
@@ -71,6 +73,7 @@
 	:parameters (?from - Landmark ?to - Landmark)
 	:precondition (and
 	                (robot_at ?from)
+	                (started)
 	          )
 	:effect (and (robot_at ?to) (not (robot_at ?from)) )
 )
@@ -105,6 +108,19 @@
 	:effect (and (priority_5) (not (priority_4)))
 )
 
+;; to start ros and navigation before the protocol
+(:action StartROS
+	:parameters ()
+	:precondition (;;and
+	       ;; will be triggered before it starts a protocol
+           ;; (priority_2)
+		)
+	:effect (and
+	            ;;(not (priority_2))
+                (started)
+          )
+)
+
 (:action StartMedReminderProtocol
 	:parameters (?m - MedicineProtocol ?lmp - Landmark ?p - Person)
 	:precondition (and
@@ -117,8 +133,8 @@
       (forall (?med - MedicineProtocol) (not (medicine_reminder_enabled ?med)) )
 
       ;; person in visible area
-   
       (visible_location ?lmp)
+      (started)
     )
 	:effect (and
 	          (success)
@@ -158,7 +174,8 @@
       (not (already_ate ?f))
       (not (already_called_about_eating ?f))
       (forall (?food - FoodProtocol) (not (food_protocol_enabled ?food)) )
-		)
+	  (started)
+	)
 	:effect (and
 	          (success)
             (not (priority_2))
@@ -199,6 +216,7 @@
       ;; person in visible area
       (person_currently_at ?p ?lmp)
       (visible_location ?lmp)
+      (started)
 
     )
 	:effect (and
@@ -241,6 +259,7 @@
       ;; person in visible area
       (person_currently_at ?p ?lmp)
       (visible_location ?lmp)
+      (started)
 
     )
 	:effect (and
@@ -285,6 +304,7 @@
       ;; person in visible area
       (person_currently_at ?p ?lmp)
       (visible_location ?lmp)
+      (started)
 
     )
 	:effect (and
@@ -328,6 +348,7 @@
       ;; person in visible area
       (person_currently_at ?p ?lmp)
       (visible_location ?lmp)
+      (started)
 
     )
 	:effect (and
@@ -373,6 +394,94 @@
                 (not (low_level_failed))
           )
 )
+
+;; shutdown is supposed to stop ros2 processes
+;; it should try to dock if it is not docked
+;; triggered when there should be protocol and it has been done
+
+(:action Shutdown
+	:parameters ()
+	:precondition
+	    (and
+	        (started)
+	        ;; has to be higher priority than idle
+            (priority_4)
+
+            ;; CANT SHUTDOWN IF time to do something is true and
+            ;; all predicates indicating that they it is done are false
+            ;; give F in such case
+
+            ;; need to add a forall for every protocol objects in problem
+            ;;; 1
+            ;;; forall would give false if one is F
+            (forall (?med - MedicineProtocol)
+                (not
+                    (and
+                        (time_to_take_medicine ?med)
+                        (not (already_took_medicine ?med))
+                        (not (already_reminded_medicine ?med))
+                    )
+                )
+            )
+            ;;; 2
+            (forall (?internal - InternalCheckReminderProtocol)
+                (not
+                    (and
+                        (time_for_internal_check_reminder ?internal)
+                        (not (already_reminded_internal_check ?internal))
+                    )
+                )
+            )
+            ;;; 3
+            (forall (?mv - MoveReminderProtocol)
+                (not
+                    (and
+                        (time_for_move_reminder ?mv)
+                        (not (already_reminded_move ?mv))
+                    )
+                )
+            )
+            ;;; 4
+            (forall (?ex - ExerciseReminderProtocol)
+                (not
+                    (and
+                        (time_for_exercise_reminder ?ex)
+                        (not (already_reminded_exercise ?ex))
+                    )
+                )
+            )
+
+            ;;; 5
+            (forall (?practice - PracticeReminderProtocol)
+                (not
+                    (and
+                        (time_for_practice_reminder ?practice)
+                        (not (already_reminded_practice ?practice))
+                    )
+                )
+            )
+
+            ;;; 6
+            (forall (?food - FoodProtocol)
+                (not
+                    (and
+                        (time_to_eat ?food)
+                        (not (already_ate ?food))
+                        (not (already_called_about_eating ?food))
+                    )
+                )
+            )
+
+	    )
+	:effect (and (success)
+	            (not (priority_5))
+                ;;(forall (?ask - AskBeforeHelp) (not (askforhelp_protocol_enabled ?ask)) )
+                (not (low_level_failed))
+                ;;(tried_shutdown)
+                (not started)
+          )
+)
+
 
 )
 

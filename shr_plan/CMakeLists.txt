@@ -75,7 +75,7 @@ install(TARGETS
   )
 
 install(
-    DIRECTORY launch pddl
+    DIRECTORY launch pddl include
     DESTINATION share/shr_plan
 )
 
