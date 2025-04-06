@@ -9,6 +9,7 @@ from std_msgs.msg import Float32, Int64, Int32, Bool
 from simple_logger.discord_bot import DiscordNotifier
 import time, json
 import asyncio
+import subprocess
 
 #log file: ~/.log_rosout
  
@@ -41,9 +42,10 @@ class LogSubscriber(Node):
         # self.simple_log_file=path+'/'+'simplelog.txt'
         
         self.bump_subscriber = self.create_subscription(Int64, 'bump', self.bump_callback, 10)
-        self.charger_subscriber = self.create_subscription(Float32, 'charging_voltage', self.charger_callback, 10)
+        self.voltage_subscriber = self.create_subscription(Float32, 'charging_voltage', self.voltage_callback, 10)
         # self.ir_sensor_subscriber = self.create_subscription(Float32, 'docking/ir_weight', self.ir_sensor_callback, 10)
         self.charger_subscriber = self.create_subscription(Int32, 'charging', self.iot_charger_callback, 10)
+        self.current_subscriber = self.create_subscription(Float32, 'charging_current', self.current_callback, 10)
         
         self.charger_status = None
         self.bump = None
@@ -67,18 +69,21 @@ class LogSubscriber(Node):
     def bump_callback(self, msg):
         self.bump = msg.data
 
-    def charger_callback(self, msg):
+    def voltage_callback(self, msg):
         self.voltage = msg.data
+
+    def current_callback(self, msg):
+        self.current = msg.data
 
     def log_offline(self, info):
         '''
         append log text in loacl file
         '''
         # Generate the filename based on the current date
-        date_str = datetime.now().strftime('Y%y_M%m_D%d')
+        date_str = datetime.now().strftime("Y%y_M%m_D%d")
         self.simple_log_file = f"{path}/log_{date_str}.txt"
 
-        # info=f'\ntime={td}\nname={name}\nfile={file}\nmsg={data}\n-----'
+        
         with open(self.simple_log_file, 'a+') as f:
             f.write(info)
 
@@ -86,11 +91,35 @@ class LogSubscriber(Node):
     async  def on_message_callback(self, msg):
         # print(f"Received :{msg}")
         self.get_logger().info(f'Received :{msg}')
-        if msg == "status":
-            status = f"Charging: {self.charger_status}, Bump: {self.bump}, Voltage: {self.voltage}"
-            self.get_logger().info(f'Robot Status :{status}')
-            await self.notifier.send_message(f'Robot Status: {status}')
+        time_str = datetime.now().strftime('%m/%d/%Y  %H:%M:%S')
+        if msg == "help":
+            available_commands = "**Available Commands:**\nstatus \nrunstop\nrun\n"
+            await self.notifier.send_message(f'{available_commands}')
+        elif msg == "status":
+            status = f"Charging: {self.charger_status},\nBump: {self.bump},\nVoltage: {self.voltage}V, \nCurrent: {self.current}Amps"
+            self.get_logger().info(f'Robot Status :{status}\n')
+            await self.notifier.send_message(f'{time_str} >> Robot Status: \n{status}')
             # asyncio.create_task(notifier.send_message(status))
+        
+        elif msg == "runstop":
+            command = "ros2 service call /runstop std_srvs/srv/SetBool \"{data: true}\""
+            result = subprocess.run(command, shell=True, text=True, capture_output=True)
+            await self.notifier.send_message(f'{result}')
+
+        elif msg == "run":
+            command = "ros2 service call /runstop std_srvs/srv/SetBool \"{data: false}\""
+            result = subprocess.run(command, shell=True, text=True, capture_output=True)
+            await self.notifier.send_message(f'{result}')
+
+        elif msg == "stop_lidar":
+            command = "ros2 service call /stop_motor std_srvs/srv/Empty"
+            result = subprocess.run(command, shell=True, text=True, capture_output=True)
+            await self.notifier.send_message(f'{result}')
+            
+        elif msg == "start_lidar":
+            command = "ros2 service call /start_motor std_srvs/srv/Empty"
+            result = subprocess.run(command, shell=True, text=True, capture_output=True)
+            await self.notifier.send_message(f'{result}')
 
 
 

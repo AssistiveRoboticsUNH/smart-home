@@ -23,6 +23,8 @@
     <depend>rclcpp</depend>
     <depend>rclcpp_action</depend>
     <depend>tf2_ros</depend>
+    <depend>std_srvs</depend>
+
     <!-- <depend>date</depend> -->
 
     <exec_depend>launch</exec_depend>

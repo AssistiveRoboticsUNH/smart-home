@@ -14,7 +14,7 @@ shr_parameters:
       }
       take_medication_times: {
         type: string_array,
-        default_value: [ "Everyday 09h00m0s/10h00m0s", "Everyday 21h00m0s/22h00m0s" ],
+        default_value: [ "Everyday 09h00m0s/10h00m0s", "Everyday 18h00m0s/19h00m0s" ],
         description: "time that each protocol is triggered",
       }
     GymReminderProtocols:
@@ -25,9 +25,10 @@ shr_parameters:
       }
       gym_reminder_times: {
         type: string_array,
-        default_value: [ "Monday,Wednesday,Friday 07h00m0s/8h00m0s"],
+        default_value: [ "Monday,Wednesday,Friday 06h30m0s/07h00m0s"],
         description: "time that each protocol is triggered",
       }
+      # default_value: [ "Monday,Wednesday,Friday 06h30m0s/07h00m0s"],
     MedicineRefillReminderProtocols:
       instances: {
         type: string_array,
@@ -36,7 +37,7 @@ shr_parameters:
       }
       medicine_refill_reminder_times: {
         type: string_array,
-        default_value: [ "Everyday 11h30m0s/12h00m0s" ],
+        default_value: [ "Monday 14h00m0s/15h00m0s" ],
         description: "time that each protocol is triggered",
       }
     MedicineRefillPharmacyReminderProtocols:
@@ -47,9 +48,10 @@ shr_parameters:
       }
       medicine_refill_pharmacy_reminder_times: {
         type: string_array,
-        default_value: [ "Tuesday,Monday 15h00m0s/16h00m0s" ],
+        default_value: [ "Tuesday 10h00m0s/11h00m0s" ],
         description: "time that each protocol is triggered",
       }
+      # default_value: [ "Tuesday 09h30m0s/10h00m0s" ],
 
     WalkingProtocols:
       instances: {
@@ -62,7 +64,6 @@ shr_parameters:
         default_value: [ "Everyday 13h00m0s/14h00m0s"],
         description: "time that each protocol is triggered",
       }
-
   topics:
     time: {
       type: string,

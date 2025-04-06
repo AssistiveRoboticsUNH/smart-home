@@ -23,6 +23,8 @@ find_package(shr_parameters REQUIRED)
 find_package(shr_utils REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(builtin_interfaces REQUIRED)
+find_package(std_srvs REQUIRED)
+
 # find_package(date REQUIRED)
 
 
@@ -42,6 +44,7 @@ set(dependencies
     tf2_ros
     behaviortree_cpp_v3
     builtin_interfaces
+    std_srvs
     )
 
 add_executable(planning_controller_node src/planning_controller_node.cpp)

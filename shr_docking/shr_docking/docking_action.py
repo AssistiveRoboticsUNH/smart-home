@@ -106,7 +106,7 @@ class DockingMainActionServer(Node):
             self.vel.angular.z =0.0
             self.pub.publish(self.vel)
             print(self.docking_camera.charger_status)
-            time.sleep(10)
+            time.sleep(15)
             if(self.docking_camera.charger_status is not None and (self.docking_camera.charger_status ==1)):
                 goal_handle.succeed()
                 result = DockingRequest.Result()

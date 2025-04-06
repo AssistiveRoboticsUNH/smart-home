@@ -28,19 +28,19 @@ class shr_parameters:
             instances = __Instances()
             class __Medicineprotocols:
                 instances = ["am_meds", "pm_meds"]
-                take_medication_times = ["Everyday 09h00m0s/10h00m0s", "Everyday 21h00m0s/22h00m0s"]
+                take_medication_times = ["Everyday 09h00m0s/09h30m0s", "Everyday 18h00m0s/18h30m0s"]
             MedicineProtocols = __Medicineprotocols()
             class __Gymreminderprotocols:
                 instances = ["gym_reminder"]
-                gym_reminder_times = ["Monday,Wednesday,Friday 07h00m0s/8h00m0s"]
+                gym_reminder_times = ["Monday,Wednesday,Thursday,Friday 06h30m0s/07h00m0s"]
             GymReminderProtocols = __Gymreminderprotocols()
             class __Medicinerefillreminderprotocols:
                 instances = ["medicine_refill_reminder"]
-                medicine_refill_reminder_times = ["Everyday 11h30m0s/12h00m0s"]
+                medicine_refill_reminder_times = ["Everyday 17h00m0s/17h30m0s"]
             MedicineRefillReminderProtocols = __Medicinerefillreminderprotocols()
             class __Medicinerefillpharmacyreminderprotocols:
                 instances = ["medicine_pharmacy_reminder"]
-                medicine_refill_pharmacy_reminder_times = ["Tuesday,Monday 15h00m0s/16h00m0s"]
+                medicine_refill_pharmacy_reminder_times = ["Tuesday,Wednesday,Thursday 09h30m0s/10h00m0s"]
             MedicineRefillPharmacyReminderProtocols = __Medicinerefillpharmacyreminderprotocols()
             class __Walkingprotocols:
                 instances = ["walking_reminder"]

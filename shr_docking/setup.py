@@ -29,7 +29,7 @@ setup(
 
             #Docking server with infrared only
             'docking_ir = shr_docking.docking_ir_main:main',
-            'docking_ir_server = shr_docking.docking_ir_action:main',
+            # 'docking_ir_server = shr_docking.docking_ir_action:main',
 
             #Docking server with camera and infrared combined
             'docking_server = shr_docking.docking_action:main',

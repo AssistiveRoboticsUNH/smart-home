@@ -4,3 +4,4 @@ already_called_about_medicine
 already_reminded_gym
 already_reminded_medicine_refill
 already_reminded_medicine_pharmacy
+already_reminded_walking

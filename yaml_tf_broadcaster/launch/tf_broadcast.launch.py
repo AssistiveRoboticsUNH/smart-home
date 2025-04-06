@@ -28,11 +28,18 @@ def generate_launch_description():
 
     #ld.add_action(aptags)
 
+    # room_file = DeclareLaunchArgument(
+    #     "rooms_location",
+    #     default_value=pkg_path + "exeter_loc.yaml",
+    #     description="rooms location"
+    # )
+
     room_file = DeclareLaunchArgument(
         "rooms_location",
-        default_value=pkg_path + "olson_rooms.yaml",
+        default_value=pkg_path + "howie_final.yaml",
         description="rooms location"
     )
+
     ld.add_action(room_file)
     #
     rooms = Node(

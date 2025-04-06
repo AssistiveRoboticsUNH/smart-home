@@ -15,6 +15,8 @@
 #include "shr_plan/helpers.hpp"
 #include <shr_plan/intersection_helpers.hpp>
 #include "std_msgs/msg/string.hpp"
+#include "std_srvs/srv/set_bool.hpp"
+
 
 
 namespace pddl_lib {
@@ -26,6 +28,8 @@ namespace pddl_lib {
 
         rclcpp::Publisher<std_msgs::msg::String>::SharedPtr display_publisher_;
 
+        rclcpp::Node::SharedPtr node_ = std::make_shared<rclcpp::Node>("for_run_stop"); 
+
         // ✅ Getter for display_publisher_
         rclcpp::Publisher<std_msgs::msg::String>::SharedPtr getDisplayPublisher() {
             return display_publisher_;
@@ -36,6 +40,7 @@ namespace pddl_lib {
             display_publisher_ = pub;
         }
 
+        int docking_try = 0;
 
         // change first to change time (x  before y after)
         const std::unordered_map <InstantiatedParameter, std::unordered_map<std::string, std::pair < int, int>>>
@@ -45,11 +50,13 @@ namespace pddl_lib {
         wait_times = {
                 {{"am_meds",                           "MedicineProtocol"},                       {{"reminder_1_msg", {0, 1}},
                                                                                                           {"reminder_2_msg", {0, 1}},
-                                                                                                          {"wait", {90, 0}},
+                                                                                                          {"wait", {900, 0}},
+                                                                                                        //   {"wait", {900, 0}},
                                                                                                   }},
-                {{"pm_meds",                           "MedicineProtocol"},                       {{"reminder_1_msg", {0, 12}},
-                                                                                                          {"reminder_2_msg", {0, 12}},
-                                                                                                          {"wait", {90, 0}},
+                {{"pm_meds",                           "MedicineProtocol"},                       {{"reminder_1_msg", {0, 1}},
+                                                                                                          {"reminder_2_msg", {0, 1}},
+                                                                                                          {"wait", {900, 0}},
+                                                                                                        //   {"wait", {900, 0}},
                                                                                                   }},
                 {{"gym_reminder",                      "GymReminderProtocol"},                    {{"voice_msg", {0, 1}},
                                                                                                           {"wait",           {0, 0}},
@@ -88,9 +95,9 @@ namespace pddl_lib {
         };
 
         const std::unordered_map <InstantiatedParameter, std::unordered_map<std::string, std::string>> recorded_reminder_msgs = {
-                {{"am_meds", "MedicineProtocol"}, {{"reminder_2_msg", "am_med_reminder.mp3"},
+                {{"am_meds", "MedicineProtocol"}, {{"reminder_2_msg", "medicine_voice_reminder.mp4"},
                                                   }},
-                {{"pm_meds", "MedicineProtocol"}, {{"reminder_2_msg", "pm_med_reminder.mp3"},
+                {{"pm_meds", "MedicineProtocol"}, {{"reminder_2_msg", "medicine_voice_reminder.mp4"},
                                                   }},
 
         };
@@ -519,11 +526,20 @@ namespace pddl_lib {
     public:
 
         BT::NodeStatus charge_robot(ProtocolState &ps, const InstantiatedAction &action, bool pred_started){
+            
+
             std::cout << "ps.world_state_converter->get_world_state_msg()->robot_charging" << ps.world_state_converter->get_world_state_msg()->robot_charging  << std::endl;
+
+
             std::cout << "pred_started" << pred_started << std::endl;
             auto &kb = KnowledgeBase::getInstance();
 
             if (!ps.world_state_converter->get_world_state_msg()->robot_charging == 1 && pred_started ) {
+
+                std::string log_message_charging = std::string("weblog= Robot Not Charging will move home and dock");
+
+                RCLCPP_INFO(ps.world_state_converter->get_logger(), log_message_charging.c_str());
+
                 std::cout << "High level claim robot called " << std::endl;
                 auto robot_resource = ps.claimRobot();
                 ps.read_action_client_->async_cancel_all_goals();
@@ -550,7 +566,11 @@ namespace pddl_lib {
                     // lock.UnLock();
                     return BT::NodeStatus::FAILURE;
                 }
+
                 std::cout << "success navigation : " << std::endl;
+
+                std::string log_message_navigate = std::string("weblog= Robot successfully navigated to home position");
+                RCLCPP_INFO(ps.world_state_converter->get_logger(), log_message_navigate.c_str());
 
 
                 std::cout << "dock " << std::endl;
@@ -562,13 +582,53 @@ namespace pddl_lib {
                 auto status_dock = send_goal_blocking(goal_msg_dock, action, ps);
                 std::cout << "status: " << status_dock << std::endl;
                 if (!status_dock) {
+                    ps.docking_try++;
                     ps.docking_->async_cancel_all_goals();
-                    std::cout << "Fail: " << std::endl;
-                    //lock.UnLock();
+                    std::cout << "⚠️ Docking attempt " << ps.docking_try << " failed." << std::endl;
+                
+                    if (ps.docking_try > 2) {  // Call for help if repeated failures
+                        shr_msgs::action::CallRequest::Goal call_goal_;
+                        call_goal_.script_name = "call_msg_docking.xml";
+                        call_goal_.phone_number = "7742257735";
+                
+                        auto ret = send_goal_blocking(call_goal_, action) ? BT::NodeStatus::SUCCESS : BT::NodeStatus::FAILURE;
+                
+                        if (ret == BT::NodeStatus::SUCCESS) {
+                            std::cout << "📞 Unsuccessful docking. Call made successfully!" << std::endl;
+                        }
+                        else{
+                            std::cout << "📞 Unsuccessful docking. Call failed successfully!" << std::endl;
+                        }
+                
+                        // ✅ Reset failure count after the call
+                        ps.docking_try = 0;
+
+                        // 🚨 Call /runstop service **after** the emergency call
+                        // 🚨 Call /runstop service **after** the emergency call
+                        auto client = ps.node_->create_client<std_srvs::srv::SetBool>("/runstop");
+                        auto request = std::make_shared<std_srvs::srv::SetBool::Request>();
+                        request->data = true;
+
+                        if (client->wait_for_service(std::chrono::seconds(3))) {
+                            auto future_result = client->async_send_request(request);
+                            if (future_result.wait_for(std::chrono::seconds(3)) == std::future_status::ready) {
+                                std::cout << "🚨 Runstop service called successfully after emergency call!" << std::endl;
+                            } else {
+                                std::cout << "⚠️ Failed to call Runstop service after emergency call." << std::endl;
+                            }
+                        } else {
+                            std::cout << "⚠️ Runstop service not available after emergency call!" << std::endl;
+                        }
+                    }
+                        
                     return BT::NodeStatus::FAILURE;
                 }
+                
                 ps.docking_->async_cancel_all_goals();
                 std::cout << "success: " << std::endl;
+
+                std::cout << "✅ Docking goal succeeded after " << ps.docking_try << " failed attempts!" << std::endl;
+                ps.docking_try = 0;  // Reset failure count on success
                 // comment in sim
 
                 // // sleep for 60 seconds to deal with the delay from //charging topic
@@ -581,6 +641,7 @@ namespace pddl_lib {
             
             // for safety have it undock so that nav2 doesnt have to move when the robot is sp close to the docking
             if (ps.world_state_converter->get_world_state_msg()->robot_charging != 1){
+
                 // start the robot before undocking
                 if (!pred_started){
 
@@ -590,6 +651,8 @@ namespace pddl_lib {
                     std::string cmd_startros = std::string(homeDir);
                     cmd_startros += "/start_nav.sh";
                     std::system(cmd_startros.c_str());
+
+
         
                     std::cout << " ------ finish start ----" << std::endl;
                     kb.insert_predicate({"started", {}});
@@ -733,6 +796,7 @@ namespace pddl_lib {
             InstantiatedParameter cur = action.parameters[2];
             InstantiatedParameter dest = action.parameters[3];
             auto [ps, lock] = ProtocolState::getConcurrentInstance();
+            
             lock.Lock();
 
             std::string currentDateTime = getCurrentDateTime();
@@ -934,46 +998,55 @@ namespace pddl_lib {
         
         BT::NodeStatus high_level_domain_Shutdown(const InstantiatedAction &action) override {
             std::cout << " ------ Shutdown  ----" << std::endl;
+           
+            
             auto &kb = KnowledgeBase::getInstance();
 
             BT::NodeStatus status = BT::NodeStatus::FAILURE;
             auto [ps, lock] = ProtocolState::getConcurrentInstance();
 
-            // // ✅ Ensure publisher exists, create if necessary
-            // if (!ps.getDisplayPublisher()) {
-            //     auto node = rclcpp::Node::make_shared("display_publisher_node");
-            //     ps.setDisplayPublisher(node->create_publisher<std_msgs::msg::String>("display_status", 10));
-            //     RCLCPP_INFO(rclcpp::get_logger("Shutdown"), "✅ Created publisher for display_status.");
-            // }
+            RCLCPP_INFO(ps.world_state_converter->get_logger(), "weblog=----Shutting Down Action----");
+            // lock.Lock();
 
-            // // ✅ Publish TURN_OFF before shutdown
-            // auto message = std_msgs::msg::String();
-            // message.data = "TURN_OFF";
-            // ps.getDisplayPublisher()->publish(message);
-            // RCLCPP_INFO(rclcpp::get_logger("Shutdown"), "Published: %s", message.data.c_str());
+            // ✅ Ensure publisher exists, create if necessary
+            if (!ps.getDisplayPublisher()) {
+                auto node = rclcpp::Node::make_shared("display_publisher_node");
+                ps.setDisplayPublisher(node->create_publisher<std_msgs::msg::String>("display_status", 10));
+                RCLCPP_INFO(rclcpp::get_logger("Shutdown"), "✅ Created publisher for display_status.");
+            }
 
-            // rclcpp::sleep_for(std::chrono::seconds(10));
+            // ✅ Publish TURN_OFF before shutdown
+            auto message = std_msgs::msg::String();
+            message.data = "TURN_OFF";
+            ps.getDisplayPublisher()->publish(message);
+            RCLCPP_INFO(rclcpp::get_logger("Shutdown"), "Published: %s", message.data.c_str());
 
+            rclcpp::sleep_for(std::chrono::seconds(10));
 
             // dock the robot if it is not charging
             while (status !=BT::NodeStatus::SUCCESS){
                 /// TODO: IF IT RUNS FOR TOO LONG ISSUE MIGHT BE IN THE CHARGER
                 /// TODO: DISPLAY A WARNING ON THE SCREEN THAT IT NEEDS HELP
+                RCLCPP_INFO(ps.world_state_converter->get_logger(), "weblog=----Going to Charge Robot Function---");
                 lock.Lock();
                 status = charge_robot(ps, action, true);
                 lock.UnLock();
             }
             
             kb.insert_predicate({"abort", {}});
-
+            
             // Get keyword predicates to load them in next protocol
             std::cout << " RUNNING MATCH " << std::endl;
+            RCLCPP_INFO(ps.world_state_converter->get_logger(), "weblog=--- RUNNING MATCH ----");
             std::filesystem::path pkg_dir = ament_index_cpp::get_package_share_directory("shr_plan");
             std::filesystem::path keywordsFile = pkg_dir / "include" / "shr_plan" / "keywords.txt";
 
             const char* homeDir = std::getenv("HOME");
 
-            std::filesystem::path outputFile = pkg_dir / "include" / "shr_plan" / "intersection.txt";
+            std::filesystem::path outputFile = pkg_dir / "include" / "shr_plan" / "intersection.txt"; 
+            std::cout << "outputFile: "  << outputFile.c_str() << std::endl;
+
+
             const std::unordered_map<std::string, std::string> protocol_type_ = {
                     {"am_meds", "MedicineProtocol"},
                     {"pm_meds", "MedicineProtocol"},
@@ -1059,6 +1132,8 @@ namespace pddl_lib {
                BT::NodeStatus::FAILURE;
            }
 
+           
+
            std::string cmd_reboot = "echo '" + std::string(password) + "' | sudo -S reboot";
            std::system(cmd_reboot.c_str());
 
@@ -1081,50 +1156,40 @@ namespace pddl_lib {
 
             // RCLCPP_INFO(rclcpp::get_logger("########## STARTT #################"), "Your message here");
 
-            // // ✅ Ensure publisher exists, create if necessary
-            // if (!ps.getDisplayPublisher()) {
-            //     auto node = rclcpp::Node::make_shared("display_publisher_node");
-            //     ps.setDisplayPublisher(node->create_publisher<std_msgs::msg::String>("display_status", 10));
-            //     RCLCPP_INFO(rclcpp::get_logger("StartROS"), "✅ Created publisher for display_status.");
-            // }
-
-            // // ✅ Publish TURN_ON message
-            // auto message = std_msgs::msg::String();
-            // message.data = "TURN_ON";
-            // ps.getDisplayPublisher()->publish(message);
-            // RCLCPP_INFO(rclcpp::get_logger("StartROS"), "Published: %s", message.data.c_str());
-
-            // rclcpp::sleep_for(std::chrono::seconds(10));
 
             const char* homeDir = std::getenv("HOME");
             std::string cmd_startros = std::string(homeDir);
             cmd_startros += "/start_nav.sh";
             std::system(cmd_startros.c_str());
 
+            rclcpp::sleep_for(std::chrono::seconds(10));
+
+
+
+            // ✅ Ensure publisher exists, create if necessary
+            if (!ps.getDisplayPublisher()) {
+                auto node = rclcpp::Node::make_shared("display_publisher_node");
+                ps.setDisplayPublisher(node->create_publisher<std_msgs::msg::String>("display_status", 10));
+                RCLCPP_INFO(rclcpp::get_logger("StartROS"), "✅ Created publisher for display_status.");
+                RCLCPP_INFO(ps.world_state_converter->get_logger(), "weblog=----getDisplayPublisher web app----");
+
+            }
+            RCLCPP_INFO(ps.world_state_converter->get_logger(), "weblog=----before TURN_ON web----");
+
+
+            for (int i = 0; i < 200; i++) {
+                auto message = std_msgs::msg::String();
+                message.data = "TURN_ON";
+                ps.getDisplayPublisher()->publish(message);
+                RCLCPP_INFO(rclcpp::get_logger("StartROS"), "Published: %s (Iteration %d)", message.data.c_str(), i + 1);
+                RCLCPP_INFO(ps.world_state_converter->get_logger(), "weblog=----publishing TURN_ON web----");
+                
+                rclcpp::sleep_for(std::chrono::seconds(1)); // 1-second delay between messages
+            }
+
+            lock.UnLock();
             
-
-            // std::cout << " ------ finish start ----" << std::endl;
-            // RCLCPP_INFO(rclcpp::get_logger("weblog=----Started ROS----"));
-            // start actions servers and navigation
-
-//            std::string currentDateTime = getCurrentDateTime();
-            //RCLCPP_INFO(rclcpp::get_logger(std::string("weblog=")+"high_level_domain_StartWanderingProtocol"+"started"), "user...");
-//
-//            RCLCPP_INFO(rclcpp::get_logger(
-//                                currentDateTime + std::string("user=") + "StartMoveReminderProtocol" + "started"),
-//                        "user...");
-//            auto [ps, lock] = ProtocolState::getConcurrentInstance();
-//            lock.Lock();
-//            std::string log_message =
-//                    std::string("weblog=") + currentDateTime + " high_level_domain_StartMoveReminderProtocol" +
-//                    " started";
-//            RCLCPP_INFO(ps.world_state_converter->get_logger(), log_message.c_str());
-
-//            instantiate_protocol("move_reminder.pddl");
-//            instantiate_protocol("move_reminder.pddl", {{"current_loc", cur.name},
-//                                                        {"dest_loc",    dest.name}});
-//            ps.active_protocol = inst;
-           lock.UnLock();
+            
             return BT::NodeStatus::SUCCESS;
         }
 
@@ -1151,7 +1216,6 @@ namespace pddl_lib {
             lock.Lock();
             //std::string currentDateTime = getCurrentDateTime();
 //            if (!ps.world_state_converter->get_world_state_msg()->robot_charging == 1) {
-
 
             auto start_time = std::chrono::steady_clock::now();
             auto timeout = std::chrono::minutes(1);
@@ -1198,24 +1262,33 @@ namespace pddl_lib {
 
         BT::NodeStatus shr_domain_MessageGivenSuccess(const InstantiatedAction &action) override {
             auto &kb = KnowledgeBase::getInstance();
+            
             auto [ps, lock] = ProtocolState::getConcurrentInstance();
+            std::string log_message_ = "weblog= ---shr_domain_MessageGivenSucces ---";
+            RCLCPP_INFO(ps.world_state_converter->get_logger(), log_message_.c_str());
+
             lock.Lock();
             auto active_protocol = ps.active_protocol;
             //std::string currentDateTime = getCurrentDateTime();
             if (active_protocol.type == "MedicineProtocol") {
                 kb.insert_predicate({"already_reminded_medicine", {active_protocol}});
+                RCLCPP_INFO(ps.world_state_converter->get_logger(), "weblog= --- already_reminded_medicine ----");
                 kb.erase_predicate({"medicine_protocol_enabled", {active_protocol}});
             }else if (active_protocol.type == "GymReminderProtocol") {
                 kb.insert_predicate({"already_reminded_gym", {active_protocol}});
+                RCLCPP_INFO(ps.world_state_converter->get_logger(), "weblog= --- already_reminded_gym ----");
                 kb.erase_predicate({"gym_reminder_enabled", {active_protocol}});
             } else if (active_protocol.type == "MedicineRefillReminderProtocol") {
                 kb.insert_predicate({"already_reminded_medicine_refill", {active_protocol}});
+                RCLCPP_INFO(ps.world_state_converter->get_logger(), "weblog= --- already_reminded_medicine_refill ----");
                 kb.erase_predicate({"medicine_refill_reminder_enabled", {active_protocol}});
             } else if (active_protocol.type == "MedicineRefillPharmacyReminderProtocol") {
                 kb.insert_predicate({"already_reminded_medicine_pharmacy", {active_protocol}});
+                RCLCPP_INFO(ps.world_state_converter->get_logger(), "weblog= --- already_reminded_medicine_pharmacy ----");
                 kb.erase_predicate({"medicine_pharmacy_reminder_enabled", {active_protocol}});
             } else if (active_protocol.type == "WalkingProtocol") {
                 kb.insert_predicate({"already_reminded_walking", {active_protocol}});
+                RCLCPP_INFO(ps.world_state_converter->get_logger(), "weblog= --- already_reminded_walking ----");
                 kb.erase_predicate({"walking_reminder_enabled", {active_protocol}});
             }
 
@@ -1337,8 +1410,6 @@ namespace pddl_lib {
             std::string log_message = std::string("weblog=") + "Move to landmark: " + location;
             
            lock.Lock();
-
-
                         
             RCLCPP_INFO(ps.world_state_converter->get_logger(), log_message.c_str());
 
@@ -1662,6 +1733,32 @@ namespace pddl_lib {
             lock.Lock();
             auto &kb = KnowledgeBase::getInstance();
             std::string msg = action.parameters[3].name;
+
+
+            // ✅ Determine the robot's location dynamically
+            std::vector<std::string> locations = {"living_room", "bedroom"};
+            std::string robot_location = "unknown";
+
+            for (const auto &loc : locations) {
+                if (ps.world_state_converter->check_robot_at_loc(loc)) {
+                    robot_location = loc;
+                    break;
+                }
+            }
+
+            // ✅ Define audio devices
+            std::string USB_AUDIO = "alsa_output.usb-EMEET_EMEET_OfficeCore_M1A_21371696-00.mono-fallback";
+
+            // ✅ Switch audio output based on location
+            if (robot_location == "bedroom") {
+                RCLCPP_INFO(rclcpp::get_logger("GiveReminder"), "Robot is in BEDROOM. Switching to Bluetooth Speaker.");
+                std::system(("pactl set-default-sink " + USB_AUDIO).c_str());
+            } else {
+                RCLCPP_INFO(rclcpp::get_logger("GiveReminder"), "Robot is in %s. Switching to USB Audio.", robot_location.c_str());
+                std::system(("pactl set-default-sink " + USB_AUDIO).c_str());
+            }
+
+
             //std::string currentDateTime = getCurrentDateTime();
             int wait_time = ps.wait_times.at(ps.active_protocol).at(msg).first;
             for (int i = 0; i < wait_time; i++) {
@@ -1724,10 +1821,35 @@ namespace pddl_lib {
         }
 
         BT::NodeStatus shr_domain_MakeVoiceCommand(const InstantiatedAction &action) override {
-
             auto [ps, lock] = ProtocolState::getConcurrentInstance();
+            RCLCPP_INFO(ps.world_state_converter->get_logger(), "weblog=---- Make Voice Command ----");
+
+            lock.Lock();
             auto params = ps.world_state_converter->get_params();
             auto &kb = KnowledgeBase::getInstance();
+
+            std::vector<std::string> locations = {"living_room", "bedroom"};
+            std::string robot_location = "unknown";
+
+            for (const auto &loc : locations) {
+                if (ps.world_state_converter->check_robot_at_loc(loc)) {
+                    robot_location = loc;
+                    break;
+                }
+            }
+
+            // ✅ Define audio devices
+            std::string USB_AUDIO = "alsa_output.usb-EMEET_EMEET_OfficeCore_M1A_21371696-00.mono-fallback";
+
+            // ✅ Switch audio output based on location
+            if (robot_location == "bedroom") {
+                RCLCPP_INFO(rclcpp::get_logger("GiveReminder"), "Robot is in BEDROOM. Switching to Bluetooth Speaker.");
+                std::system(("pactl set-default-sink " + USB_AUDIO).c_str());
+            } else {
+                RCLCPP_INFO(rclcpp::get_logger("GiveReminder"), "Robot is in %s. Switching to USB Audio.", robot_location.c_str());
+                std::system(("pactl set-default-sink " + USB_AUDIO).c_str());
+            }
+
 
             std::string msg = action.parameters[3].name;
             int wait_time = ps.wait_times.at(ps.active_protocol).at(msg).first;
@@ -1735,6 +1857,7 @@ namespace pddl_lib {
             for (int i = 0; i < wait_time; i++) {
                 if (kb.check_conditions(action.precondtions) == TRUTH_VALUE::FALSE) {
                     abort(action);
+                    lock.UnLock();
                     return BT::NodeStatus::FAILURE;
                 }
                 rclcpp::sleep_for(std::chrono::seconds(1));
@@ -1765,6 +1888,7 @@ namespace pddl_lib {
                 read_goal_.script_name = if_false_text;
             } else {
                 RCLCPP_ERROR(rclcpp::get_logger("VoiceAction"), "❌ Failed to get a valid response. Proceeding anyway.");
+                lock.UnLock();
                 return BT::NodeStatus::FAILURE;  // **Return FAILURE if the response was invalid**
             }
 
@@ -1772,14 +1896,16 @@ namespace pddl_lib {
             int read_result = send_goal_blocking(read_goal_, action, ps);
             if (read_result == -1) {
                 RCLCPP_ERROR(rclcpp::get_logger("VoiceAction"), "❌ Failed to read text. Returning FAILURE.");
+                lock.UnLock();
                 return BT::NodeStatus::FAILURE;  // **Return FAILURE if reading action fails**
             }
 
             // ✅ Sleep for additional wait time before exiting
             rclcpp::sleep_for(std::chrono::seconds(ps.wait_times.at(ps.active_protocol).at(msg).second));
-
+            lock.UnLock();
             return BT::NodeStatus::SUCCESS;  // **Only return SUCCESS if everything succeeded**
         }
+        
 
         BT::NodeStatus shr_domain_DetectTakingMedicine(const InstantiatedAction &action) override {
             auto &kb = KnowledgeBase::getInstance();

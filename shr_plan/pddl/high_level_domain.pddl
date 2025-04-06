@@ -32,7 +32,7 @@
   (visible_location ?lmp - Landmark)
   (not_visible_location ?lmp - Landmark)
 
-
+(disable_refill)
   (medicine_protocol_enabled ?med - MedicineProtocol)
   (gym_reminder_enabled ?gy - GymReminderProtocol)
   (medicine_refill_reminder_enabled ?mdrf - MedicineRefillReminderProtocol)
@@ -40,7 +40,7 @@
   (walking_protocol_enabled ?w - WalkingProtocol)
 
   ;; medicine
-  (medicine_location ?lm - Landmark)
+  ;;(medicine_location ?lm - Landmark)
   (time_to_take_medicine ?med - MedicineProtocol)
   (already_took_medicine ?m - MedicineProtocol)
   (already_reminded_medicine ?m - MedicineProtocol)
@@ -48,26 +48,26 @@
 
 
   ;; gym reminder
-  (gym_location ?lm - Landmark)
+  ;;(gym_location ?lm - Landmark)
   (gym_reminder_enabled ?gy - GymReminderProtocol)
   (time_for_gym_reminder ?gy - GymReminderProtocol)
   (already_reminded_gym ?gy - GymReminderProtocol)
 
    ;; medicine_refill reminder
-  (medicine_refill_location ?lm - Landmark)
+  ;;(medicine_refill_location ?lm - Landmark)
   (medicine_refill_reminder_enabled ?mdrf - MedicineRefillReminderProtocol)
   (time_for_medicine_refill_reminder ?mdrf - MedicineRefillReminderProtocol)
   (already_reminded_medicine_refill ?mdrf - MedicineRefillReminderProtocol)
 
     ;; medicinepharmacy  reminder
-  (medicine_pharmacy_location ?lm - Landmark)
+  ;;(medicine_pharmacy_location ?lm - Landmark)
   (medicine_pharmacy_reminder_enabled ?ic - MedicineRefillPharmacyReminderProtocol)
   (time_for_medicine_pharmacy_reminder ?ic - MedicineRefillPharmacyReminderProtocol)
   (already_reminded_medicine_pharmacy ?ic - MedicineRefillPharmacyReminderProtocol)
 
   ;;walking reminder
 
-  (walking_reminder_location ?lm - Landmark)
+  ;;(walking_reminder_location ?lm - Landmark)
   (walking_reminder_enabled ?w - WalkingProtocol)
   (time_for_walking_reminder ?w - WalkingProtocol)
   (already_reminded_walking ?w - WalkingProtocol)
@@ -161,7 +161,9 @@
       (not (not_visible_location ?cur))
       (person_currently_at ?p ?cur)
       (robot_at ?cur)
-      (medicine_location ?dest)
+
+      ;;(medicine_location ?dest)
+      
       (not (already_took_medicine ?m))
       (not (already_reminded_medicine ?m))
       (forall (?med - MedicineProtocol) (not (medicine_protocol_enabled ?med)) )
@@ -200,7 +202,7 @@
 
 
       (robot_at ?cur)
-      (gym_location ?dest)
+      ;;(gym_location ?dest)
 
       (time_for_gym_reminder ?gy)
       (not (already_reminded_gym ?gy))
@@ -250,9 +252,9 @@
 	:precondition (and
 	    (priority_2)
 
-
+    (not disable_refill)
       (robot_at ?cur)
-      (medicine_refill_location ?dest)
+      ;;(medicine_refill_location ?dest)
 
       (time_for_medicine_refill_reminder ?mdrf)
       (not (already_reminded_medicine_refill ?mdrf))
@@ -301,7 +303,7 @@
 	    (priority_2)
 
 	  (robot_at ?cur)
-      (medicine_pharmacy_location ?dest)
+      ;;(medicine_pharmacy_location ?dest)
 
       (time_for_medicine_pharmacy_reminder ?ic)
       (not (already_reminded_medicine_pharmacy ?ic))
@@ -347,7 +349,7 @@
 	    (priority_2)
 
 	  (robot_at ?cur)
-      (walking_reminder_location ?dest)
+      ;;(walking_reminder_location ?dest)
 
       (time_for_walking_reminder ?w)
       (not (already_reminded_walking ?w))

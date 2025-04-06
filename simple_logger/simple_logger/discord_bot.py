@@ -101,7 +101,7 @@ class DiscordNotifier:
             # self.loop.create_task(_send())
             future = asyncio.run_coroutine_threadsafe(_send(), self.loop)
             try:
-                future.result(timeout=10)
+                future.result(timeout=2)
             except Exception as e:
                 print(f"Failed to send message: {e}")
         else:
